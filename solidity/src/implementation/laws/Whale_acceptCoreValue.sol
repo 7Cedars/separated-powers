@@ -7,6 +7,9 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 import {SeparatedPowers} from "../../SeparatedPowers.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
+// ONLY FOR TESTING PURPOSES // DO NOT USE IN PRODUCTION
+import {console2} from "lib/forge-std/src/Test.sol";
+
 /**
  * @notice Example Law contract. 
  * 
@@ -19,6 +22,8 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
  *  
  */
 contract Whale_acceptCoreValue is Law {
+    using ShortStrings for *;
+
     error Whale_acceptCoreValue__ParentLawNotSet(); 
     error Whale_acceptCoreValue__ParentProposalnotSucceededOrExecuted(uint256 parentProposalId);
     error Whale_acceptCoreValue__ProposalVoteNotPassed(uint256 proposalId); 
@@ -52,20 +57,18 @@ contract Whale_acceptCoreValue is Law {
       }
 
       // step 1: decode the calldata. Note: lawCalldata can have any format. 
-      (ShortString requirement, bytes32 descriptionHash) =
-            abi.decode(lawCalldata, (ShortString, bytes32));
+      (ShortString requirement, bytes32 parentDescriptionHash, bytes32 descriptionHash) =
+            abi.decode(lawCalldata, (ShortString, bytes32, bytes32));
 
-      // Note step 2: if a parentLaw is exists, check if the parentLaw has succeeded or has executed.
-      if (parentLaw != address(0)) {
-        uint256 parentProposalId = hashProposal(parentLaw, lawCalldata, descriptionHash); 
-        ISeparatedPowers.ProposalState parentState = SeparatedPowers(payable(agDao)).state(parentProposalId);
+      // Note step 2: check if the parentLaw has succeeded or has executed.
+      // Note It doubles as a check on the calldata. 
+      uint256 parentProposalId = hashProposal(parentLaw, abi.encode(requirement, parentDescriptionHash), parentDescriptionHash); 
+      ISeparatedPowers.ProposalState parentState = SeparatedPowers(payable(agDao)).state(parentProposalId);
 
-        if ( parentState != ISeparatedPowers.ProposalState.Completed ) {
-          revert Whale_acceptCoreValue__ParentProposalnotSucceededOrExecuted(parentProposalId);
-        }
-      } else {
-        revert Whale_acceptCoreValue__ParentLawNotSet();
+      if (parentState != ISeparatedPowers.ProposalState.Completed ) {
+        revert Whale_acceptCoreValue__ParentProposalnotSucceededOrExecuted(parentProposalId);
       }
+    
 
       // step 3: check if the proposal has passed. 
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);

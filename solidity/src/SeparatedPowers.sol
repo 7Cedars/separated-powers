@@ -74,8 +74,8 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     modifier onlySeparatedPowers() {
         if (msg.sender != address(this)) {
             revert SeparatedPowers__OnlySeparatedPowers();
-            _;
         }
+        _;
     }
 
     //////////////////////////////

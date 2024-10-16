@@ -643,7 +643,6 @@ contract SeparatedPowersTest is Test {
   ///////////////////////////////////////////////
   function _deployLaws(address payable agDaoAddress_, address agCoinsAddress_) internal returns (address[] memory constituentLaws) {
       address[] memory constituentLaws = new address[](12);
-      IAuthoritiesManager.ConstituentRole[] memory constituentRoles = new IAuthoritiesManager.ConstituentRole[](0);
 
       // deploying laws //
       vm.startPrank(bob);

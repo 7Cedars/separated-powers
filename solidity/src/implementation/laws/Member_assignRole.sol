@@ -47,7 +47,7 @@ contract Member_assignRole is Law {
       }
 
       // check if account is blacklisted. 
-      if (AgDao(payable(agDao)).isAccountBlacklisted(msg.sender) == true) {
+      if (AgDao(payable(agDao)).blacklistedAccounts(msg.sender) == true) {
         revert Member_assignRole__AccountBlacklisted();
       }
 
