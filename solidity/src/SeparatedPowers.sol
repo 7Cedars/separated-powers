@@ -380,7 +380,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         uint64 accessRole = Law(targetLaw).accessRole(); 
         uint256 amountMembers = roles[accessRole].amountMembers;
 
-        return (amountMembers * quorum) / DENOMINATOR <= proposalVote.forVotes + proposalVote.abstainVotes; 
+        return quorum == 0 || (amountMembers * quorum) / DENOMINATOR <= proposalVote.forVotes + proposalVote.abstainVotes; 
     }
 
     /**

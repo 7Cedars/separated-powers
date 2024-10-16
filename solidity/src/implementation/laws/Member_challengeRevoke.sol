@@ -6,6 +6,9 @@ import {SeparatedPowers} from "../../SeparatedPowers.sol";
 import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
+// ONLY FOR TESTING PURPOSES // DO NOT USE IN PRODUCTION
+import {console2} from "lib/forge-std/src/Test.sol";
+
 /**
  * @notice Example Law contract. 
  * 
@@ -55,6 +58,9 @@ contract Member_challengeRevoke is Law {
       // Note: even though this law does not need a vote, it DOES need a proposal that has (automatically) succeeded. 
       // This is because the propotocol needs the (succeeded) proposal to start the governance process that can reinstate this member. 
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
+      
+      console2.logUint(uint8(SeparatedPowers(payable(agDao)).state(proposalId))); 
+
       if (SeparatedPowers(payable(agDao)).state(proposalId) != ISeparatedPowers.ProposalState.Succeeded) {
         revert Member_challengeRevoke__ProposalNotExecuted(proposalId);
       }
@@ -67,7 +73,7 @@ contract Member_challengeRevoke is Law {
 
       // step 5: check if the parent proposal referred to the correct revokedMember. 
       // Only the account has has been revoked is allowed to challenge the revocation of the account.
-      (address revokedMember, , ) = abi.decode(revokeCalldata, (address, bytes32, bytes));
+      (address revokedMember, ) = abi.decode(revokeCalldata, (address, bytes32));
       if (revokedMember != msg.sender) {
         revert Member_challengeRevoke__MemberNotMsgSender();
       }

@@ -21,6 +21,7 @@ contract Whale_assignRole is Law {
     address public agDao;
     uint256 amountTokensForWhaleRole = 1_000_000;
     uint256 agCoinsReward = 75_000;
+    uint64 constant WHALE_ROLE = 2;
     
     constructor(address payable agDao_, address agCoins_) // can take a address parentLaw param. 
       Law(
@@ -72,12 +73,12 @@ contract Whale_assignRole is Law {
       //step 5: conditionally execute call. 
       // 5a: option 1: if accountToCheck is a whale but has fewer tokens than the minimum. Role is revoked. 
       if (balanceAccount < amountTokensForWhaleRole && since != 0) {
-        calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 1, accountToAssess, false); // = setRole(uint64 roleId, address account, bool access); 
+        calldatas[0] = abi.encodeWithSelector(0xd2ab9970, WHALE_ROLE, accountToAssess, false); // = setRole(uint64 roleId, address account, bool access); 
         SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
       } 
       // 5b: option 2: if accountToCheck is not a whale but has more tokens than the minimum. Role is assigned. 
       else if (balanceAccount >= amountTokensForWhaleRole && since == 0) {
-        calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 0, accountToAssess, true); // = setRole(uint64 roleId, address account, bool access); 
+        calldatas[0] = abi.encodeWithSelector(0xd2ab9970, WHALE_ROLE, accountToAssess, true); // = setRole(uint64 roleId, address account, bool access); 
         SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
       } else {
         revert Whale_assignRole__Error();
