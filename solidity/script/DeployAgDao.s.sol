@@ -35,9 +35,11 @@ contract DeployAgDao is Script {
         vm.startBroadcast();
             AgDao agDao = new AgDao();
             AgCoins agCoins = new AgCoins(payable(address(agDao)));
+        vm.stopBroadcast();
+
+        vm.startBroadcast();
             // setting up constituent Laws and initializing them.
             (address[] memory constituentLaws) = _deployLaws(payable(address(agDao)), address(agCoins));
-            agDao.constitute(constituentLaws, constituentRoles);
         vm.stopBroadcast();
 
         return(agDao, agCoins, constituentLaws);
