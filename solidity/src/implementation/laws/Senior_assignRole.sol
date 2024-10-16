@@ -53,7 +53,7 @@ contract Senior_assignRole is Law {
       if (SeparatedPowers(payable(agDao)).hasRoleSince(newSenior, accessRole) != 0) {
         revert Senior_assignRole__AlreadySenior();
       }
-      uint256 amountSeniors = SeparatedPowers(payable(agDao)).getAmountMembers(1);
+      uint256 amountSeniors = SeparatedPowers(payable(agDao)).getAmountRoleHolders(1);
       if (amountSeniors >= maxNumberOfSeniors) {
         revert Senior_assignRole__TooManySeniors();
       }

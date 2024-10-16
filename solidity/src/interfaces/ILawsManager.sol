@@ -5,10 +5,6 @@ pragma solidity 0.8.26;
  * @notice interface for law contracts.  
  */
 interface ILawsManager {
-  error LawsManager_NotAuthorized(); 
-
-  event LawSet(address indexed law, bool indexed active, bool indexed lawChanged); 
-
   /**
   * @notice set a law to active or inactive.
   * 

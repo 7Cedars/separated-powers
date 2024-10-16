@@ -46,7 +46,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     /* State variables */
     mapping(uint256 proposalId => ProposalCore) private _proposals; // mapping from proposalId to proposalCore
     string private _name; // name of the contract.
-    bool private _constitutionalLawsExecuted; // name of the contract.
+    bool private _constituentLawsExecuted; // name of the contract.
 
     /* Events */
     event SeparatedPowers__Initialized(address contractAddress);
@@ -112,7 +112,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
      * @dev see {ISeperatedPowers.constitute}
      */
     function constitute(
-        address[] memory constitutionalLaws,
+        address[] memory constituentLaws,
         ConstituentRole[] memory constitutionalRoles
     ) external virtual {
         // check 1: only admin can call this function
@@ -121,16 +121,16 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         }
 
         // check 2: this function can only be called once.
-        if (_constitutionalLawsExecuted) {
+        if (_constituentLawsExecuted) {
             revert SeparatedPowers__ConstitutionAlreadyExecuted();
         }
         
-        // if checks pass, set _constitutionalLawsExecuted to true... 
-        _constitutionalLawsExecuted = true;
+        // if checks pass, set _constituentLawsExecuted to true... 
+        _constituentLawsExecuted = true;
 
         // ...and execute constitutional laws
-        for (uint256 i = 0; i < constitutionalLaws.length; i++) {
-            _setLaw(constitutionalLaws[i], true);
+        for (uint256 i = 0; i < constituentLaws.length; i++) {
+            _setLaw(constituentLaws[i], true);
         }
         for (uint256 i = 0; i < constitutionalRoles.length; i++) {
             _setRole(constitutionalRoles[i].roleId, constitutionalRoles[i].account, true);
