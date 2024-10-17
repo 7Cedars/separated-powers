@@ -6,17 +6,17 @@ import {SeparatedPowers} from "../../SeparatedPowers.sol";
 import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
 /**
- * @notice Example Law contract. 
+ * @notice This law allows whales to revoke a member. 
  * 
- * @dev In this contract...
- *
- *  
+ * @dev This contract is an example of a law that
+ * - has access control and needs a proposal to be voted through.
+ * - calls several functions, among which {setRole} and {blacklistAccount}. 
+ * - at the same time it can also - optionally - be the start of a proposal chain. This happens when the revoked member challenges the decision. See {Member_challengeRevoke}. 
  */
 contract Whale_revokeMember is Law {
     error Whale_revokeMember__AccountIsNotMember();
-    error Whale_revokeMember__ProposalVoteNotPassed(uint256 proposalId);
+    error Whale_revokeMember__ProposalVoteNotSucceeded(uint256 proposalId);
 
     address public agCoins; 
     address public agDao;
@@ -28,8 +28,8 @@ contract Whale_revokeMember is Law {
         "Whales can revoke membership of members when they think the Member has the broken core DAO requirements for funding accounts.", // = description
         2, // = access whale
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
-        50, // = quorum 
-        66, // = succeedAt
+        50, // = quorum in percent
+        66, // = succeedAt in percent
         3_600, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
         address(0) // = parent Law 
     ) {
@@ -58,7 +58,7 @@ contract Whale_revokeMember is Law {
       // step 3: check if proposal passed vote.
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       if (SeparatedPowers(payable(agDao)).state(proposalId) != ISeparatedPowers.ProposalState.Succeeded) {
-        revert Whale_revokeMember__ProposalVoteNotPassed(proposalId);
+        revert Whale_revokeMember__ProposalVoteNotSucceeded(proposalId);
       }
 
       // step 4: set proposal to completed. 
@@ -85,7 +85,7 @@ contract Whale_revokeMember is Law {
       calldatas[2] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
       // step 6: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, bytes memory lawCalldata, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
       SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
     }
 }

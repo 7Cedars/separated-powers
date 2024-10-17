@@ -14,10 +14,10 @@ import {IERC165} from "lib/openzeppelin-contracts/contracts/utils/introspection/
  *
  * @dev A law has the following characteristics: 
  * - It is only accesible to one roleId. 
- * - It gives accounts who hold this roleId the privilege to call specific outside functions.
+ * - It gives accounts who hold this roleId the privilege to call external contracts.
  * - It constrains these privileges with specific conditions, for instance a proposal to a specific other law needs to have passed.
  * 
- * @dev See the natspecs at the constructor function for the specifics of what can be (optionally) defined inside a law. 
+ * @dev See the natspecs at the constructor function for the specifics of what can be (optionally) defined at construction time. 
  *
  * @author 7Cedars, Oct 2024 RnDAO CollabTech Hackathon
  *  
@@ -99,9 +99,9 @@ contract Law is IERC165, ERC165, EIP712, ILaw {
      return interfaceId == type(ILaw).interfaceId || super.supportsInterface(interfaceId);
   }
 
-  
   /**
-    * @dev see {ISeperatedPowers.hashProposal}
+    * @dev see {ISeperatedPowers.hashProposal} 
+    * - takes a description 
     */
   function hashProposal(
       address targetLaw, 
@@ -109,6 +109,17 @@ contract Law is IERC165, ERC165, EIP712, ILaw {
       bytes32 descriptionHash
   ) internal pure virtual returns (uint256) {
       return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
+  }
+
+  /**
+    * @dev see {ISeperatedPowers.hashProposal}
+    * - does not take a description
+    */
+  function hashProposal(
+      address targetLaw, 
+      bytes memory lawCalldata
+  ) internal pure virtual returns (uint256) {
+      return uint256(keccak256(abi.encode(targetLaw, lawCalldata)));
   }
 }
 

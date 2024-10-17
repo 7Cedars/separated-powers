@@ -71,37 +71,66 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About
-Separated Powers restricts access to governance processes along restricted roles. 
+Separated Powers restricts governance processes along access roles. 
 
 ### What is the problem? 
-Current DAO governance tends to be highly centralised. In the large majority of cases, voting power in DAO is linked, in one way or another, to the tokens user own. It leads to a small group of users having an outsized influence on DAO decision making processes and disengagement among most other DAO members.  
+Current governance of 'Decentralised Autonomous Organisations', or DAOs, tends to be highly centralised. 
+- In the large majority of cases, voting power in DAO is linked to tokens users own. It leads to a small group of users having an outsized influence on DAO decision making processes. 
+- Wide spread disengagement among non-elite DAO members. Having very little power to influence the outcome of votes, most DAO members stop voting altogether.
+- A tendency to centralise governance in name of security. In response to hostile governance take over through flash loans (and other means) DAOs delegate actual decision making to a small group of vetted leaders.
 
-### What is the solution? 
-- Acknowledging that a DAO consists of individuals with different _stakes_ in managing the shared _asset_. A DAO can have, for example, asset holders, users, builders, leaders with a stake in the value, accessibility, security and adoption of the asset respectively. The type of stakes differ between DAOs, but an asset rarely represents all the stakes of its members. 
-- Create distinct roles for groups with specific stakes in a DAO, and give each restricted privileges so that their powers check and balance each other.
-- Using formal roles to separate powers in governance is a tried and true approach to safeguarding decentralisation of (social, political and economic) assets in light of their tendency to centralise around informal elites.
+Billions of dollars are controlled by DAOs. It is a non-trivial amount, but tiny compared to existing national economies or companies. Blockchains will only reach their full potential if they are truly decentralised, give ownership to their users and provide a safe environment for day-to-day use. 
+
+Centralisation stands in the way of blockchain growth. 
+
+### What is the solution?
+Restrict governance processes along access roles. This enables: 
+- defining multiple groups within blockchain communities. 
+- assigning them restricted powers. 
+- balancing and checking powers between groups. 
+- creating bespoke incentives for engagement in DAO governance. 
+
+Using roles to separate powers in governance is a tried and true approach to safeguarding decentralisation of (social, political and economic) assets in light of their tendency to centralise around informal elites.
 
 ### How does it work? 
-Let us compare the proposed governance framework with the current dominant approach.
+To understand how the Separated Powers protocol works, we first need to understand the current dominant approach.
 
-#### The traditional approach to DAO governance, using OpenZeppelin's Governor.sol contract
+#### The traditional approach to DAO governance 
 - A user proposes a proposal, that includes external target contract(s), values(s) and calldata(s). 
 - Users vote on this proposal, often their votes are weighted by the tokens they own or that have been delegated to them. 
-- When a user calls the execute function, it checks if the proposal has succeeded (and is not queued). If this is the case, the external functions are called with the values and calldatas.
-- Alternatively, the execute function can be called directly to call external function directly. This functionality has to be role restricted. 
+- When a user calls the execute function, it checks if the proposal has succeeded (and is not queued). 
+- If the checks pass, the external functions are called with the values and calldatas.
   
 As a flowchart 
   <a href="https://github.com/7Cedars/separated-powers/blob/master/public/GovernanceSimple_flowchart.png"> 
     <img src="public/GovernanceSimple_flowchart.png" alt="Schema Protocol" width="100%" height="100%">
   </a>
 
-#### Using SeparatedPowers.sol, have role B check decisions of role A
-- A user with role A proposes a proposal directed at a role restricted external function A. The proposal can have any type of data encoded in its calldata.
-- Users with role A vote on this proposal, their votes are not weighted.
-- When the vote passes, nothing happens. 
-- A user with role B proposes a proposal directed at a role restricted external function B. The function _only allows for including the exact same calldata that was included in the proposal to restricted external function A_. 
-- When a user calls external function B it checks if _both_ proposal A and proposal B have passed. If this is the case, the external functions calls checks the calldata and calls the execute function with targets[], values[] and calldatas[].
+Note that this approach does not allow restricting what kind of proposals can be made along the role that a proposer holds - let alone restricting who can vote and execute proposals. 
+
+#### Introducing role restrictions to governance 
+To introduce role restrictions to governance processes, the Separated Powers protocol forces all governance actions to run through whitelisted and role restricted external contracts. 
+
+These contracts 
+- are restricted to one role Id. 
+- give this role Id privileges to call specific outside functions.
+- constrain these privileges through specific conditions. 
+
+Because the role restricted external contracts closely resemble **laws**, they are referred as such throughout the protocol.
+
+As a flowchart 
+  <a href="https://github.com/7Cedars/separated-powers/blob/master/public/SeparatedPowers_introLaws.png"> 
+    <img src="public/SeparatedPowers_introLaws.png" alt="Schema Protocol" width="100%" height="100%">
+  </a>
+
+#### Creating checks and balance 
+Laws allow role B to check decisions of role A. Consider the following steps:  
+- A user with role A proposes a proposal directed at law A. Its vote succeeds, but nothing happens.   
+- A user with role B proposes a proposal directed at law B. The law _only allows the exact same calldata that was included in the proposal to law A_. 
+- When a user with role B calls the execute function of law B, it checks if _both_ proposal A and proposal B have passed. If this is the case, the intended action is executed.
 - The proposal chain can be made as long as required.
+
+In short, they allow for the creation of checks and balances between roles. 
 
 As a flowchart
   <a href="https://github.com/7Cedars/separated-powers/blob/master/public/SeparatedPowers_flowchart.png"> 
@@ -120,13 +149,6 @@ As a flowchart
 - External functions can restrict what target contract(s), values(s) or calldata(s) are allowed to be included. They can have any custom logic (delays, timed executions, randomisation, etc). In short, they allow for including any type of governance logic. 
 - The latter implies that any added complexity to governance processes is placed among external restricted functions. The governance protocol itself does not become more complex.
 
-### External restricted functions are Laws
-External restricted function have the following characteristics: 
-- They apply to a subsection of a community. 
-- They give this sub-community specific privileges to call outside functions.
-- They constrain these privileges with specific conditions. 
-
-They closely mirror what, in real life, are called **laws**. This is also how they are referred to throughout the protocol. 
 
 ### Important files and folders
 

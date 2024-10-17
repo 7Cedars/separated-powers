@@ -24,6 +24,13 @@ import {Whale_assignRole} from "../../src/implementation/laws/Whale_assignRole.s
 import {Whale_proposeLaw} from "../../src/implementation/laws/Whale_proposeLaw.sol";
 import {Whale_revokeMember} from "../../src/implementation/laws/Whale_revokeMember.sol";
 
+/**
+* @notice Unit tests for the core Separated Powers protocol.
+* 
+* @dev tests build on the agDao example. 
+* @dev for chained proposal tests, see the 'chain propsals' section. 
+*/
+
 contract SeparatedPowersTest is Test {
   /* Type declarations */
   SeparatedPowers separatedPowers;
@@ -342,7 +349,7 @@ contract SeparatedPowersTest is Test {
 
       // execute
       vm.expectRevert(abi.encodeWithSelector(
-        Senior_assignRole.Senior_assignRole__ProposalVoteNotPassed.selector, proposalId
+        Senior_assignRole.Senior_assignRole__ProposalVoteNotSucceeded.selector, proposalId
       )); 
       vm.prank(charlotte); 
       Law(constituentLaws[1]).executeLaw(lawCalldata);
@@ -439,14 +446,14 @@ contract SeparatedPowersTest is Test {
     /* PROPOSAL LINK 1: a whale proposes a law. */   
     // proposing... 
     address newLaw = address(new Member_assignRole(payable(address(agDao))));
-    string memory whaleDescription = "Proposing to add a new Law";
-    bytes memory whaleLawCalldata = abi.encode(newLaw, true, keccak256(bytes(whaleDescription)));  
+    string memory description = "Proposing to add a new Law";
+    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
       constituentLaws[4], // = Whale_proposeLaw
-      whaleLawCalldata, 
-      whaleDescription
+      lawCalldata, 
+      description
     );
     
     // whales vote... Only david and eve are whales. 
@@ -459,7 +466,7 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(whaleLawCalldata);
+    Law(constituentLaws[4]).executeLaw(lawCalldata);
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -468,17 +475,11 @@ contract SeparatedPowersTest is Test {
     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
     // proposing...
     vm.roll(5_000);
-    string memory seniorDescription = "Accepting whale proposal to add new law.";
-    bytes memory seniorLawCalldata = abi.encode(newLaw, true, keccak256(bytes(whaleDescription)), keccak256(bytes(seniorDescription)));  
-
-    console2.log("seniorDescriptionHash in test"); 
-    console2.logBytes32(keccak256(bytes(seniorDescription))); 
-
     vm.prank(charlotte); // = a senior
     uint256 proposalIdTwo = agDao.propose(
       constituentLaws[5], // = Senior_acceptProposedLaw
-      seniorLawCalldata, 
-      seniorDescription
+      lawCalldata, 
+      description
     );
 
     // seniors vote... alice, bob and charlotte are seniors.
@@ -493,7 +494,7 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(bob);
-    Law(constituentLaws[5]).executeLaw(seniorLawCalldata);
+    Law(constituentLaws[5]).executeLaw(lawCalldata);
 
     // check 
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -501,11 +502,8 @@ contract SeparatedPowersTest is Test {
 
     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
     vm.roll(10_000);
-    string memory adminDescription = "Implementing whale proposal to add new law.";
-    bytes memory adminLawCalldata = abi.encode(newLaw, true, seniorLawCalldata, keccak256(bytes(adminDescription)));  
-    
     vm.prank(alice); // = admin role 
-    Law(constituentLaws[6]).executeLaw(adminLawCalldata);
+    Law(constituentLaws[6]).executeLaw(lawCalldata);
 
     // check if law has been set to active. 
     bool active = agDao.activeLaws(newLaw);
@@ -513,57 +511,153 @@ contract SeparatedPowersTest is Test {
   }
 
   function testWhaleDefeatStopsChain() public {
+        /* PROPOSAL LINK 1: a whale proposes a law. */   
+    // proposing... 
+    address newLaw = address(new Member_assignRole(payable(address(agDao))));
+    string memory description = "Proposing to add a new Law";
+    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
     
+    vm.prank(eve); // = a whale
+    uint256 proposalIdOne = agDao.propose(
+      constituentLaws[4], // = Whale_proposeLaw
+      lawCalldata, 
+      description
+    );
     
+    // whales vote... Only david and eve are whales. 
+    vm.prank(david);
+    agDao.castVote(proposalIdOne, 0); // = against 
+    vm.prank(eve); 
+    agDao.castVote(proposalIdOne, 0); // = against
+
+    vm.roll(4_000);
+
+    // executing does not work. 
+    vm.prank(david);
+    vm.expectRevert(abi.encodeWithSelector(
+      Whale_proposeLaw.Whale_proposeLaw__ProposalVoteNotSucceeded.selector, proposalIdOne
+    ));
+    Law(constituentLaws[4]).executeLaw(lawCalldata);
+
+    /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
+    // proposing...
+    vm.roll(5_000);
+    // NB: Note that it IS possible to create proposals that link back to non executed proposals. 
+    // this is something to fix at a later date. 
+    // proposals will not execute though. See below. 
+    vm.prank(charlotte); // = a senior
+    uint256 proposalIdTwo = agDao.propose(
+      constituentLaws[5], // = Senior_acceptProposedLaw
+      lawCalldata, 
+      description
+    );
+
+    // seniors vote... alice, bob and charlotte are seniors.
+    vm.prank(alice);
+    agDao.castVote(proposalIdTwo, 1); // = for 
+    vm.prank(bob); 
+    agDao.castVote(proposalIdTwo, 1); // = for
+    vm.prank(charlotte); 
+    agDao.castVote(proposalIdTwo, 1); // = for
+
+    vm.roll(9_000);
+
+    // executing... 
+    vm.prank(bob);
+    vm.expectRevert(abi.encodeWithSelector( 
+      Senior_acceptProposedLaw.Senior_acceptProposedLaw__ParentProposalNotCompleted.selector, proposalIdOne
+    )); 
+    Law(constituentLaws[5]).executeLaw(lawCalldata);
   }
 
   function testSeniorDefeatStopsChain() public {
+        /* PROPOSAL LINK 1: a whale proposes a law. */   
+    // proposing... 
+    address newLaw = address(new Member_assignRole(payable(address(agDao))));
+    string memory description = "Proposing to add a new Law";
+    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
     
+    vm.prank(eve); // = a whale
+    uint256 proposalIdOne = agDao.propose(
+      constituentLaws[4], // = Whale_proposeLaw
+      lawCalldata, 
+      description
+    );
     
-  }
+    // whales vote... Only david and eve are whales. 
+    vm.prank(david);
+    agDao.castVote(proposalIdOne, 1); // = for 
+    vm.prank(eve); 
+    agDao.castVote(proposalIdOne, 1); // = for
 
-  function testWhaleSuccessNotEnoughForExecution() public {
-    
-    
-  }
+    vm.roll(4_000);
 
-  function testSeniorSuccessNotEnoughForExecution() public {
-    
-    
-  }
+    // executing... 
+    vm.prank(david);
+    Law(constituentLaws[4]).executeLaw(lawCalldata);
 
+    /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
+    vm.roll(5_000);
+    vm.prank(charlotte); // = a senior
+    uint256 proposalIdTwo = agDao.propose(
+      constituentLaws[5], // = Senior_acceptProposedLaw
+      lawCalldata, 
+      description
+    );
+
+    // seniors vote... alice, bob and charlotte are seniors.
+    vm.prank(alice);
+    agDao.castVote(proposalIdTwo, 0); // = against 
+    vm.prank(bob); 
+    agDao.castVote(proposalIdTwo, 0); // = against
+    vm.prank(charlotte); 
+    agDao.castVote(proposalIdTwo, 0); // = against
+
+    vm.roll(9_000);
+
+    // executing... 
+    vm.prank(bob);
+    vm.expectRevert(abi.encodeWithSelector(
+      Senior_acceptProposedLaw.Senior_acceptProposedLaw__ProposalNotSucceeded.selector, proposalIdTwo
+    )); 
+    Law(constituentLaws[5]).executeLaw(lawCalldata);
+
+    /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
+    vm.roll(10_000);    
+    vm.prank(alice); // = admin role 
+    vm.expectRevert(); 
+    Law(constituentLaws[6]).executeLaw(lawCalldata);
+  }
 
   ///////////////////////////////////////////////
   ///                   Helpers               ///
   ///////////////////////////////////////////////
   function _deployLaws(address payable agDaoAddress_, address agCoinsAddress_) internal returns (address[] memory constituentLaws) {
-      address[] memory constitutionalLaws = new address[](12);
-      IAuthoritiesManager.ConstituentRole[] memory constituentRoles = new IAuthoritiesManager.ConstituentRole[](0);
+      address[] memory constituentLaws = new address[](12);
 
       // deploying laws //
       vm.startPrank(bob);
       // re assigning roles // 
-      constitutionalLaws[0] = address(new Member_assignRole(agDaoAddress_));
-      constitutionalLaws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
-      constitutionalLaws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
-      constitutionalLaws[3] = address(new Whale_assignRole(agDaoAddress_, agCoinsAddress_));
+      constituentLaws[0] = address(new Member_assignRole(agDaoAddress_));
+      constituentLaws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
+      constituentLaws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
+      constituentLaws[3] = address(new Whale_assignRole(agDaoAddress_, agCoinsAddress_));
       
       // re activating & deactivating laws  // 
-      constitutionalLaws[4] = address(new Whale_proposeLaw(agDaoAddress_, agCoinsAddress_));
-      constitutionalLaws[5] = address(new Senior_acceptProposedLaw(agDaoAddress_, agCoinsAddress_, address(constitutionalLaws[4])));
-      constitutionalLaws[6] = address(new Admin_setLaw(agDaoAddress_, address(constitutionalLaws[5])));
+      constituentLaws[4] = address(new Whale_proposeLaw(agDaoAddress_, agCoinsAddress_));
+      constituentLaws[5] = address(new Senior_acceptProposedLaw(agDaoAddress_, agCoinsAddress_, address(constituentLaws[4])));
+      constituentLaws[6] = address(new Admin_setLaw(agDaoAddress_, address(constituentLaws[5])));
 
       // re updating core values // 
-      constitutionalLaws[7] = address(new Member_proposeCoreValue(agDaoAddress_, agCoinsAddress_));
-      constitutionalLaws[8] = address(new Whale_acceptCoreValue(agDaoAddress_, agCoinsAddress_, address(constitutionalLaws[7])));
+      constituentLaws[7] = address(new Member_proposeCoreValue(agDaoAddress_, agCoinsAddress_));
+      constituentLaws[8] = address(new Whale_acceptCoreValue(agDaoAddress_, agCoinsAddress_, address(constituentLaws[7])));
       
       // re enforcing core values as requirement for external funding //   
-      constitutionalLaws[9] = address(new Whale_revokeMember(agDaoAddress_, agCoinsAddress_));
-      constitutionalLaws[10] = address(new Member_challengeRevoke(agDaoAddress_, address(constitutionalLaws[9])));
-      constitutionalLaws[11] = address(new Senior_reinstateMember(agDaoAddress_, agCoinsAddress_, address(constitutionalLaws[10])));
+      constituentLaws[9] = address(new Whale_revokeMember(agDaoAddress_, agCoinsAddress_));
+      constituentLaws[10] = address(new Member_challengeRevoke(agDaoAddress_, address(constituentLaws[9])));
+      constituentLaws[11] = address(new Senior_reinstateMember(agDaoAddress_, agCoinsAddress_, address(constituentLaws[10])));
       vm.stopPrank();
 
-      return constitutionalLaws; 
+      return constituentLaws; 
     }
-
 }

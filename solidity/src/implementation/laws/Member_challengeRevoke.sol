@@ -7,17 +7,19 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 /**
- * @notice Example Law contract. 
+ * @notice Example Law contract. In this contract aany account that previously held a member role can challenge having this role revoked.  
  * 
- * @dev In this contract...
- *
- *  
+ * @dev This contract is an example of 
+ * - a law that refers to a previously executed proposal of another law. 
+ * - that takes a pre-set description ("I challenge the revoking of my membership to agDAO.") which makes it impossible to challenge a revoke twice. 
+ *   If the challenge is not accepted by seniors (see {Senior_reinstateMember}) is the end of the line for the account.
+ * - that takes the calldata of the parent law as part of its input. This is needed to restrict calling this law to those accounts that have been revoked.  
  */
 contract Member_challengeRevoke is Law {
     error Member_challengeRevoke__IncorrectRequiredStatement(); 
-    error Member_challengeRevoke__ProposalNotExecuted(uint256 proposalId); 
-    error Member_challengeRevoke__ParentProposalNotExecuted(uint256 proposalId); 
-    error Member_challengeRevoke__MemberNotMsgSender(); 
+    error Member_challengeRevoke__ProposalNotSucceeded(uint256 proposalId); 
+    error Member_challengeRevoke__ParentProposalNotCompleted(uint256 parentProposalId); 
+    error Member_challengeRevoke__RevokedMemberNotMsgSender(); 
 
     string private requiredStatement = "I challenge the revoking of my membership to agDAO.";
     address public agDao;  
@@ -29,8 +31,8 @@ contract Member_challengeRevoke is Law {
         type(uint64).max, // = access PUBLIC_ROLE
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = no quorum, means no vote. 
-        0, // = succeedAt
-        0, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
+        0, // = succeedAt in percent
+        0, // votingPeriod_ in blocks
         whale_revokeMember // = no parent Law
     ) {
       agDao = agDao_;
@@ -42,10 +44,10 @@ contract Member_challengeRevoke is Law {
 
       // step 0: note: no access control. Anyone can call this law. 
   
-      // step 1: decode the calldata. Note: lawCalldata can have any format. 
+      // step 1: decode the calldata.
       (bytes32 descriptionHash, bytes32 revokeDescriptionHash, bytes memory revokeCalldata) = abi.decode(lawCalldata, (bytes32, bytes32, bytes));
       
-      // step 2: check if required statement is correct. 
+      // step 2: check if required statement is correct.
       bytes32 requiredDescriptionHash = keccak256(bytes(requiredStatement)); 
       if (requiredDescriptionHash != descriptionHash) {
         revert Member_challengeRevoke__IncorrectRequiredStatement();
@@ -53,23 +55,23 @@ contract Member_challengeRevoke is Law {
 
       // step 3: check if the proposal has succeeded.
       // Note: even though this law does not need a vote, it DOES need a proposal that has (automatically) succeeded. 
-      // This is because the propotocol needs the (succeeded) proposal to start the governance process that can reinstate this member. 
+      // This is because the propotocol needs the (succeeded) proposal to start the governance process that can reinstate this member. See {Senior_reinstateMember}.
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       if (SeparatedPowers(payable(agDao)).state(proposalId) != ISeparatedPowers.ProposalState.Succeeded) {
-        revert Member_challengeRevoke__ProposalNotExecuted(proposalId);
+        revert Member_challengeRevoke__ProposalNotSucceeded(proposalId);
       }
 
       // step 4: check if the parent proposal has been executed.
       uint256 parentProposalId = hashProposal(parentLaw, revokeCalldata, revokeDescriptionHash);
       if (SeparatedPowers(payable(agDao)).state(parentProposalId) != ISeparatedPowers.ProposalState.Completed) {
-        revert Member_challengeRevoke__ParentProposalNotExecuted(proposalId);
+        revert Member_challengeRevoke__ParentProposalNotCompleted(proposalId);
       }
 
       // step 5: check if the parent proposal referred to the correct revokedMember. 
       // Only the account has has been revoked is allowed to challenge the revocation of the account.
-      (address revokedMember, , ) = abi.decode(revokeCalldata, (address, bytes32, bytes));
+      (address revokedMember, ) = abi.decode(revokeCalldata, (address, bytes32));
       if (revokedMember != msg.sender) {
-        revert Member_challengeRevoke__MemberNotMsgSender();
+        revert Member_challengeRevoke__RevokedMemberNotMsgSender();
       }
 
       // step 6: set the proposal to executed.

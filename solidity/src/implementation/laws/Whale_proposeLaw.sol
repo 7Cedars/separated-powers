@@ -7,14 +7,15 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
- * @notice Example Law contract. 
+ * @notice This contract allows whales to propose laws to be included or excluded from the whitelisted active laws of agDAO.
  * 
- * @dev In this contract...
- *
+ * @dev The contract is an example of a law that
+ * - has access control and needs a proposal to be voted through.
+ * - starts a chain of proposals. See {Senior_acceptProposedLaw} and {Admin_setLaw} for other laws in the chain.   
  *  
  */
 contract Whale_proposeLaw is Law {  
-    error Whale_proposeLaw__ProposalVoteNotPassed(uint256 proposalId);
+    error Whale_proposeLaw__ProposalVoteNotSucceeded(uint256 proposalId);
     
     address public agCoins;
     address public agDao;  
@@ -26,8 +27,8 @@ contract Whale_proposeLaw is Law {
         "A whale can propose laws to be included or excluded from the whitelisted active laws of agDAO.", // = description
         2, // = access roleId = whale 
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
-        20, // = quorum
-        51, // = succeedAt
+        20, // = quorum in percent
+        51, // = succeedAt in percent
         3_600, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
         address(0) // = parent Law 
     ) {
@@ -51,7 +52,7 @@ contract Whale_proposeLaw is Law {
       // step 2: check if proposal passed vote.
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       if (SeparatedPowers(payable(agDao)).state(proposalId) != ISeparatedPowers.ProposalState.Succeeded) {
-        revert Whale_proposeLaw__ProposalVoteNotPassed(proposalId);
+        revert Whale_proposeLaw__ProposalVoteNotSucceeded(proposalId);
       }
 
       // step 3: set proposal to completed. 
@@ -67,7 +68,7 @@ contract Whale_proposeLaw is Law {
       calldatas[0] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
       // step 5: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, bytes memory lawCalldata, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
       SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
   }
 }

@@ -5,19 +5,21 @@ import {Law} from "../../Law.sol";
 import {SeparatedPowers} from "../../SeparatedPowers.sol";
 import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 
-// ONLY FOR TESTING PURPOSES // DO NOT USE IN PRODUCTION
-import {console2} from "lib/forge-std/src/Test.sol";
-
 /**
- * @notice Example Law contract. 
+ * @notice This law allows the admin of the governance protocol to set a new law, after it has been checked by seniors through {Senior_acceptProposedLaw}.
  * 
- * @dev In this contract...
- *
+ * @dev This law 
+ * - is only available to the admin of the governance protocol.
+ * - does not need a proposal or vote. It can be executed directly by the admin. 
  *  
+ * - the parent law must have been executed.
+ * - as this contract does not need a proposal, it can be called multiple times on the same parentProposalId. 
+ *   In this case this is fine. In cases where it needs to be avoided, consider forcing the creation of a proposal that can be completed without a vote. 
+ *   See {Member_ChallengeRevoke} for an example of such a law. 
  */
  contract Admin_setLaw is Law {
-    error Senior_acceptProposedLaw__ParentProposalNotExecuted(uint256 parentProposalId); 
-    error Senior_acceptProposedLaw__ProposalNotExecuted(uint256 proposalId); 
+    error Senior_acceptProposedLaw__ParentProposalNotCompleted(uint256 parentProposalId); 
+    error Senior_acceptProposedLaw__ProposalNotCompleted(uint256 proposalId); 
 
     address public agDao;  
     
@@ -28,8 +30,8 @@ import {console2} from "lib/forge-std/src/Test.sol";
         0, // = access roleId = ADMIN 
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = quorum
-        0, // = succeedAt
-        0, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
+        0, // = succeedAt in percent
+        0, // votingPeriod_ in blocks 
         Senior_acceptProposedLaw // = parent Law 
     ) {
       agDao = agDao_;
@@ -44,21 +46,14 @@ import {console2} from "lib/forge-std/src/Test.sol";
         revert Law__AccessNotAuthorized(msg.sender);
       }
 
-      // step 1: decode the calldata. Note: lawCalldata can have any format. 
-      (address law, bool toInclude, bytes memory parentCalldata, bytes32 descriptionHash) =
-            abi.decode(lawCalldata, (address, bool, bytes, bytes32));
-      
-      (, , bytes32 whaleDescriptionHash, bytes32 parentDescriptionHash) =
-            abi.decode(parentCalldata, (address, bool, bytes32, bytes32));
-
-      console2.logAddress(law); 
-      console2.logBool(toInclude);
-      console2.logBytes32(parentDescriptionHash);
+      // step 1: decode the calldata. Note: calldata is identical to the calldata of the parent law and the grandParentLaw.
+      (address law, bool toInclude, bytes32 descriptionHash) =
+            abi.decode(lawCalldata, (address, bool, bytes32));
 
       // step 2: check if parent proposal has been executed. 
-      uint256 parentProposalId = hashProposal(parentLaw, parentCalldata, parentDescriptionHash);
+      uint256 parentProposalId = hashProposal(parentLaw, lawCalldata, descriptionHash);
       if (SeparatedPowers(payable(agDao)).state(parentProposalId) != ISeparatedPowers.ProposalState.Completed) {
-        revert Senior_acceptProposedLaw__ParentProposalNotExecuted(parentProposalId);
+        revert Senior_acceptProposedLaw__ParentProposalNotCompleted(parentProposalId);
       }
 
       // step 3: Note : check if proposal succeeded is absent. This law does not require a proposal to be set or a vote to pass - it can be executed directly by the Admin. 
@@ -73,8 +68,7 @@ import {console2} from "lib/forge-std/src/Test.sol";
       calldatas[0] = abi.encodeWithSelector(0xd55a5cc6, law, toInclude);
 
       // step 5: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, bytes memory lawCalldata, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
       SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
-
   }
 }

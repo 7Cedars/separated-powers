@@ -6,16 +6,17 @@ import {SeparatedPowers} from "../../SeparatedPowers.sol";
 import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 
 /**
- * @notice Example Law contract. 
+ * @notice This law allows a senior to assign accounts to a senior role, as long as maximum number of senior roles has not been reached.
  * 
- * @dev In this contract...
- *
+ * @dev The contract is an example of a law that  
+ * - has access control and needs a proposal to be voted through. 
+ * - has an additional conditional check. In this case the number of accounts that hold a senior role cannot exceed 10.
  *  
  */
 contract Senior_assignRole is Law {
     error Senior_assignRole__AlreadySenior();
     error Senior_assignRole__TooManySeniors();
-    error Senior_assignRole__ProposalVoteNotPassed(uint256 proposalId);
+    error Senior_assignRole__ProposalVoteNotSucceeded(uint256 proposalId);
 
     address public agCoins; 
     address public agDao;
@@ -25,11 +26,11 @@ contract Senior_assignRole is Law {
     constructor(address payable agDao_, address agCoins_) // can take a address parentLaw param. 
       Law(
         "Senior_assignRole", // = name
-        "Seniors can assign accounts to availabke senior role. A maximum of ten holders can be assigned. If passed the proposer receives a reward in agCoins", // = description
+        "Seniors can assign accounts to available senior role. A maximum of ten holders can be assigned. If passed the proposer receives a reward in agCoins", // = description
         1, // = access senior
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
-        50, // = quorum 
-        66, // = succeedAt
+        50, // = quorum in percent 
+        66, // = succeedAt in percent 
         3_600, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
         address(0) // = parent Law 
     ) {
@@ -46,14 +47,14 @@ contract Senior_assignRole is Law {
         revert Law__AccessNotAuthorized(msg.sender);
       }
 
-      // step 1: decode the calldata. Note: lawCalldata can have any format. 
+      // step 1: decode the calldata.
       (address newSenior, bytes32 descriptionHash) = abi.decode(lawCalldata, (address, bytes32));
 
       // step 2: check if newSenior is already a member and if the maximum amount of seniors has already been met.  
       if (SeparatedPowers(payable(agDao)).hasRoleSince(newSenior, accessRole) != 0) {
         revert Senior_assignRole__AlreadySenior();
       }
-      uint256 amountSeniors = SeparatedPowers(payable(agDao)).getAmountMembers(1);
+      uint256 amountSeniors = SeparatedPowers(payable(agDao)).getAmountRoleHolders(1);
       if (amountSeniors >= maxNumberOfSeniors) {
         revert Senior_assignRole__TooManySeniors();
       }
@@ -61,7 +62,7 @@ contract Senior_assignRole is Law {
       // step 3: check if vote for this proposal has succeeded. 
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       if (SeparatedPowers(payable(agDao)).state(proposalId) != ISeparatedPowers.ProposalState.Succeeded) {
-        revert Senior_assignRole__ProposalVoteNotPassed(proposalId);
+        revert Senior_assignRole__ProposalVoteNotSucceeded(proposalId);
       }
 
       // step 4: set proposal to completed.
@@ -78,7 +79,7 @@ contract Senior_assignRole is Law {
       calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 1, newSenior, true); // = setRole(uint64 roleId, address account, bool access); 
 
       // step 7: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, bytes memory lawCalldata, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
       SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
   }
 }

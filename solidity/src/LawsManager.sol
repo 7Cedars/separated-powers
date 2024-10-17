@@ -12,15 +12,19 @@ import {ILawsManager} from "./interfaces/ILawsManager.sol";
  *  
  */
 contract LawsManager is ILawsManager {
+  error LawsManager__NotAuthorized(); 
+  
   mapping(address law => bool active) public activeLaws; 
-
+  
+  event LawSet(address indexed law, bool indexed active, bool indexed lawChanged);
+  
   /**
   * @dev {see ILawsManager.setLaw} 
   */
   function setLaw(address law, bool active) public { 
 
     if (msg.sender != address(this)) { 
-      revert LawsManager_NotAuthorized();  
+      revert LawsManager__NotAuthorized();  
     }
     _setLaw(law, active);
   } 

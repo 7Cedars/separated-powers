@@ -11,11 +11,9 @@ import {IAuthoritiesManager} from "./interfaces/IAuthoritiesManager.sol";
  */
 contract AuthoritiesManager is IAuthoritiesManager { 
     /* errors */
-    error AuthorityManager_NotAuthorized(address invalidAddress);
-    error AuthorityManager_InvalidInitialAdmin(address invalidAddress);
-    error AuthorityManager_LockedRole(uint64 roleId);
-    error AuthorityManager_AlreadyCastVote(address account);
-    error AuthorityManager_InvalidVoteType(); 
+    error AuthoritiesManager__NotAuthorized(address invalidAddress);
+    error AuthoritiesManager__AlreadyCastVote(address account);
+    error AuthoritiesManager__InvalidVoteType(); 
     
     /* State variables */
     mapping(uint256 proposalId => ProposalVote) public _proposalVotes;
@@ -31,7 +29,6 @@ contract AuthoritiesManager is IAuthoritiesManager {
      */
     event RoleSet(uint64 indexed roleId, address indexed account, bool indexed accessChanged); 
 
-
     //////////////////////////////
     //          FUNCTIONS       //
     //////////////////////////////
@@ -42,10 +39,9 @@ contract AuthoritiesManager is IAuthoritiesManager {
     * @dev see {IAuthoritiesManager.setRole}
     */
     function setRole(uint64 roleId, address account, bool access) public virtual {
-      // this function can only be called from the execute function  of SeperatedPowers with a .call call. 
-      // As such, there is a msg.sender, but it always has to come form address (this).  
+      // this function can only be called from within SeperatedPowers. 
       if (msg.sender != address(this)) { 
-        revert AuthorityManager_NotAuthorized(msg.sender);  
+        revert AuthoritiesManager__NotAuthorized(msg.sender);  
       }
         _setRole(roleId, account, access);
     }
@@ -60,7 +56,7 @@ contract AuthoritiesManager is IAuthoritiesManager {
         uint64 roleId,
         address account,
         bool access
-    ) internal virtual returns (bool) {
+    ) internal virtual {
         bool newMember = roles[roleId].members[account] == 0;
         bool accessChanged;  
 
@@ -75,7 +71,6 @@ contract AuthoritiesManager is IAuthoritiesManager {
         }
 
         emit RoleSet(roleId, account, accessChanged);
-        return accessChanged;
     }
 
     /**
@@ -92,7 +87,7 @@ contract AuthoritiesManager is IAuthoritiesManager {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
         if (proposalVote.hasVoted[account]) {
-            revert AuthorityManager_AlreadyCastVote(account);
+            revert AuthoritiesManager__AlreadyCastVote(account);
         }
         proposalVote.hasVoted[account] = true;
 
@@ -103,7 +98,7 @@ contract AuthoritiesManager is IAuthoritiesManager {
         } else if (support == uint8(VoteType.Abstain)) {
             proposalVote.abstainVotes++;
         } else {
-            revert AuthorityManager_InvalidVoteType();
+            revert AuthoritiesManager__InvalidVoteType();
         }
     }
 
@@ -132,7 +127,7 @@ contract AuthoritiesManager is IAuthoritiesManager {
       return roles[roleId].members[account]; 
     }
 
-    function getAmountMembers(uint64 roleId) public view returns (uint256 amountMembers) {
+    function getAmountRoleHolders(uint64 roleId) public view returns (uint256 amountMembers) {
       return roles[roleId].amountMembers; 
     }
 

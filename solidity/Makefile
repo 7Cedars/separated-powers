@@ -18,12 +18,12 @@ install :; forge install foundry-rs/forge-std@v1.9.1 --no-commit && \
 	forge install openzeppelin/openzeppelin-contracts@v5.0.2 --no-commit
 
 # Update Dependencies
-update:; forge update
+update :; forge update
 
 # Build
-build:; forge build
+build :; forge build
 
-test :; forge test 
+test :; forge test
 
 snapshot :; forge snapshot
 
@@ -31,45 +31,21 @@ format :; forge fmt
 
 anvil :; anvil --steps-tracing --block-time 1
 
-#########################################
-# 						Test commands							# 
-#########################################
-ANVIL_ARGS_0 := --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY_0) --broadcast
-
-anvilDeployFactory: 
-	@forge script script/DeployFactoryPrograms.s.sol:DeployFactoryPrograms $(ANVIL_ARGS_0)
-	
-anvilDeploySampleGifts: 
-	@forge script script/DeployLoyaltyGifts.s.sol:DeployFreeCoffee $(ANVIL_ARGS_0)
-	@forge script script/DeployLoyaltyGifts.s.sol:DeployFreeCupCake $(ANVIL_ARGS_0)
-	@forge script script/DeployLoyaltyGifts.s.sol:DeployFridayFifteen $(ANVIL_ARGS_0)
-
-anvilAll:
-	@forge script script/DeployFactoryPrograms.s.sol:DeployFactoryPrograms $(ANVIL_ARGS_0)
-	@forge script script/DeployLoyaltyGifts.s.sol:DeployFreeCoffee $(ANVIL_ARGS_0)
-	@forge script script/DeployLoyaltyGifts.s.sol:DeployFreeCupCake $(ANVIL_ARGS_0)
-	@forge script script/DeployLoyaltyGifts.s.sol:DeployFridayFifteen $(ANVIL_ARGS_0)  
-
 ###############################
 # 		Deploy Commands  				#
 ###############################
-# ETH_SEPOLIA_TEST_ARGS := --fork-url $(SEPOLIA_RPC_URL) 
-# ETH_SEPOLIA_DEPLOY_ARGS := --rpc-url forge$(SEPOLIA_RPC_URL) --account dev_2 --sender ${WALLET_ADDRESS} --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -vvvv
+ANVIL_ARGS_0 := --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY_0) --broadcast
+ARB_SEPOLIA_TEST_ARGS := --fork-url $(ARB_SEPOLIA_RPC_URL) 
+ARB_SEPOLIA_DEPLOY_ARGS := --rpc-url $(ARB_SEPOLIA_RPC_URL) --account dev_2 --sender ${DEV2_ADDRESS} --broadcast --chain-id 421614 --etherscan-api-key $(ARBISCAN_API_KEY) --verifier-url https://api-sepolia.arbiscan.io/api --verify -vvvv
 
-OPT_SEPOLIA_TEST_ARGS := --fork-url $(OPT_SEPOLIA_RPC_URL) 
-OPT_SEPOLIA_DEPLOY_ARGS := --rpc-url $(OPT_SEPOLIA_RPC_URL) --account dev_2 --sender ${DEV2_ADDRESS} --broadcast --verify --etherscan-api-key $(OPT_ETHERSCAN_API_KEY) -vvvv
+anvilTest :; forge test $(ANVIL_ARGS_0)
+arbSepoliaForkedTest :; forge test ${ARB_SEPOLIA_TEST_ARGS}
 
-testOptDeploy: 
-	@forge script script/DeployFactoryPrograms.s.sol:DeployFactoryPrograms $(OPT_SEPOLIA_TEST_ARGS)
-	@forge script script/DeployLoyaltyGifts.s.sol:DeployFreeCoffee $(OPT_SEPOLIA_TEST_ARGS)
-	@forge script script/DeployLoyaltyGifts.s.sol:DeployFreeCupCake $(OPT_SEPOLIA_TEST_ARGS)
-	@forge script script/DeployLoyaltyGifts.s.sol:DeployFridayFifteen $(OPT_SEPOLIA_TEST_ARGS)
-	@forge script script/DeployLoyaltyGifts.s.sol:DeployGoldToken $(OPT_SEPOLIA_TEST_ARGS)
+anvilDeploy :; forge script script/DeployAgDao.s.sol:DeployAgDao $(ANVIL_ARGS_0)
+anvilConstitute :; forge script script/ConstituteAgDao.s.sol:ConstituteAgDao $(ANVIL_ARGS_0)
 
-optDeploy:
-	@forge script script/DeployFactoryPrograms.s.sol:DeployFactoryPrograms $(OPT_SEPOLIA_DEPLOY_ARGS)
-# @forge script script/DeployLoyaltyGifts.s.sol:DeployFreeCoffee $(OPT_SEPOLIA_DEPLOY_ARGS)
-# @forge script script/DeployLoyaltyGifts.s.sol:DeployFreeCupCake $(OPT_SEPOLIA_DEPLOY_ARGS)
-# @forge script script/DeployLoyaltyGifts.s.sol:DeployFridayFifteen $(OPT_SEPOLIA_DEPLOY_ARGS)
-# @forge script script/DeployLoyaltyGifts.s.sol:DeployGoldToken $(OPT_SEPOLIA_DEPLOY_ARGS)
+arbSepoliaTestDeploy :; forge script script/TestDeploy.s.sol:TestDeploy $(ARB_SEPOLIA_DEPLOY_ARGS)
+arbSepoliaDeploy :; forge script script/DeployAgDao.s.sol:DeployAgDao $(ARB_SEPOLIA_DEPLOY_ARGS)
+arbSepoliaConstitute :;  forge script script/ConstituteAgDao.s.sol:ConstituteAgDao $(ARB_SEPOLIA_DEPLOY_ARGS)
+
 

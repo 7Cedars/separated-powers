@@ -46,7 +46,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     /* State variables */
     mapping(uint256 proposalId => ProposalCore) private _proposals; // mapping from proposalId to proposalCore
     string private _name; // name of the contract.
-    bool private _constitutionalLawsExecuted; // name of the contract.
+    bool private _constituentLawsExecuted; // name of the contract.
 
     /* Events */
     event SeparatedPowers__Initialized(address contractAddress);
@@ -74,8 +74,8 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     modifier onlySeparatedPowers() {
         if (msg.sender != address(this)) {
             revert SeparatedPowers__OnlySeparatedPowers();
-            _;
         }
+        _;
     }
 
     //////////////////////////////
@@ -112,7 +112,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
      * @dev see {ISeperatedPowers.constitute}
      */
     function constitute(
-        address[] memory constitutionalLaws,
+        address[] memory constituentLaws,
         ConstituentRole[] memory constitutionalRoles
     ) external virtual {
         // check 1: only admin can call this function
@@ -121,16 +121,16 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         }
 
         // check 2: this function can only be called once.
-        if (_constitutionalLawsExecuted) {
+        if (_constituentLawsExecuted) {
             revert SeparatedPowers__ConstitutionAlreadyExecuted();
         }
         
-        // if checks pass, set _constitutionalLawsExecuted to true... 
-        _constitutionalLawsExecuted = true;
+        // if checks pass, set _constituentLawsExecuted to true... 
+        _constituentLawsExecuted = true;
 
         // ...and execute constitutional laws
-        for (uint256 i = 0; i < constitutionalLaws.length; i++) {
-            _setLaw(constitutionalLaws[i], true);
+        for (uint256 i = 0; i < constituentLaws.length; i++) {
+            _setLaw(constituentLaws[i], true);
         }
         for (uint256 i = 0; i < constitutionalRoles.length; i++) {
             _setRole(constitutionalRoles[i].roleId, constitutionalRoles[i].account, true);
@@ -202,7 +202,6 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
 
         // if checks pass: execute.
         _executeOperations(targets, values, calldatas);
-
     }
 
     /**
@@ -211,30 +210,11 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     function complete(
         bytes memory lawCalldata,
         bytes32 descriptionHash
-        ) external virtual {
+        ) external virtual { 
 
         uint256 proposalId = hashProposal(msg.sender, lawCalldata, descriptionHash);
 
-        // check 1: is call from an active law? 
-        if (!activeLaws[msg.sender]) {
-            revert SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
-        }
-        // check 2: does proposal exist?  
-        if (_proposals[proposalId].proposer == address(0)) {
-                revert SeparatedPowers__InvalidProposalId(); 
-        }
-        // check 3: is proposal already completed?
-        if (_proposals[proposalId].completed == true) {
-            revert SeparatedPowers__ProposalAlreadyCompleted(); 
-        }
-        // check 4: is proposal cancelled?
-        if (_proposals[proposalId].cancelled == true) {
-            revert SeparatedPowers__ProposalCancelled(); 
-        }
-
-        // if checks pass: complete & emit event.
-        _proposals[proposalId].completed = true; 
-        emit ProposalCompleted(proposalId);
+        _complete(proposalId); 
     }
 
     /**
@@ -380,7 +360,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         uint64 accessRole = Law(targetLaw).accessRole(); 
         uint256 amountMembers = roles[accessRole].amountMembers;
 
-        return (amountMembers * quorum) / DENOMINATOR <= proposalVote.forVotes + proposalVote.abstainVotes; 
+        return quorum == 0 || (amountMembers * quorum) / DENOMINATOR <= proposalVote.forVotes + proposalVote.abstainVotes; 
     }
 
     /**
@@ -399,6 +379,35 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
  
         // note if quorum is set to 0 in a Law, it will automatically return true.
         return quorum == 0 || amountMembers * succeedAt <= proposalVote.forVotes * DENOMINATOR;  
+    }
+
+    /**
+     * @dev see {ISeperatedPowers.complete} 
+     */
+    function _complete(
+        uint256 proposalId
+        ) internal virtual {
+
+        // check 1: is call from an active law? 
+        if (!activeLaws[msg.sender]) {
+            revert SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
+        }
+        // check 2: does proposal exist?  
+        if (_proposals[proposalId].proposer == address(0)) {
+                revert SeparatedPowers__InvalidProposalId(); 
+        }
+        // check 3: is proposal already completed?
+        if (_proposals[proposalId].completed == true) {
+            revert SeparatedPowers__ProposalAlreadyCompleted(); 
+        }
+        // check 4: is proposal cancelled?
+        if (_proposals[proposalId].cancelled == true) {
+            revert SeparatedPowers__ProposalCancelled(); 
+        }
+
+        // if checks pass: complete & emit event.
+        _proposals[proposalId].completed = true; 
+        emit ProposalCompleted(proposalId);
     }
 
     /**

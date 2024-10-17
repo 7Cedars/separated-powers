@@ -2,30 +2,32 @@
 pragma solidity 0.8.26;
 
 import {Test, console, console2} from "lib/forge-std/src/Test.sol";
-import {DeployAgDao} from "../../script/DeployAgDao.s.sol";
-import {SeparatedPowers} from "../../src/SeparatedPowers.sol";
-import {AgDao} from   "../../src/implementation/AgDao.sol";
-import {AgCoins} from "../../src/implementation/AgCoins.sol";
-import {Law} from "../../src/Law.sol";
-import {IAuthoritiesManager} from "../../src/interfaces/IAuthoritiesManager.sol";
-import {ISeparatedPowers} from "../../src/interfaces/ISeparatedPowers.sol";
-import {LawsManager} from "../../src/LawsManager.sol";
+import {DeployAgDao} from "../../../script/DeployAgDao.s.sol";
+import {SeparatedPowers} from "../../../src/SeparatedPowers.sol";
+import {AgDao} from   "../../../src/implementation/AgDao.sol";
+import {AgCoins} from "../../../src/implementation/AgCoins.sol";
+import {Law} from "../../../src/Law.sol";
+import {IAuthoritiesManager} from "../../../src/interfaces/IAuthoritiesManager.sol";
+import {ISeparatedPowers} from "../../../src/interfaces/ISeparatedPowers.sol";
+import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 // constitutional laws
-import {Admin_setLaw} from "../../src/implementation/laws/Admin_setLaw.sol";
-import {Member_assignRole} from "../../src/implementation/laws/Member_assignRole.sol";
-import {Member_challengeRevoke} from "../../src/implementation/laws/Member_challengeRevoke.sol";
-import {Member_proposeCoreValue} from "../../src/implementation/laws/Member_proposeCoreValue.sol";
-import {Senior_acceptProposedLaw} from "../../src/implementation/laws/Senior_acceptProposedLaw.sol";
-import {Senior_assignRole} from "../../src/implementation/laws/Senior_assignRole.sol";
-import {Senior_reinstateMember} from "../../src/implementation/laws/Senior_reinstateMember.sol";
-import {Senior_revokeRole} from "../../src/implementation/laws/Senior_revokeRole.sol";
-import {Whale_acceptCoreValue} from "../../src/implementation/laws/Whale_acceptCoreValue.sol";
-import {Whale_assignRole} from "../../src/implementation/laws/Whale_assignRole.sol";
-import {Whale_proposeLaw} from "../../src/implementation/laws/Whale_proposeLaw.sol";
-import {Whale_revokeMember} from "../../src/implementation/laws/Whale_revokeMember.sol";
+import {Admin_setLaw} from "../../../src/implementation/laws/Admin_setLaw.sol";
+import {Member_assignRole} from "../../../src/implementation/laws/Member_assignRole.sol";
+import {Member_challengeRevoke} from "../../../src/implementation/laws/Member_challengeRevoke.sol";
+import {Member_proposeCoreValue} from "../../../src/implementation/laws/Member_proposeCoreValue.sol";
+import {Senior_acceptProposedLaw} from "../../../src/implementation/laws/Senior_acceptProposedLaw.sol";
+import {Senior_assignRole} from "../../../src/implementation/laws/Senior_assignRole.sol";
+import {Senior_reinstateMember} from "../../../src/implementation/laws/Senior_reinstateMember.sol";
+import {Senior_revokeRole} from "../../../src/implementation/laws/Senior_revokeRole.sol";
+import {Whale_acceptCoreValue} from "../../../src/implementation/laws/Whale_acceptCoreValue.sol";
+import {Whale_assignRole} from "../../../src/implementation/laws/Whale_assignRole.sol";
+import {Whale_proposeLaw} from "../../../src/implementation/laws/Whale_proposeLaw.sol";
+import {Whale_revokeMember} from "../../../src/implementation/laws/Whale_revokeMember.sol";
 
-contract LawsManagerTest is Test {
+contract SeparatedPowersTest is Test {
+  using ShortStrings for *;
+
   /* Type declarations */
   SeparatedPowers separatedPowers;
   AgDao agDao;
@@ -82,83 +84,63 @@ contract LawsManagerTest is Test {
   }
 
   ///////////////////////////////////////////////
-  ///                   Tests                 ///
+  ///                    Tests                ///
   ///////////////////////////////////////////////
-  function testSetLawRevertsIfNotCalledFromSeparatedPowers() public {
-    address newLaw = address(new Member_assignRole(payable(address(agDao))));
+  function testWhaleRoleAssignedIfSufficientCoins() public {
+    vm.prank(alice);
+    agCoins.mintCoins(1_500_000);
     
-    vm.expectRevert(LawsManager.LawsManager__NotAuthorized.selector);
-    vm.prank(alice);  
-    agDao.setLaw(newLaw, true);
+    uint256 balance = agCoins.balanceOf(alice);
+    assert(balance > 1_000_000); 
+
+    string memory description = "Alice should be a whale.";
+    bytes memory lawCalldata = abi.encode(alice, keccak256(bytes(description)));  
+    
+    vm.prank(eve); // = is a whale
+    Law(constituentLaws[3]).executeLaw(lawCalldata); // = Whale_assignRole
+
+    uint48 since = agDao.hasRoleSince(alice, WHALE_ROLE);
+    assert(since != 0); 
   }
 
-  function testSetLawDoesNotingIfNoChange() public {
-     /* PROPOSAL LINK 1: a whale proposes a law. */   
-    // proposing... 
-    // Note newLaw is actually an already existing law. 
-    address newLaw = constituentLaws[0]; 
-    string memory description = "Proposing to add a new Law";
-    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
+  function testWhaleRoleNotAssignedIfInsufficientCoins() public { 
+    uint256 balance = agCoins.balanceOf(alice);
+    assert(balance < 1_000_000); 
+
+    string memory description = "Alice should be a whale.";
+    bytes memory lawCalldata = abi.encode(alice, keccak256(bytes(description)));  
     
-    vm.prank(eve); // = a whale
-    uint256 proposalIdOne = agDao.propose(
-      constituentLaws[4], // = Whale_proposeLaw
-      lawCalldata, 
-      description
-    );
+    vm.prank(eve); // = is a whale
+    vm.expectRevert(Whale_assignRole.Whale_assignRole__Error.selector);
+    Law(constituentLaws[3]).executeLaw(lawCalldata); // = Whale_assignRole
+  }
+
+  function testWhaleRoleRevokedIfInsufficientCoins() public {
+    uint256 balance = agCoins.balanceOf(david); // = whale 
+    assert(balance < 1_000_000); // david has fewer than 1_000_000 coins. 
+
+    string memory description = "Eve is delisting david as whale.";
+    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
     
-    // whales vote... Only david and eve are whales. 
+    vm.prank(eve); // = is a whale
+    Law(constituentLaws[3]).executeLaw(lawCalldata); // = Whale_assignRole
+
+    uint48 since = agDao.hasRoleSince(david, WHALE_ROLE);
+    assert(since == 0);
+  }
+
+  function testWhaleRoleNotRevokedIfSufficientCoins() public {
     vm.prank(david);
-    agDao.castVote(proposalIdOne, 1); // = for 
-    vm.prank(eve); 
-    agDao.castVote(proposalIdOne, 1); // = for
+    agCoins.mintCoins(1_500_000);
+    uint256 balance = agCoins.balanceOf(david); // = whale 
+    assert(balance > 1_000_000); // david has more than 1_000_000 coins. 
 
-    vm.roll(4_000);
-
-    // executing... 
-    vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(lawCalldata);
-
-    // check 
-    ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
-    assert(uint8(proposalStateOne) == 4); // == ProposalState.Completed
-
-    /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
-    // proposing...
-    vm.roll(5_000);
-
-    vm.prank(charlotte); // = a senior
-    uint256 proposalIdTwo = agDao.propose(
-      constituentLaws[5], // = Senior_acceptProposedLaw
-      lawCalldata, 
-      description
-    );
-
-    // seniors vote... alice, bob and charlotte are seniors.
-    vm.prank(alice);
-    agDao.castVote(proposalIdTwo, 1); // = for 
-    vm.prank(bob); 
-    agDao.castVote(proposalIdTwo, 1); // = for
-    vm.prank(charlotte); 
-    agDao.castVote(proposalIdTwo, 1); // = for
-
-    vm.roll(9_000);
-
-    // executing... 
-    vm.prank(bob);
-    Law(constituentLaws[5]).executeLaw(lawCalldata);
-
-    // check 
-    ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
-    assert(uint8(proposalStateTwo) == 4); // == ProposalState.Completed
-
-    /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
-    vm.roll(10_000);
+    string memory description = "Eve is trying to delist david as whale but will fail.";
+    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
     
-    vm.expectEmit(true, false, false, false);
-    emit LawsManager.LawSet(newLaw, true, false);
-    vm.prank(alice); // = admin role 
-    Law(constituentLaws[6]).executeLaw(lawCalldata);
+    vm.prank(eve); // = is a whale
+    vm.expectRevert(Whale_assignRole.Whale_assignRole__Error.selector);
+    Law(constituentLaws[3]).executeLaw(lawCalldata); // = Whale_assignRole
   }
 
   ///////////////////////////////////////////////

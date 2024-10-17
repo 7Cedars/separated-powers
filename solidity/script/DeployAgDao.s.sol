@@ -24,52 +24,52 @@ import {Whale_proposeLaw} from "../src/implementation/laws/Whale_proposeLaw.sol"
 import {Whale_revokeMember} from "../src/implementation/laws/Whale_revokeMember.sol";
 
 contract DeployAgDao is Script {
-    bytes32 SALT = bytes32(hex'7ceda5'); 
     error DeployFactoryProgrmas__DeployedContractAtAddress(address deploymentAddress);
     address[] constituentLaws;
     
     /* Functions */
-    function run() external returns (AgDao, AgCoins) {
-        IAuthoritiesManager.ConstituentRole[] memory constituenttRoles = new IAuthoritiesManager.ConstituentRole[](0);
+    function run() external returns (AgDao, AgCoins, address[] memory constituentLaws) {
+        // setting up constituent Roles. 
+        IAuthoritiesManager.ConstituentRole[] memory constituentRoles = new IAuthoritiesManager.ConstituentRole[](0);
 
         vm.startBroadcast();
-            AgDao agDao = new AgDao{salt: SALT}();
-            AgCoins agCoins = new AgCoins{salt: SALT}(payable(address(agDao)));
-            (address[] memory constituentLaws) = _deployLaws(payable(address(agDao)), address(agCoins));
-            agDao.constitute(constituentLaws, constituenttRoles);
+            AgDao agDao = new AgDao();
+            AgCoins agCoins = new AgCoins(payable(address(agDao)));
         vm.stopBroadcast();
 
-        return(agDao, agCoins);
+        vm.startBroadcast();
+            // setting up constituent Laws and initializing them.
+            (address[] memory constituentLaws) = _deployLaws(payable(address(agDao)), address(agCoins));
+        vm.stopBroadcast();
+
+        return(agDao, agCoins, constituentLaws);
     }
 
     /* internal functions */
     function _deployLaws(address payable agDaoAddress_, address agCoinsAddress_) internal returns (address[] memory constituentLaws) {
-      IAuthoritiesManager.ConstituentRole[] memory constituenttRoles = new IAuthoritiesManager.ConstituentRole[](0);
+        address[] memory constituentLaws = new address[](12);
 
-      // deploying laws //
-      vm.startBroadcast();
-      // re assigning roles // 
-      constituentLaws[0] = address(new Member_assignRole(agDaoAddress_));
-      constituentLaws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
-      constituentLaws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
-      constituentLaws[3] = address(new Whale_assignRole(agDaoAddress_, agCoinsAddress_));
-      
-      // re activating & deactivating laws  // 
-      constituentLaws[4] = address(new Whale_proposeLaw(agDaoAddress_, agCoinsAddress_));
-      constituentLaws[5] = address(new Senior_acceptProposedLaw(agDaoAddress_, agCoinsAddress_, address(constituentLaws[4])));
-      constituentLaws[6] = address(new Admin_setLaw(agDaoAddress_, address(constituentLaws[5])));
+        // re assigning roles // 
+        constituentLaws[0] = address(new Member_assignRole(agDaoAddress_));
+        constituentLaws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
+        constituentLaws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
+        constituentLaws[3] = address(new Whale_assignRole(agDaoAddress_, agCoinsAddress_));
+        
+        // re activating & deactivating laws  // 
+        constituentLaws[4] = address(new Whale_proposeLaw(agDaoAddress_, agCoinsAddress_));
+        constituentLaws[5] = address(new Senior_acceptProposedLaw(agDaoAddress_, agCoinsAddress_, address(constituentLaws[4])));
+        constituentLaws[6] = address(new Admin_setLaw(agDaoAddress_, address(constituentLaws[5])));
 
-      // re updating core values // 
-      constituentLaws[7] = address(new Member_proposeCoreValue(agDaoAddress_, agCoinsAddress_));
-      constituentLaws[8] = address(new Whale_acceptCoreValue(agDaoAddress_, agCoinsAddress_, address(constituentLaws[7])));
-      
-      // re enforcing core values as requirement for external funding //   
-      constituentLaws[9] = address(new Whale_revokeMember(agDaoAddress_, agCoinsAddress_));
-      constituentLaws[10] = address(new Member_challengeRevoke(agDaoAddress_, address(constituentLaws[9])));
-      constituentLaws[11] = address(new Senior_reinstateMember(agDaoAddress_, agCoinsAddress_, address(constituentLaws[10])));
-      vm.stopBroadcast();
+        // re updating core values // 
+        constituentLaws[7] = address(new Member_proposeCoreValue(agDaoAddress_, agCoinsAddress_));
+        constituentLaws[8] = address(new Whale_acceptCoreValue(agDaoAddress_, agCoinsAddress_, address(constituentLaws[7])));
+        
+        // re enforcing core values as requirement for external funding //   
+        constituentLaws[9] = address(new Whale_revokeMember(agDaoAddress_, agCoinsAddress_));
+        constituentLaws[10] = address(new Member_challengeRevoke(agDaoAddress_, address(constituentLaws[9])));
+        constituentLaws[11] = address(new Senior_reinstateMember(agDaoAddress_, agCoinsAddress_, address(constituentLaws[10])));
 
-      return constituentLaws; 
+        return constituentLaws; 
     }
 }
 
