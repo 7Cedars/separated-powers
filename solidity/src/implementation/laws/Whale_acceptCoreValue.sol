@@ -26,7 +26,7 @@ contract Whale_acceptCoreValue is Law {
 
     error Whale_acceptCoreValue__ParentLawNotSet(); 
     error Whale_acceptCoreValue__ParentProposalnotSucceededOrExecuted(uint256 parentProposalId);
-    error Whale_acceptCoreValue__ProposalVoteNotPassed(uint256 proposalId); 
+    error Whale_acceptCoreValue__ProposalVoteNotSucceeded(uint256 proposalId); 
 
     address public agCoins; 
     address public agDao;
@@ -74,7 +74,7 @@ contract Whale_acceptCoreValue is Law {
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       ISeparatedPowers.ProposalState proposalState = SeparatedPowers(payable(agDao)).state(proposalId);
       if ( proposalState != ISeparatedPowers.ProposalState.Succeeded) {
-        revert Whale_acceptCoreValue__ProposalVoteNotPassed(proposalId);
+        revert Whale_acceptCoreValue__ProposalVoteNotSucceeded(proposalId);
       }
 
       // step 4: complete the proposal. 

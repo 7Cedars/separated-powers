@@ -6,11 +6,14 @@ import {SeparatedPowers} from "../../SeparatedPowers.sol";
 import {AgDao} from "../AgDao.sol";
 
 /**
- * @notice Example Law contract. 
+ * @notice A law that allows anyone to apply and get a Member role in the Dao. 
  * 
- * @dev This law allows anyone to propose adding their account to agDAO, and to accept this proposal without vote. 
- * It is an example of a law that does not have any access restrictions and that does not require a vote. 
- * When executed, it simply assigns the member role to the account. 
+ * @dev The law is an example of 
+ * - a law that has no access control
+ * - a law that can be directly executed, without creating a proposal or having a vote. 
+ * - adding an additional check to a law: in this case if the account has been blacklisted. See {Whale_RevokeRole} for how this can happen. 
+ *  
+ * @dev When executed, it simply assigns the member role to the account. 
  */
 contract Member_assignRole is Law {
     error Member_assignRole__IncorrectRequiredStatement(); 
@@ -27,7 +30,7 @@ contract Member_assignRole is Law {
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = no quorum, means no vote. 
         0, // = succeedAt
-        0, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
+        0, // votingPeriod_ in blocks
         address(0) // = parent Law 
     ) {
       agDao = agDao_;
@@ -39,7 +42,7 @@ contract Member_assignRole is Law {
 
       // step 0: note: access control absent. Any one can call this law. 
 
-      // step 1: decode the calldata. Note: lawCalldata can have any format. 
+      // step 1: decode the calldata. Check if description is correct. 
       bytes32 requiredDescriptionHash = keccak256(bytes(requiredStatement)); 
       (bytes32 descriptionHash) = abi.decode(lawCalldata, (bytes32));
       if (requiredDescriptionHash != descriptionHash) {

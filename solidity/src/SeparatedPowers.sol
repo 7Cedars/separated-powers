@@ -202,7 +202,6 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
 
         // if checks pass: execute.
         _executeOperations(targets, values, calldatas);
-
     }
 
     /**
@@ -211,30 +210,11 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     function complete(
         bytes memory lawCalldata,
         bytes32 descriptionHash
-        ) external virtual {
+        ) external virtual { 
 
         uint256 proposalId = hashProposal(msg.sender, lawCalldata, descriptionHash);
 
-        // check 1: is call from an active law? 
-        if (!activeLaws[msg.sender]) {
-            revert SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
-        }
-        // check 2: does proposal exist?  
-        if (_proposals[proposalId].proposer == address(0)) {
-                revert SeparatedPowers__InvalidProposalId(); 
-        }
-        // check 3: is proposal already completed?
-        if (_proposals[proposalId].completed == true) {
-            revert SeparatedPowers__ProposalAlreadyCompleted(); 
-        }
-        // check 4: is proposal cancelled?
-        if (_proposals[proposalId].cancelled == true) {
-            revert SeparatedPowers__ProposalCancelled(); 
-        }
-
-        // if checks pass: complete & emit event.
-        _proposals[proposalId].completed = true; 
-        emit ProposalCompleted(proposalId);
+        _complete(proposalId); 
     }
 
     /**
@@ -399,6 +379,35 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
  
         // note if quorum is set to 0 in a Law, it will automatically return true.
         return quorum == 0 || amountMembers * succeedAt <= proposalVote.forVotes * DENOMINATOR;  
+    }
+
+    /**
+     * @dev see {ISeperatedPowers.complete} 
+     */
+    function _complete(
+        uint256 proposalId
+        ) internal virtual {
+
+        // check 1: is call from an active law? 
+        if (!activeLaws[msg.sender]) {
+            revert SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
+        }
+        // check 2: does proposal exist?  
+        if (_proposals[proposalId].proposer == address(0)) {
+                revert SeparatedPowers__InvalidProposalId(); 
+        }
+        // check 3: is proposal already completed?
+        if (_proposals[proposalId].completed == true) {
+            revert SeparatedPowers__ProposalAlreadyCompleted(); 
+        }
+        // check 4: is proposal cancelled?
+        if (_proposals[proposalId].cancelled == true) {
+            revert SeparatedPowers__ProposalCancelled(); 
+        }
+
+        // if checks pass: complete & emit event.
+        _proposals[proposalId].completed = true; 
+        emit ProposalCompleted(proposalId);
     }
 
     /**

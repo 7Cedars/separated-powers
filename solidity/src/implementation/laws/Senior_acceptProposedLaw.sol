@@ -6,19 +6,19 @@ import {SeparatedPowers} from "../../SeparatedPowers.sol";
 import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-// ONLY FOR TESTING PURPOSES // DO NOT USE IN PRODUCTION
-import {console2} from "lib/forge-std/src/Test.sol";
-
 /**
- * @notice Example Law contract. 
+ * @notice This law allows seniors to accept a law as proposed by whales through {Whale_proposeLaw}. 
  * 
- * @dev In this contract...
+ * @dev This law 
+ * - Needs to have the same description as the parent law. Its proposalId is directly linked to the proposalId of the parent law.
+ * - In other words, each whale proposal can only be voted on by seniors once.
  *
- *  
+ * - It is an example of a standard linked law providing a check to the power of whales. 
+ *   Proposed laws cannot be proceed further in the governance process without a check by seniors, but seniors cannot propose laws themselves. 
  */
 contract Senior_acceptProposedLaw is Law {
-  error Senior_acceptProposedLaw__ParentProposalNotExecuted(uint256 parentProposalId); 
-  error Senior_acceptProposedLaw__ProposalNotExecuted(uint256 proposalId); 
+  error Senior_acceptProposedLaw__ParentProposalNotCompleted(uint256 parentProposalId); 
+  error Senior_acceptProposedLaw__ProposalNotSucceeded(uint256 proposalId); 
 
     address public agCoins;
     address public agDao;  
@@ -49,19 +49,19 @@ contract Senior_acceptProposedLaw is Law {
       }
 
       // step 1: decode the calldata. Note: lawCalldata can have any format. 
-      (address law, bool toInclude, bytes32 parentDescriptionHash, bytes32 descriptionHash) =
-            abi.decode(lawCalldata, (address, bool, bytes32, bytes32));
+      (address law, bool toInclude, bytes32 descriptionHash) =
+            abi.decode(lawCalldata, (address, bool, bytes32));
 
       // step 2: check if parent proposal has been executed. 
-      uint256 parentProposalId = hashProposal(parentLaw, abi.encode(law, toInclude, parentDescriptionHash), parentDescriptionHash);
+      uint256 parentProposalId = hashProposal(parentLaw, lawCalldata, descriptionHash);
       if (SeparatedPowers(payable(agDao)).state(parentProposalId) != ISeparatedPowers.ProposalState.Completed) {
-        revert Senior_acceptProposedLaw__ParentProposalNotExecuted(parentProposalId);
+        revert Senior_acceptProposedLaw__ParentProposalNotCompleted(parentProposalId);
       }
 
       // step 3: check if vote for this proposal has succeeded. 
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       if (SeparatedPowers(payable(agDao)).state(proposalId) != ISeparatedPowers.ProposalState.Succeeded) {
-        revert Senior_acceptProposedLaw__ProposalNotExecuted(proposalId);
+        revert Senior_acceptProposedLaw__ProposalNotSucceeded(proposalId);
       }
 
       // step 4: complete the proposal. 

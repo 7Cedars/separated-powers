@@ -207,14 +207,14 @@ contract SeparatedPowersTest is Test {
     // PROPOSAL LINK 1: revoking member
     // proposing... 
     address memberToRevoke = alice;
-    string memory descriptionOne = "Alice will be member no more in the DAO.";
-    bytes memory lawCalldataOne = abi.encode(memberToRevoke, keccak256(bytes(descriptionOne)));  
+    string memory description = "Alice will be member no more in the DAO.";
+    bytes memory lawCalldata = abi.encode(memberToRevoke, keccak256(bytes(description)));  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
       constituentLaws[9], // = Whale_revokeMember
-      lawCalldataOne, 
-      descriptionOne
+      lawCalldata, 
+      description
     );
     
     // whales vote... Only david and eve are whales. 
@@ -227,7 +227,7 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[9]).executeLaw(lawCalldataOne);
+    Law(constituentLaws[9]).executeLaw(lawCalldata);
 
     // check if alice has indeed been blacklisted. 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -237,20 +237,20 @@ contract SeparatedPowersTest is Test {
     vm.roll(5_000);
     // PROPOSAL LINK 2: challenge revoke decision 
     // proposing... 
-    string memory descriptionTwo = "I challenge the revoking of my membership to agDAO.";
-    bytes memory lawCalldataTwo = abi.encode(keccak256(bytes(descriptionTwo)), keccak256(bytes(descriptionOne)), lawCalldataOne);  
+    string memory descriptionChallenge = "I challenge the revoking of my membership to agDAO.";
+    bytes memory lawCalldataChallenge = abi.encode(keccak256(bytes(descriptionChallenge)), keccak256(bytes(description)), lawCalldata);  
 
     vm.prank(alice); // = a whale
     uint256 proposalIdTwo = agDao.propose(
       constituentLaws[10], // = Member_challengeRevoke
-      lawCalldataTwo, 
-      descriptionTwo
+      lawCalldataChallenge, 
+      descriptionChallenge
     );
     
     vm.roll(9_000); // No vote needed, but does need pass time for vote to be executed. 
     
     vm.prank(alice);
-    Law(constituentLaws[10]).executeLaw(lawCalldataTwo);
+    Law(constituentLaws[10]).executeLaw(lawCalldataChallenge);
 
     // check
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -258,15 +258,11 @@ contract SeparatedPowersTest is Test {
     
     vm.roll(10_000);
     // PROPOSAL LINK 3: challenge is accepted by Seniors, member is reinstated.
-    // proposing...
-    string memory descriptionThree = "ALice's challenge is accepted, Alice will be reinstated.";
-    bytes memory lawCalldataThree = abi.encode(proposalIdTwo, alice, keccak256(bytes(descriptionThree))); 
-
     vm.prank(bob); // = a senior
     uint256 proposalIdThree = agDao.propose(
       constituentLaws[11], // = Senior_reinstateMember
-      lawCalldataThree, 
-      descriptionThree
+      lawCalldataChallenge, 
+      descriptionChallenge
     );
 
     // whales vote... all vote in favour (incl alice ;) 
@@ -281,10 +277,10 @@ contract SeparatedPowersTest is Test {
 
     // executing...
     vm.prank(bob);
-    Law(constituentLaws[11]).executeLaw(lawCalldataThree);
+    Law(constituentLaws[11]).executeLaw(lawCalldataChallenge);
     
     // check
-    ISeparatedPowers.ProposalState proposalStateThree = agDao.state(proposalIdTwo); 
+    ISeparatedPowers.ProposalState proposalStateThree = agDao.state(proposalIdThree); 
     assert(uint8(proposalStateThree) == 4); // == ProposalState.Completed
 
     // check if alice has indeed been reinstated.

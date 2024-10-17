@@ -97,14 +97,14 @@ contract LawsManagerTest is Test {
     // proposing... 
     // Note newLaw is actually an already existing law. 
     address newLaw = constituentLaws[0]; 
-    string memory whaleDescription = "Proposing to add a new Law";
-    bytes memory whaleLawCalldata = abi.encode(newLaw, true, keccak256(bytes(whaleDescription)));  
+    string memory description = "Proposing to add a new Law";
+    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
       constituentLaws[4], // = Whale_proposeLaw
-      whaleLawCalldata, 
-      whaleDescription
+      lawCalldata, 
+      description
     );
     
     // whales vote... Only david and eve are whales. 
@@ -117,7 +117,7 @@ contract LawsManagerTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(whaleLawCalldata);
+    Law(constituentLaws[4]).executeLaw(lawCalldata);
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -126,14 +126,12 @@ contract LawsManagerTest is Test {
     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
     // proposing...
     vm.roll(5_000);
-    string memory seniorDescription = "Accepting whale proposal to add new law.";
-    bytes memory seniorLawCalldata = abi.encode(newLaw, true, keccak256(bytes(whaleDescription)), keccak256(bytes(seniorDescription)));  
 
     vm.prank(charlotte); // = a senior
     uint256 proposalIdTwo = agDao.propose(
       constituentLaws[5], // = Senior_acceptProposedLaw
-      seniorLawCalldata, 
-      seniorDescription
+      lawCalldata, 
+      description
     );
 
     // seniors vote... alice, bob and charlotte are seniors.
@@ -148,7 +146,7 @@ contract LawsManagerTest is Test {
 
     // executing... 
     vm.prank(bob);
-    Law(constituentLaws[5]).executeLaw(seniorLawCalldata);
+    Law(constituentLaws[5]).executeLaw(lawCalldata);
 
     // check 
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -156,16 +154,12 @@ contract LawsManagerTest is Test {
 
     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
     vm.roll(10_000);
-    string memory adminDescription = "Implementing whale proposal to add new law.";
-    bytes memory adminLawCalldata = abi.encode(newLaw, true, seniorLawCalldata, keccak256(bytes(adminDescription)));  
     
     vm.expectEmit(true, false, false, false);
     emit LawsManager.LawSet(newLaw, true, false);
     vm.prank(alice); // = admin role 
-    Law(constituentLaws[6]).executeLaw(adminLawCalldata);
+    Law(constituentLaws[6]).executeLaw(lawCalldata);
   }
-
-
 
   ///////////////////////////////////////////////
   ///                   Helpers               ///

@@ -6,7 +6,7 @@ import {SeparatedPowers} from "../../SeparatedPowers.sol";
 import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 
 /**
- * @notice Example Law contract. 
+ * @notice This law allows a senior... £ CONTINUE HERE WITH NATSPECS. 
  * 
  * @dev In this contract...
  *
@@ -15,7 +15,7 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 contract Senior_assignRole is Law {
     error Senior_assignRole__AlreadySenior();
     error Senior_assignRole__TooManySeniors();
-    error Senior_assignRole__ProposalVoteNotPassed(uint256 proposalId);
+    error Senior_assignRole__ProposalVoteNotSucceeded(uint256 proposalId);
 
     address public agCoins; 
     address public agDao;
@@ -61,7 +61,7 @@ contract Senior_assignRole is Law {
       // step 3: check if vote for this proposal has succeeded. 
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       if (SeparatedPowers(payable(agDao)).state(proposalId) != ISeparatedPowers.ProposalState.Succeeded) {
-        revert Senior_assignRole__ProposalVoteNotPassed(proposalId);
+        revert Senior_assignRole__ProposalVoteNotSucceeded(proposalId);
       }
 
       // step 4: set proposal to completed.

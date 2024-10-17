@@ -342,7 +342,7 @@ contract SeparatedPowersTest is Test {
 
       // execute
       vm.expectRevert(abi.encodeWithSelector(
-        Senior_assignRole.Senior_assignRole__ProposalVoteNotPassed.selector, proposalId
+        Senior_assignRole.Senior_assignRole__ProposalVoteNotSucceeded.selector, proposalId
       )); 
       vm.prank(charlotte); 
       Law(constituentLaws[1]).executeLaw(lawCalldata);
@@ -439,14 +439,14 @@ contract SeparatedPowersTest is Test {
     /* PROPOSAL LINK 1: a whale proposes a law. */   
     // proposing... 
     address newLaw = address(new Member_assignRole(payable(address(agDao))));
-    string memory whaleDescription = "Proposing to add a new Law";
-    bytes memory whaleLawCalldata = abi.encode(newLaw, true, keccak256(bytes(whaleDescription)));  
+    string memory description = "Proposing to add a new Law";
+    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
       constituentLaws[4], // = Whale_proposeLaw
-      whaleLawCalldata, 
-      whaleDescription
+      lawCalldata, 
+      description
     );
     
     // whales vote... Only david and eve are whales. 
@@ -459,7 +459,7 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(whaleLawCalldata);
+    Law(constituentLaws[4]).executeLaw(lawCalldata);
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -468,14 +468,11 @@ contract SeparatedPowersTest is Test {
     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
     // proposing...
     vm.roll(5_000);
-    string memory seniorDescription = "Accepting whale proposal to add new law.";
-    bytes memory seniorLawCalldata = abi.encode(newLaw, true, keccak256(bytes(whaleDescription)), keccak256(bytes(seniorDescription)));  
-
     vm.prank(charlotte); // = a senior
     uint256 proposalIdTwo = agDao.propose(
       constituentLaws[5], // = Senior_acceptProposedLaw
-      seniorLawCalldata, 
-      seniorDescription
+      lawCalldata, 
+      description
     );
 
     // seniors vote... alice, bob and charlotte are seniors.
@@ -490,7 +487,7 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(bob);
-    Law(constituentLaws[5]).executeLaw(seniorLawCalldata);
+    Law(constituentLaws[5]).executeLaw(lawCalldata);
 
     // check 
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -498,11 +495,8 @@ contract SeparatedPowersTest is Test {
 
     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
     vm.roll(10_000);
-    string memory adminDescription = "Implementing whale proposal to add new law.";
-    bytes memory adminLawCalldata = abi.encode(newLaw, true, seniorLawCalldata, keccak256(bytes(adminDescription)));  
-    
     vm.prank(alice); // = admin role 
-    Law(constituentLaws[6]).executeLaw(adminLawCalldata);
+    Law(constituentLaws[6]).executeLaw(lawCalldata);
 
     // check if law has been set to active. 
     bool active = agDao.activeLaws(newLaw);
@@ -513,14 +507,14 @@ contract SeparatedPowersTest is Test {
         /* PROPOSAL LINK 1: a whale proposes a law. */   
     // proposing... 
     address newLaw = address(new Member_assignRole(payable(address(agDao))));
-    string memory whaleDescription = "Proposing to add a new Law";
-    bytes memory whaleLawCalldata = abi.encode(newLaw, true, keccak256(bytes(whaleDescription)));  
+    string memory description = "Proposing to add a new Law";
+    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
       constituentLaws[4], // = Whale_proposeLaw
-      whaleLawCalldata, 
-      whaleDescription
+      lawCalldata, 
+      description
     );
     
     // whales vote... Only david and eve are whales. 
@@ -534,24 +528,21 @@ contract SeparatedPowersTest is Test {
     // executing does not work. 
     vm.prank(david);
     vm.expectRevert(abi.encodeWithSelector(
-      Whale_proposeLaw.Whale_proposeLaw__ProposalVoteNotPassed.selector, proposalIdOne
+      Whale_proposeLaw.Whale_proposeLaw__ProposalVoteNotSucceeded.selector, proposalIdOne
     ));
-    Law(constituentLaws[4]).executeLaw(whaleLawCalldata);
+    Law(constituentLaws[4]).executeLaw(lawCalldata);
 
     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
     // proposing...
     vm.roll(5_000);
-    string memory seniorDescription = "Accepting whale proposal to add new law.";
-    bytes memory seniorLawCalldata = abi.encode(newLaw, true, keccak256(bytes(whaleDescription)), keccak256(bytes(seniorDescription)));  
-    
     // NB: Note that it IS possible to create proposals that link back to non executed proposals. 
     // this is something to fix at a later date. 
     // proposals will not execute though. See below. 
     vm.prank(charlotte); // = a senior
     uint256 proposalIdTwo = agDao.propose(
       constituentLaws[5], // = Senior_acceptProposedLaw
-      seniorLawCalldata, 
-      seniorDescription
+      lawCalldata, 
+      description
     );
 
     // seniors vote... alice, bob and charlotte are seniors.
@@ -567,23 +558,23 @@ contract SeparatedPowersTest is Test {
     // executing... 
     vm.prank(bob);
     vm.expectRevert(abi.encodeWithSelector( 
-      Senior_acceptProposedLaw.Senior_acceptProposedLaw__ParentProposalNotExecuted.selector, proposalIdOne
+      Senior_acceptProposedLaw.Senior_acceptProposedLaw__ParentProposalNotCompleted.selector, proposalIdOne
     )); 
-    Law(constituentLaws[5]).executeLaw(seniorLawCalldata);
+    Law(constituentLaws[5]).executeLaw(lawCalldata);
   }
 
   function testSeniorDefeatStopsChain() public {
         /* PROPOSAL LINK 1: a whale proposes a law. */   
     // proposing... 
     address newLaw = address(new Member_assignRole(payable(address(agDao))));
-    string memory whaleDescription = "Proposing to add a new Law";
-    bytes memory whaleLawCalldata = abi.encode(newLaw, true, keccak256(bytes(whaleDescription)));  
+    string memory description = "Proposing to add a new Law";
+    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
       constituentLaws[4], // = Whale_proposeLaw
-      whaleLawCalldata, 
-      whaleDescription
+      lawCalldata, 
+      description
     );
     
     // whales vote... Only david and eve are whales. 
@@ -596,19 +587,15 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(whaleLawCalldata);
+    Law(constituentLaws[4]).executeLaw(lawCalldata);
 
     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
-    // proposing...
     vm.roll(5_000);
-    string memory seniorDescription = "Accepting whale proposal to add new law.";
-    bytes memory seniorLawCalldata = abi.encode(newLaw, true, keccak256(bytes(whaleDescription)), keccak256(bytes(seniorDescription)));  
-
     vm.prank(charlotte); // = a senior
     uint256 proposalIdTwo = agDao.propose(
       constituentLaws[5], // = Senior_acceptProposedLaw
-      seniorLawCalldata, 
-      seniorDescription
+      lawCalldata, 
+      description
     );
 
     // seniors vote... alice, bob and charlotte are seniors.
@@ -624,18 +611,15 @@ contract SeparatedPowersTest is Test {
     // executing... 
     vm.prank(bob);
     vm.expectRevert(abi.encodeWithSelector(
-      Senior_acceptProposedLaw.Senior_acceptProposedLaw__ProposalNotExecuted.selector, proposalIdTwo
+      Senior_acceptProposedLaw.Senior_acceptProposedLaw__ProposalNotSucceeded.selector, proposalIdTwo
     )); 
-    Law(constituentLaws[5]).executeLaw(seniorLawCalldata);
+    Law(constituentLaws[5]).executeLaw(lawCalldata);
 
     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
-    vm.roll(10_000);
-    string memory adminDescription = "Implementing whale proposal to add new law.";
-    bytes memory adminLawCalldata = abi.encode(newLaw, true, seniorLawCalldata, keccak256(bytes(adminDescription)));  
-    
+    vm.roll(10_000);    
     vm.prank(alice); // = admin role 
     vm.expectRevert(); 
-    Law(constituentLaws[6]).executeLaw(adminLawCalldata);
+    Law(constituentLaws[6]).executeLaw(lawCalldata);
   }
 
   ///////////////////////////////////////////////

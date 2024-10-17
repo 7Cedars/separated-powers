@@ -15,7 +15,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  */
 contract Senior_revokeRole is Law {
     error Senior_revokeRole__NotASenior();
-    error Senior_revokeRole__ProposalVoteNotPassed(uint256 proposalId);
+    error Senior_revokeRole__ProposalVoteNotSucceeded(uint256 proposalId);
 
     address public agCoins; 
     address public agDao;
@@ -56,7 +56,7 @@ contract Senior_revokeRole is Law {
       // step 3: check if proposal passed vote.
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       if (SeparatedPowers(payable(agDao)).state(proposalId) != ISeparatedPowers.ProposalState.Succeeded) {
-        revert Senior_revokeRole__ProposalVoteNotPassed(proposalId);
+        revert Senior_revokeRole__ProposalVoteNotSucceeded(proposalId);
       }
 
       // step 4: complete the proposal. 

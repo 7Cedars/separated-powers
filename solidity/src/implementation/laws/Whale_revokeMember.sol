@@ -16,7 +16,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  */
 contract Whale_revokeMember is Law {
     error Whale_revokeMember__AccountIsNotMember();
-    error Whale_revokeMember__ProposalVoteNotPassed(uint256 proposalId);
+    error Whale_revokeMember__ProposalVoteNotSucceeded(uint256 proposalId);
 
     address public agCoins; 
     address public agDao;
@@ -58,7 +58,7 @@ contract Whale_revokeMember is Law {
       // step 3: check if proposal passed vote.
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       if (SeparatedPowers(payable(agDao)).state(proposalId) != ISeparatedPowers.ProposalState.Succeeded) {
-        revert Whale_revokeMember__ProposalVoteNotPassed(proposalId);
+        revert Whale_revokeMember__ProposalVoteNotSucceeded(proposalId);
       }
 
       // step 4: set proposal to completed. 
