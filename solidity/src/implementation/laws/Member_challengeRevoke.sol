@@ -31,8 +31,8 @@ contract Member_challengeRevoke is Law {
         type(uint64).max, // = access PUBLIC_ROLE
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = no quorum, means no vote. 
-        0, // = succeedAt
-        0, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
+        0, // = succeedAt in percent
+        0, // votingPeriod_ in blocks
         whale_revokeMember // = no parent Law
     ) {
       agDao = agDao_;

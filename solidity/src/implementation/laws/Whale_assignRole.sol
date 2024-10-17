@@ -7,11 +7,13 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
- * @notice Example Law contract. 
+ * @notice This contract allows whales to assign or revoke whale roles, on the basis of the agCoins an account holds.
+ * If an account holds fewer than 1_000_000 agCoins, it will be deselected. If it owns 1_000_000 or more tokens, it will be selected.   
  * 
- * @dev In this contract...
- *
- *  
+ * @dev The contract is an example of a law that 
+ * - has does not need a proposal to be voted through. It can be called directly. 
+ * - is role restricted. 
+ * - links token holdings to role selection. There are many ways to do this. This law is but one example. 
  */
 contract Whale_assignRole is Law {
     error Whale_assignRole__Error();
@@ -30,8 +32,8 @@ contract Whale_assignRole is Law {
         2, // = access Whale
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = no quorum, means no vote. 
-        0, // = succeedAt
-        0, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
+        0, // = succeedAt in percent
+        0, // votingPeriod_ in blocks 
         address(0) // = parent Law 
     ) {
       agDao = agDao_;

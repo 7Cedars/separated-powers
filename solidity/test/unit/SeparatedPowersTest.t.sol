@@ -24,6 +24,13 @@ import {Whale_assignRole} from "../../src/implementation/laws/Whale_assignRole.s
 import {Whale_proposeLaw} from "../../src/implementation/laws/Whale_proposeLaw.sol";
 import {Whale_revokeMember} from "../../src/implementation/laws/Whale_revokeMember.sol";
 
+/**
+* @notice Unit tests for the core Separated Powers protocol.
+* 
+* @dev tests build on the agDao example. 
+* @dev for chained proposal tests, see the 'chain propsals' section. 
+*/
+
 contract SeparatedPowersTest is Test {
   /* Type declarations */
   SeparatedPowers separatedPowers;

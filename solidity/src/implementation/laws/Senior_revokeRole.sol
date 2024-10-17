@@ -7,10 +7,11 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
- * @notice Example Law contract. 
+ * @notice This law allows a senior to revoke a senior role. This can be their own or another senior. 
  * 
- * @dev In this contract...
- *
+ * @dev The contract is an example of a law 
+ * - that has access control and needs a proposal to be voted through.
+ * - that has an additional conditional check. In this case the account needs to have be a senior role holder.  
  *  
  */
 contract Senior_revokeRole is Law {
@@ -27,8 +28,8 @@ contract Senior_revokeRole is Law {
         "Senior role can be revoked by large majority vote. If passed the proposer receives a reward in agCoins", // = description
         1, // = access senior
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
-        80, // = quorum 
-        80, // = succeedAt
+        80, // = quorum in percent
+        80, // = succeedAt in percent
         3_600, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
         address(0) // = parent Law 
     ) {
@@ -78,7 +79,7 @@ contract Senior_revokeRole is Law {
       calldatas[1] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
       // step 6: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, bytes memory lawCalldata, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
       SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
     }
 }

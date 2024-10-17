@@ -31,7 +31,7 @@ contract Senior_acceptProposedLaw is Law {
         1, // = access roleId = senior 
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         30, // = quorum
-        100, // = succeedAt
+        100, // = succeedAt in percent
         3_600, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
         Whale_proposeLaw // = parent Law 
     ) {
@@ -77,7 +77,7 @@ contract Senior_acceptProposedLaw is Law {
       calldatas[0] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
       // step 6: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, bytes memory lawCalldata, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
       SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
   }
 }

@@ -29,7 +29,7 @@ contract Member_assignRole is Law {
         type(uint64).max, // = access PUBLIC_ROLE
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = no quorum, means no vote. 
-        0, // = succeedAt
+        0, // = succeedAt in percent
         0, // votingPeriod_ in blocks
         address(0) // = parent Law 
     ) {
@@ -67,7 +67,7 @@ contract Member_assignRole is Law {
       calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 3, msg.sender, true); // = setRole(uint64 roleId, address account, bool access); 
 
       // step 4: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, bytes memory lawCalldata, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
       SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
   }
 }

@@ -5,9 +5,6 @@ import {Law} from "../../Law.sol";
 import {SeparatedPowers} from "../../SeparatedPowers.sol";
 import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 
-// ONLY FOR TESTING PURPOSES // DO NOT USE IN PRODUCTION
-import {console2} from "lib/forge-std/src/Test.sol";
-
 /**
  * @notice This law allows the admin of the governance protocol to set a new law, after it has been checked by seniors through {Senior_acceptProposedLaw}.
  * 
@@ -33,7 +30,7 @@ import {console2} from "lib/forge-std/src/Test.sol";
         0, // = access roleId = ADMIN 
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = quorum
-        0, // = succeedAt
+        0, // = succeedAt in percent
         0, // votingPeriod_ in blocks 
         Senior_acceptProposedLaw // = parent Law 
     ) {
@@ -71,8 +68,7 @@ import {console2} from "lib/forge-std/src/Test.sol";
       calldatas[0] = abi.encodeWithSelector(0xd55a5cc6, law, toInclude);
 
       // step 5: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, bytes memory lawCalldata, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
       SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
-
   }
 }

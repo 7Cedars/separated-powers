@@ -23,7 +23,7 @@ update :; forge update
 # Build
 build :; forge build
 
-test :; forge test 
+test :; forge test
 
 snapshot :; forge snapshot
 
@@ -36,7 +36,7 @@ anvil :; anvil --steps-tracing --block-time 1
 ###############################
 ANVIL_ARGS_0 := --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY_0) --broadcast
 ARB_SEPOLIA_TEST_ARGS := --fork-url $(ARB_SEPOLIA_RPC_URL) 
-ARB_SEPOLIA_DEPLOY_ARGS := --rpc-url $(ARB_SEPOLIA_RPC_URL) --account dev_2 --sender ${DEV2_ADDRESS} --broadcast --verify --verifier-url https://api-sepolia.arbiscan.io/api --etherscan-api-key $(ARBISCAN_API_KEY) -vvvv
+ARB_SEPOLIA_DEPLOY_ARGS := --rpc-url $(ARB_SEPOLIA_RPC_URL) --account dev_2 --sender ${DEV2_ADDRESS} --broadcast --chain-id 421614 --etherscan-api-key $(ARBISCAN_API_KEY) --verifier-url https://api-sepolia.arbiscan.io/api --verify -vvvv
 
 anvilTest :; forge test $(ANVIL_ARGS_0)
 arbSepoliaForkedTest :; forge test ${ARB_SEPOLIA_TEST_ARGS}
@@ -44,7 +44,7 @@ arbSepoliaForkedTest :; forge test ${ARB_SEPOLIA_TEST_ARGS}
 anvilDeploy :; forge script script/DeployAgDao.s.sol:DeployAgDao $(ANVIL_ARGS_0)
 anvilConstitute :; forge script script/ConstituteAgDao.s.sol:ConstituteAgDao $(ANVIL_ARGS_0)
 
-arbSepoliaTestDeploy :; forge script script/DeployAgDao.s.sol:DeployAgDao $(ARB_SEPOLIA_TEST_ARGS)
+arbSepoliaTestDeploy :; forge script script/TestDeploy.s.sol:TestDeploy $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaDeploy :; forge script script/DeployAgDao.s.sol:DeployAgDao $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaConstitute :;  forge script script/ConstituteAgDao.s.sol:ConstituteAgDao $(ARB_SEPOLIA_DEPLOY_ARGS)
 

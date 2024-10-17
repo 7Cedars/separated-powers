@@ -11,10 +11,11 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import {console2} from "lib/forge-std/src/Test.sol";
 
 /**
- * @notice Example Law contract. 
+ * @notice This law allows a whale role holder to accept a new requirement for accounts to be funded with agCoins.
  * 
- * @dev This contract allows a whale role holder to accept a new requirement for accounts to be funded with agCoins.
- * the requirement needs to have passed a prior vote by members.  
+ * @dev The contract is an exmaple of a law  
+ * - that needs a prior proposal to have passed. In this case from the {Member_proposeCoreValue} contract.
+ * - it also needs the proposal to have passed by whales.     
  * 
  * If the contract passes the proposer can execute the law: 
  * 1 - proposer will get a reward.
@@ -39,7 +40,7 @@ contract Whale_acceptCoreValue is Law {
         2, // = access roleId = whale.  
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         30, // = quorum
-        51, // = succeedAt
+        51, // = succeedAt in percent
         3_600, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
         member_proposeCoreValue // = parent Law 
     ) {
@@ -69,7 +70,6 @@ contract Whale_acceptCoreValue is Law {
         revert Whale_acceptCoreValue__ParentProposalnotSucceededOrExecuted(parentProposalId);
       }
     
-
       // step 3: check if the proposal has passed. 
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       ISeparatedPowers.ProposalState proposalState = SeparatedPowers(payable(agDao)).state(proposalId);
@@ -96,7 +96,7 @@ contract Whale_acceptCoreValue is Law {
       calldatas[1] = abi.encodeWithSelector(0x7be05842, requirement);
 
       // step 6: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, bytes memory lawCalldata, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
       SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
   }
 }
