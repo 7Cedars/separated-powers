@@ -53,7 +53,7 @@ interface IAuthoritiesManager {
      * @param account account address
      * @param access access
      *  
-     * @dev this function can only be called from the execute function of SeperatedPowers.sol. 
+     * @dev this function can only be called from within {SeperatedPowers}. 
      */
     function setRole(uint64 roleId, address account, bool access) external; 
   

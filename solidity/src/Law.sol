@@ -52,10 +52,10 @@ contract Law is IERC165, ERC165, EIP712, ILaw {
   * @param description_ Description of the law. Any length.  
   * @param accessRole_ The uint64 identifier of the roleId that has access to this law. 
   * @param daoCore_ The address of the SeparatedPowers contract that will call this Law and that it will call the function execute at. 
-  * @param parentLaw_ The address of the Law that is checked before the execution of the Law.
   * @param quorum_ quorum of votes needed to pass a vote (as percentage of accounts holding roleId). If set to 0, law can be executed without vote. 
   * @param succeedAt_  support votes needed to pass execution of law (as percentage of accounts holding roleId). If quorum_ is set to 0, this value is meaningless.   
   * @param votingPeriod_  number of blocks that the vote is open for, from the moment that the proposal is created. If quorum_ is set to 0, this value is meaningless. 
+  * @param parentLaw_ The address of the Law that is checked before the execution of the Law.
   *  
   */
   constructor(
@@ -87,7 +87,7 @@ contract Law is IERC165, ERC165, EIP712, ILaw {
   function executeLaw(
     bytes memory /* lawCalldata */ 
     ) external virtual {  
-      revert Law__CallNotImplemented(); // acts as a blocker so that the function will not get executed.
+      revert Law__CallNotImplemented(); // As this is a base implementation, no logic implemented. To see examples, see the ./implementation/laws . 
   }
 
   /**
@@ -99,7 +99,8 @@ contract Law is IERC165, ERC165, EIP712, ILaw {
 
   /**
     * @dev see {ISeperatedPowers.hashProposal} 
-    * - takes a description 
+    * A helper function for hashing proposals. 
+    * Often needed to implement custom law logics. 
     */
   function hashProposal(
       address targetLaw, 
@@ -107,17 +108,6 @@ contract Law is IERC165, ERC165, EIP712, ILaw {
       bytes32 descriptionHash
   ) internal pure virtual returns (uint256) {
       return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
-  }
-
-  /**
-    * @dev see {ISeperatedPowers.hashProposal}
-    * - does not take a description
-    */
-  function hashProposal(
-      address targetLaw, 
-      bytes memory lawCalldata
-  ) internal pure virtual returns (uint256) {
-      return uint256(keccak256(abi.encode(targetLaw, lawCalldata)));
   }
 }
 
