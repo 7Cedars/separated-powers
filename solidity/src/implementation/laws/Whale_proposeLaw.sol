@@ -46,7 +46,7 @@ contract Whale_proposeLaw is Law {
       }
 
       // step 1: decode the calldata. Note: lawCalldata can have any format. 
-      (address law, bool toInclude, bytes32 descriptionHash) =
+      (, , bytes32 descriptionHash) =
             abi.decode(lawCalldata, (address, bool, bytes32));
 
       // step 2: check if proposal passed vote.

@@ -158,7 +158,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     /**
      * @dev See {ISeperatedPowers.castVote}.
      */
-    function castVote(uint256 proposalId, uint8 support) external virtual returns (uint256) {
+    function castVote(uint256 proposalId, uint8 support) external virtual {
         address voter = msg.sender;
         return _castVote(proposalId, voter, support, "");
     }
@@ -170,7 +170,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         uint256 proposalId,
         uint8 support,
         string calldata reason
-    ) public virtual returns (uint256) {
+    ) public virtual {
         address voter = msg.sender;
         return _castVote(proposalId, voter, support, reason);
     }
@@ -188,7 +188,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas
-    ) external payable virtual returns (bool) {
+    ) external payable virtual {
         // check 1: is call from an active law? 
         if (!activeLaws[msg.sender]) {
             revert SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
@@ -329,7 +329,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         address account,
         uint8 support,
         string memory reason
-    ) internal virtual returns (uint256) {
+    ) internal virtual {
       // Check that the proposal is active, that it has not been paused, cancelled or ended yet. 
       if (SeparatedPowers(payable(address(this))).state(proposalId) != ProposalState.Active) {
         revert SeparatedPowers__ProposalNotActive(); 

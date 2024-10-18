@@ -81,13 +81,11 @@ contract Law is IERC165, ERC165, EIP712, ILaw {
   /**
    * @dev See {ILaw-executeLaw}.
    * 
-   * @param lawCalldata any data needed to execute the law. 
-   * 
    * @dev this function needs to be overwritten with the custom logic of the law. 
    * 
    */
   function executeLaw(
-    bytes memory lawCalldata
+    bytes memory /* lawCalldata */ 
     ) external virtual {  
       revert Law__CallNotImplemented(); // acts as a blocker so that the function will not get executed.
   }

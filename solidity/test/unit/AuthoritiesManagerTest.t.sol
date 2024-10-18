@@ -146,7 +146,6 @@ contract AuthoritiesManagerTest is Test {
   /* votes */
   function testAccountCannotVoteTwice() public {
     // prep
-    uint256 amountSeniorsBefore = agDao.getAmountRoleHolders(SENIOR_ROLE);
     string memory description = "Charlotte is getting booted as Senior.";
     bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
 
@@ -167,7 +166,6 @@ contract AuthoritiesManagerTest is Test {
 
   function testAgainstVoteIsCorrectlyCounted() public {
     // prep
-    uint256 amountSeniorsBefore = agDao.getAmountRoleHolders(SENIOR_ROLE);
     string memory description = "Charlotte is getting booted as Senior.";
     bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
 
@@ -182,13 +180,12 @@ contract AuthoritiesManagerTest is Test {
     agDao.castVote(proposalId, 0); // = against
 
     // check
-    (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes) = agDao.proposalVotes(proposalId);
+    (uint256 againstVotes, , ) = agDao.proposalVotes(proposalId);
     assert (againstVotes == 3);
   }
 
   function testForVoteIsCorrectlyCounted() public {
     // prep
-    uint256 amountSeniorsBefore = agDao.getAmountRoleHolders(SENIOR_ROLE);
     string memory description = "Charlotte is getting booted as Senior.";
     bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
 
@@ -203,14 +200,13 @@ contract AuthoritiesManagerTest is Test {
     agDao.castVote(proposalId, 1); // = For
 
     // check 
-    (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes) = agDao.proposalVotes(proposalId);
+    (, uint256 forVotes, ) = agDao.proposalVotes(proposalId);
     assert (forVotes == 3); 
   }
 
 
   function testAbstainVoteIsCorrectlyCounted() public {
     // prep
-    uint256 amountSeniorsBefore = agDao.getAmountRoleHolders(SENIOR_ROLE);
     string memory description = "Charlotte is getting booted as Senior.";
     bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
 
@@ -225,13 +221,12 @@ contract AuthoritiesManagerTest is Test {
     agDao.castVote(proposalId, 2); // = abstain
 
     // check 
-    (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes) = agDao.proposalVotes(proposalId);
+    (, , uint256 abstainVotes) = agDao.proposalVotes(proposalId);
     assert (abstainVotes == 3); 
   }
 
   function testInvalidVoteRevertsCorrectly() public {
     // prep
-    uint256 amountSeniorsBefore = agDao.getAmountRoleHolders(SENIOR_ROLE);
     string memory description = "Charlotte is getting booted as Senior.";
     bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
 
@@ -250,8 +245,7 @@ contract AuthoritiesManagerTest is Test {
   }
 
   function testHasVotedReturnCorrectData() public {
-        // prep
-    uint256 amountSeniorsBefore = agDao.getAmountRoleHolders(SENIOR_ROLE);
+    // prep
     string memory description = "Charlotte is getting booted as Senior.";
     bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
 
@@ -268,33 +262,32 @@ contract AuthoritiesManagerTest is Test {
   ///////////////////////////////////////////////
   ///                   Helpers               ///
   ///////////////////////////////////////////////
-  function _deployLaws(address payable agDaoAddress_, address agCoinsAddress_) internal returns (address[] memory constituentLaws) {
-      address[] memory constituentLaws = new address[](12);
+  function _deployLaws(address payable agDaoAddress_, address agCoinsAddress_) internal returns (address[] memory lawsArray) {
+      address[] memory laws = new address[](12);
 
       // deploying laws //
       vm.startPrank(bob);
       // re assigning roles // 
-      constituentLaws[0] = address(new Member_assignRole(agDaoAddress_));
-      constituentLaws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
-      constituentLaws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
-      constituentLaws[3] = address(new Whale_assignRole(agDaoAddress_, agCoinsAddress_));
+      laws[0] = address(new Member_assignRole(agDaoAddress_));
+      laws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
+      laws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
+      laws[3] = address(new Whale_assignRole(agDaoAddress_, agCoinsAddress_));
       
       // re activating & deactivating laws  // 
-      constituentLaws[4] = address(new Whale_proposeLaw(agDaoAddress_, agCoinsAddress_));
-      constituentLaws[5] = address(new Senior_acceptProposedLaw(agDaoAddress_, agCoinsAddress_, address(constituentLaws[4])));
-      constituentLaws[6] = address(new Admin_setLaw(agDaoAddress_, address(constituentLaws[5])));
+      laws[4] = address(new Whale_proposeLaw(agDaoAddress_, agCoinsAddress_));
+      laws[5] = address(new Senior_acceptProposedLaw(agDaoAddress_, agCoinsAddress_, address(laws[4])));
+      laws[6] = address(new Admin_setLaw(agDaoAddress_, address(laws[5])));
 
       // re updating core values // 
-      constituentLaws[7] = address(new Member_proposeCoreValue(agDaoAddress_, agCoinsAddress_));
-      constituentLaws[8] = address(new Whale_acceptCoreValue(agDaoAddress_, agCoinsAddress_, address(constituentLaws[7])));
+      laws[7] = address(new Member_proposeCoreValue(agDaoAddress_, agCoinsAddress_));
+      laws[8] = address(new Whale_acceptCoreValue(agDaoAddress_, agCoinsAddress_, address(laws[7])));
       
       // re enforcing core values as requirement for external funding //   
-      constituentLaws[9] = address(new Whale_revokeMember(agDaoAddress_, agCoinsAddress_));
-      constituentLaws[10] = address(new Member_challengeRevoke(agDaoAddress_, address(constituentLaws[9])));
-      constituentLaws[11] = address(new Senior_reinstateMember(agDaoAddress_, agCoinsAddress_, address(constituentLaws[10])));
+      laws[9] = address(new Whale_revokeMember(agDaoAddress_, agCoinsAddress_));
+      laws[10] = address(new Member_challengeRevoke(agDaoAddress_, address(laws[9])));
+      laws[11] = address(new Senior_reinstateMember(agDaoAddress_, agCoinsAddress_, address(laws[10])));
       vm.stopPrank();
 
-      return constituentLaws;
+      return laws; 
     }
-
 }

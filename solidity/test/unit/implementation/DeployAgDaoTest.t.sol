@@ -6,8 +6,7 @@ import {DeployAgDao} from "../../../script/DeployAgDao.s.sol";
 import {AgDao} from   "../../../src/implementation/AgDao.sol";
 import {AgCoins} from "../../../src/implementation/AgCoins.sol";
 
-contract SeparatedPowersTest is Test {
-  DeployAgDao deployer = new DeployAgDao();
+contract DeployAgDaoTest is Test {
 
   ///////////////////////////////////////////////
   ///                   Setup                 ///
@@ -21,17 +20,20 @@ contract SeparatedPowersTest is Test {
   ///////////////////////////////////////////////
 
   function testAgDaoIsDeployed() public {
-    (AgDao agDao, AgCoins agCoins, address[] memory constituentLaws ) = deployer.run(); 
+    DeployAgDao deployer = new DeployAgDao();
+    (AgDao agDao, ,  ) = deployer.run(); 
     assert(address(agDao) != address(0));
   }
 
   function testAgCoinsIsDeployed() public {
-    (AgDao agDao, AgCoins agCoins, address[] memory constituentLaws) = deployer.run(); 
+     DeployAgDao deployer = new DeployAgDao();
+    (, AgCoins agCoins, ) = deployer.run(); 
     assert(address(agCoins) != address(0));
   }
 
   function testLawsAreDeployed() public {
-    (AgDao agDao, AgCoins agCoins, address[] memory constituentLaws) = deployer.run(); 
+     DeployAgDao deployer = new DeployAgDao();
+    (, , address[] memory constituentLaws) = deployer.run(); 
     for (uint256 i = 0; i < constituentLaws.length; i++) {
       assert(constituentLaws[i].code.length != 0);
     }

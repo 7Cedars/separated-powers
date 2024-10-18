@@ -39,7 +39,7 @@ interface ISeparatedPowers {
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas
-        ) external payable returns (bool); 
+        ) external payable; 
 
     /**
      * @dev
@@ -64,7 +64,7 @@ interface ISeparatedPowers {
     function castVote(
         uint256 proposalId, 
         uint8 support
-        ) external returns (uint256); 
+        ) external; 
 
     /**
      * @dev See {IGovernor-castVoteWithReason}.
@@ -73,7 +73,7 @@ interface ISeparatedPowers {
         uint256 proposalId,
         uint8 support,
         string calldata reason
-        ) external returns (uint256);
+        ) external;
 
     /* public */ 
     /**
