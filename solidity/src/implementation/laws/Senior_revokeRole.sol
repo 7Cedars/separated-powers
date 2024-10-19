@@ -68,16 +68,12 @@ contract Senior_revokeRole is Law {
       SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionHash);
 
       // step 5: creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      // address[] memory targets = new address[](2);
-      // uint256[] memory values = new uint256[](2); 
-      // bytes[] memory calldatas = new bytes[](2);
-
-      // 5a: action: add membership role to applicant. 
+      // action 1: add membership role to applicant. 
       targets[0] = agDao;
       values[0] = 0;
       calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 1, seniorToRevoke, false); // = setRole(uint64 roleId, address account, bool access); 
       
-      // 5b: action: give proposer reward. 
+      // action 2: give proposer reward. 
       targets[1] = agCoins;
       values[1] = 0;
       calldatas[1] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);

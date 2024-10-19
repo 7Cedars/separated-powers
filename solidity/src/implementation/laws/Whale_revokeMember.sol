@@ -69,21 +69,17 @@ contract Whale_revokeMember is Law {
       SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionHash);
 
       // step 5: creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      // address[] memory targets = new address[](3);
-      // uint256[] memory values = new uint256[](3); 
-      // bytes[] memory calldatas = new bytes[](3);
-
-      // 5a: action 1: revoke membership role to applicant. 
+      // action 1: revoke membership role to applicant. 
       targets[0] = agDao;
       values[0] = 0;
       calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 3, memberToRevoke, false); // = setRole(uint64 roleId, address account, bool access); 
 
-      // 5b: action 2: add account to blacklist 
+      // action 2: add account to blacklist 
       targets[1] = agDao;
       values[1] = 0;
       calldatas[1] = abi.encodeWithSelector(0xe594707e, memberToRevoke, true); // = blacklistAccount(address account, bool isBlacklisted);
 
-      // 5c: action 3: give proposer reward.  
+      // action 3: give proposer reward.  
       targets[2] = agCoins;
       values[2] = 0;
       calldatas[2] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);

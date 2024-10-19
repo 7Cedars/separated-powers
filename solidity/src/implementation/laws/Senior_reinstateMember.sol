@@ -78,21 +78,17 @@ contract Senior_reinstateMember is Law {
       SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionChallengeHash);
 
       // step 6: creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      // address[] memory targets = new address[](3);
-      // uint256[] memory values = new uint256[](3); 
-      // bytes[] memory calldatas = new bytes[](3);
-
-      // 6a: action 1: give reward to proposer of proposal. 
+      // action 1: give reward to proposer of proposal. 
       targets[0] = agCoins;
       values[0] = 0;
       calldatas[0] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
-      // 6b: action 2: re-assign account to member role.
+      // action 2: re-assign account to member role.
       targets[1] = agDao;
       values[1] = 0;
       calldatas[1] = abi.encodeWithSelector(0xd2ab9970, 3, revokedMember, true); // = setRole(uint64 roleId, address account, bool access); 
 
-      // 6c: action 3: remove account from blacklist.
+      // action 3: remove account from blacklist.
       targets[2] = agDao;
       values[2] = 0;
       calldatas[2] = abi.encodeWithSelector(0xe594707e, revokedMember, false); // = blacklistAccount(address account, bool isBlacklisted);

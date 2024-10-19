@@ -63,15 +63,11 @@ contract Whale_assignRole is Law {
       // step 3: Note that check for proposal to have passed & setting proposal as completed is missing. This action can be executed without setting a proposal or passing a vote.  
 
       // step 4: set data structure for call to execute function.
-      // address[] memory targets = new address[](2);
-      // uint256[] memory values = new uint256[](2); 
-      // bytes[] memory calldatas = new bytes[](2);
-      
-      // 4a: action 1: conditional assign or revoke role. 
+      // action 1: conditional assign or revoke role. 
       targets[0] = agDao;
       values[0] = 0;
 
-      // 4b:action 2: give reward to proposer of proposal. 
+      // action 2: give reward to proposer of proposal. 
       targets[1] = agCoins;
       values[1] = 0;
       calldatas[1] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);

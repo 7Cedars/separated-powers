@@ -61,11 +61,7 @@ contract Member_assignRole is Law {
       // NB: note, no check if a proposal has succeeded. This law can be called directly. 
 
       // step 3 : creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      // address[] memory targets = new address[](1);
-      // uint256[] memory values = new uint256[](1); 
-      // bytes[] memory calldatas = new bytes[](1);
-
-      // action 1: add membership role to applicant. 
+      // action: add membership role to applicant. 
       targets[0] = agDao;
       values[0] = 0;
       calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 3, msg.sender, true); // = setRole(uint64 roleId, address account, bool access); 

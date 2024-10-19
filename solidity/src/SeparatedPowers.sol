@@ -29,20 +29,18 @@ import {EIP712} from "../lib/openzeppelin-contracts/contracts/utils/cryptography
 contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedPowers {
     /* errors */
     error SeparatedPowers__ConstitutionAlreadyExecuted(); 
-    error SeparatedPowers__RestrictedProposer(); 
     error SeparatedPowers__OnlySeparatedPowers(); 
     error SeparatedPowers__AccessDenied(); 
     error SeparatedPowers__UnexpectedProposalState(); 
     error SeparatedPowers__InvalidProposalId(); 
     error SeperatedPowers__NonExistentProposal(uint256 proposalId); 
-    error SeparatedPowers__InvalidProposalLength(uint256 targetsLength, uint256 calldatasLength); 
     error SeparatedPowers__ProposalAlreadyCompleted(); 
     error SeparatedPowers__ProposalCancelled(); 
-    error SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
     error SeparatedPowers__CompleteCallNotFromActiveLaw();
     error SeparatedPowers__OnlyProposer(address caller); 
     error SeparatedPowers__ProposalNotActive(); 
     error SeparatedPowers__NoAccessToTargetLaw();
+    error SeparatedPowers__InvalidCallData(); 
     
     /* State variables */
     mapping(uint256 proposalId => ProposalCore) private _proposals; // mapping from proposalId to proposalCore
@@ -183,7 +181,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     function execute(
         address targetLaw, 
         bytes memory lawCalldata,
-        bytes32 descriptionHash
+        bytes32 /*descriptionHash*/
     ) external payable virtual {
         // check 1: does executioner have access to law being executed? 
         uint64 accessRole = Law(targetLaw).accessRole(); 
@@ -195,7 +193,9 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = Law(targetLaw).executeLaw(lawCalldata);
 
         // execute.
-        _executeOperations(targets, values, calldatas);
+        if (targets.length > 0) {
+            _executeOperations(targets, values, calldatas);
+        }
     }
 
     /**
@@ -412,6 +412,10 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         uint256[] memory values,
         bytes[] memory calldatas
     ) internal virtual {
+        if (targets.length != values.length || targets.length != calldatas.length) {
+            revert SeparatedPowers__InvalidCallData();
+        }
+
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
             Address.verifyCallResult(success, returndata);

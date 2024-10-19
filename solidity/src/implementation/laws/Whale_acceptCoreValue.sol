@@ -85,16 +85,12 @@ contract Whale_acceptCoreValue is Law {
       SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionHash);
 
       // step 5 : creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      // address[] memory targets = new address[](2);
-      // uint256[] memory values = new uint256[](2); 
-      // bytes[] memory calldatas = new bytes[](2);
-
-      // 5a: action 1: give reward to proposer of proposal. 
+      // action 1: give reward to proposer of proposal. 
       targets[0] = agCoins;
       values[0] = 0;
       calldatas[0] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
-      // 5b: action 2: add requirement to agDAO. 
+      // action 2: add requirement to agDAO. 
       targets[1] = agDao;
       values[1] = 0;
       calldatas[1] = abi.encodeWithSelector(0x7be05842, requirement);

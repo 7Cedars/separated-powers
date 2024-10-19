@@ -73,16 +73,12 @@ contract Senior_assignRole is Law {
       SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionHash);
 
       // step 5: creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      // address[] memory targets = new address[](1);
-      // uint256[] memory values = new uint256[](1); 
-      // bytes[] memory calldatas = new bytes[](1);
-
-      // 6: action: add membership role to applicant. 
+      // action: add membership role to applicant. 
       targets[0] = agDao;
       values[0] = 0;
       calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 1, newSenior, true); // = setRole(uint64 roleId, address account, bool access); 
 
-      // step 7: return data
+      // step 6: return data
       return (targets, values, calldatas);
   }
 }
