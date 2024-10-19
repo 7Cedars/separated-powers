@@ -3,7 +3,7 @@
 
 .PHONY: all test clean deploy fund help install snapshot format anvil 
 
-all: clean remove install update build
+all: clean remove install update build test
 
 # Clean the repo
 clean  :; forge clean
@@ -37,6 +37,8 @@ anvil :; anvil --steps-tracing --block-time 1
 ANVIL_ARGS_0 := --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY_0) --broadcast
 ARB_SEPOLIA_TEST_ARGS := --fork-url $(ARB_SEPOLIA_RPC_URL) 
 ARB_SEPOLIA_DEPLOY_ARGS := --rpc-url $(ARB_SEPOLIA_RPC_URL) --account dev_2 --sender ${DEV2_ADDRESS} --broadcast --chain-id 421614 --etherscan-api-key $(ARBISCAN_API_KEY) --verifier-url https://api-sepolia.arbiscan.io/api --verify -vvvv
+OPT_SEPOLIA_DEPLOY_ARGS := --rpc-url $(OPT_SEPOLIA_RPC_URL) --account dev_2 --sender ${DEV2_ADDRESS} --broadcast --etherscan-api-key $(OPT_ETHERSCAN_API_KEY) --verify -vvvv
+
 
 anvilTest :; forge test $(ANVIL_ARGS_0)
 arbSepoliaForkedTest :; forge test ${ARB_SEPOLIA_TEST_ARGS}
@@ -47,5 +49,9 @@ anvilConstitute :; forge script script/ConstituteAgDao.s.sol:ConstituteAgDao $(A
 arbSepoliaTestDeploy :; forge script script/TestDeploy.s.sol:TestDeploy $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaDeploy :; forge script script/DeployAgDao.s.sol:DeployAgDao $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaConstitute :;  forge script script/ConstituteAgDao.s.sol:ConstituteAgDao $(ARB_SEPOLIA_DEPLOY_ARGS)
+
+optSepoliaTestDeploy :; forge script script/TestDeploy.s.sol:TestDeploy $(OPT_SEPOLIA_DEPLOY_ARGS)
+optSepoliaDeploy :; forge script script/DeployAgDao.s.sol:DeployAgDao $(OPT_SEPOLIA_DEPLOY_ARGS)
+optSepoliaConstitute :;  forge script script/ConstituteAgDao.s.sol:ConstituteAgDao $(OPT_SEPOLIA_DEPLOY_ARGS)
 
 

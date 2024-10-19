@@ -51,6 +51,20 @@ interface ISeparatedPowers {
      *
      * emits a {ProposalCreated} event.
      */
+    function constitute(
+        address[] memory constituentLaws,
+        ConstituentRole[] memory constitutionalRoles
+    ) external;
+
+    /**
+     * @dev the external function to call when a new proposal is created.
+     *
+     * @param targetLaw : the address of the law to be executed. Can only be one address. 
+     * @param lawCalldata : the calldata to be passed to the law
+     * @param description : the description of the proposal
+     *
+     * emits a {ProposalCreated} event.
+     */
     function propose(
         address targetLaw,
         bytes memory lawCalldata,

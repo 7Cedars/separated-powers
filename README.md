@@ -291,3 +291,4 @@ GitHub profile [https://github.com/7Cedars](https://github.com/7Cedars)
 [Bootstrap-url]: https://getbootstrap.com
 [JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
 [JQuery-url]: https://jquery.com 
+>>>>>>> 00a40551850c35887836e626215961fac8bc324d

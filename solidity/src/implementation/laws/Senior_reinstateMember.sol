@@ -48,7 +48,7 @@ contract Senior_reinstateMember is Law {
         revert Senior_reinstateMember__AccessNotAuthorized(msg.sender);
       }
 
-      // step 1: decode the calldata. Note: the callData does include the address of the revoked member account as additional check. 
+      // step 1: decode the calldata. 
       (bytes32 descriptionChallengeHash, , bytes memory revokeCalldata) =
             abi.decode(lawCalldata, (bytes32, bytes32, bytes));
 
