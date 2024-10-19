@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { reinstateMember } from '../../utils/blockchainUtils';
 
-interface SeniorActionsProps {
-    seniorAddress: string;
-}
 
-const SeniorActions: React.FC<SeniorActionsProps> = ({ seniorAddress }) => {
+
+const SeniorActions: React.FC = () => {
     const [memberAddress, setMemberAddress] = useState<string>('');
     const [message, setMessage] = useState<string>('');
 
     const handleReinstateMember = async () => {
         try {
-            const result = await reinstateMember(memberAddress, seniorAddress);
+            const result = await reinstateMember(memberAddress);
             setMessage(`Member reinstated successfully: ${result}`);
             setMemberAddress('');
         } catch (error) {

@@ -5,14 +5,14 @@ interface WhaleActionsProps {
     address: string;
 }
 
-const WhaleActions: React.FC<WhaleActionsProps> = ({ address }) => {
+const WhaleActions: React.FC<WhaleActionsProps> = () => {
     const [newCoreValue, setNewCoreValue] = useState<string>('');
     const [memberAddress, setMemberAddress] = useState<string>('');
     const [message, setMessage] = useState<string>('');
 
     const handleProposeCoreValue = async () => {
         try {
-            const result = await proposeCoreValue(newCoreValue, address);
+            const result = await proposeCoreValue(newCoreValue);
             setMessage(`Core value proposed: ${result}`);
             setNewCoreValue('');
         } catch (error) {
@@ -23,7 +23,7 @@ const WhaleActions: React.FC<WhaleActionsProps> = ({ address }) => {
 
     const handleAcceptCoreValue = async () => {
         try {
-            const result = await acceptCoreValue(newCoreValue, address);
+            const result = await acceptCoreValue(newCoreValue);
             setMessage(`Core value accepted: ${result}`);
             setNewCoreValue('');
         } catch (error) {
@@ -34,7 +34,7 @@ const WhaleActions: React.FC<WhaleActionsProps> = ({ address }) => {
 
     const handleRevokeMember = async () => {
         try {
-            const result = await revokeMember(memberAddress, address);
+            const result = await revokeMember(memberAddress);
             setMessage(`Member revoked: ${result}`);
             setMemberAddress('');
         } catch (error) {

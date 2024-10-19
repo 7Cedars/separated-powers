@@ -7,7 +7,7 @@ const main = async () => {
 
         console.log("Verifying contract...");
 
-        const contractAddress = "0x0438Cd38B03C5Bd0fd8091eF8e608A26707C93AF";
+        const contractAddress = "0x86D50D642e15CAA3C7C11806adad4fA17c53Ba55";
 
         await hre.run("verify:verify", {
             address: contractAddress,
@@ -33,4 +33,4 @@ const runMain = async () => {
 
 runMain();
 // agDAO: 0x0438Cd38B03C5Bd0fd8091eF8e608A26707C93AF
-// agDAOCOin:
+// agDAOCOin: 0x86D50D642e15CAA3C7C11806adad4fA17c53Ba55

@@ -5,14 +5,14 @@ interface AdminActionsProps {
     adminAddress: string;
 }
 
-const AdminActions: React.FC<AdminActionsProps> = ({ adminAddress }) => {
+const AdminActions: React.FC<AdminActionsProps> = () => {
     const [lawId, setLawId] = useState<string>('');
     const [blockDelay, setBlockDelay] = useState<number>(0);
     const [message, setMessage] = useState<string>('');
 
     const handleFinalizeLaw = async () => {
         try {
-            const result = await finalizeLaw(lawId, blockDelay, adminAddress);
+            const result = await finalizeLaw(lawId, blockDelay);
             setMessage(`Law finalized successfully: ${result}`);
             setLawId('');
             setBlockDelay(0);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getRole, getBalance } from '../../utils/blockchainUtils';
+import { getRole, getBalance } from '../../utils/blockchainUtils2';
 import MemberActions from '../shared/MemberActions';
 import WhaleActions from '../shared/WhaleActions';
 import SeniorActions from '../shared/SeniorActions';

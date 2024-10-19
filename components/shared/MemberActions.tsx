@@ -12,7 +12,10 @@ const MemberActions: React.FC = () => {
             setNewValue('');
         } catch (error) {
             console.error('Error proposing new value:', error);
-            setMessage('Failed to propose new value.');
+            if (message) {
+                const parsedErrorMessage = message?.reason?.slice("execution reverted: " + .length).slice(0, -1)
+                setMessage(parsedErrorMessage);
+            }
         }
     };
 

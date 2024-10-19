@@ -223,5 +223,5 @@ contract AgDAOCoin {
     // Earn agCoins for participation (triggered by various actions)
     function earnAgCoins(address user, uint256 amount) internal {
         members[user].balance += amount;
-    }
+    } 
 }
