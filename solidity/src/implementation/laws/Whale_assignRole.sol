@@ -42,7 +42,11 @@ contract Whale_assignRole is Law {
 
     function executeLaw(
       bytes memory lawCalldata
-      ) external override {  
+      ) external override returns (
+          address[] memory targets,
+          uint256[] memory values,
+          bytes[] memory calldatas
+      ){  
 
       // step 0: check if caller has correct access control.
       if (SeparatedPowers(payable(agDao)).hasRoleSince(msg.sender, accessRole) == 0) {
@@ -59,9 +63,9 @@ contract Whale_assignRole is Law {
       // step 3: Note that check for proposal to have passed & setting proposal as completed is missing. This action can be executed without setting a proposal or passing a vote.  
 
       // step 4: set data structure for call to execute function.
-      address[] memory targets = new address[](2);
-      uint256[] memory values = new uint256[](2); 
-      bytes[] memory calldatas = new bytes[](2);
+      // address[] memory targets = new address[](2);
+      // uint256[] memory values = new uint256[](2); 
+      // bytes[] memory calldatas = new bytes[](2);
       
       // 4a: action 1: conditional assign or revoke role. 
       targets[0] = agDao;
@@ -72,18 +76,19 @@ contract Whale_assignRole is Law {
       values[1] = 0;
       calldatas[1] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
-      //step 5: conditionally execute call. 
+      //step 5: conditionally set data. 
       // 5a: option 1: if accountToCheck is a whale but has fewer tokens than the minimum. Role is revoked. 
       if (balanceAccount < amountTokensForWhaleRole && since != 0) {
         calldatas[0] = abi.encodeWithSelector(0xd2ab9970, WHALE_ROLE, accountToAssess, false); // = setRole(uint64 roleId, address account, bool access); 
-        SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
       } 
       // 5b: option 2: if accountToCheck is not a whale but has more tokens than the minimum. Role is assigned. 
       else if (balanceAccount >= amountTokensForWhaleRole && since == 0) {
         calldatas[0] = abi.encodeWithSelector(0xd2ab9970, WHALE_ROLE, accountToAssess, true); // = setRole(uint64 roleId, address account, bool access); 
-        SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
       } else {
         revert Whale_assignRole__Error();
       }
+      
+      // step 6: return data
+      return (targets, values, calldatas);
   }
 }

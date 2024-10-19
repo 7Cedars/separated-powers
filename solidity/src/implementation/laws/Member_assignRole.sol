@@ -38,7 +38,11 @@ contract Member_assignRole is Law {
 
     function executeLaw(
       bytes memory lawCalldata
-      ) external override {  
+      ) external override returns (
+          address[] memory targets,
+          uint256[] memory values,
+          bytes[] memory calldatas
+      ){  
 
       // step 0: note: access control absent. Any one can call this law. 
 
@@ -57,17 +61,16 @@ contract Member_assignRole is Law {
       // NB: note, no check if a proposal has succeeded. This law can be called directly. 
 
       // step 3 : creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      address[] memory targets = new address[](1);
-      uint256[] memory values = new uint256[](1); 
-      bytes[] memory calldatas = new bytes[](1);
+      // address[] memory targets = new address[](1);
+      // uint256[] memory values = new uint256[](1); 
+      // bytes[] memory calldatas = new bytes[](1);
 
       // action 1: add membership role to applicant. 
       targets[0] = agDao;
       values[0] = 0;
       calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 3, msg.sender, true); // = setRole(uint64 roleId, address account, bool access); 
 
-      // step 4: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-      SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
+      // step 4: return data
+      return (targets, values, calldatas);
   }
 }

@@ -86,7 +86,11 @@ contract Law is IERC165, ERC165, EIP712, ILaw {
    */
   function executeLaw(
     bytes memory /* lawCalldata */ 
-    ) external virtual {  
+    ) external virtual returns (        
+        address[] memory /* targets */ ,
+        uint256[] memory /* values */,
+        bytes[] memory /* calldatas */
+        ) {  
       revert Law__CallNotImplemented(); // As this is a base implementation, no logic implemented. To see examples, see the ./implementation/laws . 
   }
 

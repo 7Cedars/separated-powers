@@ -157,6 +157,61 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     }
 
     /**
+     * @dev See {IseperatedPowers.cancel}
+     */
+    function cancel(
+        address targetLaw, 
+        bytes memory lawCalldata,
+        bytes32 descriptionHash
+    ) public virtual returns (uint256) {
+        uint256 proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
+
+        if (msg.sender !=  _proposals[proposalId].proposer) {
+            revert SeparatedPowers__OnlyProposer(msg.sender);
+        }
+
+        return _cancel(targetLaw, lawCalldata, descriptionHash);
+    }
+
+    /**
+     * @dev see {ISeperatedPowers.execute}
+     * 
+     * Note any reference to proposal (as in OpenZeppelin's Governor.sol) are removed. 
+     * The mechanism of SeparatedPowers detaches proposals from execution logic. 
+     * Instead, proposal checks are placed in the {complete} function which is called by laws. 
+     */
+    function execute(
+        address targetLaw, 
+        bytes memory lawCalldata,
+        bytes32 descriptionHash
+    ) external payable virtual {
+        // check 1: does executioner have access to law being executed? 
+        uint64 accessRole = Law(targetLaw).accessRole(); 
+        if (roles[accessRole].members[msg.sender] == 0 && accessRole != PUBLIC_ROLE) {
+            revert SeparatedPowers__AccessDenied();
+        }
+
+        // calling target law: receiving targets, values and calldatas to execute. 
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = Law(targetLaw).executeLaw(lawCalldata);
+
+        // execute.
+        _executeOperations(targets, values, calldatas);
+    }
+
+    /**
+     * @dev see {ISeperatedPowers.complete} 
+     */
+    function complete(
+        bytes memory lawCalldata,
+        bytes32 descriptionHash
+        ) external virtual { 
+
+        uint256 proposalId = hashProposal(msg.sender, lawCalldata, descriptionHash);
+
+        _complete(proposalId); 
+    }
+
+    /**
      * @dev See {ISeperatedPowers.castVote}.
      */
     function castVote(uint256 proposalId, uint8 support) external virtual {
@@ -175,65 +230,6 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         address voter = msg.sender;
         return _castVote(proposalId, voter, support, reason);
     }
-
-    /**
-     * @dev see {ISeperatedPowers.execute}
-     * 
-     * Note any reference to proposal (as in OpenZeppelin's Governor.sol) are removed. 
-     * The mechanism of SeparatedPowers detaches proposals from execution logic. 
-     * Instead, proposal checks are placed in the {complete} function.
-     */
-    function execute(
-        address executioner,  
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas
-    ) external payable virtual {
-        // check 1: is call from an active law? 
-        if (!activeLaws[msg.sender]) {
-            revert SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
-        }
-
-        // check 2: does executioner have access to law being executed? 
-        uint64 accessRole = Law(msg.sender).accessRole(); 
-        if (roles[accessRole].members[executioner] == 0 && accessRole != PUBLIC_ROLE) {
-            revert SeparatedPowers__AccessDenied();
-        } 
-
-        // if checks pass: execute.
-        _executeOperations(targets, values, calldatas);
-    }
-
-    /**
-     * @dev see {ISeperatedPowers.complete} 
-     */
-    function complete(
-        bytes memory lawCalldata,
-        bytes32 descriptionHash
-        ) external virtual { 
-
-        uint256 proposalId = hashProposal(msg.sender, lawCalldata, descriptionHash);
-
-        _complete(proposalId); 
-    }
-
-    /**
-     * @dev See {IseperatedPowers.cancel}
-     */
-    function cancel(
-        address targetLaw, 
-        bytes memory lawCalldata,
-        bytes32 descriptionHash
-    ) public virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
-
-        if (msg.sender !=  _proposals[proposalId].proposer) {
-            revert SeparatedPowers__OnlyProposer(msg.sender);
-        }
-
-        return _cancel(targetLaw, lawCalldata, descriptionHash);
-    }
-
  
     //////////////////////////////
     //         PUBLIC           //

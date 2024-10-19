@@ -39,7 +39,11 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
 
     function executeLaw(
       bytes memory lawCalldata
-      ) external override {  
+      ) external override returns (
+          address[] memory targets,
+          uint256[] memory values,
+          bytes[] memory calldatas
+      ) {  
 
       // step 0: check if caller has correct access control.
       if (SeparatedPowers(payable(agDao)).hasRoleSince(msg.sender, accessRole) == 0) {
@@ -59,16 +63,15 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
       // step 3: Note : check if proposal succeeded is absent. This law does not require a proposal to be set or a vote to pass - it can be executed directly by the Admin. 
       
       // step 4: creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      address[] memory targets = new address[](1);
-      uint256[] memory values = new uint256[](1); 
-      bytes[] memory calldatas = new bytes[](1);
+      // address[] memory targets = new address[](1);
+      // uint256[] memory values = new uint256[](1); 
+      // bytes[] memory calldatas = new bytes[](1);
 
       targets[0] = agDao; 
       values[0] = 0;
       calldatas[0] = abi.encodeWithSelector(0xd55a5cc6, law, toInclude);
 
-      // step 5: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-      SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
+      // step 6: return data
+      return (targets, values, calldatas);
   }
 }

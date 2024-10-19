@@ -41,7 +41,11 @@ contract Senior_reinstateMember is Law {
 
     function executeLaw(
       bytes memory lawCalldata
-      ) external override {  
+      ) external override returns (
+          address[] memory targets,
+          uint256[] memory values,
+          bytes[] memory calldatas
+      ){  
 
       // step 0: check if caller has correct access control.
       if (SeparatedPowers(payable(agDao)).hasRoleSince(msg.sender, accessRole) == 0) {
@@ -74,9 +78,9 @@ contract Senior_reinstateMember is Law {
       SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionChallengeHash);
 
       // step 6: creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      address[] memory targets = new address[](3);
-      uint256[] memory values = new uint256[](3); 
-      bytes[] memory calldatas = new bytes[](3);
+      // address[] memory targets = new address[](3);
+      // uint256[] memory values = new uint256[](3); 
+      // bytes[] memory calldatas = new bytes[](3);
 
       // 6a: action 1: give reward to proposer of proposal. 
       targets[0] = agCoins;
@@ -93,8 +97,7 @@ contract Senior_reinstateMember is Law {
       values[2] = 0;
       calldatas[2] = abi.encodeWithSelector(0xe594707e, revokedMember, false); // = blacklistAccount(address account, bool isBlacklisted);
 
-      // step 7: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-      SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
+      // step 7: return data
+      return (targets, values, calldatas);
   }
 }
