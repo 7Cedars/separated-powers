@@ -9,20 +9,20 @@ import {Context} from "@openzeppelin/contracts/utils/Context.sol";
 import {Address} from "../lib/openzeppelin-contracts/contracts/utils/Address.sol";
 import {EIP712} from "../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
 
-// ONLY FOR TESTING PURPOSES // DO NOT USE IN PRODUCTION
-import {console2} from "lib/forge-std/src/Test.sol";
-
 /**
- * @notice the core contract of the SeparatedPowers protocol. Inherits from {LawsManager}, {AuthoritiesManager} and {Law}.
+ * @notice The core contract of the SeparatedPowers protocol. Inherits from {LawsManager}, {AuthoritiesManager} and {Law}.
  * Code derived from OpenZeppelin's Governor.sol contract. 
  * 
- * Some notable changes in comparison to Governor.sol 
- * - At the moment in this contract no ERC165 use; no interface. This might change later. 
- * - The onlyGovernor modifier is removed. 
- * - the use of the {clock} is removed. Only blocknumbers are used at the moment, no timestamps. 
- * - There is currently no protection against front running. 
- * - The original contract is set as abstract, with extensions being plugged in. SeparatedPowers is not an abstract contract, it is self contained.  
- *   Any additional functionality is brought in through Laws or through updating internal functions in implementations of SeparatedPowers. 
+ * Note that Governor.sol is set as abstract, and needs modules to be added to function. In contrast, SeparatedPowers is not set as abstract and is self-contained.   
+ * Any additional functionality should be brought in through laws.  
+ * Although the protocol does allow functions to be updated in inhereted contracts, this should be avoided if possible.   
+ * 
+ * Other differences: 
+ * - No ERC165 in the core protocol, this can change later. Laws do support ERC165 interfaces.   
+ * - There is no onlyGovernor modifier. 
+ * - The use of {clock} is removed. Only blocknumbers are used at the moment, no timestamps. 
+ * - There is currently no protection against front-running proposals. 
+ * - There structure of the contract follows a different logic. See the end of this contract for the structure I followed. 
  * 
  * @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon
  */
@@ -39,6 +39,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     error SeparatedPowers__ProposalAlreadyCompleted(); 
     error SeparatedPowers__ProposalCancelled(); 
     error SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
+    error SeparatedPowers__CompleteCallNotFromActiveLaw();
     error SeparatedPowers__OnlyProposer(address caller); 
     error SeparatedPowers__ProposalNotActive(); 
     error SeparatedPowers__NoAccessToTargetLaw();
@@ -158,7 +159,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     /**
      * @dev See {ISeperatedPowers.castVote}.
      */
-    function castVote(uint256 proposalId, uint8 support) external virtual returns (uint256) {
+    function castVote(uint256 proposalId, uint8 support) external virtual {
         address voter = msg.sender;
         return _castVote(proposalId, voter, support, "");
     }
@@ -170,25 +171,24 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         uint256 proposalId,
         uint8 support,
         string calldata reason
-    ) public virtual returns (uint256) {
+    ) public virtual {
         address voter = msg.sender;
         return _castVote(proposalId, voter, support, reason);
     }
-
 
     /**
      * @dev see {ISeperatedPowers.execute}
      * 
      * Note any reference to proposal (as in OpenZeppelin's Governor.sol) are removed. 
      * The mechanism of SeparatedPowers detaches proposals from execution logic. 
-     * Instead, proposal checks are, placed in the {complete} funciton.)
+     * Instead, proposal checks are placed in the {complete} function.
      */
     function execute(
         address executioner,  
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas
-    ) external payable virtual returns (bool) {
+    ) external payable virtual {
         // check 1: is call from an active law? 
         if (!activeLaws[msg.sender]) {
             revert SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
@@ -225,9 +225,6 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         bytes memory lawCalldata,
         bytes32 descriptionHash
     ) public virtual returns (uint256) {
-        // The proposalId will be recomputed in the `_cancel` call further down. However we need the value before we
-        // do the internal call, because we need to check the proposal state BEFORE the internal `_cancel` call
-        // changes it. The `hashProposal` duplication has a cost that is limited, and that we accept.
         uint256 proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
 
         if (msg.sender !=  _proposals[proposalId].proposer) {
@@ -241,7 +238,6 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     //////////////////////////////
     //         PUBLIC           //
     //////////////////////////////
-    
     /**
      * @dev see {ISeperatedPowers.state}
      */
@@ -284,7 +280,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
      * 
      * @dev The mechanism checks for access of proposer and for the length of targets and calldatas. 
      *
-     * Emits a {IGovernor-ProposalCreated} event.
+     * Emits a {ProposalCreated} event.
      */
     function _propose(
         address proposer,
@@ -315,8 +311,6 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
             block.number + duration,
             description
         );
-
-        // Using a named return variable to avoid stack too deep errors
     }
 
     /**
@@ -329,7 +323,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         address account,
         uint8 support,
         string memory reason
-    ) internal virtual returns (uint256) {
+    ) internal virtual {
       // Check that the proposal is active, that it has not been paused, cancelled or ended yet. 
       if (SeparatedPowers(payable(address(this))).state(proposalId) != ProposalState.Active) {
         revert SeparatedPowers__ProposalNotActive(); 
@@ -390,7 +384,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
 
         // check 1: is call from an active law? 
         if (!activeLaws[msg.sender]) {
-            revert SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
+            revert SeparatedPowers__CompleteCallNotFromActiveLaw(); 
         }
         // check 2: does proposal exist?  
         if (_proposals[proposalId].proposer == address(0)) {
@@ -460,7 +454,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     /**
      * @notice saves the version of the SeparatedPowers implementation.
      */
-    function version() public view virtual returns (string memory) {
+    function version() public pure returns (string memory) {
         return "1";
     }
 

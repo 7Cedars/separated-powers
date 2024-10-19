@@ -19,8 +19,5 @@ contract ConstituteAgDao is Script {
             AgDao(payable(agDaoAddress)).constitute(constituentLaws, constituentRoles);
         vm.stopBroadcast();
     }
-
 }
-
-
 

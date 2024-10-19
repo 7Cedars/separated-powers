@@ -50,7 +50,7 @@ contract Whale_assignRole is Law {
       }
 
       // step 1: decode the calldata. Note: lawCalldata can have any format. 
-      (address accountToAssess, bytes32 descriptionHash) = abi.decode(lawCalldata, (address, bytes32));
+      (address accountToAssess, ) = abi.decode(lawCalldata, (address, bytes32));
 
       // step 2: retrieve necessary data.  
       uint256 balanceAccount = ERC20(agCoins).balanceOf(accountToAssess);

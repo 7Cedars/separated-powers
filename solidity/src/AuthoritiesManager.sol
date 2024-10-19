@@ -4,10 +4,9 @@ pragma solidity 0.8.26;
 import {IAuthoritiesManager} from "./interfaces/IAuthoritiesManager.sol"; 
 
 /**
- * @notice Interface for managing roles and vote access. Derived from OpenZeppelin's GovernorCountingSimple.sol. 
- *
- * Note: Derived from GovernorCountingSimple. 
- *
+ * @notice Interface for managing roles and vote access. 
+ * 
+ * Code derived from OpenZeppelin's AccessManager.sol and GovernorCountingSimple.sol. 
  */
 contract AuthoritiesManager is IAuthoritiesManager { 
     /* errors */
@@ -133,7 +132,6 @@ contract AuthoritiesManager is IAuthoritiesManager {
 
 } 
 
-// Notes to self:
 // Structure contract //
 /* version */
 /* imports */

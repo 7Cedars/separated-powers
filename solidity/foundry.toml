@@ -5,13 +5,13 @@ libs = ["lib"]
 evm_version = "cancun"
 
 [fuzz]
-runs = 64
-depth = 64
+runs = 256
+depth = 256
 fail_on_revert = true 
 
 [invariant] 
-runs = 64
-depth = 64 
+runs = 128
+depth = 128 
 fail_on_revert = false 
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

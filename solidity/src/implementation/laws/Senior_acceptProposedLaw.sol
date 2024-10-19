@@ -49,7 +49,7 @@ contract Senior_acceptProposedLaw is Law {
       }
 
       // step 1: decode the calldata. Note: lawCalldata can have any format. 
-      (address law, bool toInclude, bytes32 descriptionHash) =
+      (, , bytes32 descriptionHash) =
             abi.decode(lawCalldata, (address, bool, bytes32));
 
       // step 2: check if parent proposal has been executed. 
