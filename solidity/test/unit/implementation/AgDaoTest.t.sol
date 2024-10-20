@@ -92,18 +92,15 @@ contract AgDaoTest is Test {
     // proposing... 
     string memory newValueString = 'accounts need to be human'; 
     ShortString newValue = newValueString.toShortString();
-    string memory memberDescription = "This is a crucial value to the DAO. It needs to be included among our core values!";
-    bytes memory memberLawCalldata = abi.encode(newValue, keccak256(bytes(memberDescription))); 
+    string memory description = "This is a crucial value to the DAO. It needs to be included among our core values!";
+    bytes memory lawCalldata = abi.encode(newValue); 
     
     vm.prank(eve); // = a member
     uint256 proposalIdOne = agDao.propose(
       constituentLaws[7], // = Member_proposeCoreValue
-      memberLawCalldata, 
-      memberDescription
+      lawCalldata, 
+      description
     );
-
-    console2.log("at Test");
-    console2.logBytes32(keccak256(bytes(memberDescription))); 
     
     // members vote in support. 
     vm.prank(alice);
@@ -121,7 +118,7 @@ contract AgDaoTest is Test {
 
     // executing... 
     vm.prank(eve);
-    Law(constituentLaws[7]).executeLaw(memberLawCalldata);
+    agDao.execute(constituentLaws[7], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -130,14 +127,12 @@ contract AgDaoTest is Test {
     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
     // proposing...
     vm.roll(5_000);
-    string memory whaleDescription = "Whale accepting new core value.";
-    bytes memory whaleLawCalldata = abi.encode(newValue, keccak256(bytes(memberDescription)), keccak256(bytes(whaleDescription)));  
 
     vm.prank(david); // = a whale
     uint256 proposalIdTwo = agDao.propose(
       constituentLaws[8], // = Whale_acceptCoreValue
-      whaleLawCalldata, 
-      whaleDescription
+      lawCalldata, 
+      description
     );
 
     // seniors vote... david and eve are whales.
@@ -150,7 +145,7 @@ contract AgDaoTest is Test {
 
     // executing... 
     vm.prank(eve);
-    Law(constituentLaws[8]).executeLaw(whaleLawCalldata);
+    agDao.execute(constituentLaws[8], lawCalldata, keccak256(bytes(description))); 
 
     // check 
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -162,15 +157,11 @@ contract AgDaoTest is Test {
     vm.assertEq(abi.encode(requirement), abi.encode('accounts need to be human'));
   }
 
-  // function testRequirementCanBeRemoved() public {
-  //   // NOT implemented.  
-  // }
-
   function testRemovedMemberCannotBeReinstituted() public {
     // proposing... 
     address memberToRevoke = alice;
     string memory description = "Alice will be member no more in the DAO.";
-    bytes memory lawCalldata = abi.encode(memberToRevoke, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(memberToRevoke); 
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
@@ -189,7 +180,7 @@ contract AgDaoTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[9]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[9], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -197,10 +188,9 @@ contract AgDaoTest is Test {
     assert (agDao.blacklistedAccounts(alice) == true);
     
     // Alice tries to reinstate themselves as member.
-    bytes memory memberLawCalldata = abi.encode(keccak256(bytes("I request membership to agDAO."))); 
     vm.prank(alice);  
     vm.expectRevert(Member_assignRole.Member_assignRole__AccountBlacklisted.selector);
-    Law(constituentLaws[0]).executeLaw(memberLawCalldata);  // = Member_assignRole
+    agDao.execute(constituentLaws[0], lawCalldata, keccak256(bytes("I request membership to agDAO.")));
   }
 
   function testWhenReinstatedAccountNoLongerBlackListed() public {
@@ -208,7 +198,7 @@ contract AgDaoTest is Test {
     // proposing... 
     address memberToRevoke = alice;
     string memory description = "Alice will be member no more in the DAO.";
-    bytes memory lawCalldata = abi.encode(memberToRevoke, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(memberToRevoke);  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
@@ -227,7 +217,7 @@ contract AgDaoTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[9]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[9], lawCalldata, keccak256(bytes(description)));
 
     // check if alice has indeed been blacklisted. 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -238,7 +228,7 @@ contract AgDaoTest is Test {
     // PROPOSAL LINK 2: challenge revoke decision 
     // proposing... 
     string memory descriptionChallenge = "I challenge the revoking of my membership to agDAO.";
-    bytes memory lawCalldataChallenge = abi.encode(keccak256(bytes(descriptionChallenge)), keccak256(bytes(description)), lawCalldata);  
+    bytes memory lawCalldataChallenge = abi.encode(keccak256(bytes(description)), lawCalldata);  
 
     vm.prank(alice); // = a whale
     uint256 proposalIdTwo = agDao.propose(
@@ -250,7 +240,7 @@ contract AgDaoTest is Test {
     vm.roll(9_000); // No vote needed, but does need pass time for vote to be executed. 
     
     vm.prank(alice);
-    Law(constituentLaws[10]).executeLaw(lawCalldataChallenge);
+    agDao.execute(constituentLaws[10], lawCalldataChallenge, keccak256(bytes(descriptionChallenge)));
 
     // check
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -277,7 +267,7 @@ contract AgDaoTest is Test {
 
     // executing...
     vm.prank(bob);
-    Law(constituentLaws[11]).executeLaw(lawCalldataChallenge);
+    agDao.execute(constituentLaws[11], lawCalldataChallenge, keccak256(bytes(descriptionChallenge)));
     
     // check
     ISeparatedPowers.ProposalState proposalStateThree = agDao.state(proposalIdThree); 

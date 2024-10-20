@@ -5,8 +5,12 @@ import {Test, console, console2} from "lib/forge-std/src/Test.sol";
 import {DeployAgDao} from "../../../script/DeployAgDao.s.sol";
 import {AgDao} from   "../../../src/implementation/AgDao.sol";
 import {AgCoins} from "../../../src/implementation/AgCoins.sol";
+import {IAuthoritiesManager} from "../../../src/interfaces/IAuthoritiesManager.sol";
 
 contract DeployAgDaoTest is Test {
+
+  /* addresses */
+  address alice = makeAddr("alice");
 
   ///////////////////////////////////////////////
   ///                   Setup                 ///
@@ -32,7 +36,7 @@ contract DeployAgDaoTest is Test {
   }
 
   function testLawsAreDeployed() public {
-     DeployAgDao deployer = new DeployAgDao();
+    DeployAgDao deployer = new DeployAgDao();
     (, , address[] memory constituentLaws) = deployer.run(); 
     for (uint256 i = 0; i < constituentLaws.length; i++) {
       assert(constituentLaws[i].code.length != 0);
@@ -40,8 +44,11 @@ contract DeployAgDaoTest is Test {
   }
 
   // function testLawsAreInitialisedCorrectly() public { 
+  //   IAuthoritiesManager.ConstituentRole[] memory constitutionalRoles; 
+  //   DeployAgDao deployer = new DeployAgDao();
   //   (AgDao agDao, AgCoins agCoins, address[] memory constituentLaws) = deployer.run(); 
-  // have to run the ocnstitute fuction here. 
+  //   agDao.constitute(constituentLaws, constitutionalRoles);
+
   //   for (uint256 i = 0; i < constituentLaws.length; i++) {
   //     bool isActive = agDao.activeLaws(constituentLaws[i]);  
   //     assert(isActive);

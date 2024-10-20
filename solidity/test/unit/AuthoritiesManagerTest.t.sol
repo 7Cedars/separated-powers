@@ -101,8 +101,8 @@ contract AuthoritiesManagerTest is Test {
 
     // act 
     vm.prank(frank); 
-    Law(constituentLaws[0]).executeLaw(lawCalldata);
-    
+    agDao.execute(constituentLaws[0], lawCalldata, keccak256(bytes(requiredStatement)));
+
     // checks 
     uint48 since = agDao.hasRoleSince(frank, MEMBER_ROLE);
     assert (since != 0);
@@ -114,7 +114,7 @@ contract AuthoritiesManagerTest is Test {
     // prep
     uint256 amountSeniorsBefore = agDao.getAmountRoleHolders(SENIOR_ROLE);
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); // = already a senior
@@ -133,7 +133,7 @@ contract AuthoritiesManagerTest is Test {
 
     // execute
     vm.prank(bob); 
-    Law(constituentLaws[2]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[2], lawCalldata, keccak256(bytes(description)));
 
     // check
     uint48 since = agDao.hasRoleSince(charlotte, SENIOR_ROLE);
@@ -147,7 +147,7 @@ contract AuthoritiesManagerTest is Test {
   function testAccountCannotVoteTwice() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte);
@@ -167,7 +167,7 @@ contract AuthoritiesManagerTest is Test {
   function testAgainstVoteIsCorrectlyCounted() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); 
@@ -187,7 +187,7 @@ contract AuthoritiesManagerTest is Test {
   function testForVoteIsCorrectlyCounted() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); 
@@ -208,7 +208,7 @@ contract AuthoritiesManagerTest is Test {
   function testAbstainVoteIsCorrectlyCounted() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); 
@@ -228,7 +228,7 @@ contract AuthoritiesManagerTest is Test {
   function testInvalidVoteRevertsCorrectly() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); 
@@ -247,7 +247,7 @@ contract AuthoritiesManagerTest is Test {
   function testHasVotedReturnCorrectData() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); 

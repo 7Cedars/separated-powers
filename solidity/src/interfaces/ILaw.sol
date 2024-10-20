@@ -13,7 +13,11 @@ interface ILaw {
   /**
   * @param lawCallData call data to be executed. 
   */ 
-  function executeLaw (bytes memory lawCallData) external returns (
+  function executeLaw (
+    address executioner,
+    bytes memory lawCallData, 
+    bytes32 descriptionHash
+    ) external returns (
       address[] memory targets,
       uint256[] memory values,
       bytes[] memory calldatas

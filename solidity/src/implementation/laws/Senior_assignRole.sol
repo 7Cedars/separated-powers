@@ -39,20 +39,22 @@ contract Senior_assignRole is Law {
     } 
 
     function executeLaw(
-      bytes memory lawCalldata
+      address executioner,
+      bytes memory lawCalldata,
+      bytes32 descriptionHash
       ) external override returns (
           address[] memory targets,
           uint256[] memory values,
           bytes[] memory calldatas
       ){   
 
-      // step 0: check if caller has correct access control.
-      if (SeparatedPowers(payable(agDao)).hasRoleSince(msg.sender, accessRole) == 0) {
-        revert Law__AccessNotAuthorized(msg.sender);
+      // step 0: check if caller is the SeparatedPowers protocol.
+      if (msg.sender != daoCore) { 
+        revert Law__AccessNotAuthorized(msg.sender);  
       }
 
       // step 1: decode the calldata.
-      (address newSenior, bytes32 descriptionHash) = abi.decode(lawCalldata, (address, bytes32));
+      (address newSenior) = abi.decode(lawCalldata, (address));
 
       // step 2: check if newSenior is already a member and if the maximum amount of seniors has already been met.  
       if (SeparatedPowers(payable(agDao)).hasRoleSince(newSenior, accessRole) != 0) {
@@ -73,12 +75,16 @@ contract Senior_assignRole is Law {
       SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionHash);
 
       // step 5: creating data to send to the execute function of agDAO's SepearatedPowers contract.
+      address[] memory tar = new address[](1);
+      uint256[] memory val = new uint256[](1);
+      bytes[] memory cal = new bytes[](1);
+
       // action: add membership role to applicant. 
-      targets[0] = agDao;
-      values[0] = 0;
-      calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 1, newSenior, true); // = setRole(uint64 roleId, address account, bool access); 
+      tar[0] = agDao;
+      val[0] = 0;
+      cal[0] = abi.encodeWithSelector(0xd2ab9970, 1, newSenior, true); // = setRole(uint64 roleId, address account, bool access); 
 
       // step 6: return data
-      return (targets, values, calldatas);
+      return (tar, val, cal);
   }
 }

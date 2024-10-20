@@ -98,7 +98,7 @@ contract LawsManagerTest is Test {
     // proposing... 
     address thisIsNoLaw = address(new AgDao());
     string memory description = "Proposing to add a new Law";
-    bytes memory lawCalldata = abi.encode(thisIsNoLaw, true, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(thisIsNoLaw, true);  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
@@ -117,7 +117,7 @@ contract LawsManagerTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -146,7 +146,7 @@ contract LawsManagerTest is Test {
 
     // executing... 
     vm.prank(bob);
-    Law(constituentLaws[5]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -157,8 +157,8 @@ contract LawsManagerTest is Test {
     
     vm.prank(alice); // = admin role 
     vm.expectRevert(abi.encodeWithSelector(
-      LawsManager.LawsManager__IncorrectInterface.selector, thisIsNoLaw));
-    Law(constituentLaws[6]).executeLaw(lawCalldata);
+    LawsManager.LawsManager__IncorrectInterface.selector, thisIsNoLaw));
+     agDao.execute(constituentLaws[6], lawCalldata, keccak256(bytes(description)));
   }
   
   function testSetLawDoesNotingIfNoChange() public {
@@ -167,7 +167,7 @@ contract LawsManagerTest is Test {
     // Note newLaw is actually an already existing law. 
     address newLaw = constituentLaws[0]; 
     string memory description = "Proposing to add a new Law";
-    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(newLaw, true);  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
@@ -186,7 +186,7 @@ contract LawsManagerTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -215,7 +215,7 @@ contract LawsManagerTest is Test {
 
     // executing... 
     vm.prank(bob);
-    Law(constituentLaws[5]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -227,7 +227,7 @@ contract LawsManagerTest is Test {
     vm.expectEmit(true, false, false, false);
     emit LawsManager.LawSet(newLaw, true, false);
     vm.prank(alice); // = admin role 
-    Law(constituentLaws[6]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[6], lawCalldata, keccak256(bytes(description)));
   }
 
   ///////////////////////////////////////////////

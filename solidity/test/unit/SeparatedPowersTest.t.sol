@@ -119,7 +119,7 @@ contract SeparatedPowersTest is Test {
 
     // vm.expectRevert(SeparatedPowers.SeparatedPowers__ExecuteCallNotFromActiveLaw.selector);
     vm.prank(bob); 
-    memberAssignRole.executeLaw(lawCalldata); 
+    agDaoTest.execute(address(memberAssignRole), lawCalldata, keccak256(bytes(requiredStatement))); 
   }
 
   function testConstituteSetsLawsToActive() public {
@@ -167,7 +167,7 @@ contract SeparatedPowersTest is Test {
   /* {propose} */
   function testProposeRevertsWhenAccountLacksCredentials() public {
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(david); 
     
     vm.expectRevert(SeparatedPowers.SeparatedPowers__AccessDenied.selector); 
     vm.prank(david);
@@ -176,7 +176,7 @@ contract SeparatedPowersTest is Test {
 
   function testProposePassesWithCorrectCredentials() public { 
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(david); 
 
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
@@ -197,7 +197,7 @@ contract SeparatedPowersTest is Test {
   function testVotingIsNotPossibleForProposalsOutsideCredentials() public {
     // prep 
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(david); 
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
@@ -209,7 +209,7 @@ contract SeparatedPowersTest is Test {
   function testVotingIsNotPossibleForDefeatedProposals() public {
     // prep
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(david); 
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
     vm.roll(4_000); // == beyond durintion of 3_600, proposal is defeated because quorum not reached. 
@@ -223,7 +223,7 @@ contract SeparatedPowersTest is Test {
   function testProposalDefeatedIfQuorumNotReachedInTime () public {
     // prep 
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(david); 
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
@@ -236,7 +236,7 @@ contract SeparatedPowersTest is Test {
   function testProposalSucceededIfQuorumReachedInTime () public {
     // prep 
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(david); 
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
@@ -255,7 +255,7 @@ contract SeparatedPowersTest is Test {
   function testVotesWithReasonsWorks() public {
     // prep 
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(david); 
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
@@ -274,7 +274,7 @@ contract SeparatedPowersTest is Test {
   function testProposalDefeatedIfQuorumReachedButNotEnoughForVotes () public {
     // prep 
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(david); 
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
@@ -303,7 +303,7 @@ contract SeparatedPowersTest is Test {
   function testWhenProposalPassesLawCanBeExecuted() public {
     // prep
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(david);  
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); // NB: the two strings need to be the same. 
 
@@ -320,7 +320,7 @@ contract SeparatedPowersTest is Test {
 
     // execute
     vm.prank(charlotte); 
-    Law(constituentLaws[1]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
 
     // check
     uint48 since = agDao.hasRoleSince(david, SENIOR_ROLE);
@@ -330,7 +330,7 @@ contract SeparatedPowersTest is Test {
   function testWhenProposalDefeatsLawCannotBeExecuted() public {
       // prep
       string memory description = "Inviting david to join senior role at agDao";
-      bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
+      bytes memory lawCalldata = abi.encode(david);  
       vm.prank(charlotte); // = already a senior
       uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); // NB: the two strings need to be the same. 
 
@@ -352,13 +352,13 @@ contract SeparatedPowersTest is Test {
         Senior_assignRole.Senior_assignRole__ProposalVoteNotSucceeded.selector, proposalId
       )); 
       vm.prank(charlotte); 
-      Law(constituentLaws[1]).executeLaw(lawCalldata);
+      agDao.execute(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
   }
 
   function testExecuteLawSetsProposalToCompleted() public {
      // prep
       string memory description = "Inviting david to join senior role at agDao";
-      bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
+      bytes memory lawCalldata = abi.encode(david);  
       vm.prank(charlotte); // = already a senior
       uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); // NB: the two strings need to be the same. 
 
@@ -377,7 +377,7 @@ contract SeparatedPowersTest is Test {
 
       // execute 
       vm.prank(charlotte); 
-      Law(constituentLaws[1]).executeLaw(lawCalldata);
+      agDao.execute(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
 
       // check
       ISeparatedPowers.ProposalState proposalState2 = agDao.state(proposalId); 
@@ -388,7 +388,7 @@ contract SeparatedPowersTest is Test {
   function testCancellingProposalsEmitsCorrectEvent() public {
     // prep
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(david);  
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); // NB: the two strings need to be the same. 
 
@@ -401,7 +401,7 @@ contract SeparatedPowersTest is Test {
   function testCancellingProposalsSetsStateToCancelled() public {
     // prep
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(david);  
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); // NB: the two strings need to be the same. 
     
@@ -415,7 +415,7 @@ contract SeparatedPowersTest is Test {
   function testCancelRevertsWhenAccountIsNotProposer() public {
     // prep
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(david);  
     vm.prank(charlotte); // = already a senior
     agDao.propose(constituentLaws[1], lawCalldata, description); // NB: the two strings need to be the same. 
 
@@ -430,7 +430,7 @@ contract SeparatedPowersTest is Test {
   function testCancelledProposalsCannotBeExecuted() public {
     // prep
     string memory description = "Inviting david to join senior role at agDao";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(david);  
     vm.prank(charlotte); // = already a senior
     agDao.propose(constituentLaws[1], lawCalldata, description); // NB: the two strings need to be the same. 
 
@@ -438,7 +438,7 @@ contract SeparatedPowersTest is Test {
     agDao.cancel(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
 
     vm.expectRevert(); 
-    Law(constituentLaws[1]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
     vm.stopPrank(); 
   }
   
@@ -448,7 +448,7 @@ contract SeparatedPowersTest is Test {
     // proposing... 
     address newLaw = address(new Member_assignRole(payable(address(agDao))));
     string memory description = "Proposing to add a new Law";
-    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(newLaw, true);  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
@@ -467,7 +467,7 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -495,7 +495,7 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(bob);
-    Law(constituentLaws[5]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -504,7 +504,7 @@ contract SeparatedPowersTest is Test {
     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
     vm.roll(10_000);
     vm.prank(alice); // = admin role 
-    Law(constituentLaws[6]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[6], lawCalldata, keccak256(bytes(description)));
 
     // check if law has been set to active. 
     bool active = agDao.activeLaws(newLaw);
@@ -516,7 +516,7 @@ contract SeparatedPowersTest is Test {
     // proposing... 
     address newLaw = address(new Member_assignRole(payable(address(agDao))));
     string memory description = "Proposing to add a new Law";
-    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(newLaw, true);  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
@@ -538,7 +538,7 @@ contract SeparatedPowersTest is Test {
     vm.expectRevert(abi.encodeWithSelector(
       Whale_proposeLaw.Whale_proposeLaw__ProposalVoteNotSucceeded.selector, proposalIdOne
     ));
-    Law(constituentLaws[4]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
     // proposing...
@@ -568,7 +568,7 @@ contract SeparatedPowersTest is Test {
     vm.expectRevert(abi.encodeWithSelector( 
       Senior_acceptProposedLaw.Senior_acceptProposedLaw__ParentProposalNotCompleted.selector, proposalIdOne
     )); 
-    Law(constituentLaws[5]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
   }
 
   function testSeniorDefeatStopsChain() public {
@@ -576,7 +576,7 @@ contract SeparatedPowersTest is Test {
     // proposing... 
     address newLaw = address(new Member_assignRole(payable(address(agDao))));
     string memory description = "Proposing to add a new Law";
-    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(newLaw, true);  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
@@ -595,7 +595,7 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
     vm.roll(5_000);
@@ -621,13 +621,13 @@ contract SeparatedPowersTest is Test {
     vm.expectRevert(abi.encodeWithSelector(
       Senior_acceptProposedLaw.Senior_acceptProposedLaw__ProposalNotSucceeded.selector, proposalIdTwo
     )); 
-    Law(constituentLaws[5]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
     vm.roll(10_000);    
     vm.prank(alice); // = admin role 
     vm.expectRevert(); 
-    Law(constituentLaws[6]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[6], lawCalldata, keccak256(bytes(description)));
   }
 
   ///////////////////////////////////////////////

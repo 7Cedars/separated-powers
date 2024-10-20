@@ -38,21 +38,23 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
     } 
 
     function executeLaw(
-      bytes memory lawCalldata
+      address executioner, 
+      bytes memory lawCalldata, 
+      bytes32 descriptionHash
       ) external override returns (
           address[] memory targets,
           uint256[] memory values,
           bytes[] memory calldatas
       ) {  
 
-      // step 0: check if caller has correct access control.
-      if (SeparatedPowers(payable(agDao)).hasRoleSince(msg.sender, accessRole) == 0) {
-        revert Law__AccessNotAuthorized(msg.sender);
+      // step 0: check if caller is the SeparatedPowers protocol.
+      if (msg.sender != daoCore) { 
+        revert Law__AccessNotAuthorized(msg.sender);  
       }
 
       // step 1: decode the calldata. Note: calldata is identical to the calldata of the parent law and the grandParentLaw.
-      (address law, bool toInclude, bytes32 descriptionHash) =
-            abi.decode(lawCalldata, (address, bool, bytes32));
+      (address law, bool toInclude) =
+            abi.decode(lawCalldata, (address, bool));
 
       // step 2: check if parent proposal has been executed. 
       uint256 parentProposalId = hashProposal(parentLaw, lawCalldata, descriptionHash);
@@ -63,11 +65,15 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
       // step 3: Note : check if proposal succeeded is absent. This law does not require a proposal to be set or a vote to pass - it can be executed directly by the Admin. 
       
       // step 4: creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      targets[0] = agDao; 
-      values[0] = 0;
-      calldatas[0] = abi.encodeWithSelector(0xd55a5cc6, law, toInclude);
+      address[] memory tar = new address[](1);
+      uint256[] memory val = new uint256[](1);
+      bytes[] memory cal = new bytes[](1);
+
+      tar[0] = agDao; 
+      val[0] = 0;
+      cal[0] = abi.encodeWithSelector(0xd55a5cc6, law, toInclude); // = setLaw(address law, bool toInclude);
 
       // step 6: return data
-      return (targets, values, calldatas);
+      return (tar, val, cal);
   }
 }

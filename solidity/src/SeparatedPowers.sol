@@ -181,7 +181,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     function execute(
         address targetLaw, 
         bytes memory lawCalldata,
-        bytes32 /*descriptionHash*/
+        bytes32 descriptionHash
     ) external payable virtual {
         // check 1: does executioner have access to law being executed? 
         uint64 accessRole = Law(targetLaw).accessRole(); 
@@ -190,7 +190,7 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         }
 
         // calling target law: receiving targets, values and calldatas to execute. 
-        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = Law(targetLaw).executeLaw(lawCalldata);
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
 
         // execute.
         if (targets.length > 0) {

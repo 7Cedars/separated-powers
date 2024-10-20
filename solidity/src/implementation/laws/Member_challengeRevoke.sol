@@ -19,7 +19,7 @@ contract Member_challengeRevoke is Law {
     error Member_challengeRevoke__IncorrectRequiredStatement(); 
     error Member_challengeRevoke__ProposalNotSucceeded(uint256 proposalId); 
     error Member_challengeRevoke__ParentProposalNotCompleted(uint256 parentProposalId); 
-    error Member_challengeRevoke__RevokedMemberNotMsgSender(); 
+    error Member_challengeRevoke__RevokedMemberNoExecutioner(); 
 
     string private requiredStatement = "I challenge the revoking of my membership to agDAO.";
     address public agDao;  
@@ -39,17 +39,22 @@ contract Member_challengeRevoke is Law {
     } 
 
     function executeLaw(
-      bytes memory lawCalldata
+      address executioner,
+      bytes memory lawCalldata,
+      bytes32 descriptionHash
       ) external override returns (
           address[] memory /*targets*/,
           uint256[] memory /*values*/,
           bytes[] memory /*calldatas*/
       ){  
 
-      // step 0: note: no access control. Anyone can call this law. 
+      // step 0: check if caller is the SeparatedPowers protocol.
+      if (msg.sender != daoCore) { 
+        revert Law__AccessNotAuthorized(msg.sender);  
+      }
   
       // step 1: decode the calldata.
-      (bytes32 descriptionHash, bytes32 revokeDescriptionHash, bytes memory revokeCalldata) = abi.decode(lawCalldata, (bytes32, bytes32, bytes));
+      (bytes32 revokeDescriptionHash, bytes memory revokeCalldata) = abi.decode(lawCalldata, (bytes32, bytes));
       
       // step 2: check if required statement is correct.
       bytes32 requiredDescriptionHash = keccak256(bytes(requiredStatement)); 
@@ -73,9 +78,9 @@ contract Member_challengeRevoke is Law {
 
       // step 5: check if the parent proposal referred to the correct revokedMember. 
       // Only the account has has been revoked is allowed to challenge the revocation of the account.
-      (address revokedMember, ) = abi.decode(revokeCalldata, (address, bytes32));
-      if (revokedMember != msg.sender) {
-        revert Member_challengeRevoke__RevokedMemberNotMsgSender();
+      (address revokedMember) = abi.decode(revokeCalldata, (address));
+      if (revokedMember != executioner) {
+        revert Member_challengeRevoke__RevokedMemberNoExecutioner();
       }
 
       // step 6: set the proposal to executed.

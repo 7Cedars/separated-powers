@@ -38,20 +38,22 @@ contract Whale_revokeMember is Law {
     } 
 
     function executeLaw(
-      bytes memory lawCalldata
+      address executioner,
+      bytes memory lawCalldata,
+      bytes32 descriptionHash
       ) external override returns (
           address[] memory targets,
           uint256[] memory values,
           bytes[] memory calldatas
       ){  
 
-      // step 0: check if caller has correct access control.
-      if (SeparatedPowers(payable(agDao)).hasRoleSince(msg.sender, accessRole) == 0) {
-        revert Law__AccessNotAuthorized(msg.sender);
+      // step 0: check if caller is the SeparatedPowers protocol.
+      if (msg.sender != daoCore) { 
+        revert Law__AccessNotAuthorized(msg.sender);  
       }
 
       // step 1: decode the calldata. Note: lawCalldata can have any format. 
-      (address memberToRevoke, bytes32 descriptionHash) = abi.decode(lawCalldata, (address, bytes32));
+      (address memberToRevoke) = abi.decode(lawCalldata, (address));
 
       // step 2: retrieve necessary data.  
       uint48 since = SeparatedPowers(payable(agDao)).hasRoleSince(memberToRevoke, 3); // = member role. 
@@ -69,22 +71,26 @@ contract Whale_revokeMember is Law {
       SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionHash);
 
       // step 5: creating data to send to the execute function of agDAO's SepearatedPowers contract.
+      address[] memory tar = new address[](3);
+      uint256[] memory val = new uint256[](3);
+      bytes[] memory cal = new bytes[](3);
+
       // action 1: revoke membership role to applicant. 
-      targets[0] = agDao;
-      values[0] = 0;
-      calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 3, memberToRevoke, false); // = setRole(uint64 roleId, address account, bool access); 
+      tar[0] = agDao;
+      val[0] = 0;
+      cal[0] = abi.encodeWithSelector(0xd2ab9970, 3, memberToRevoke, false); // = setRole(uint64 roleId, address account, bool access); 
 
       // action 2: add account to blacklist 
-      targets[1] = agDao;
-      values[1] = 0;
-      calldatas[1] = abi.encodeWithSelector(0xe594707e, memberToRevoke, true); // = blacklistAccount(address account, bool isBlacklisted);
+      tar[1] = agDao;
+      val[1] = 0;
+      cal[1] = abi.encodeWithSelector(0xe594707e, memberToRevoke, true); // = blacklistAccount(address account, bool isBlacklisted);
 
       // action 3: give proposer reward.  
-      targets[2] = agCoins;
-      values[2] = 0;
-      calldatas[2] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
+      tar[2] = agCoins;
+      val[2] = 0;
+      cal[2] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
       // step 6: return data
-      return (targets, values, calldatas);
+      return (tar, val, cal);
     }
 }

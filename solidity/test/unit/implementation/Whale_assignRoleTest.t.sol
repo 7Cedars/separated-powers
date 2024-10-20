@@ -94,10 +94,10 @@ contract Whale_assignRoleTest is Test {
     assert(balance > 1_000_000); 
 
     string memory description = "Alice should be a whale.";
-    bytes memory lawCalldata = abi.encode(alice, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(alice);  
     
     vm.prank(eve); // = is a whale
-    Law(constituentLaws[3]).executeLaw(lawCalldata); // = Whale_assignRole
+    agDao.execute(constituentLaws[3], lawCalldata, keccak256(bytes(description))); // = Whale_assignRole
 
     uint48 since = agDao.hasRoleSince(alice, WHALE_ROLE);
     assert(since != 0); 
@@ -108,11 +108,11 @@ contract Whale_assignRoleTest is Test {
     assert(balance < 1_000_000); 
 
     string memory description = "Alice should be a whale.";
-    bytes memory lawCalldata = abi.encode(alice, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(alice);  
     
     vm.prank(eve); // = is a whale
     vm.expectRevert(Whale_assignRole.Whale_assignRole__Error.selector);
-    Law(constituentLaws[3]).executeLaw(lawCalldata); // = Whale_assignRole
+    agDao.execute(constituentLaws[3], lawCalldata, keccak256(bytes(description))); // = Whale_assignRole
   }
 
   function testWhaleRoleRevokedIfInsufficientCoins() public {
@@ -120,10 +120,10 @@ contract Whale_assignRoleTest is Test {
     assert(balance < 1_000_000); // david has fewer than 1_000_000 coins. 
 
     string memory description = "Eve is delisting david as whale.";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(david);  
     
     vm.prank(eve); // = is a whale
-    Law(constituentLaws[3]).executeLaw(lawCalldata); // = Whale_assignRole
+    agDao.execute(constituentLaws[3], lawCalldata, keccak256(bytes(description))); // = Whale_assignRole
 
     uint48 since = agDao.hasRoleSince(david, WHALE_ROLE);
     assert(since == 0);
@@ -136,11 +136,11 @@ contract Whale_assignRoleTest is Test {
     assert(balance > 1_000_000); // david has more than 1_000_000 coins. 
 
     string memory description = "Eve is trying to delist david as whale but will fail.";
-    bytes memory lawCalldata = abi.encode(david, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(david);  
     
     vm.prank(eve); // = is a whale
     vm.expectRevert(Whale_assignRole.Whale_assignRole__Error.selector);
-    Law(constituentLaws[3]).executeLaw(lawCalldata); // = Whale_assignRole
+    agDao.execute(constituentLaws[3], lawCalldata, keccak256(bytes(description))); // = Whale_assignRole
   }
 
   ///////////////////////////////////////////////

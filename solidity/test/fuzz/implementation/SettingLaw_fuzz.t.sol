@@ -106,7 +106,7 @@ contract SeparatedPowersTest is Test {
     // proposing... 
     address newLaw = address(new Member_assignRole(payable(address(agDao))));
     string memory description = "Proposing to add a new Law";
-    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(newLaw, true);  
     
     vm.prank(account0); // = a whale
     if (account0 != david && account0 != eve){ vm.expectRevert(); }
@@ -127,7 +127,7 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(account0);
-    Law(constituentLaws[4]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -157,7 +157,7 @@ contract SeparatedPowersTest is Test {
 
     // executing... 
     vm.prank(account1);
-    Law(constituentLaws[5]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -167,7 +167,7 @@ contract SeparatedPowersTest is Test {
     vm.roll(10_000);
     vm.prank(account2); // = admin role 
     if (account2 != alice){ vm.expectRevert(); }
-    Law(constituentLaws[6]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[6], lawCalldata, keccak256(bytes(description)));
     if (account2 != alice){ return; }
 
     // check if law has been set to active. 

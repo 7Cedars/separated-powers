@@ -40,21 +40,21 @@ contract Senior_acceptProposedLaw is Law {
     } 
 
     function executeLaw(
-      bytes memory lawCalldata
+      address executioner,
+      bytes memory lawCalldata,
+      bytes32 descriptionHash
       ) external override returns (
           address[] memory targets,
           uint256[] memory values,
           bytes[] memory calldatas
       ){  
 
-      // step 0: check if caller has correct access control.
-      if (SeparatedPowers(payable(agDao)).hasRoleSince(msg.sender, accessRole) == 0) {
-        revert Law__AccessNotAuthorized(msg.sender);
+      // step 0: check if caller is the SeparatedPowers protocol.
+      if (msg.sender != daoCore) { 
+        revert Law__AccessNotAuthorized(msg.sender);  
       }
 
-      // step 1: decode the calldata. Note: lawCalldata can have any format. 
-      (, , bytes32 descriptionHash) =
-            abi.decode(lawCalldata, (address, bool, bytes32));
+      // step 1: decode the calldata. Note: in this case decoding of the calldata is not necessary. 
 
       // step 2: check if parent proposal has been executed. 
       uint256 parentProposalId = hashProposal(parentLaw, lawCalldata, descriptionHash);
@@ -72,11 +72,15 @@ contract Senior_acceptProposedLaw is Law {
       SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionHash);
 
       // step 5: creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      targets[0] = agCoins;
-      values[0] = 0;
-      calldatas[0] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
+      address[] memory tar = new address[](1);
+      uint256[] memory val = new uint256[](1);
+      bytes[] memory cal = new bytes[](1);
+      
+      tar[0] = agCoins;
+      val[0] = 0;
+      cal[0] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
       // step 6: return data
-      return (targets, values, calldatas);
+      return (tar, val, cal);
   }
 }

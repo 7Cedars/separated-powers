@@ -37,36 +37,44 @@ contract Member_assignRole is Law {
     } 
 
     function executeLaw(
-      bytes memory lawCalldata
+      address executioner,
+      bytes memory lawCalldata, 
+      bytes32 descriptionHash
       ) external override returns (
           address[] memory targets,
           uint256[] memory values,
           bytes[] memory calldatas
       ){  
 
-      // step 0: note: access control absent. Any one can call this law. 
+      // step 0: check if caller is the SeparatedPowers protocol.
+      if (msg.sender != daoCore) { 
+        revert Law__AccessNotAuthorized(msg.sender);  
+      }
 
-      // step 1: decode the calldata. Check if description is correct. 
+      // step 1: decode the calldata. 
       bytes32 requiredDescriptionHash = keccak256(bytes(requiredStatement)); 
-      (bytes32 descriptionHash) = abi.decode(lawCalldata, (bytes32));
       if (requiredDescriptionHash != descriptionHash) {
         revert Member_assignRole__IncorrectRequiredStatement();
       }
 
       // check if account is blacklisted. 
-      if (AgDao(payable(agDao)).blacklistedAccounts(msg.sender) == true) {
+      if (AgDao(payable(agDao)).blacklistedAccounts(executioner) == true) {
         revert Member_assignRole__AccountBlacklisted();
       }
 
       // NB: note, no check if a proposal has succeeded. This law can be called directly. 
 
       // step 3 : creating data to send to the execute function of agDAO's SepearatedPowers contract.
+      address[] memory tar = new address[](1);
+      uint256[] memory val = new uint256[](1);
+      bytes[] memory cal = new bytes[](1);
+
       // action: add membership role to applicant. 
-      targets[0] = agDao;
-      values[0] = 0;
-      calldatas[0] = abi.encodeWithSelector(0xd2ab9970, 3, msg.sender, true); // = setRole(uint64 roleId, address account, bool access); 
+      tar[0] = agDao;
+      val[0] = 0;
+      cal[0] = abi.encodeWithSelector(0xd2ab9970, 3, executioner, true); // = setRole(uint64 roleId, address account, bool access); 
 
       // step 4: return data
-      return (targets, values, calldatas);
+      return (tar, val, cal);
   }
 }
