@@ -22,7 +22,7 @@ import {Senior_assignRole} from "../../src/implementation/laws/Senior_assignRole
 import {Senior_reinstateMember} from "../../src/implementation/laws/Senior_reinstateMember.sol";
 import {Senior_revokeRole} from "../../src/implementation/laws/Senior_revokeRole.sol";
 import {Whale_acceptCoreValue} from "../../src/implementation/laws/Whale_acceptCoreValue.sol";
-import {Whale_assignRole} from "../../src/implementation/laws/Whale_assignRole.sol";
+import {Member_assignWhale} from "../../src/implementation/laws/Member_assignWhale.sol";
 import {Whale_proposeLaw} from "../../src/implementation/laws/Whale_proposeLaw.sol";
 import {Whale_revokeMember} from "../../src/implementation/laws/Whale_revokeMember.sol";
 
@@ -101,8 +101,8 @@ contract AuthoritiesManagerTest is Test {
 
     // act 
     vm.prank(frank); 
-    Law(constituentLaws[0]).executeLaw(lawCalldata);
-    
+    agDao.execute(constituentLaws[0], lawCalldata, keccak256(bytes(requiredStatement)));
+
     // checks 
     uint48 since = agDao.hasRoleSince(frank, MEMBER_ROLE);
     assert (since != 0);
@@ -114,7 +114,7 @@ contract AuthoritiesManagerTest is Test {
     // prep
     uint256 amountSeniorsBefore = agDao.getAmountRoleHolders(SENIOR_ROLE);
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); // = already a senior
@@ -133,7 +133,7 @@ contract AuthoritiesManagerTest is Test {
 
     // execute
     vm.prank(bob); 
-    Law(constituentLaws[2]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[2], lawCalldata, keccak256(bytes(description)));
 
     // check
     uint48 since = agDao.hasRoleSince(charlotte, SENIOR_ROLE);
@@ -147,7 +147,7 @@ contract AuthoritiesManagerTest is Test {
   function testAccountCannotVoteTwice() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte);
@@ -167,7 +167,7 @@ contract AuthoritiesManagerTest is Test {
   function testAgainstVoteIsCorrectlyCounted() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); 
@@ -187,7 +187,7 @@ contract AuthoritiesManagerTest is Test {
   function testForVoteIsCorrectlyCounted() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); 
@@ -208,7 +208,7 @@ contract AuthoritiesManagerTest is Test {
   function testAbstainVoteIsCorrectlyCounted() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); 
@@ -228,7 +228,7 @@ contract AuthoritiesManagerTest is Test {
   function testInvalidVoteRevertsCorrectly() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); 
@@ -247,7 +247,7 @@ contract AuthoritiesManagerTest is Test {
   function testHasVotedReturnCorrectData() public {
     // prep
     string memory description = "Charlotte is getting booted as Senior.";
-    bytes memory lawCalldata = abi.encode(charlotte, keccak256(bytes(description))); 
+    bytes memory lawCalldata = abi.encode(charlotte); 
 
     // act  
     vm.prank(charlotte); 
@@ -271,7 +271,7 @@ contract AuthoritiesManagerTest is Test {
       laws[0] = address(new Member_assignRole(agDaoAddress_));
       laws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
       laws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
-      laws[3] = address(new Whale_assignRole(agDaoAddress_, agCoinsAddress_));
+      laws[3] = address(new Member_assignWhale(agDaoAddress_, agCoinsAddress_));
       
       // re activating & deactivating laws  // 
       laws[4] = address(new Whale_proposeLaw(agDaoAddress_, agCoinsAddress_));

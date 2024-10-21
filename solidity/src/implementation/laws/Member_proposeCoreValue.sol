@@ -44,17 +44,23 @@ contract Member_proposeCoreValue is Law {
     } 
 
     function executeLaw(
-      bytes memory lawCalldata
-      ) external override {  
+      address executioner,
+      bytes memory lawCalldata,
+      bytes32 descriptionHash
+      ) external override returns (
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas
+      ){  
 
-      // step 0: check if caller has correct access control.
-      if (SeparatedPowers(payable(agDao)).hasRoleSince(msg.sender, accessRole) == 0) {
-        revert Law__AccessNotAuthorized(msg.sender);
+      // step 0: check if caller is the SeparatedPowers protocol.
+      if (msg.sender != daoCore) { 
+        revert Law__AccessNotAuthorized(msg.sender);  
       }
 
       // step 1: decode the calldata. 
-      (ShortString coreValue, bytes32 descriptionHash) =
-            abi.decode(lawCalldata, (ShortString, bytes32));
+      (ShortString coreValue) =
+            abi.decode(lawCalldata, (ShortString));
 
       // step 2: check if proposal passed vote.
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
@@ -68,17 +74,15 @@ contract Member_proposeCoreValue is Law {
       emit Member_coreValueProposed(proposalId, coreValue); 
 
       // step 4 : creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      address[] memory targets = new address[](1);
-      uint256[] memory values = new uint256[](1); 
-      bytes[] memory calldatas = new bytes[](1);
+      address[] memory tar = new address[](1);
+      uint256[] memory val = new uint256[](1);
+      bytes[] memory cal = new bytes[](1);
+      
+      tar[0] = agCoins;
+      val[0] = 0;
+      cal[0] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
-      targets[0] = agCoins;
-      values[0] = 0;
-      calldatas[0] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
-
-      // step 5: call {SeparatedPowers.execute}
-      // note at this point _nothing_ happens with the agDAOs requirements. 
-      // note call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
-      SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
+      // step 5: return data
+      return (tar, val, cal);
   }
 }

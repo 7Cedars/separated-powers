@@ -49,21 +49,27 @@ contract Whale_acceptCoreValue is Law {
     } 
 
     function executeLaw(
-      bytes memory lawCalldata
-      ) external override {  
+      address executioner,
+      bytes memory lawCalldata,
+      bytes32 descriptionHash
+      ) external override returns (
+          address[] memory targets,
+          uint256[] memory values,
+          bytes[] memory calldatas
+      ){  
 
-      // step 0: check if caller has correct access control.
-      if (SeparatedPowers(payable(agDao)).hasRoleSince(msg.sender, accessRole) == 0) {
-        revert Law__AccessNotAuthorized(msg.sender);
+      // step 0: check if caller is the SeparatedPowers protocol.
+      if (msg.sender != daoCore) { 
+        revert Law__AccessNotAuthorized(msg.sender);  
       }
 
       // step 1: decode the calldata. Note: lawCalldata can have any format. 
-      (ShortString requirement, bytes32 parentDescriptionHash, bytes32 descriptionHash) =
-            abi.decode(lawCalldata, (ShortString, bytes32, bytes32));
+      (ShortString requirement) =
+            abi.decode(lawCalldata, (ShortString));
 
       // Note step 2: check if the parentLaw has succeeded or has executed.
       // Note It doubles as a check on the calldata. 
-      uint256 parentProposalId = hashProposal(parentLaw, abi.encode(requirement, parentDescriptionHash), parentDescriptionHash); 
+      uint256 parentProposalId = hashProposal(parentLaw, abi.encode(requirement), descriptionHash); 
       ISeparatedPowers.ProposalState parentState = SeparatedPowers(payable(agDao)).state(parentProposalId);
 
       if (parentState != ISeparatedPowers.ProposalState.Completed ) {
@@ -73,7 +79,7 @@ contract Whale_acceptCoreValue is Law {
       // step 3: check if the proposal has passed. 
       uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
       ISeparatedPowers.ProposalState proposalState = SeparatedPowers(payable(agDao)).state(proposalId);
-      if ( proposalState != ISeparatedPowers.ProposalState.Succeeded) {
+      if (proposalState != ISeparatedPowers.ProposalState.Succeeded) {
         revert Whale_acceptCoreValue__ProposalVoteNotSucceeded(proposalId);
       }
 
@@ -81,22 +87,21 @@ contract Whale_acceptCoreValue is Law {
       SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionHash);
 
       // step 5 : creating data to send to the execute function of agDAO's SepearatedPowers contract.
-      address[] memory targets = new address[](2);
-      uint256[] memory values = new uint256[](2); 
-      bytes[] memory calldatas = new bytes[](2);
+      address[] memory tar = new address[](2);
+      uint256[] memory val = new uint256[](2);
+      bytes[] memory cal = new bytes[](2);
 
-      // 5a: action 1: give reward to proposer of proposal. 
-      targets[0] = agCoins;
-      values[0] = 0;
-      calldatas[0] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
+      // action 1: give reward to proposer of proposal. 
+      tar[0] = agCoins;
+      val[0] = 0;
+      cal[0] = abi.encodeWithSelector(IERC20.transfer.selector, msg.sender, agCoinsReward);
 
-      // 5b: action 2: add requirement to agDAO. 
-      targets[1] = agDao;
-      values[1] = 0;
-      calldatas[1] = abi.encodeWithSelector(0x7be05842, requirement);
+      // action 2: add requirement to agDAO. 
+      tar[1] = agDao;
+      val[1] = 0;
+      cal[1] = abi.encodeWithSelector(0x7be05842, requirement);
 
-      // step 6: call {SeparatedPowers.execute}
-      // note, call goes in following format: (address proposer, address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-      SeparatedPowers(daoCore).execute(msg.sender, targets, values, calldatas);
+      // step 6: return data
+      return (tar, val, cal);
   }
 }

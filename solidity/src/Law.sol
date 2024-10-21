@@ -17,6 +17,8 @@ import {IERC165} from "lib/openzeppelin-contracts/contracts/utils/introspection/
  * - It gives accounts who hold this roleId the privilege to call external contracts.
  * - It constrains these privileges with specific conditions, for instance a proposal to a specific other law needs to have passed.
  * 
+ * note NB! If a law is linked to a parent law, the description needs to be the same as the description of the parent law. 
+ * 
  * @dev See the natspecs at the constructor function for the specifics of what can be (optionally) defined at construction time. 
  *
  * @author 7Cedars, Oct 2024 RnDAO CollabTech Hackathon
@@ -85,9 +87,21 @@ contract Law is IERC165, ERC165, EIP712, ILaw {
    * 
    */
   function executeLaw(
-    bytes memory /* lawCalldata */ 
-    ) external virtual {  
-      revert Law__CallNotImplemented(); // As this is a base implementation, no logic implemented. To see examples, see the ./implementation/laws . 
+    address /* executioner */,
+    bytes memory /* lawCalldata */,  
+    bytes32 /* descriptionHash */ 
+    ) external virtual returns (        
+        address[] memory /* targets */ ,
+        uint256[] memory /* values */,
+        bytes[] memory /* calldatas */
+        ) {
+
+      // The following needs to be included in any law implementation of a law: 
+      // check is caller the protocol? 
+      // if (msg.sender != daoCore) { 
+      //   revert Law__AccessNotAuthorized(msg.sender);  
+      // }
+
   }
 
   /**

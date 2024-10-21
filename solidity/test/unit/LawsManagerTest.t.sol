@@ -21,7 +21,7 @@ import {Senior_assignRole} from "../../src/implementation/laws/Senior_assignRole
 import {Senior_reinstateMember} from "../../src/implementation/laws/Senior_reinstateMember.sol";
 import {Senior_revokeRole} from "../../src/implementation/laws/Senior_revokeRole.sol";
 import {Whale_acceptCoreValue} from "../../src/implementation/laws/Whale_acceptCoreValue.sol";
-import {Whale_assignRole} from "../../src/implementation/laws/Whale_assignRole.sol";
+import {Member_assignWhale} from "../../src/implementation/laws/Member_assignWhale.sol";
 import {Whale_proposeLaw} from "../../src/implementation/laws/Whale_proposeLaw.sol";
 import {Whale_revokeMember} from "../../src/implementation/laws/Whale_revokeMember.sol";
 
@@ -98,7 +98,7 @@ contract LawsManagerTest is Test {
     // proposing... 
     address thisIsNoLaw = address(new AgDao());
     string memory description = "Proposing to add a new Law";
-    bytes memory lawCalldata = abi.encode(thisIsNoLaw, true, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(thisIsNoLaw, true);  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
@@ -117,7 +117,7 @@ contract LawsManagerTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -146,7 +146,7 @@ contract LawsManagerTest is Test {
 
     // executing... 
     vm.prank(bob);
-    Law(constituentLaws[5]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -157,8 +157,8 @@ contract LawsManagerTest is Test {
     
     vm.prank(alice); // = admin role 
     vm.expectRevert(abi.encodeWithSelector(
-      LawsManager.LawsManager__IncorrectInterface.selector, thisIsNoLaw));
-    Law(constituentLaws[6]).executeLaw(lawCalldata);
+    LawsManager.LawsManager__IncorrectInterface.selector, thisIsNoLaw));
+     agDao.execute(constituentLaws[6], lawCalldata, keccak256(bytes(description)));
   }
   
   function testSetLawDoesNotingIfNoChange() public {
@@ -167,7 +167,7 @@ contract LawsManagerTest is Test {
     // Note newLaw is actually an already existing law. 
     address newLaw = constituentLaws[0]; 
     string memory description = "Proposing to add a new Law";
-    bytes memory lawCalldata = abi.encode(newLaw, true, keccak256(bytes(description)));  
+    bytes memory lawCalldata = abi.encode(newLaw, true);  
     
     vm.prank(eve); // = a whale
     uint256 proposalIdOne = agDao.propose(
@@ -186,7 +186,7 @@ contract LawsManagerTest is Test {
 
     // executing... 
     vm.prank(david);
-    Law(constituentLaws[4]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
@@ -215,7 +215,7 @@ contract LawsManagerTest is Test {
 
     // executing... 
     vm.prank(bob);
-    Law(constituentLaws[5]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
     // check 
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
@@ -227,7 +227,7 @@ contract LawsManagerTest is Test {
     vm.expectEmit(true, false, false, false);
     emit LawsManager.LawSet(newLaw, true, false);
     vm.prank(alice); // = admin role 
-    Law(constituentLaws[6]).executeLaw(lawCalldata);
+    agDao.execute(constituentLaws[6], lawCalldata, keccak256(bytes(description)));
   }
 
   ///////////////////////////////////////////////
@@ -242,7 +242,7 @@ contract LawsManagerTest is Test {
       laws[0] = address(new Member_assignRole(agDaoAddress_));
       laws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
       laws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
-      laws[3] = address(new Whale_assignRole(agDaoAddress_, agCoinsAddress_));
+      laws[3] = address(new Member_assignWhale(agDaoAddress_, agCoinsAddress_));
       
       // re activating & deactivating laws  // 
       laws[4] = address(new Whale_proposeLaw(agDaoAddress_, agCoinsAddress_));

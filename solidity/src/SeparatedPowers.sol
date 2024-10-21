@@ -13,36 +13,35 @@ import {EIP712} from "../lib/openzeppelin-contracts/contracts/utils/cryptography
  * @notice The core contract of the SeparatedPowers protocol. Inherits from {LawsManager}, {AuthoritiesManager} and {Law}.
  * Code derived from OpenZeppelin's Governor.sol contract. 
  * 
- * Note that Governor.sol is set as abstract, and needs modules to be added to function. In contrast, SeparatedPowers is not set as abstract and is self-contained.   
+ * Note that originally, Governor.sol is as abstract and needs modules to be added to function. In contrast, SeparatedPowers is not set as abstract and is self-contained.  
  * Any additional functionality should be brought in through laws.  
  * Although the protocol does allow functions to be updated in inhereted contracts, this should be avoided if possible.   
  * 
+ * The protocol is meant to be inherited by a contract that implements a DAO. See for an example {implementation/AgDao.sol}.
+ *    
  * Other differences: 
  * - No ERC165 in the core protocol, this can change later. Laws do support ERC165 interfaces.   
- * - There is no onlyGovernor modifier. 
  * - The use of {clock} is removed. Only blocknumbers are used at the moment, no timestamps. 
  * - There is currently no protection against front-running proposals. 
- * - There structure of the contract follows a different logic. See the end of this contract for the structure I followed. 
+ * - The structure of contracts follows a different logic than the one used by OpenZeppelin's Governor.sol. See the end of this contract for the structure I followed. 
  * 
  * @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon
  */
 contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedPowers {
     /* errors */
     error SeparatedPowers__ConstitutionAlreadyExecuted(); 
-    error SeparatedPowers__RestrictedProposer(); 
     error SeparatedPowers__OnlySeparatedPowers(); 
     error SeparatedPowers__AccessDenied(); 
     error SeparatedPowers__UnexpectedProposalState(); 
     error SeparatedPowers__InvalidProposalId(); 
     error SeperatedPowers__NonExistentProposal(uint256 proposalId); 
-    error SeparatedPowers__InvalidProposalLength(uint256 targetsLength, uint256 calldatasLength); 
     error SeparatedPowers__ProposalAlreadyCompleted(); 
     error SeparatedPowers__ProposalCancelled(); 
-    error SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
     error SeparatedPowers__CompleteCallNotFromActiveLaw();
     error SeparatedPowers__OnlyProposer(address caller); 
     error SeparatedPowers__ProposalNotActive(); 
     error SeparatedPowers__NoAccessToTargetLaw();
+    error SeparatedPowers__InvalidCallData(); 
     
     /* State variables */
     mapping(uint256 proposalId => ProposalCore) private _proposals; // mapping from proposalId to proposalCore
@@ -157,6 +156,63 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
     }
 
     /**
+     * @dev See {IseperatedPowers.cancel}
+     */
+    function cancel(
+        address targetLaw, 
+        bytes memory lawCalldata,
+        bytes32 descriptionHash
+    ) public virtual returns (uint256) {
+        uint256 proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
+
+        if (msg.sender !=  _proposals[proposalId].proposer) {
+            revert SeparatedPowers__OnlyProposer(msg.sender);
+        }
+
+        return _cancel(targetLaw, lawCalldata, descriptionHash);
+    }
+
+    /**
+     * @dev see {ISeperatedPowers.execute}
+     * 
+     * Note any reference to proposal (as in OpenZeppelin's Governor.sol) are removed. 
+     * The mechanism of SeparatedPowers detaches proposals from execution logic. 
+     * Instead, proposal checks are placed in the {complete} function which is called by laws. 
+     */
+    function execute(
+        address targetLaw, 
+        bytes memory lawCalldata,
+        bytes32 descriptionHash
+    ) external payable virtual {
+        // check 1: does executioner have access to law being executed? 
+        uint64 accessRole = Law(targetLaw).accessRole(); 
+        if (roles[accessRole].members[msg.sender] == 0 && accessRole != PUBLIC_ROLE) {
+            revert SeparatedPowers__AccessDenied();
+        }
+
+        // calling target law: receiving targets, values and calldatas to execute. 
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
+
+        // execute.
+        if (targets.length > 0) {
+            _executeOperations(targets, values, calldatas);
+        }
+    }
+
+    /**
+     * @dev see {ISeperatedPowers.complete} 
+     */
+    function complete(
+        bytes memory lawCalldata,
+        bytes32 descriptionHash
+        ) external virtual { 
+
+        uint256 proposalId = hashProposal(msg.sender, lawCalldata, descriptionHash);
+
+        _complete(proposalId); 
+    }
+
+    /**
      * @dev See {ISeperatedPowers.castVote}.
      */
     function castVote(uint256 proposalId, uint8 support) external virtual {
@@ -175,65 +231,6 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         address voter = msg.sender;
         return _castVote(proposalId, voter, support, reason);
     }
-
-    /**
-     * @dev see {ISeperatedPowers.execute}
-     * 
-     * Note any reference to proposal (as in OpenZeppelin's Governor.sol) are removed. 
-     * The mechanism of SeparatedPowers detaches proposals from execution logic. 
-     * Instead, proposal checks are placed in the {complete} function.
-     */
-    function execute(
-        address executioner,  
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas
-    ) external payable virtual {
-        // check 1: is call from an active law? 
-        if (!activeLaws[msg.sender]) {
-            revert SeparatedPowers__ExecuteCallNotFromActiveLaw(); 
-        }
-
-        // check 2: does executioner have access to law being executed? 
-        uint64 accessRole = Law(msg.sender).accessRole(); 
-        if (roles[accessRole].members[executioner] == 0 && accessRole != PUBLIC_ROLE) {
-            revert SeparatedPowers__AccessDenied();
-        } 
-
-        // if checks pass: execute.
-        _executeOperations(targets, values, calldatas);
-    }
-
-    /**
-     * @dev see {ISeperatedPowers.complete} 
-     */
-    function complete(
-        bytes memory lawCalldata,
-        bytes32 descriptionHash
-        ) external virtual { 
-
-        uint256 proposalId = hashProposal(msg.sender, lawCalldata, descriptionHash);
-
-        _complete(proposalId); 
-    }
-
-    /**
-     * @dev See {IseperatedPowers.cancel}
-     */
-    function cancel(
-        address targetLaw, 
-        bytes memory lawCalldata,
-        bytes32 descriptionHash
-    ) public virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
-
-        if (msg.sender !=  _proposals[proposalId].proposer) {
-            revert SeparatedPowers__OnlyProposer(msg.sender);
-        }
-
-        return _cancel(targetLaw, lawCalldata, descriptionHash);
-    }
-
  
     //////////////////////////////
     //         PUBLIC           //
@@ -416,6 +413,10 @@ contract SeparatedPowers is EIP712, AuthoritiesManager, LawsManager, ISeparatedP
         uint256[] memory values,
         bytes[] memory calldatas
     ) internal virtual {
+        if (targets.length != values.length || targets.length != calldatas.length) {
+            revert SeparatedPowers__InvalidCallData();
+        }
+
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
             Address.verifyCallResult(success, returndata);

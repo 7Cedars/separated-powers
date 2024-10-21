@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
+import {IAuthoritiesManager} from "./IAuthoritiesManager.sol";
+
 /**
  * @notice Interface for the SeparatedPowers protocol. 
  * Code derived from OpenZeppelin's Governor.sol contract. 
@@ -43,6 +45,19 @@ interface ISeparatedPowers {
 
     /* external function */ 
     /**
+     * @dev  external function to batch activate laws and roles in a DAO. Can only be called once, and only by Admin.
+     *
+     * @param constituentLaws : the addresses of the laws to be activated. Can only be one address.
+     * @param constitutionalRoles : the roles of the laws to be activated.
+     *
+     * emits a {ProposalCreated} event.
+     */
+    function constitute(
+        address[] memory constituentLaws,
+        IAuthoritiesManager.ConstituentRole[] memory constitutionalRoles
+    ) external;
+
+    /**
      * @dev the external function to call when a new proposal is created.
      *
      * @param targetLaw : the address of the law to be executed. Can only be one address. 
@@ -61,18 +76,16 @@ interface ISeparatedPowers {
      * @dev external function to call when a proposal is executed. 
      * Note The function can only be called from a whitelisted Law contract. 
      *
-     * @param executioner : the address of the executioner: the address that called the law contract. 
-     * @param targets : the targets of the execution. Can be multiple addresses. 
-     * @param values : the values of the execution.
-     * @param calldatas : the calldatas of the execution.
+     * @param targetLaw : the address of the law to be executed. Can only be one address.
+     * @param lawCalldata : the calldata to be passed to the law
+     * @param descriptionHash : the descriptionHash of the proposal
      *  
      * @dev note: the arrays of targets, values and calldatas must have the same length. 
      */
     function execute(
-        address executioner, 
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas
+        address targetLaw, 
+        bytes memory lawCalldata,
+        bytes32 descriptionHash
         ) external payable; 
 
     /**
