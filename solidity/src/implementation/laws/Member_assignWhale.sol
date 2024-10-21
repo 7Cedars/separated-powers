@@ -7,7 +7,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
- * @notice This contract allows whales to assign or revoke whale roles, on the basis of the agCoins an account holds.
+ * @notice This contract allows members to assign or revoke whale roles, on the basis of the agCoins an account holds.
  * If an account holds fewer than 1_000_000 agCoins, it will be deselected. If it owns 1_000_000 or more tokens, it will be selected.   
  * 
  * @dev The contract is an example of a law that 
@@ -15,8 +15,8 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * - is role restricted. 
  * - links token holdings to role selection. There are many ways to do this. This law is but one example. 
  */
-contract Whale_assignRole is Law {
-    error Whale_assignRole__Error();
+contract Member_assignWhale is Law {
+    error Member_assignWhale__Error();
     error Senior_assignRole__TooManySeniors();
 
     address public agCoins; 
@@ -27,9 +27,9 @@ contract Whale_assignRole is Law {
     
     constructor(address payable agDao_, address agCoins_) // can take a address parentLaw param. 
       Law(
-        "Whale_assignRole", // = name
-        "Whales can assign or revoke whale roles, according to the agCoins an account hold. If a change has been applied, the executioner will receive a reward.", // = description
-        2, // = access Whale
+        "Member_assignWhale", // = name
+        "Members can assign or revoke whale roles, according to the agCoins an account hold. If a change has been applied, the executioner will receive a reward.", // = description
+        3, // = access Member Role 
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = no quorum, means no vote. 
         0, // = succeedAt in percent
@@ -60,7 +60,7 @@ contract Whale_assignRole is Law {
 
       // step 2: retrieve necessary data.  
       uint256 balanceAccount = ERC20(agCoins).balanceOf(accountToAssess);
-      uint48 since = SeparatedPowers(payable(agDao)).hasRoleSince(accountToAssess, accessRole);
+      uint48 since = SeparatedPowers(payable(agDao)).hasRoleSince(accountToAssess, WHALE_ROLE);
 
       // step 3: Note that check for proposal to have passed & setting proposal as completed is missing. This action can be executed without setting a proposal or passing a vote.  
 
@@ -87,7 +87,7 @@ contract Whale_assignRole is Law {
       else if (balanceAccount >= amountTokensForWhaleRole && since == 0) {
         cal[0] = abi.encodeWithSelector(0xd2ab9970, WHALE_ROLE, accountToAssess, true); // = setRole(uint64 roleId, address account, bool access); 
       } else {
-        revert Whale_assignRole__Error();
+        revert Member_assignWhale__Error();
       }
       
       // step 6: return data

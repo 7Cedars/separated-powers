@@ -21,7 +21,7 @@ import {Senior_assignRole} from "../../src/implementation/laws/Senior_assignRole
 import {Senior_reinstateMember} from "../../src/implementation/laws/Senior_reinstateMember.sol";
 import {Senior_revokeRole} from "../../src/implementation/laws/Senior_revokeRole.sol";
 import {Whale_acceptCoreValue} from "../../src/implementation/laws/Whale_acceptCoreValue.sol";
-import {Whale_assignRole} from "../../src/implementation/laws/Whale_assignRole.sol";
+import {Member_assignWhale} from "../../src/implementation/laws/Member_assignWhale.sol";
 import {Whale_proposeLaw} from "../../src/implementation/laws/Whale_proposeLaw.sol";
 import {Whale_revokeMember} from "../../src/implementation/laws/Whale_revokeMember.sol";
 
@@ -242,7 +242,7 @@ contract LawsManagerTest is Test {
       laws[0] = address(new Member_assignRole(agDaoAddress_));
       laws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
       laws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
-      laws[3] = address(new Whale_assignRole(agDaoAddress_, agCoinsAddress_));
+      laws[3] = address(new Member_assignWhale(agDaoAddress_, agCoinsAddress_));
       
       // re activating & deactivating laws  // 
       laws[4] = address(new Whale_proposeLaw(agDaoAddress_, agCoinsAddress_));

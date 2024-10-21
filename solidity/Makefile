@@ -39,7 +39,6 @@ ARB_SEPOLIA_TEST_ARGS := --fork-url $(ARB_SEPOLIA_RPC_URL)
 ARB_SEPOLIA_DEPLOY_ARGS := --rpc-url $(ARB_SEPOLIA_RPC_URL) --account dev_2 --sender ${DEV2_ADDRESS} --broadcast --chain-id 421614 --etherscan-api-key $(ARBISCAN_API_KEY) --verifier-url https://api-sepolia.arbiscan.io/api --verify -vvvv
 OPT_SEPOLIA_DEPLOY_ARGS := --rpc-url $(OPT_SEPOLIA_RPC_URL) --account dev_2 --sender ${DEV2_ADDRESS} --broadcast --etherscan-api-key $(OPT_ETHERSCAN_API_KEY) --verify -vvvv
 
-
 anvilTest :; forge test $(ANVIL_ARGS_0)
 arbSepoliaForkedTest :; forge test ${ARB_SEPOLIA_TEST_ARGS}
 

@@ -1,18 +1,5 @@
-<!--
-*** NB: This template was taken from: https://github.com/othneildrew/Best-README-Template/blob/master/README.md?plain=1 
-*** For shields, see: https://shields.io/
-*** if was further adapted for solidity along example from https://github.com/Cyfrin/6-thunder-loan-audit
--->
-<a name="readme-top"></a>
 
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
+<a name="readme-top"></a>
 
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
@@ -30,11 +17,13 @@
   <p align="center">
     A protocol providing restricted governance processes for DAOs. 
     <br />
-    <a href="https://github.com/7Cedars/loyalty-program-contracts"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/7Cedars/separated-powers"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <!--NB: TO DO --> 
-    <a href="https://sepolia.arbiscan.io/">View an example contract on arb .etherscan.io.</a>
+    <a href="https://sepolia.arbiscan.io/">SoP example (Arbiscan)</a>
+    ·
+    <a href="https://sepolia.arbiscan.io/">SoP example (dApp)</a>
     ·
     <a href="https://github.com/7Cedars/loyalty-program-contracts/issues">Report Bug</a>
     ·
@@ -42,7 +31,15 @@
   </p>
 </div>
 
-<!-- TABLE OF CONTENTS -->
+<div align="center">
+For the judges of the RnDAO CollabTech Hackathon  
+    <br />
+    <a href="https://github.com/7Cedars/separated-powers"> See our pitch here! </a>
+    <br />
+</div>
+
+<!-- TABLE OF CONTENTS --> 
+<!-- NB! Still needs to be adapted --> 
 <details>
   <summary>Table of Contents</summary>
   <ol>
@@ -74,17 +71,15 @@
 Separated Powers restricts governance processes along access roles. 
 
 ### What is the problem? 
-Current governance of 'Decentralised Autonomous Organisations', or DAOs, tends to be highly centralised. 
-- In the large majority of cases, voting power in DAO is linked to tokens users own. It leads to a small group of users having an outsized influence on DAO decision making processes. 
-- Wide spread disengagement among non-elite DAO members. Having very little power to influence the outcome of votes, most DAO members stop voting altogether.
-- A tendency to centralise governance in name of security. In response to hostile governance take over through flash loans (and other means) DAOs delegate actual decision making to a small group of vetted leaders.
+The centralisation of power in DAO governance. 
+- Voting power tends to be centralised around a small group of users with a large amount of (governance) tokens. 
+- Voter disengagement among DAO members that do not own large amounts of governance tokens.
+- A tendency to centralise governance around a small number of vetted member in order to secure governance against hostile takeovers.
 
-Billions of dollars are controlled by DAOs. It is a non-trivial amount, but tiny compared to existing national economies or companies. Blockchains will only reach their full potential if they are truly decentralised, give ownership to their users and provide a safe environment for day-to-day use. 
-
-Centralisation stands in the way of blockchain growth. 
+DAOs control crypto that is worth billions of dollars. Still, the amount is tiny when compared to national economies or companies such as Apple. Blockchains will only reach their full potential if they are truly decentralised, give ownership to all their users and provide a safe environment for day-to-day use.  
 
 ### What is the solution?
-Restrict governance processes along access roles. This enables: 
+To foster decentralised DAO governance, separated Powers restricts governance processes along access roles. This enables: 
 - defining multiple groups within blockchain communities. 
 - assigning them restricted powers. 
 - balancing and checking powers between groups. 
@@ -93,23 +88,7 @@ Restrict governance processes along access roles. This enables:
 Using roles to separate powers in governance is a tried and true approach to safeguarding decentralisation of (social, political and economic) assets in light of their tendency to centralise around informal elites.
 
 ### How does it work? 
-To understand how the Separated Powers protocol works, we first need to understand the current dominant approach.
-
-#### The traditional approach to DAO governance 
-- A user proposes a proposal, that includes external target contract(s), values(s) and calldata(s). 
-- Users vote on this proposal, often their votes are weighted by the tokens they own or that have been delegated to them. 
-- When a user calls the execute function, it checks if the proposal has succeeded (and is not queued). 
-- If the checks pass, the external functions are called with the values and calldatas.
-  
-As a flowchart 
-  <a href="https://github.com/7Cedars/separated-powers/blob/master/public/GovernanceSimple_flowchart.png"> 
-    <img src="public/GovernanceSimple_flowchart.png" alt="Schema Protocol" width="100%" height="100%">
-  </a>
-
-Note that this approach does not allow restricting what kind of proposals can be made along the role that a proposer holds - let alone restricting who can vote and execute proposals. 
-
-#### Introducing role restrictions to governance 
-To introduce role restrictions to governance processes, the Separated Powers protocol forces all governance actions to run through whitelisted and role restricted external contracts. 
+To introduce role restrictions to governance processes, the Separated Powers protocol forces all governance actions to refer to whitelisted and role restricted external contracts. 
 
 These contracts 
 - are restricted to one role Id. 
@@ -118,54 +97,58 @@ These contracts
 
 Because the role restricted external contracts closely resemble **laws**, they are referred as such throughout the protocol.
 
+Governance actions are only allowed for accounts that hold the role of the target law. An account that holds role A, can only propose proposals, vote on proposals and execute proposals in relation to laws that have access role id A.     
+
 As a flowchart 
   <a href="https://github.com/7Cedars/separated-powers/blob/master/public/SeparatedPowers_introLaws.png"> 
     <img src="public/SeparatedPowers_introLaws.png" alt="Schema Protocol" width="100%" height="100%">
   </a>
 
 #### Creating checks and balance 
-Laws allow role B to check decisions of role A. Consider the following steps:  
+Crucially, laws allow proposals to be chained. It means that accounts with role A can balance or check decisions of accounts that hold role B.  
+
+Consider the following steps:  
 - A user with role A proposes a proposal directed at law A. Its vote succeeds, but nothing happens.   
 - A user with role B proposes a proposal directed at law B. The law _only allows the exact same calldata that was included in the proposal to law A_. 
 - When a user with role B calls the execute function of law B, it checks if _both_ proposal A and proposal B have passed. If this is the case, the intended action is executed.
 - The proposal chain can be made as long as required.
-
-In short, they allow for the creation of checks and balances between roles. 
 
 As a flowchart
   <a href="https://github.com/7Cedars/separated-powers/blob/master/public/SeparatedPowers_flowchart.png"> 
     <img src="public/SeparatedPowers_flowchart.png" alt="Flowchart Governance.sol" width="100%" height="100%">
   </a>
 
-### What are the implication of each governance approach? 
-#### Using Governance.sol
-- There are inherent risks to using token weighted voting in DAO governance. To mitigate these risks, the governance logic needs to be adapted. 
-- Any adaptation to Governance.sol - either in the core protocol or through added modules - adds complexity: delays, guardian roles, quadratic voting, queueing, rage quitting, etc etc. It never stops.  
+<!-- £todo this still needs proper review -->
+#### What does Sop DAO governance look like? 
+Laws, role restricted governance processes and chained proposals provide a completely new approach to building DAO governance. As such, they provide a wealth of possibilities. 
 
-#### Using SeparatedPowers.sol
-- The execute function in SeparatedPowers cannot be called directly, it can only be called through external restricted functions.
-- External restricted functions need to be whitelisted within SeparatedPowers, otherwise calls revert. 
-- External functions do not have to be called through proposals, if the function allows they can also be called directly. They are always role restricted though. 
-- External functions can restrict what target contract(s), values(s) or calldata(s) are allowed to be included. They can have any custom logic (delays, timed executions, randomisation, etc). In short, they allow for including any type of governance logic. 
-- The latter implies that any added complexity to governance processes is placed among external restricted functions. The governance protocol itself does not become more complex.
+- All complexity is abstracted away from the core governance process to a set of laws: guardian roles, queuing proposals, time locks, weighted voting... all are implemented as laws, making DAO governance far more modular. 
+- The possibility for checks and balances between roles, creates the incentive to decentralise power in name of security. In contrast, mainstream approach today create an incentive to have a small group of trusted actors 'vet' all decisions. 
+- Instead of vertically devolving powers in DAOs to optimise DAO management (see the Hats protocol), Separated Powers devolves powers and responsibilities horizontally. 
+- Laws allow for any kind of logic to be encoded into governance. The governance protocol itself is intentionally simple and opinionated, laws are completely open and free. Anything can be build with them.  
+- If problems arise with DAO governance, Separated Powers allows for specific laws to be deactivated. It means a DAO does not need to pause its entire governance protocol. Pausing can be selective.  
 
+These are just some examples of the implications of using Separated Powers. Many more can be given.  
+
+#### Gaining a deeper understanding of Separated Powers 
+For now, the protocol does not have extensive documentation. It does have extensive natspecs throughout the protocol contracts. 
+
+The best way to gain a deeper understanding of the protocol is to start at `solidity/src/SeparatedPowers.sol` and `solidity/src/ISeparatedPowers.sol` and read through the code and natspecs.  
 
 ### Important files and folders
 
 ```
 .
 ├── frontend                     # App workspace
+|    ├── README.md               # All information needed to run the dApp locally. 
 │    └── ...
 │
-├── public                       # Public files 
+├── public                       # Images
 |
-├── solidity                     # ... 
-│    ├── ...                     # ... 
-│    ├── ...                     # ...
-│    └── ...                     # ... 
-├── ...                          # ...
-├── ...                   # ... 
-├── ...                   # ...
+├── solidity                     # Contains all the contracts, interfaces and tests. 
+│    ├── README.md               # All information needed to run contracts locally, test and deploy contracts.   
+│    └── ...                     
+| 
 ├── LICENSE
 └── README.md
 ```
@@ -181,61 +164,6 @@ As a flowchart
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- GETTING STARTED -->
-## Getting Started
-
-To get a local copy up and running do the following.
-
-### Prerequisites
-
-- [Install git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-  - You'll know you did it right if you can run `git --version` and you see a response like `git version x.x.x`
-- [Install foundry](https://getfoundry.sh/)
-  - You'll know you did it right if you can run `forge --version` and you see a response like `forge 0.2.0 (816e00b 2023-03-16T00:05:26.396218Z)`
-
-
-### Clone the repository
-<!-- NB: I have to actually follow these steps and check if I missed anyting £todo -->
-
-1. Clone the repo
-   ```sh
-   git clone https://github.com/7Cedars/governor-restricted-powers
-   ```
-
-2. Run make
-   ```sh
-   cd restricted-powers
-   make
-   ``` 
-
-### Run the test and build the contracts
-3. Run tests
-    ```sh
-    forge test
-    ```
-
-4. Build contracts
-    ```sh
-   forge build
-   ```
-
-<!--  
-### Deploy
-5. Run deploy script at an EVM compatible Chain
-  ```sh
-   $ forge script --fork-url <RPC_URL> script/NOT_IMPLEMENTED_YET --broadcast
-   ```
--->
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- ROADMAP -->
-## Known and Open Issues 
-
-- This protocol is under active development. Basic functionality is incomplete. 
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 <!-- LICENSE -->
 ## License
 
@@ -246,18 +174,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Seven Cedars - [@7__Cedars](https://twitter.com/7__Cedars) - cedars7@proton.me
+Seven Cedars - [Github profile](https://github.com/7Cedars) - cedars7@proton.me
 
-GitHub profile [https://github.com/7Cedars](https://github.com/7Cedars)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-* OpenZeppelin.
-* ...  
+Niy42 - [Github profile](https://github.com/niy42)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -291,4 +210,3 @@ GitHub profile [https://github.com/7Cedars](https://github.com/7Cedars)
 [Bootstrap-url]: https://getbootstrap.com
 [JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
 [JQuery-url]: https://jquery.com 
->>>>>>> 00a40551850c35887836e626215961fac8bc324d

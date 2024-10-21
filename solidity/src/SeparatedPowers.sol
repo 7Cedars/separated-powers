@@ -13,16 +13,17 @@ import {EIP712} from "../lib/openzeppelin-contracts/contracts/utils/cryptography
  * @notice The core contract of the SeparatedPowers protocol. Inherits from {LawsManager}, {AuthoritiesManager} and {Law}.
  * Code derived from OpenZeppelin's Governor.sol contract. 
  * 
- * Note that Governor.sol is set as abstract, and needs modules to be added to function. In contrast, SeparatedPowers is not set as abstract and is self-contained.   
+ * Note that originally, Governor.sol is as abstract and needs modules to be added to function. In contrast, SeparatedPowers is not set as abstract and is self-contained.  
  * Any additional functionality should be brought in through laws.  
  * Although the protocol does allow functions to be updated in inhereted contracts, this should be avoided if possible.   
  * 
+ * The protocol is meant to be inherited by a contract that implements a DAO. See for an example {implementation/AgDao.sol}.
+ *    
  * Other differences: 
  * - No ERC165 in the core protocol, this can change later. Laws do support ERC165 interfaces.   
- * - There is no onlyGovernor modifier. 
  * - The use of {clock} is removed. Only blocknumbers are used at the moment, no timestamps. 
  * - There is currently no protection against front-running proposals. 
- * - There structure of the contract follows a different logic. See the end of this contract for the structure I followed. 
+ * - The structure of contracts follows a different logic than the one used by OpenZeppelin's Governor.sol. See the end of this contract for the structure I followed. 
  * 
  * @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon
  */
