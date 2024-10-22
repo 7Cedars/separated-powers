@@ -12,7 +12,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @dev This contract is an example of a law that
  * - has access control and needs a proposal to be voted through.
  * - calls several functions, among which {setRole} and {blacklistAccount}. 
- * - at the same time it can also - optionally - be the start of a proposal chain. This happens when the revoked member challenges the decision. See {Member_challengeRevoke}. 
+ * - at the same time it can also - optionally - be the start of a proposal chain. This happens when the revoked member challenges the decision. See {Public_challengeRevoke}. 
  */
 contract Whale_revokeMember is Law {
     error Whale_revokeMember__AccountIsNotMember();

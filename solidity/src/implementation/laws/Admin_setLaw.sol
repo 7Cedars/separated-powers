@@ -15,7 +15,7 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
  * - the parent law must have been executed.
  * - as this contract does not need a proposal, it can be called multiple times on the same parentProposalId. 
  *   In this case this is fine. In cases where it needs to be avoided, consider forcing the creation of a proposal that can be completed without a vote. 
- *   See {Member_ChallengeRevoke} for an example of such a law. 
+ *   See {Public_challengeRevoke} for an example of such a law. 
  */
  contract Admin_setLaw is Law {
     error Senior_acceptProposedLaw__ParentProposalNotCompleted(uint256 parentProposalId); 

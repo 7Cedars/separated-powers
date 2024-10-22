@@ -11,8 +11,8 @@ import {IAuthoritiesManager} from "../src/interfaces/IAuthoritiesManager.sol";
 
 // constitutional laws
 import {Admin_setLaw} from "../src/implementation/laws/Admin_setLaw.sol";
-import {Member_assignRole} from "../src/implementation/laws/Member_assignRole.sol";
-import {Member_challengeRevoke} from "../src/implementation/laws/Member_challengeRevoke.sol";
+import {Public_assignRole} from "../src/implementation/laws/Public_assignRole.sol";
+import {Public_challengeRevoke} from "../src/implementation/laws/Public_challengeRevoke.sol";
 import {Member_proposeCoreValue} from "../src/implementation/laws/Member_proposeCoreValue.sol";
 import {Senior_acceptProposedLaw} from "../src/implementation/laws/Senior_acceptProposedLaw.sol";
 import {Senior_assignRole} from "../src/implementation/laws/Senior_assignRole.sol";
@@ -27,18 +27,18 @@ contract DeployAgDao is Script {
     error DeployFactoryProgrmas__DeployedContractAtAddress(address deploymentAddress);
     
     /* Functions */
-    function run() external returns (AgDao, AgCoins, address[] memory constituentLaws) {
+    function run() external returns (AgDao, AgCoins) { //  address[] memory constituentLaws
         vm.startBroadcast();
             AgDao agDao = new AgDao();
             AgCoins agCoins = new AgCoins(payable(address(agDao)));
         vm.stopBroadcast();
 
-        vm.startBroadcast();
-            // setting up constituent Laws and initializing them.
-            constituentLaws = _deployLaws(payable(address(agDao)), address(agCoins));
-        vm.stopBroadcast();
+        // vm.startBroadcast();
+        //     // setting up constituent Laws and initializing them.
+        //     constituentLaws = _deployLaws(payable(address(agDao)), address(agCoins));
+        // vm.stopBroadcast();
 
-        return(agDao, agCoins, constituentLaws);
+        return(agDao, agCoins); // constituentLaws
     }
 
     /* internal functions */
@@ -47,7 +47,7 @@ function _deployLaws(address payable agDaoAddress_, address agCoinsAddress_) int
 
       // deploying laws //
       // re assigning roles // 
-      laws[0] = address(new Member_assignRole(agDaoAddress_));
+      laws[0] = address(new Public_assignRole(agDaoAddress_));
       laws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
       laws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
       laws[3] = address(new Member_assignWhale(agDaoAddress_, agCoinsAddress_));
@@ -63,7 +63,7 @@ function _deployLaws(address payable agDaoAddress_, address agCoinsAddress_) int
       
       // re enforcing core values as requirement for external funding //   
       laws[9] = address(new Whale_revokeMember(agDaoAddress_, agCoinsAddress_));
-      laws[10] = address(new Member_challengeRevoke(agDaoAddress_, address(laws[9])));
+      laws[10] = address(new Public_challengeRevoke(agDaoAddress_, address(laws[9])));
       laws[11] = address(new Senior_reinstateMember(agDaoAddress_, agCoinsAddress_, address(laws[10])));
 
       return laws; 
