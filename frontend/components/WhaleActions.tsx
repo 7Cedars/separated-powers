@@ -3,42 +3,42 @@
 import React, { useState } from 'react';
 import { userActionsProps } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
-import { contractAddresses } from '@/context/contractAddresses';
+import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, parseAbiParameters, stringToBytes, stringToHex } from 'viem'
 
 const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
-    const [addressLaw, setAddressLaw] = useState<`0x${string}`>('0x0');
+    const [addressLaw, setAddressLaw] = useState<`0x${string}`>();
     const [toInclude, setToInclude] = useState<boolean>(true);
-    const [newValue, setNewValue] = useState<string>('');
-    const [memberToRevoke, setMemberToRevoke] = useState<`0x${string}`>('0x0');
-    const [description, setDescription] = useState<string>('');
+    const [newValue, setNewValue] = useState<string>();
+    const [memberToRevoke, setMemberToRevoke] = useState<`0x${string}`>();
+    const [description, setDescription] = useState<string>();
     const {status, error, law, propose, execute} = useActions(); 
 
     const handleAcceptCoreValue = async () => {
-        const lawCalldata = encodeAbiParameters(parseAbiParameters('bytes'), [stringToHex(newValue)])
+        const lawCalldata = encodeAbiParameters(parseAbiParameters('bytes'), [stringToHex(newValue ? newValue : '')]);
         propose(
-            contractAddresses.find((address) => address.contract === "Whale_acceptCoreValue")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Whale_acceptCoreValue")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description
+            description ? description : ''
         )
     };
 
     const handleProposeLaw = async () => {
-        const lawCalldata: string =  encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw, toInclude]);
+        const lawCalldata: string =  encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw ? addressLaw : '0x0', toInclude]);
         propose(
-            contractAddresses.find((address) => address.contract === "Whale_proposeLaw")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Whale_proposeLaw")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description
+            description ? description : ''
         )
     };
 
     // 
     const handleRevokeMember = async () => {
-         const lawCalldata: string =  encodeAbiParameters(parseAbiParameters("address"), [memberToRevoke]);
+         const lawCalldata: string =  encodeAbiParameters(parseAbiParameters("address"), [memberToRevoke ? memberToRevoke : '0x0']);
         propose(
-            contractAddresses.find((address) => address.contract === "Whale_revokeMember")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Whale_revokeMember")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description
+            description ? description : ''
         )
     };
 

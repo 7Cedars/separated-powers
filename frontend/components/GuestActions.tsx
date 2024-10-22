@@ -3,11 +3,11 @@
 import React, { useState } from 'react';
 import { userActionsProps } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
-import { contractAddresses } from '@/context/contractAddresses';
+import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
 
 const GuestActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
-    const [addressSenior, setAddressSenior] = useState<`0x${string}`>('0x0');
+    const [addressSenior, setAddressSenior] = useState<`0x${string}`>();
     const [revokeId, setRevokeId] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const {status, error, law, propose, execute} = useActions(); 
@@ -18,7 +18,7 @@ const GuestActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
         const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [wallet.address as `0x${string}`]);
         const descriptionHash = keccak256(toHex("I request membership to agDAO."));
         execute(
-            contractAddresses.find((address) => address.contract === "Public_assignRole")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Public_assignRole")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             descriptionHash as `0x${string}`
         )
@@ -31,7 +31,7 @@ const GuestActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
         const revokeCalldata = '0x0'
         const lawCalldata: string = encodeAbiParameters(parseAbiParameters("bytes32, bytes"), [revokeDescriptionHash, revokeCalldata]);
         propose(
-            contractAddresses.find((address) => address.contract === "Public_challengeRevoke")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Public_challengeRevoke")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             description
         )
@@ -50,7 +50,7 @@ const GuestActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
             <p className='text-white text-center mb-4'>
                 Anyone can claim a member role. 
             </p>
-                <div className="flex flex-row justify-center mt-6">
+                <div className="flex flex-row justify-left mt-6">
                     <button
                         onClick={handleAssignRole}
                         className="w-fit bg-white text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"

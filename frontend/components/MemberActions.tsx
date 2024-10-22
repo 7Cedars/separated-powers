@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useActions } from '@/hooks/useActions';
 import { userActionsProps } from '@/context/types';
-import { contractAddresses } from '@/context/contractAddresses';
+import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
 
 const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
@@ -16,7 +16,7 @@ const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
     const handleProposeCoreValue = async () => {
         const lawCalldata: string = encodeAbiParameters(parseAbiParameters("bytes"), [toHex(newValue)]);
         propose(
-            contractAddresses.find((address) => address.contract === "Member_proposeCoreValue")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Member_proposeCoreValue")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             descriptionA
         )
@@ -26,7 +26,7 @@ const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
         const descriptionHash = keccak256(toHex(descriptionB));
         const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [whaleAddress as `0x${string}`]);
         execute(
-            contractAddresses.find((address) => address.contract === "Member_assignWhale")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Member_assignWhale")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             descriptionHash as `0x${string}`
         )

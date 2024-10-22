@@ -1,11 +1,10 @@
 import { ConnectedWallet } from '@privy-io/react-auth';
 
 export type Role = "Admin" | "Member" | "Whale" | "Senior" | "Guest";
-
 export type Status = "idle" | "loading" | "error" | "success"
+export type Vote = 0n | 1n | 2n  // = against, for, abstain  
 
 export type userActionsProps = { wallet: ConnectedWallet, isDisabled: boolean }
-
 export type ProposalViewProps = { proposal: Proposal, isDisabled: boolean} 
 
 export type Proposal = {

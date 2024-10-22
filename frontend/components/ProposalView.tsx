@@ -1,76 +1,138 @@
 "use client"
 
-import { ProposalViewProps } from '@/context/types';
+import { ProposalViewProps, Vote } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
 import React, { useState } from 'react';
-import { contractAddresses } from '@/context/contractAddresses';
-import { encodeAbiParameters, parseAbiParameters, stringToBytes, stringToHex } from 'viem'
+import { lawContracts } from '@/context/lawContracts';
+import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
+
+const proposalColour = [
+    "from-red-300 to-red-600 border-red-600",
+    "from-amber-300 to-yellow-600 border-amber-600",
+    "from-emerald-300 to-emerald-600 border-emerald-600",
+    "from-blue-300 to-blue-600 border-blue-600",
+    "from-purple-300 to-purple-600 border-purple-600"
+  ]
+
+const textColour = [
+    "text-red-600",
+    "text-amber-600",
+    "text-emerald-600",
+    "text-blue-600",
+    "text-purple-600"
+]
 
 const ProposalView:  React.FC<ProposalViewProps> = ({proposal, isDisabled}: ProposalViewProps) => {
-    const [addressLaw, setAddressLaw] = useState<`0x${string}`>('0x0');
-    const [descriptionHash, setDescriptionHash] = useState<`0x${string}`>('0x0');
-    const [toInclude, setToInclude] = useState<boolean>(true);
-    const {status, error, law, execute} = useActions(); 
-    
-    const handleAction = async () => {
-        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw, toInclude]);
+    const {status, error, law, execute, castVote} = useActions(); 
+    const lawTitle: `0x${string}` = lawContracts.find((law: any) => law.address === proposal.targetLaw)?.description as `0x${string}`
+    const roleId: number = Number(lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId) 
+
+    const handleCastVote = async (vote: Vote) => {    
+        castVote(
+            BigInt(proposal.proposalId),
+            vote
+        ) 
+    };
+
+    const handleExecute = async () => {
+        const descriptionHash = keccak256(toHex(proposal.description));
     
         execute(
-            contractAddresses.find((address) => address.contract === "Admin_setLaw")?.address as `0x${string}`,
-            lawCalldata as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Admin_setLaw")?.address as `0x${string}`,
+            proposal.executeCalldata as `0x${string}`,
             descriptionHash as `0x${string}`
         )
     };
 
     return (
         <>
-        <div className="bg-gradient-to-r from-red-300 to-red-600 p-4 px-6 rounded-lg shadow-lg border-2 border-red-600  opacity-30 aria-selected:opacity-100"
-            aria-selected={!isDisabled}>
-            <h4 className='text-white text-lg font-semibold text-center'>
-                Implement Law
-            </h4>
-            <p className='text-white text-center mb-4'>
-                This decision will only pass if Seniors have accepted Whale's proposal. 
-            </p>
-                <input
-                    type="text"
-                    value={addressLaw}
-                    onChange={(e) => setAddressLaw(e.target.value as `0x${string}`)}
-                    placeholder="Enter the address of the law."
-                    maxLength={100}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
-                />
-                <input
-                    type="text"
-                    value={descriptionHash}
-                    onChange={(e) => setDescriptionHash(e.target.value as `0x${string}`)}
-                    placeholder="Enter the description hash of the proposal." 
-                    maxLength={35}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
-                />
-                <div className="flex flex-row justify-center mb-4">
+        <div 
+            className={`p-4 px-6 rounded-lg shadow-lg border-2 bg-gradient-to-r ${proposalColour[roleId]} opacity-30 aria-selected:opacity-100`} 
+            aria-selected={!isDisabled}
+            >
+                <section className='grid grid-cols-2'>
+                    <div className='flex flex-col items-start gap-1'>
+                        <h4 className='text-white text-lg font-semibold text-left'>
+                            Proposal: {lawTitle}
+                        </h4>
+                        <p className='text-white text-left'>
+                            Proposal Id: {`${String(proposal.proposalId).slice(0, 6)}...${String(proposal.proposalId).slice(-6)}`}
+                        </p>
+                        <p className='text-white text-left'>
+                            Proposer: {`${String(proposal.proposer).slice(0, 6)}...${String(proposal.proposer).slice(-6)}`}
+                        </p>
+                    </div>
+                    <div className='flex flex-col items-end gap-1'>
+                        <h4 className='text-white text-lg font-semibold text-right'>
+                            {
+                            proposal.state === 0 ? "Active" 
+                            : 
+                            proposal.state === 1 ? "Cancelled" 
+                            : 
+                            proposal.state === 2 ? "Defeated" 
+                            : 
+                            proposal.state === 3 ? "Succeeded" 
+                            : 
+                            proposal.state === 4 ? "Completed" 
+                            :
+                            "Expired"
+                            } 
+                        </h4>
+                        <p className='text-white text-right'>
+                            Start vote: block {Number(proposal.voteStart)}
+                        </p>
+                        <p className='text-white text-right'>
+                            end vote: block {Number(proposal.voteEnd)}
+                        </p>
+                    </div>
+                </section>
+
+                <section className='flex flex-col text-white text-center m-6'>
+                    <p className='text-lg font-semibold'>
+                    Supporting Statement: {proposal.description}
+                    </p>
+                    <p className='text-sm'>
+                        calldata: {String(proposal.executeCalldata)}
+                    </p>
+               
+                </section>
+
+                <section className='flex flex-row justify-between overflow-y-auto'>
+                    <div className='flex flex-row max-w-96 gap-4'>
+                        <button
+                            onClick={() => handleCastVote(0n)}
+                            className={`grow bg-white ${textColour[roleId]} font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:bg-white transition duration-100`}
+                            disabled = {isDisabled} 
+                        >
+                            Against
+                        </button>
+                        <button
+                            onClick={() => handleCastVote(1n)}
+                            className={`grow bg-white ${textColour[roleId]} font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:bg-white transition duration-100`}
+                            disabled = {isDisabled} 
+                        >
+                            For
+                        </button>
+                        <button
+                            onClick={() => handleCastVote(2n)}
+                            className={`grow bg-white ${textColour[roleId]} font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:bg-white transition duration-100`}
+                            disabled = {isDisabled} 
+                        >
+                            Abstain
+                        </button>
+                    </div>
+
                     <button
-                        onClick={() => setToInclude(!toInclude)}
-                        className="w-fit bg-white text-slate-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-100"
-                    >
-                        {
-                            toInclude ? 'This is a new law that needs to be activated' : 'This is an existing law that needs to be deactivated'
-                        }
+                            onClick={() => handleExecute()}
+                            className={`max-w-36 bg-white ${textColour[roleId]} font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:bg-white disabled:opacity-50 transition duration-100 mx-4`}
+                            disabled = {isDisabled || proposal.state !== 3} 
+                        >
+                            Execute
                     </button>
-                </div>
-                <div className="flex flex-row justify-start mt-6">
-                    <button
-                        onClick={handleAction}
-                        className="w-fit bg-white text-red-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:bg-white transition duration-100"
-                        disabled = {isDisabled} 
-                    >
-                        Accept and implement proposed decision
-                    </button>
-                </div>
-    
+                </section>
         </div>
     </>
     );
 };
 
-export default AdminActions;
+export default ProposalView;

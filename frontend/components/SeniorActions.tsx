@@ -3,32 +3,32 @@
 import React, { useState } from 'react';
 import { userActionsProps } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
-import { contractAddresses } from '@/context/contractAddresses';
+import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, parseAbiParameters, stringToBytes, stringToHex } from 'viem'
 
 const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
-    const [addressLaw, setAddressLaw] = useState<`0x${string}`>('0x0');
-    const [addressSenior, setAddressSenior] = useState<`0x${string}`>('0x0');
-    const [revokeId, setRevokeId] = useState<string>('');
-    const [description, setDescription] = useState<string>('');
+    const [addressLaw, setAddressLaw] = useState<`0x${string}`>();
+    const [addressSenior, setAddressSenior] = useState<`0x${string}`>();
+    const [revokeId, setRevokeId] = useState<string>();
+    const [description, setDescription] = useState<string>();
     const [toInclude, setToInclude] = useState<boolean>(true);
     const {status, error, law, propose, execute} = useActions(); 
 
     const handleAcceptProposeLaw = async () => {
-        const lawCalldata: string =  encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw, toInclude]);
+        const lawCalldata: string =  encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw ? addressLaw : '0x0', toInclude]);
         propose(
-            contractAddresses.find((address) => address.contract === "Senior_acceptProposeLaw")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Senior_acceptProposeLaw")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description
+            description ? description : ''
         )
     };
 
     const handleAssignRole = async () => {
-        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [addressSenior]);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [addressSenior ? addressSenior : '0x0']);
         propose(
-            contractAddresses.find((address) => address.contract === "Senior_assignRole")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Senior_assignRole")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description
+            description ? description : ''
         )
     };
 
@@ -38,18 +38,18 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
         const revokeCalldata = '0x0'
         const lawCalldata: string = encodeAbiParameters(parseAbiParameters("bytes32, bytes"), [revokeDescriptionHash, revokeCalldata]);
         propose(
-            contractAddresses.find((address) => address.contract === "Senior_reinstateMember")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Senior_reinstateMember")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description
+            description ? description : ''
         )
     };
 
     const handleRevokeRole = async () => {
-        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [addressSenior]);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [addressSenior ? addressSenior : '0x0']);
         propose(
-            contractAddresses.find((address) => address.contract === "Senior_revokeRole")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Senior_revokeRole")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description
+            description ? description : ''
         )
     };
 

@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { agDaoAbi } from "../context/abi";
 import { Status } from "../context/types"
-import { ConnectedWallet } from "@privy-io/react-auth";
-import { contractAddresses } from "@/context/contractAddresses";
+import { lawContracts } from "@/context/lawContracts";
 import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
 
@@ -11,7 +10,7 @@ export const useActions = () => {
   const [transactionHash, setTransactionHash ] = useState<`0x${string}` | undefined>()
   const [law, setLaw ] = useState<`0x${string}` | undefined>()
   const [error, setError] = useState<any | null>(null)
-  const agDaoAddress: `0x${string}` = contractAddresses.find((address) => address.contract === "AgDao")?.address as `0x${string}`
+  const agDaoAddress: `0x${string}` = lawContracts.find((law: any) => law.contract === "AgDao")?.address as `0x${string}`
 
   console.log({transactionHash, law, status})
 

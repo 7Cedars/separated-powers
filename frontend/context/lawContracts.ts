@@ -1,61 +1,87 @@
-import {ContractAddress} from "./types"
-
-export const contractAddresses = [
+export const lawContracts = [
   {
     contract: "AgDao", 
-    address: "0x65E5D71a1CB97A79b99AaeffD85C8cd7851a6dcc"
+    description: "description of law here", 
+    address: "0x65E5D71a1CB97A79b99AaeffD85C8cd7851a6dcc",
+    accessRoleId: 4n
   }, 
   {
     contract: "AgCoins", 
-    address: "0xe9D450BBcE3f1c4524FcAC0190C9F75b6c67833B"
+    description: "description of law here",
+    address: "0xe9D450BBcE3f1c4524FcAC0190C9F75b6c67833B",
+    accessRoleId: 4n
   }, 
   {
     contract: "Public_assignRole", 
-    address: "0xeE14631377c5F6eA1E7D7c6E8fC0E0Bc1a6B4510"
+    description: "description of law here",
+    address: "0xeE14631377c5F6eA1E7D7c6E8fC0E0Bc1a6B4510",
+    accessRoleId: 4n
   }, 
   {
     contract: "Senior_assignRole", 
-    address: "0x8b36Df588203fbC2Ebd23B89e8f4D14d490F41A1"
+    description: "description of law here",
+    address: "0x8b36Df588203fbC2Ebd23B89e8f4D14d490F41A1",
+    accessRoleId: 1n
   }, 
   {
     contract: "Senior_revokeRole", 
-    address: "0x22014CE40508CC070c2bF2b2D75E5fC51bFDF960"
+    description: "description of law here",
+    address: "0x22014CE40508CC070c2bF2b2D75E5fC51bFDF960",
+    accessRoleId: 1n
   }, 
   {
     contract: "Member_assignWhale", 
-    address: "0x506b07016EC69a21063496E478bCB5D6e3567B8F"
+    description: "description of law here",
+    address: "0x506b07016EC69a21063496E478bCB5D6e3567B8F",
+    accessRoleId: 3n
   }, 
   {
     contract:  "Whale_proposeLaw", 
-    address: "0x90fb199016cA962B347Cb7D1A3A4b0050f61a775"
+    description: "description of law here",
+    address: "0x90fb199016cA962B347Cb7D1A3A4b0050f61a775",
+    accessRoleId: 2n
   },
  {
     contract: "Senior_acceptProposedLaw", 
-    address: "0x12A100d0F2AE7670DE7F1C3E4B69ee01283488bb"
+    description: "description of law here",
+    address: "0x12A100d0F2AE7670DE7F1C3E4B69ee01283488bb",
+    accessRoleId: 1n
   },
  {
     contract: "Admin_setLaw", 
-    address: "0x27f5C8aD8d8A8911fbf7fdb8A76D859Fce6A0906"
+    description: "description of law here",
+    address: "0x27f5C8aD8d8A8911fbf7fdb8A76D859Fce6A0906",
+    accessRoleId: 0n
   },
  {
     contract: "Member_proposeCoreValue", 
-    address: "0x2fc25E90Fb26289575DCa2a4308c4166Ba8c7c13"
+    description: "Propose Core Value",
+    address: "0x2fc25E90Fb26289575DCa2a4308c4166Ba8c7c13",
+    accessRoleId: 3n
   },
  {
     contract: "Whale_acceptCoreValue", 
-    address: "0x1545EFE993D1022b0b05382dB657170Ab4b4001A"
+    description: "description of law here",
+    address: "0x1545EFE993D1022b0b05382dB657170Ab4b4001A",
+    accessRoleId: 2n
   },
  {
     contract: "Whale_revokeMember", 
-    address: "0x4F6158CEB0120791DEB1816b0F778Ec731266B41"
+    description: "description of law here",
+    address: "0x4F6158CEB0120791DEB1816b0F778Ec731266B41",
+    accessRoleId: 2n
   },
  {
     contract: "Public_challengeRevoke", 
-    address: "0x6A3A88c3683a0c489A29F1AD6C1E8aF1b34E793a"
+    description: "description of law here",
+    address: "0x6A3A88c3683a0c489A29F1AD6C1E8aF1b34E793a",
+    accessRoleId: 4n
   },
  {
     contract: "Senior_reinstateMember", 
-    address: "0x10745151DA767dc97487Fc9d0F715248c0402f2d"
+    description: "description of law here",
+    address: "0x10745151DA767dc97487Fc9d0F715248c0402f2d",
+    accessRoleId: 1n
   },
 ]
 

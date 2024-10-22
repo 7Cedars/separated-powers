@@ -9,19 +9,23 @@ import AdminActions from "@/components/AdminActions";
 import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useRoles } from "@/hooks/useRoles";
 import { useProposals } from "@/hooks/useProposals";
+import { ChevronDownIcon, ChevronUpIcon, XMarkIcon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
+import ProposalView from "@/components/ProposalView";
+import { Proposal } from "@/context/types";
 
 const DashboardPage: React.FC = () => {
     const [admin, setAdmin] = useState<boolean>(false);  
     const [senior, setSenior] = useState<boolean>(false);  ;  
     const [whale, setWhale] = useState<boolean>(false);  
     const [member, setMember] = useState<boolean>(false);  
-    const [guest, setGuest] = useState<boolean>(false);  
+    const [guest, setGuest] = useState<boolean>(true);  
     const [mode, setMode] = useState<"Values"|"Actions"|"Proposals">("Actions");  
+    const [introExpanded, setIntroExpanded] = useState<boolean>(false);  
 
     const {wallets } = useWallets();
     const wallet = wallets[0];
     const {status, error, roles, fetchRoles} = useRoles();
-    const {fetchProposals} = useProposals();
+    const {proposals, status: proposalStatus, error: proposalError, fetchProposals} = useProposals();
     const {ready, authenticated, login, logout} = usePrivy();
 
     useEffect(() => {
@@ -50,17 +54,54 @@ const DashboardPage: React.FC = () => {
         ready == true  ?
 
         <div className="p-6 bg-gray-100 min-h-screen flex flex-col items-center w-screen">
-            <h1 className="text-3xl font-bold text-center mb-2">Welcome to AgDAO</h1>
+            <h1 className="text-3xl font-bold text-center mt-20 mb-2">Welcome to AgDAO</h1>
             <h2 className="text-lg mb-4 text-center">A decentralised system of checks and balances for funding aligned accounts</h2>
-            <div className="flex flex-col justify-center mb-8 w-full items-center">
-                <div className="bg-gray-400 py-2 px-8 rounded-lg hover:from-blue-500 hover:to-blue-700 shadow-lg z-10 cursor-pointer transition duration-200">
-                    {ready && wallet && authenticated ? (
-                        <button 
-                            className="text-white"
-                            onClick={() => logout()}
+            <div className="flex flex-col mb-8 w-full items-center">
+                
+                <div className="max-w-3xl bg-gray-200 text-center border border-gray-300 py-2 px-4 rounded-lg shadow-lg z-10 mb-6">
+                    <h2 className="font-bold"> Goal: Fund projects that are ‘aligned’ with core values of the agDAO. </h2>
+                    
+                    <div 
+                        className="opacity-0 aria-selected:opacity-100 aria-selected:h-48 h-0 aria-selected:mt-6 mt-0 transition-all duration-200"
+                        style = {introExpanded ? {} : {pointerEvents: "none"}}
+                        aria-selected={introExpanded}
                         >
-                            Wallet Connected @{wallet.address.slice(0, 5)}...{wallet.address.slice(-4)}
+                        <ul 
+                            className="list-decimal list-inside"
+                            > 
+                            <li>Anyone can become a community member of AgDao.</li>
+                            <li>Community members are paid in agCoins for governance participation.</li>
+                            <li>Community members can transfer agCoins to any address they want.</li> 
+                            <li>Whales can revoke member roles of accounts that fund non-aligned addresses.</li>
+                            <li>Members can challenge this decision and be reinstated.</li>
+                            <li>Whales can propose new laws, senior can accept them, and the admin implements them.</li>
+                        </ul>
+
+                        <h2 className="font-bold mt-4"> See below for the concrete implementation of AgDAO </h2>
+                    </div>
+
+                    <div className="w-full flex flex-row justify-center">
+                        <button onClick={() => setIntroExpanded(!introExpanded)}>
+                            <EllipsisHorizontalIcon
+                              className={"h-6 w-6"}
+                            />
                         </button>
+                    </div>
+                </div>
+                
+                <div className="flex flex-col items-center h-full bg-gray-500 py-2 px-8 rounded-lg hover:from-blue-500 hover:to-blue-700 shadow-lg z-10 cursor-pointer transition duration-200 mb-12">
+                    {ready && wallet && authenticated ? (
+                        <>
+                            <button 
+                                className="text-white"
+                                onClick={() => logout()}
+                            >
+                                Wallet Connected @{wallet.address.slice(0, 5)}...{wallet.address.slice(-4)}
+                            </button>
+                            <p className="text-white">
+                                balance ... agCoins
+                            </p>
+                        </>
                     ) : (
                         <button className="text-white text-lg font-semibold"
                             onClick={() => login()}
@@ -70,20 +111,7 @@ const DashboardPage: React.FC = () => {
                     )}
                 </div>
 
-                <div className="max-w-3xl bg-gray-200 text-center border border-gray-300 py-2 px-4 rounded-lg shadow-lg z-10 mt-6">
-                    <h2 className="font-bold mb-4"> Goal: Fund projects that are ‘aligned’ with core values of the agDAO. </h2>
-                    
-                    <ul> 
-                        <li>0. Anyone can become a community member of AgDao.</li>
-                        <li>1. Community members are paid in agCoins for governance participation.</li>
-                        <li>2. Community members can transfer agCoins to any address they want.</li> 
-                        <li>3. Whales can revoke member roles of accounts that fund non-aligned addresses.</li>
-                        <li>4. Members can challenge this decision and be reinstated.</li>
-                        <li>5. Whales can propose new laws, senior can accept them, and the admin implements them.</li>
-                    </ul>
-
-                    <h2 className="font-bold mt-4"> See below for the concrete implementation of AgDAO </h2>
-                </div>
+               
             </div>
             
             <div className="flex flex-row mb-6 w-full">
@@ -169,21 +197,32 @@ const DashboardPage: React.FC = () => {
             :
             mode == "Proposals" ?
             <div className="bg-white shadow-lg rounded-lg p-6 m-1 w-full">
-                A list of currently active and completed proposals will go here. (These proposals should ALSO be selected by role, just as in the Actions tab)
+                {
+                proposals && proposals.length > 0 ? 
+                    <>
+                        {
+                        proposals.map((proposal: Proposal) => (
+                            <ProposalView key={proposal.proposalId} proposal={proposal} isDisabled={false}/>
+                        ))
+                        }
+                    </>
+                    :
+                    <div className="bg-white shadow-lg rounded-lg p-6 m-1">
+                        <p className="text-gray-600">No proposals found.</p>
+                    </div>
+                }
             </div>
             :
-            <div className="bg-white shadow-lg rounded-lg p-6 m-1">
-                <p className="text-gray-600">Please select a mode.</p>
+            <div className="flex justify-center items-center h-screen">
+                <div className="text-lg text-green-900">...</div>
             </div>
             }
         </div>
         :
-            <div className="flex justify-center items-center h-screen">
-                <div className="text-lg text-green-900">...</div>
-            </div>
-        }
-        </section>
-    );
-};
+        null
+        }       
+    </section>
+    )
+}
 
 export default DashboardPage;

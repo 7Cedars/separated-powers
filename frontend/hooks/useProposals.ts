@@ -5,16 +5,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { agDaoAbi } from "@/context/abi";
 import { Hex, Log, parseEventLogs } from "viem"
 import { publicClient } from "@/context/clients";
-import { contractAddresses } from "@/context/contractAddresses";
-
-import { useReadContract } from "wagmi";
+import { lawContracts } from "@/context/lawContracts";
 import { readContract } from "wagmi/actions";
 
 export const useProposals = () => {
   const [status, setStatus ] = useState<Status>("idle")
   const [error, setError] = useState<any | null>(null)
   const [proposals, setProposals] = useState<Proposal[] | undefined>() 
-  const agDaoAddress: `0x${string}` = contractAddresses.find((address) => address.contract === "AgDao")?.address as `0x${string}`
+  const agDaoAddress: `0x${string}` = lawContracts.find((law: any) => law.contract === "AgDao")?.address as `0x${string}`
 
   console.log("@useProposal:", {proposals, status, error})
 

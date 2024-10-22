@@ -3,20 +3,20 @@
 import { userActionsProps } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
 import React, { useState } from 'react';
-import { contractAddresses } from '@/context/contractAddresses';
+import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, parseAbiParameters, stringToBytes, stringToHex } from 'viem'
 
 const AdminActions:  React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
-    const [addressLaw, setAddressLaw] = useState<`0x${string}`>('0x0');
-    const [descriptionHash, setDescriptionHash] = useState<`0x${string}`>('0x0');
+    const [addressLaw, setAddressLaw] = useState<`0x${string}`>();
+    const [descriptionHash, setDescriptionHash] = useState<`0x${string}`>();
     const [toInclude, setToInclude] = useState<boolean>(true);
     const {status, error, law, execute} = useActions(); 
     
     const handleAction = async () => {
-        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw, toInclude]);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw ? addressLaw : '0x0', toInclude]);
     
         execute(
-            contractAddresses.find((address) => address.contract === "Admin_setLaw")?.address as `0x${string}`,
+            lawContracts.find((law: any) => law.contract === "Admin_setLaw")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             descriptionHash as `0x${string}`
         )
