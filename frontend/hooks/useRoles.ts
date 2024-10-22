@@ -13,28 +13,32 @@ export const useRoles = () => {
   const agDaoAddress: `0x${string}` = lawContracts.find((law: any) => law.contract === "AgDao")?.address as `0x${string}`
 
   const fetchRoles = useCallback( 
-    async (wallet: ConnectedWallet) => {
+    async (wallet: ConnectedWallet | undefined) => {
         setStatus("loading")
-        try {
+        if (wallet) {
+          try {
 
-          let role: bigint; 
-          let allRoles: bigint[] = [0n, 1n, 2n, 3n]
-          let hasRoles: bigint[] = [4n]
+            let role: bigint; 
+            let allRoles: bigint[] = [0n, 1n, 2n, 3n]
+            let hasRoles: bigint[] = [4n]
 
-          for await (role of allRoles) {
-            const response = await readContract(wagmiConfig, {
-              abi: agDaoAbi,
-              address: agDaoAddress,
-              functionName: 'hasRoleSince', 
-              args: [wallet.address, role]
-            })
-            if (response != 0) hasRoles.push(role)
+            for await (role of allRoles) {
+              const response = await readContract(wagmiConfig, {
+                abi: agDaoAbi,
+                address: agDaoAddress,
+                functionName: 'hasRoleSince', 
+                args: [wallet.address, role]
+              })
+              if (response != 0) hasRoles.push(role)
+            }
+            setRoles(hasRoles)
+            setStatus("success")
+          } catch (error) {
+              setStatus("error") 
+              setError(error)
           }
-          setRoles(hasRoles)
-          setStatus("success")
-        } catch (error) {
-            setStatus("error") 
-            setError(error)
+        } else {
+          return []
         }
   }, [ ])
 

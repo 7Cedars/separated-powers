@@ -2,130 +2,85 @@ export const lawContracts = [
   {
     contract: "AgDao", 
     description: "description of law here", 
-    address: "0x65E5D71a1CB97A79b99AaeffD85C8cd7851a6dcc",
+    address: "0x58ed88cC6A21F809102F3Bdf57341de58177B16C",
     accessRoleId: 4n
   }, 
   {
     contract: "AgCoins", 
     description: "description of law here",
-    address: "0xe9D450BBcE3f1c4524FcAC0190C9F75b6c67833B",
+    address: "0xfe26d04937e06FF591Be62657B23784b089F816D",
     accessRoleId: 4n
   }, 
   {
     contract: "Public_assignRole", 
-    description: "description of law here",
-    address: "0xeE14631377c5F6eA1E7D7c6E8fC0E0Bc1a6B4510",
+    description: "Anyone can request a member role",
+    address: "0xFEd4a76A4294742429E1f9CB9430CBa66d45121C",
     accessRoleId: 4n
   }, 
   {
     contract: "Senior_assignRole", 
-    description: "description of law here",
-    address: "0x8b36Df588203fbC2Ebd23B89e8f4D14d490F41A1",
+    description: "Propose to assign a senior role",
+    address: "0x0073AEAD6AB1e82498A15300a36a0d95F5BE8Ee1",
     accessRoleId: 1n
   }, 
   {
     contract: "Senior_revokeRole", 
-    description: "description of law here",
-    address: "0x22014CE40508CC070c2bF2b2D75E5fC51bFDF960",
+    description: "Propose to revoke a senior role",
+    address: "0xaAEbc84F53c464A58576B6697a2B13073E22A5fE",
     accessRoleId: 1n
   }, 
   {
     contract: "Member_assignWhale", 
-    description: "description of law here",
-    address: "0x506b07016EC69a21063496E478bCB5D6e3567B8F",
+    description: "Assign or revoke a whale role",
+    address: "0xEE159fe9cD4CB4596E9dD977035b4Afa7fe202CD",
     accessRoleId: 3n
   }, 
   {
     contract:  "Whale_proposeLaw", 
-    description: "description of law here",
-    address: "0x90fb199016cA962B347Cb7D1A3A4b0050f61a775",
+    description: "Propose to (de)activate law",
+    address: "0x06E18077Bb24Ab20A365Fe3E0B3F3a9c48E502Fe",
     accessRoleId: 2n
   },
  {
     contract: "Senior_acceptProposedLaw", 
-    description: "description of law here",
-    address: "0x12A100d0F2AE7670DE7F1C3E4B69ee01283488bb",
+    description: "Accept to (de)activate law",
+    address: "0x48725664e7607a4216C3F6dcdcB9f852f8144E58",
     accessRoleId: 1n
   },
  {
     contract: "Admin_setLaw", 
-    description: "description of law here",
-    address: "0x27f5C8aD8d8A8911fbf7fdb8A76D859Fce6A0906",
+    description: "Implement the (de)activation of a law",
+    address: "0xACEe308a942B3493B794638E433717ECfBCaaA85",
     accessRoleId: 0n
   },
  {
     contract: "Member_proposeCoreValue", 
     description: "Propose Core Value",
-    address: "0x2fc25E90Fb26289575DCa2a4308c4166Ba8c7c13",
+    address: "0x8E6090edE6c2F9C9F9bBCb75fbE37EBda5238B3c",
     accessRoleId: 3n
   },
  {
     contract: "Whale_acceptCoreValue", 
-    description: "description of law here",
-    address: "0x1545EFE993D1022b0b05382dB657170Ab4b4001A",
+    description: "Accept core value",
+    address: "0x6e0c3Bcf6f7845FCE2fF95a041295CDa7828AB3B",
     accessRoleId: 2n
   },
  {
     contract: "Whale_revokeMember", 
-    description: "description of law here",
-    address: "0x4F6158CEB0120791DEB1816b0F778Ec731266B41",
+    description: "Revoke a member role",
+    address: "0xDe53517CE791202bA3d3362B6b2F95710838310C",
     accessRoleId: 2n
   },
  {
     contract: "Public_challengeRevoke", 
-    description: "description of law here",
-    address: "0x6A3A88c3683a0c489A29F1AD6C1E8aF1b34E793a",
+    description: "Challenge a revoke decisions",
+    address: "0x41d79A3E7268fD4cB69bC612706e5aE6CabcB79c",
     accessRoleId: 4n
   },
  {
     contract: "Senior_reinstateMember", 
-    description: "description of law here",
-    address: "0x10745151DA767dc97487Fc9d0F715248c0402f2d",
+    description: "Reinstate a member role",
+    address: "0x87050ba7f4c38A23b97e693FaD6fE51D0e86557B",
     accessRoleId: 1n
   },
 ]
-
-// [2374496] → new AgDao: 0x65E5D71a1CB97A79b99AaeffD85C8cd7851a6dcc
-//     ├─ emit RoleSet(roleId: 0, account: 0x328735d26e5Ada93610F0006c32abE2278c46211, accessChanged: true)
-//     ├─ emit SeparatedPowers__Initialized(contractAddress: AgDao: [0x65E5D71a1CB97A79b99AaeffD85C8cd7851a6dcc])
-//     └─ ← [Return] 11502 bytes of code
-
-//   [483443] → new AgCoins: 0xe9D450BBcE3f1c4524FcAC0190C9F75b6c67833B
-//     ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: AgDao: [0x65E5D71a1CB97A79b99AaeffD85C8cd7851a6dcc], value: 57896044618658097711785492504343953926634992332820282019728792003956564819967 [5.789e76])
-//     └─ ← [Return] 1956 bytes of code
-
-//   [792685] → new Public_assignRole: 0xeE14631377c5F6eA1E7D7c6E8fC0E0Bc1a6B4510
-//     └─ ← [Return] 2938 bytes of code
-
-//   [934584] → new Senior_assignRole: 0x8b36Df588203fbC2Ebd23B89e8f4D14d490F41A1
-//     └─ ← [Return] 3538 bytes of code
-
-//   [896496] → new Senior_revokeRole: 0x22014CE40508CC070c2bF2b2D75E5fC51bFDF960
-//     └─ ← [Return] 3569 bytes of code
-
-  // [884716] → new Member_assignWhale: 0x506b07016EC69a21063496E478bCB5D6e3567B8F
-  //   └─ ← [Return] 3289 bytes of code
-
-  // [771991] → new Whale_proposeLaw: 0x90fb199016cA962B347Cb7D1A3A4b0050f61a775
-  //   └─ ← [Return] 3058 bytes of code
-
-  // [829421] → new Senior_acceptProposedLaw: 0x12A100d0F2AE7670DE7F1C3E4B69ee01283488bb
-  //   └─ ← [Return] 3245 bytes of code
-
-  // [733830] → new Admin_setLaw: 0x27f5C8aD8d8A8911fbf7fdb8A76D859Fce6A0906
-  //   └─ ← [Return] 2989 bytes of code
-
-  // [810927] → new Member_proposeCoreValue: 0x2fc25E90Fb26289575DCa2a4308c4166Ba8c7c13
-  //   └─ ← [Return] 3140 bytes of code
-
-  // [931455] → new Whale_acceptCoreValue: 0x1545EFE993D1022b0b05382dB657170Ab4b4001A
-  //   └─ ← [Return] 3533 bytes of code
-
-  // [931313] → new Whale_revokeMember: 0x4F6158CEB0120791DEB1816b0F778Ec731266B41
-  //   └─ ← [Return] 3743 bytes of code
-
-  // [920014] → new Public_challengeRevoke: 0x6A3A88c3683a0c489A29F1AD6C1E8aF1b34E793a
-  //   └─ ← [Return] 3363 bytes of code
-
-  // [965756] → new Senior_reinstateMember: 0x10745151DA767dc97487Fc9d0F715248c0402f2d
-  //   └─ ← [Return] 3926 bytes of code

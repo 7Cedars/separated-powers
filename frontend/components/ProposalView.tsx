@@ -5,6 +5,9 @@ import { useActions } from '@/hooks/useActions';
 import React, { useState } from 'react';
 import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
+import { useReadContract } from "wagmi";
+import { agDaoAbi } from '@/context/abi';
+import { useWallets } from '@privy-io/react-auth';
 
 const proposalColour = [
     "from-red-300 to-red-600 border-red-600",
@@ -26,6 +29,18 @@ const ProposalView:  React.FC<ProposalViewProps> = ({proposal, isDisabled}: Prop
     const {status, error, law, execute, castVote} = useActions(); 
     const lawTitle: `0x${string}` = lawContracts.find((law: any) => law.address === proposal.targetLaw)?.description as `0x${string}`
     const roleId: number = Number(lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId) 
+    const {wallets } = useWallets();
+    const wallet = wallets[0];
+    const agDaoContract = lawContracts.find((law: any) => law.contract === "AgDao")
+    
+    const {data: hasVoted, error: errorHasVoted, status: statusHasVoted, refetch}  = useReadContract({
+        abi: agDaoAbi,
+        address: agDaoContract?.address as `0x${string}`,
+        functionName: 'hasVoted',
+        args: [BigInt(proposal.proposalId), wallet && wallet.address ? wallet.address as `0x${string}` : `0x0`]
+      })
+
+    console.log({ hasVoted, errorHasVoted, statusHasVoted})
 
     const handleCastVote = async (vote: Vote) => {    
         castVote(
@@ -98,6 +113,11 @@ const ProposalView:  React.FC<ProposalViewProps> = ({proposal, isDisabled}: Prop
                 </section>
 
                 <section className='flex flex-row justify-between overflow-y-auto'>
+                    { hasVoted ? 
+                    <div className='flex flex-row max-w-96 text-white justify-center font-semibold'>
+                        You already voted
+                    </div>
+                    :
                     <div className='flex flex-row max-w-96 gap-4'>
                         <button
                             onClick={() => handleCastVote(0n)}
@@ -121,6 +141,7 @@ const ProposalView:  React.FC<ProposalViewProps> = ({proposal, isDisabled}: Prop
                             Abstain
                         </button>
                     </div>
+                    }
 
                     <button
                             onClick={() => handleExecute()}

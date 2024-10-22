@@ -48,4 +48,9 @@ contract AgDao is SeparatedPowers {
 
     emit AgDao_AccountBlacklisted(account, isBlackListed);
   }
+
+  /* getter function */ 
+  function getCoreValues() public returns (ShortString[] memory coreValues)  {
+    return coreRequirements;
+  }
 }

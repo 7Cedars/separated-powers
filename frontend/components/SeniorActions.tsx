@@ -8,9 +8,13 @@ import { encodeAbiParameters, parseAbiParameters, stringToBytes, stringToHex } f
 
 const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
     const [addressLaw, setAddressLaw] = useState<`0x${string}`>();
-    const [addressSenior, setAddressSenior] = useState<`0x${string}`>();
+    const [seniorAssign, setSeniorAssign] = useState<`0x${string}`>();
+    const [seniorRevoke, setSeniorRevoke] = useState<`0x${string}`>();
     const [revokeId, setRevokeId] = useState<string>();
-    const [description, setDescription] = useState<string>();
+    const [descriptionA, setDescriptionA] = useState<string>();
+    const [descriptionB, setDescriptionB] = useState<string>();
+    const [descriptionC, setDescriptionC] = useState<string>();
+    const [descriptionD, setDescriptionD] = useState<string>();
     const [toInclude, setToInclude] = useState<boolean>(true);
     const {status, error, law, propose, execute} = useActions(); 
 
@@ -19,16 +23,16 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
         propose(
             lawContracts.find((law: any) => law.contract === "Senior_acceptProposeLaw")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description ? description : ''
+            descriptionA ? descriptionA : ''
         )
     };
 
     const handleAssignRole = async () => {
-        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [addressSenior ? addressSenior : '0x0']);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [seniorAssign ? seniorAssign : '0x0']);
         propose(
             lawContracts.find((law: any) => law.contract === "Senior_assignRole")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description ? description : ''
+            descriptionB ? descriptionB : ''
         )
     };
 
@@ -40,16 +44,16 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
         propose(
             lawContracts.find((law: any) => law.contract === "Senior_reinstateMember")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description ? description : ''
+            descriptionC ? descriptionC : ''
         )
     };
 
     const handleRevokeRole = async () => {
-        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [addressSenior ? addressSenior : '0x0']);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [seniorRevoke ? seniorRevoke : '0x0']);
         propose(
             lawContracts.find((law: any) => law.contract === "Senior_revokeRole")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description ? description : ''
+            descriptionD ? descriptionD : ''
         )
     };
 
@@ -76,8 +80,8 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                 />
                 <input
                     type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={descriptionA}
+                    onChange={(e) => setDescriptionA(e.target.value)}
                     placeholder="Enter the original description of the proposal to add a new law." 
                     maxLength={35}
                     className="border border-white rounded-lg p-2 mb-4 w-full"
@@ -117,16 +121,16 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
             </p>
                 <input
                     type="text"
-                    value={addressSenior}
-                    onChange={(e) => setAddressSenior (e.target.value as `0x${string}`)}
+                    value={seniorAssign}
+                    onChange={(e) => setSeniorAssign (e.target.value as `0x${string}`)}
                     placeholder="Enter the address of the account to be assign a senior role."
                     maxLength={100}
                     className="border border-white rounded-lg p-2 mb-4 w-full"
                 />
                 <input
                     type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={descriptionB}
+                    onChange={(e) => setDescriptionB(e.target.value)}
                     placeholder="Enter supporting statement." 
                     maxLength={35}
                     className="border border-white rounded-lg p-2 mb-4 w-full"
@@ -155,7 +159,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
             </p>
                 <input
                     type="text"
-                    value={addressSenior}
+                    value={revokeId}
                     onChange={(e) => setRevokeId(e.target.value)}
                     placeholder="Enter proposal ID through which whales revoked he member."
                     maxLength={100}
@@ -163,8 +167,8 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                 />
                 <input
                     type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={descriptionC}
+                    onChange={(e) => setDescriptionC(e.target.value)}
                     placeholder="Enter the exact supporting statement from the member challenge." 
                     maxLength={35}
                     className="border border-white rounded-lg p-2 mb-4 w-full"
@@ -194,16 +198,16 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
             </p>
                 <input
                     type="text"
-                    value={addressSenior}
-                    onChange={(e) => setAddressSenior (e.target.value as `0x${string}`)}
+                    value={seniorRevoke}
+                    onChange={(e) => setSeniorRevoke(e.target.value as `0x${string}`)}
                     placeholder="Enter the address of the account to be revoked a senior role."
                     maxLength={100}
                     className="border border-white rounded-lg p-2 mb-4 w-full"
                 />
                 <input
                     type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={descriptionD}
+                    onChange={(e) => setDescriptionD(e.target.value)}
                     placeholder="Enter supporting statement." 
                     maxLength={35}
                     className="border border-white rounded-lg p-2 mb-4 w-full"

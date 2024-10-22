@@ -6,12 +6,16 @@ import WhaleActions from "@/components/WhaleActions";
 import SeniorActions from "@/components/SeniorActions";
 import GuestActions from "@/components/GuestActions";
 import AdminActions from "@/components/AdminActions";
-import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useRoles } from "@/hooks/useRoles";
 import { useProposals } from "@/hooks/useProposals";
-import { ChevronDownIcon, ChevronUpIcon, XMarkIcon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
 import ProposalView from "@/components/ProposalView";
 import { Proposal } from "@/context/types";
+import ValuesView from "@/components/ValuesView";
+import { lawContracts } from "@/context/lawContracts";
+import { useReadContract } from "wagmi";
+import { agCoinsAbi } from "@/context/abi";
+import Link from "next/link";
 
 const DashboardPage: React.FC = () => {
     const [admin, setAdmin] = useState<boolean>(false);  
@@ -20,7 +24,6 @@ const DashboardPage: React.FC = () => {
     const [member, setMember] = useState<boolean>(false);  
     const [guest, setGuest] = useState<boolean>(true);  
     const [mode, setMode] = useState<"Values"|"Actions"|"Proposals">("Actions");  
-    const [introExpanded, setIntroExpanded] = useState<boolean>(false);  
 
     const {wallets } = useWallets();
     const wallet = wallets[0];
@@ -28,68 +31,38 @@ const DashboardPage: React.FC = () => {
     const {proposals, status: proposalStatus, error: proposalError, fetchProposals} = useProposals();
     const {ready, authenticated, login, logout} = usePrivy();
 
-    useEffect(() => {
-        if (ready && wallet && status == "idle") {
-            fetchRoles(wallet)
-            fetchProposals() 
-        }
+    const agCoinsContract = lawContracts.find((law: any) => law.contract === "AgCoins")
+    const {data: userBalance, error: userBalanceError, status: userBalanceStatus}  = useReadContract({
+        abi: agCoinsAbi,
+        address: agCoinsContract?.address as `0x${string}`,
+        functionName: 'balanceOf',
+        args: [wallet && wallet.address ? wallet.address as `0x${string}` : `0x0`]
+      })
+    
+    console.log("@DashboardPage", {authenticated, roles, wallet})
 
+    useEffect(() => {
+        if (ready && wallet && status == "idle") fetchRoles(wallet)
     }, [status, ready, wallet])
 
-    console.log({status, error, roles})
+    useEffect(() => {
+        if (mode == "Proposals") fetchProposals()
+    }, [mode])
 
     return (
-        <section className="w-full">
+        <main className="min-h-screen flex flex-col">
         {
-        status == 'loading' ? 
-            <div className="flex justify-center items-center h-screen">
-                <div className="text-lg">Loading...</div>
-            </div>
-        :
-        status == 'error' ? 
-            <div className="flex justify-center items-center h-screen">
-                <div className="text-lg text-red-500"> Error. See the console for details.</div>
-            </div>
-        :
         ready == true  ?
 
-        <div className="p-6 bg-gray-100 min-h-screen flex flex-col items-center w-screen">
-            <h1 className="text-3xl font-bold text-center mt-20 mb-2">Welcome to AgDAO</h1>
-            <h2 className="text-lg mb-4 text-center">A decentralised system of checks and balances for funding aligned accounts</h2>
+        <div className="p-6 w-full bg-gray-100  flex flex-col items-center ">
+            <h1 className="w-full text-3xl font-bold text-center mt-20 mb-2">Welcome to AgDAO</h1>
+            <h2 className="w-full text-lg mb-2 text-center">A decentralised system of checks and balances for funding aligned accounts</h2>
             <div className="flex flex-col mb-8 w-full items-center">
+            <Link href="/about" className="underline mb-4">
+                About   
+            </Link>
                 
-                <div className="max-w-3xl bg-gray-200 text-center border border-gray-300 py-2 px-4 rounded-lg shadow-lg z-10 mb-6">
-                    <h2 className="font-bold"> Goal: Fund projects that are ‘aligned’ with core values of the agDAO. </h2>
-                    
-                    <div 
-                        className="opacity-0 aria-selected:opacity-100 aria-selected:h-48 h-0 aria-selected:mt-6 mt-0 transition-all duration-200"
-                        style = {introExpanded ? {} : {pointerEvents: "none"}}
-                        aria-selected={introExpanded}
-                        >
-                        <ul 
-                            className="list-decimal list-inside"
-                            > 
-                            <li>Anyone can become a community member of AgDao.</li>
-                            <li>Community members are paid in agCoins for governance participation.</li>
-                            <li>Community members can transfer agCoins to any address they want.</li> 
-                            <li>Whales can revoke member roles of accounts that fund non-aligned addresses.</li>
-                            <li>Members can challenge this decision and be reinstated.</li>
-                            <li>Whales can propose new laws, senior can accept them, and the admin implements them.</li>
-                        </ul>
-
-                        <h2 className="font-bold mt-4"> See below for the concrete implementation of AgDAO </h2>
-                    </div>
-
-                    <div className="w-full flex flex-row justify-center">
-                        <button onClick={() => setIntroExpanded(!introExpanded)}>
-                            <EllipsisHorizontalIcon
-                              className={"h-6 w-6"}
-                            />
-                        </button>
-                    </div>
-                </div>
-                
-                <div className="flex flex-col items-center h-full bg-gray-500 py-2 px-8 rounded-lg hover:from-blue-500 hover:to-blue-700 shadow-lg z-10 cursor-pointer transition duration-200 mb-12">
+                <div className="flex flex-col max-w-xl w-full items-center h-full bg-gray-500 py-2 px-8 rounded-lg hover:from-blue-500 hover:to-blue-700 shadow-lg z-10 cursor-pointer transition duration-200 mb-12">
                     {ready && wallet && authenticated ? (
                         <>
                             <button 
@@ -98,9 +71,14 @@ const DashboardPage: React.FC = () => {
                             >
                                 Wallet Connected @{wallet.address.slice(0, 5)}...{wallet.address.slice(-4)}
                             </button>
+                            <div className="flex flex-row justify-center items-center gap-2">
                             <p className="text-white">
-                                balance ... agCoins
+                             {userBalance != undefined ? `You own ${Number(userBalance)} agCoins` : "Fetching balance..."}
                             </p>
+                            <Link href="/cheat" className="text-white text-xs underline">
+                                Want to cheat?
+                            </Link>
+                            </div>
                         </>
                     ) : (
                         <button className="text-white text-lg font-semibold"
@@ -138,7 +116,7 @@ const DashboardPage: React.FC = () => {
                 </button>
             </div> 
 
-            <div className="flex flex-row gap-2 overflow-x-auto p-1 w-full">
+            <div className="flex flex-row gap-4 overflow-x-auto w-full p-2">
                 <button 
                     className="w-full bg-red-400 border-2 aria-pressed:border-red-700 hover:bg-red-500 text-white font-bold py-2 px-4 aria-selected:opacity-100 opacity-30 rounded-lg "
                     onClick={() => setAdmin(!admin)}
@@ -179,11 +157,12 @@ const DashboardPage: React.FC = () => {
 
             {
             mode == "Values" ? 
-                <div className="bg-white shadow-lg rounded-lg p-6 m-1 w-full">
-                    A list of the currently accepted 'core values' of the DAO go here. (There is no selection by role for this tab.)
+                <div className="bg-white shadow-lg rounded-lg p-6 w-full">
+                    <ValuesView />
                 </div>
             :
             mode == "Actions" ?
+            // This is super clunky, but for now will do 
                 <div className="flex flex-col overflow-y-auto gap-4 bg-white shadow-lg rounded-lg p-6 m-1 w-full">
                     {admin === true ? <AdminActions wallet={wallet} isDisabled={!roles.includes(0n) ? true : false}/> : null}
                     {senior === true ? <SeniorActions wallet={wallet} isDisabled={!roles.includes(1n) ? true : false}/> : null}
@@ -196,20 +175,32 @@ const DashboardPage: React.FC = () => {
                 </div>
             :
             mode == "Proposals" ?
-            <div className="bg-white shadow-lg rounded-lg p-6 m-1 w-full">
+            <div className="flex flex-col overflow-y-auto gap-4 bg-white shadow-lg rounded-lg p-6 w-full">
                 {
                 proposals && proposals.length > 0 ? 
                     <>
                         {
+                        // This is super clunky, but for now will do 
                         proposals.map((proposal: Proposal) => (
-                            <ProposalView key={proposal.proposalId} proposal={proposal} isDisabled={false}/>
+                            lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint == 0n && admin || 
+                            lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint == 1n && senior ||
+                            lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint == 2n && whale ||
+                            lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint == 3n && member ||
+                            lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint == 4n && guest ?
+                                <ProposalView key={proposal.proposalId} proposal={proposal} isDisabled={
+                                    !roles.includes(
+                                        lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint 
+                                    ) 
+                                }/>
+                                : 
+                                null
                         ))
                         }
                     </>
                     :
-                    <div className="bg-white shadow-lg rounded-lg p-6 m-1">
-                        <p className="text-gray-600">No proposals found.</p>
-                    </div>
+                    <>
+                        <p className="text-gray-800 text-center italic">No proposals found.</p>
+                    </>
                 }
             </div>
             :
@@ -221,7 +212,7 @@ const DashboardPage: React.FC = () => {
         :
         null
         }       
-    </section>
+    </main>
     )
 }
 

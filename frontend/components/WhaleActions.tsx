@@ -11,7 +11,9 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
     const [toInclude, setToInclude] = useState<boolean>(true);
     const [newValue, setNewValue] = useState<string>();
     const [memberToRevoke, setMemberToRevoke] = useState<`0x${string}`>();
-    const [description, setDescription] = useState<string>();
+    const [descriptionA, setDescriptionA] = useState<string>();
+    const [descriptionB, setDescriptionB] = useState<string>();
+    const [descriptionC, setDescriptionC] = useState<string>();
     const {status, error, law, propose, execute} = useActions(); 
 
     const handleAcceptCoreValue = async () => {
@@ -19,7 +21,7 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
         propose(
             lawContracts.find((law: any) => law.contract === "Whale_acceptCoreValue")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description ? description : ''
+            descriptionA ? descriptionA : ''
         )
     };
 
@@ -28,7 +30,7 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
         propose(
             lawContracts.find((law: any) => law.contract === "Whale_proposeLaw")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description ? description : ''
+            descriptionB ? descriptionB : ''
         )
     };
 
@@ -38,7 +40,7 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
         propose(
             lawContracts.find((law: any) => law.contract === "Whale_revokeMember")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description ? description : ''
+            descriptionC ? descriptionC : ''
         )
     };
 
@@ -65,8 +67,8 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                 />
                 <input
                     type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={descriptionA}
+                    onChange={(e) => setDescriptionA(e.target.value)}
                     placeholder="Enter the original description of the proposal to add a new core value." 
                     maxLength={35}
                     className="border border-white rounded-lg p-2 mb-4 w-full"
@@ -103,8 +105,8 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                 />
                 <input
                     type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={descriptionB}
+                    onChange={(e) => setDescriptionB(e.target.value)}
                     placeholder="Enter supporting statement." 
                     maxLength={35}
                     className="border border-white rounded-lg p-2 mb-4 w-full"
@@ -146,14 +148,14 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                     type="text"
                     value={memberToRevoke}
                     onChange={(e) => setMemberToRevoke(e.target.value as `0x${string}`)}
-                    placeholder="Enter proposal ID through which whales revoked he member."
+                    placeholder="Enter address of the account to be revoked."
                     maxLength={100}
                     className="border border-white rounded-lg p-2 mb-4 w-full"
                 />
                 <input
                     type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={descriptionC}
+                    onChange={(e) => setDescriptionC(e.target.value)}
                     placeholder="Enter supporting statement." 
                     maxLength={35}
                     className="border border-white rounded-lg p-2 mb-4 w-full"
