@@ -1,23 +1,22 @@
 "use client"
 
-import { useActionsProps } from '@/context/types';
+import { userActionsProps } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
-import { ethers } from 'ethers';
 import React, { useState } from 'react';
+import { contractAddresses } from '@/context/contractAddresses';
+import { encodeAbiParameters, parseAbiParameters, stringToBytes, stringToHex } from 'viem'
 
-const AdminActions:  React.FC<useActionsProps> = ({wallet, disabled}: useActionsProps ) => {
+const AdminActions:  React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
     const [addressLaw, setAddressLaw] = useState<`0x${string}`>('0x0');
     const [descriptionHash, setDescriptionHash] = useState<`0x${string}`>('0x0');
     const [toInclude, setToInclude] = useState<boolean>(true);
     const {status, error, law, execute} = useActions(); 
-    const abiCoder = new ethers.utils.AbiCoder();
     
     const handleAction = async () => {
-        const lawCalldata: string = abiCoder.encode(["address", "bool"], [addressLaw, toInclude]);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw, toInclude]);
     
         execute(
-            wallet, 
-            "0x28488b3e7daD21f98d551db09fd4Eb02af0Af9eD", // = Admin_setLaw
+            contractAddresses.find((address) => address.contract === "Admin_setLaw")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             descriptionHash as `0x${string}`
         )
@@ -26,7 +25,7 @@ const AdminActions:  React.FC<useActionsProps> = ({wallet, disabled}: useActions
     return (
         <>
         <div className="bg-gradient-to-r from-red-300 to-red-600 p-4 px-6 rounded-lg shadow-lg border-2 border-red-600  opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}>
+            aria-selected={!isDisabled}>
             <h4 className='text-white text-lg font-semibold text-center'>
                 Implement Law
             </h4>
@@ -63,7 +62,7 @@ const AdminActions:  React.FC<useActionsProps> = ({wallet, disabled}: useActions
                     <button
                         onClick={handleAction}
                         className="w-fit bg-white text-red-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:bg-white transition duration-100"
-                        disabled 
+                        disabled = {isDisabled} 
                     >
                         Accept and implement proposed decision
                     </button>

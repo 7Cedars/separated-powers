@@ -27,18 +27,18 @@ contract DeployAgDao is Script {
     error DeployFactoryProgrmas__DeployedContractAtAddress(address deploymentAddress);
     
     /* Functions */
-    function run() external returns (AgDao, AgCoins) { //  address[] memory constituentLaws
+    function run() external returns (AgDao, AgCoins, address[] memory constituentLaws) { // 
         vm.startBroadcast();
             AgDao agDao = new AgDao();
             AgCoins agCoins = new AgCoins(payable(address(agDao)));
         vm.stopBroadcast();
 
-        // vm.startBroadcast();
-        //     // setting up constituent Laws and initializing them.
-        //     constituentLaws = _deployLaws(payable(address(agDao)), address(agCoins));
-        // vm.stopBroadcast();
+        vm.startBroadcast();
+            // setting up constituent Laws and initializing them.
+            constituentLaws = _deployLaws(payable(address(agDao)), address(agCoins));
+        vm.stopBroadcast();
 
-        return(agDao, agCoins); // constituentLaws
+        return(agDao, agCoins, constituentLaws); // 
     }
 
     /* internal functions */

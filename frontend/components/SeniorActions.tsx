@@ -1,58 +1,53 @@
 "use client"
 
 import React, { useState } from 'react';
-import { useActionsProps } from '@/context/types';
+import { userActionsProps } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
-import { ethers } from 'ethers';
+import { contractAddresses } from '@/context/contractAddresses';
+import { encodeAbiParameters, parseAbiParameters, stringToBytes, stringToHex } from 'viem'
 
-const SeniorActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsProps ) => {
+const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
     const [addressLaw, setAddressLaw] = useState<`0x${string}`>('0x0');
     const [addressSenior, setAddressSenior] = useState<`0x${string}`>('0x0');
     const [revokeId, setRevokeId] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [toInclude, setToInclude] = useState<boolean>(true);
     const {status, error, law, propose, execute} = useActions(); 
-    const abiCoder = new ethers.utils.AbiCoder();
 
     const handleAcceptProposeLaw = async () => {
-        const lawCalldata: string = abiCoder.encode(["address", "bool"], [addressLaw, toInclude]);
+        const lawCalldata: string =  encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw, toInclude]);
         propose(
-            wallet, 
-            "0x0", // = Member_proposeCoreValue
+            contractAddresses.find((address) => address.contract === "Senior_acceptProposeLaw")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             description
         )
     };
 
     const handleAssignRole = async () => {
-        const lawCalldata: string = abiCoder.encode(["address"], [addressSenior]);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [addressSenior]);
         propose(
-            wallet, 
-            "0x0", // = Member_assignWhale
+            contractAddresses.find((address) => address.contract === "Senior_assignRole")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             description
         )
     };
 
     const handleReinstateMember = async () => {
-        const descriptionHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(description));
         // using revokeId, need to retrieve this data from the initial proposal! 
         const revokeDescriptionHash = '0x0'
         const revokeCalldata = '0x0'
-        const lawCalldata: string = abiCoder.encode(["bytes32", "bytes"], [revokeDescriptionHash, revokeCalldata]);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("bytes32, bytes"), [revokeDescriptionHash, revokeCalldata]);
         propose(
-            wallet, 
-            "0x0", // = Member_proposeCoreValue
+            contractAddresses.find((address) => address.contract === "Senior_reinstateMember")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             description
         )
     };
 
     const handleRevokeRole = async () => {
-        const lawCalldata: string = abiCoder.encode(["address"], [addressSenior]);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [addressSenior]);
         propose(
-            wallet, 
-            "0x0", // = Member_assignWhale
+            contractAddresses.find((address) => address.contract === "Senior_revokeRole")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             description
         )
@@ -63,7 +58,7 @@ const SeniorActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
         {/* AcceptProposeLaw */}
         <div 
             className="bg-gradient-to-r from-amber-300 to-amber-600 p-4 px-6 rounded-lg shadow-lg border-2 border-amber-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}
+            aria-selected={!isDisabled}
             >
             <h4 className='text-white text-lg font-semibold text-center'>
                 Accept proposed law
@@ -101,7 +96,7 @@ const SeniorActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
                     <button
                         onClick={handleAcceptProposeLaw}
                         className="w-fit bg-white text-amber-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200  disabled:hover:bg-white transition duration-100"
-                        disabled 
+                        disabled = {isDisabled} 
                         
                     >
                         {`Propose to ${toInclude ? 'activate' : 'deactivate'} law`}
@@ -112,7 +107,7 @@ const SeniorActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
         {/* AssignRole */}
         <div 
             className="bg-gradient-to-r from-amber-300 to-amber-600 p-4 px-6 rounded-lg shadow-lg border-2 border-amber-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}
+            aria-selected={!isDisabled}
         >
             <h4 className='text-white text-lg font-semibold text-center'>
                 Assign a senior role to an account
@@ -140,7 +135,7 @@ const SeniorActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
                     <button
                         onClick={handleAssignRole}
                         className="w-fit bg-white text-amber-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
-                        disabled
+                        disabled = {isDisabled}
                     >
                         Propose to assign senior role 
                     </button>
@@ -150,7 +145,7 @@ const SeniorActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
         {/* ReinstateMember */}
         <div 
             className="bg-gradient-to-r from-amber-300 to-amber-600 p-4 px-6 rounded-lg shadow-lg border-2 border-amber-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}
+            aria-selected={!isDisabled}
         >
             <h4 className='text-white text-lg font-semibold text-center'>
                 Reinstate member
@@ -178,7 +173,7 @@ const SeniorActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
                     <button
                         onClick={handleReinstateMember}
                         className="w-fit bg-white text-amber-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
-                        disabled 
+                        disabled = {isDisabled} 
                     >
                         Propose to reinstate member role 
                     </button>
@@ -189,7 +184,7 @@ const SeniorActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
         {/* RevokeRole */}
         <div 
             className="bg-gradient-to-r from-amber-300 to-amber-600 p-4 px-6 rounded-lg shadow-lg border-2 border-amber-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}>
+            aria-selected={!isDisabled}>
             
             <h4 className='text-white text-lg font-semibold text-center'>
                 Revoke senior role
@@ -217,7 +212,7 @@ const SeniorActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
                     <button
                         onClick={handleRevokeRole}
                         className="w-fit bg-white text-amber-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
-                        disabled 
+                        disabled = {isDisabled} 
                     >
                         Propose to revoke senior role 
                     </button>

@@ -1,39 +1,37 @@
 "use client"
 
 import React, { useState } from 'react';
-import { useActionsProps } from '@/context/types';
+import { userActionsProps } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
-import { ethers } from 'ethers';
+import { contractAddresses } from '@/context/contractAddresses';
+import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
 
-const GuestActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsProps ) => {
+const GuestActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
     const [addressSenior, setAddressSenior] = useState<`0x${string}`>('0x0');
     const [revokeId, setRevokeId] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const {status, error, law, propose, execute} = useActions(); 
-    const abiCoder = new ethers.utils.AbiCoder();
 
     console.log({status, error, law})
 
     const handleAssignRole = async () => {
-        const lawCalldata: string = abiCoder.encode(["address"], [wallet.address]);
-        const descriptionHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("I request membership to agDAO."));
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [wallet.address as `0x${string}`]);
+        const descriptionHash = keccak256(toHex("I request membership to agDAO."));
         execute(
-            wallet, 
-            "0xd2aBB3eb2E55a143c7CE4E7aC500701e5DA1fDE3", // = Member_assignRole
+            contractAddresses.find((address) => address.contract === "Public_assignRole")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             descriptionHash as `0x${string}`
         )
     };
 
     const handleChallengeRevoke = async () => {
-        const descriptionHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(description));
+        const descriptionHash = keccak256(toHex(description));
         // using revokeId, need to retrieve this data from the initial proposal! 
         const revokeDescriptionHash = '0x0'
         const revokeCalldata = '0x0'
-        const lawCalldata: string = abiCoder.encode(["bytes32", "bytes"], [revokeDescriptionHash, revokeCalldata]);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("bytes32, bytes"), [revokeDescriptionHash, revokeCalldata]);
         propose(
-            wallet, 
-            "0x0", // = Member_proposeCoreValue
+            contractAddresses.find((address) => address.contract === "Public_challengeRevoke")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             description
         )
@@ -44,7 +42,7 @@ const GuestActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
         {/* AssignRole */}
         <div 
             className="bg-gradient-to-r from-purple-300 to-purple-600 p-4 px-6 rounded-lg shadow-lg border-2 border-purple-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}
+            aria-selected={!isDisabled}
         >
             <h4 className='text-white text-lg font-semibold text-center'>
                 Claim Member Role
@@ -56,7 +54,7 @@ const GuestActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
                     <button
                         onClick={handleAssignRole}
                         className="w-fit bg-white text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
-                        disabled = { false }
+                        disabled = {isDisabled}
                     >
                         Claim member role
                     </button>
@@ -66,7 +64,7 @@ const GuestActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
         {/* ChallengeRevoke */}
         <div 
             className="bg-gradient-to-r from-purple-300 to-purple-600 p-4 px-6 rounded-lg shadow-lg border-2 border-purple-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}
+            aria-selected={!isDisabled}
         >
             <h4 className='text-white text-lg font-semibold text-center'>
                 Challenge Revoke Member Role
@@ -94,7 +92,7 @@ const GuestActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
                     <button
                         onClick={handleChallengeRevoke}
                         className="w-fit bg-white text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
-                        disabled 
+                        disabled = {isDisabled} 
                     >
                         Challenge revoke (NB: this creates a proposal you need to accept) 
                     </button>

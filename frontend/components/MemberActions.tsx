@@ -1,38 +1,32 @@
 "use client"
 
 import React, { useState } from 'react';
-import { useTheme } from '@/context/ThemeContext';
 import { useActions } from '@/hooks/useActions';
-import {ethers} from 'ethers';
-import { useActionsProps } from '@/context/types';
+import { userActionsProps } from '@/context/types';
+import { contractAddresses } from '@/context/contractAddresses';
+import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
 
-// about encoding lawCalldata
-// https://docs.ethers.org/v5/api/utils/abi/coder/
-// abiCoder.encode([ "uint", "string" ], [ 1234, "Hello World" ]);
-
-const MemberActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsProps ) => {
+const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
     const [newValue, setNewValue] = useState<string>('');
-    const [whaleAddress, setWhaleAddress] = useState<`0x${string}`>('0x0');
-    const [description, setDescription] = useState<string>('');
+    const [whaleAddress, setWhaleAddress] = useState<`0x${string}`>();
+    const [descriptionA, setDescriptionA] = useState<string>('');
+    const [descriptionB, setDescriptionB] = useState<string>('');
     const {status, error, law, propose, execute} = useActions(); 
-    const abiCoder = new ethers.utils.AbiCoder();
 
     const handleProposeCoreValue = async () => {
-        const lawCalldata: string = abiCoder.encode(["bytes"], [newValue]);
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("bytes"), [toHex(newValue)]);
         propose(
-            wallet, 
-            "0x8508D5b9bA7F255F70E8022A8aFbDe72083773f8", // = Member_proposeCoreValue
+            contractAddresses.find((address) => address.contract === "Member_proposeCoreValue")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
-            description
+            descriptionA
         )
     };
 
     const handleAssignWhale = async () => {
-        const descriptionHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(description));
-        const lawCalldata: string = abiCoder.encode(["address"], [whaleAddress]);
+        const descriptionHash = keccak256(toHex(descriptionB));
+        const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [whaleAddress as `0x${string}`]);
         execute(
-            wallet, 
-            "0x0", // = Member_assignWhale
+            contractAddresses.find((address) => address.contract === "Member_assignWhale")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             descriptionHash as `0x${string}`
         )
@@ -41,7 +35,7 @@ const MemberActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
     return (
         <>
             <div className="bg-gradient-to-r from-blue-300 to-blue-600 p-4 px-6 rounded-lg shadow-lg border-2 border-blue-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}>
+            aria-selected={!isDisabled}>
                 <h4 className='text-white text-lg font-semibold text-center mb-4'>
                     Propose New Core Value for the AgDao
                 </h4>
@@ -58,8 +52,8 @@ const MemberActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
                     />
                     <input
                         type="text"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        value={descriptionA}
+                        onChange={(e) => setDescriptionA(e.target.value)}
                         placeholder="Enter supporting message"
                         maxLength={100}
                         className="border border-white rounded-lg p-2 mb-4 w-full"
@@ -68,6 +62,7 @@ const MemberActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
                         <button
                             onClick={handleProposeCoreValue}
                             className="w-fit bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-100"
+                            disabled = {isDisabled}
                         >
                             Propose Value
                         </button>
@@ -76,7 +71,7 @@ const MemberActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
             </div>
 
             <div className="bg-gradient-to-r from-blue-300 to-blue-600 p-4 px-6 rounded-lg shadow-lg border-2 border-blue-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}>
+            aria-selected={!isDisabled}>
                 <h4 className='text-white text-lg font-semibold text-center mb-4'>
                     Assess an Account and Assign a whale Role 
                 </h4>
@@ -85,15 +80,15 @@ const MemberActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
                 </p>
                     <input
                         type="text"
-                        value={newValue}
+                        value={whaleAddress}
                         onChange={(e) => setWhaleAddress(e.target.value as `0x${string}`)}
                         placeholder="Enter account address"
                         className="border border-white rounded-lg p-2 mb-4 w-full"
                     />
                     <input
                         type="text"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        value={descriptionB}
+                        onChange={(e) => setDescriptionB(e.target.value)}
                         placeholder="Enter supporting message"
                         maxLength={100}
                         className="border border-white rounded-lg p-2 mb-4 w-full"
@@ -102,7 +97,7 @@ const MemberActions: React.FC<useActionsProps> = ({wallet, disabled}: useActions
                         <button
                             onClick={handleAssignWhale}
                             className="w-fit bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
-                            disabled
+                            disabled = {isDisabled}
                         >
                             Assess account
                         </button>

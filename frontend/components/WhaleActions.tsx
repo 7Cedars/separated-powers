@@ -1,34 +1,32 @@
 "use client"
 
 import React, { useState } from 'react';
-import { useActionsProps } from '@/context/types';
+import { userActionsProps } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
-import { ethers } from 'ethers';
+import { contractAddresses } from '@/context/contractAddresses';
+import { encodeAbiParameters, parseAbiParameters, stringToBytes, stringToHex } from 'viem'
 
-const WhaleActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsProps ) => {
+const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
     const [addressLaw, setAddressLaw] = useState<`0x${string}`>('0x0');
     const [toInclude, setToInclude] = useState<boolean>(true);
     const [newValue, setNewValue] = useState<string>('');
     const [memberToRevoke, setMemberToRevoke] = useState<`0x${string}`>('0x0');
     const [description, setDescription] = useState<string>('');
     const {status, error, law, propose, execute} = useActions(); 
-    const abiCoder = new ethers.utils.AbiCoder();
 
     const handleAcceptCoreValue = async () => {
-        const lawCalldata: string = abiCoder.encode(["bytes"], [newValue]);
+        const lawCalldata = encodeAbiParameters(parseAbiParameters('bytes'), [stringToHex(newValue)])
         propose(
-            wallet, 
-            "0x0", // = Member_proposeCoreValue
+            contractAddresses.find((address) => address.contract === "Whale_acceptCoreValue")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             description
         )
     };
 
     const handleProposeLaw = async () => {
-        const lawCalldata: string = abiCoder.encode(["address", "bool"], [addressLaw, toInclude]);
+        const lawCalldata: string =  encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw, toInclude]);
         propose(
-            wallet, 
-            "0x0", // = Member_assignWhale
+            contractAddresses.find((address) => address.contract === "Whale_proposeLaw")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             description
         )
@@ -36,10 +34,9 @@ const WhaleActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
 
     // 
     const handleRevokeMember = async () => {
-        const lawCalldata: string = abiCoder.encode(["address"], [memberToRevoke]);
+         const lawCalldata: string =  encodeAbiParameters(parseAbiParameters("address"), [memberToRevoke]);
         propose(
-            wallet, 
-            "0x0", // = Member_proposeCoreValue
+            contractAddresses.find((address) => address.contract === "Whale_revokeMember")?.address as `0x${string}`,
             lawCalldata as `0x${string}`,
             description
         )
@@ -50,7 +47,7 @@ const WhaleActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
         {/* AcceptCoreValue */}
         <div 
             className="bg-gradient-to-r from-emerald-300 to-emerald-600 p-4 px-6 rounded-lg shadow-lg border-2 border-emerald-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}
+            aria-selected={!isDisabled}
             >
             <h4 className='text-white text-lg font-semibold text-center'>
                 Accept proposed core value
@@ -78,7 +75,7 @@ const WhaleActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
                     <button
                         onClick={handleAcceptCoreValue}
                         className="w-fit bg-white text-emerald-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200  disabled:hover:bg-white transition duration-100"
-                        disabled 
+                        disabled = {isDisabled} 
                     >
                         Propose to add new value to agDao
                     </button>
@@ -88,7 +85,7 @@ const WhaleActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
         {/* ProposeLaw */}
         <div 
             className="bg-gradient-to-r from-emerald-300 to-emerald-600 p-4 px-6 rounded-lg shadow-lg border-2 border-emerald-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}
+            aria-selected={!isDisabled}
         >
             <h4 className='text-white text-lg font-semibold text-center'>
                 Propose to (De-)Activate Law
@@ -127,7 +124,7 @@ const WhaleActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
                     <button
                         onClick={handleProposeLaw}
                         className="w-fit bg-white text-emerald-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
-                        disabled
+                        disabled = {isDisabled}
                     >
                         {`Propose to ${toInclude ? 'activate' : 'deactivate'} law`}
                     </button>
@@ -137,7 +134,7 @@ const WhaleActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
         {/* RevokeMember */}
         <div 
             className="bg-gradient-to-r from-emerald-300 to-emerald-600 p-4 px-6 rounded-lg shadow-lg border-2 border-emerald-600 opacity-30 aria-selected:opacity-100"
-            aria-selected={disabled}
+            aria-selected={!isDisabled}
         >
             <h4 className='text-white text-lg font-semibold text-center'>
                 Revoke Member
@@ -165,7 +162,7 @@ const WhaleActions: React.FC<useActionsProps> = ({wallet, disabled}: useActionsP
                     <button
                         onClick={handleRevokeMember}
                         className="w-fit bg-white text-emerald-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
-                        disabled 
+                        disabled = {isDisabled} 
                     >
                         Propose to blacklist and revoke member
                     </button>

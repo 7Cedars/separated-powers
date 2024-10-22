@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import MemberActions from "@/components/actions/MemberActions";
-import WhaleActions from "@/components/actions/WhaleActions";
-import SeniorActions from "@/components/actions/SeniorActions";
-import GuestActions from "@/components/actions/GuestActions";
-import { ethers } from "ethers";
-import AdminActions from "@/components/actions/AdminActions";
+import MemberActions from "@/components/MemberActions";
+import WhaleActions from "@/components/WhaleActions";
+import SeniorActions from "@/components/SeniorActions";
+import GuestActions from "@/components/GuestActions";
+import AdminActions from "@/components/AdminActions";
 import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useRoles } from "@/hooks/useRoles";
-import { useStore } from "zustand";
+import { useProposals } from "@/hooks/useProposals";
 
 const DashboardPage: React.FC = () => {
     const [admin, setAdmin] = useState<boolean>(false);  
@@ -22,13 +21,18 @@ const DashboardPage: React.FC = () => {
     const {wallets } = useWallets();
     const wallet = wallets[0];
     const {status, error, roles, fetchRoles} = useRoles();
-    const {ready, authenticated, login} = usePrivy();
-    // this seems odd, but it seems to be the only name supported by ethers.  
-    new ethers.providers.AlchemyProvider("optimism-goerli", process.env.NEXT_PUBLIC_ALCHEMY_KEY);
+    const {fetchProposals} = useProposals();
+    const {ready, authenticated, login, logout} = usePrivy();
 
     useEffect(() => {
-        if (ready && wallet && status == "idle") fetchRoles(wallet);
+        if (ready && wallet && status == "idle") {
+            fetchRoles(wallet)
+            fetchProposals() 
+        }
+
     }, [status, ready, wallet])
+
+    console.log({status, error, roles})
 
     return (
         <section className="w-full">
@@ -51,9 +55,12 @@ const DashboardPage: React.FC = () => {
             <div className="flex flex-col justify-center mb-8 w-full items-center">
                 <div className="bg-gray-400 py-2 px-8 rounded-lg hover:from-blue-500 hover:to-blue-700 shadow-lg z-10 cursor-pointer transition duration-200">
                     {ready && wallet && authenticated ? (
-                        <p className="text-white">
+                        <button 
+                            className="text-white"
+                            onClick={() => logout()}
+                        >
                             Wallet Connected @{wallet.address.slice(0, 5)}...{wallet.address.slice(-4)}
-                        </p>
+                        </button>
                     ) : (
                         <button className="text-white text-lg font-semibold"
                             onClick={() => login()}
@@ -150,11 +157,11 @@ const DashboardPage: React.FC = () => {
             :
             mode == "Actions" ?
                 <div className="flex flex-col overflow-y-auto gap-4 bg-white shadow-lg rounded-lg p-6 m-1 w-full">
-                    {admin === true ? <AdminActions wallet={wallet} disabled={roles.includes(0n) ? true : false}/> : null}
-                    {senior === true ? <SeniorActions wallet={wallet} disabled={roles.includes(1n) ? true : false}/> : null}
-                    {whale === true ? <WhaleActions wallet={wallet} disabled={roles.includes(2n) ? true : false} /> : null}
-                    {member === true ? <MemberActions wallet={wallet} disabled={roles.includes(3n) ? true : false} /> : null}
-                    {guest === true ? <GuestActions  wallet={wallet} disabled={roles.includes(4n) ? true : false} /> : null} 
+                    {admin === true ? <AdminActions wallet={wallet} isDisabled={!roles.includes(0n) ? true : false}/> : null}
+                    {senior === true ? <SeniorActions wallet={wallet} isDisabled={!roles.includes(1n) ? true : false}/> : null}
+                    {whale === true ? <WhaleActions wallet={wallet} isDisabled={!roles.includes(2n) ? true : false} /> : null}
+                    {member === true ? <MemberActions wallet={wallet} isDisabled={!roles.includes(3n) ? true : false} /> : null}
+                    {guest === true ? <GuestActions  wallet={wallet} isDisabled={!roles.includes(4n) ? true : false} /> : null} 
                     {admin === false && senior === false && whale === false && member === false && guest === false ? 
                         <p className="text-gray-600 text-center italic">Please select a role.</p> : null
                     }
