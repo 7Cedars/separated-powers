@@ -36,7 +36,7 @@ contract Member_proposeCoreValue is Law {
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         20, // = quorum
         70, // = succeedAt in percent
-        3_600, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
+        75,// votingPeriod_ in blocks, Note: these are L1 ethereum blocks! 
         address(0) // = parent Law 
     ) {
       agDao = agDao_;

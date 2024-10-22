@@ -13,8 +13,8 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 // constitutional laws
 import {Admin_setLaw} from "../../../src/implementation/laws/Admin_setLaw.sol";
-import {Member_assignRole} from "../../../src/implementation/laws/Member_assignRole.sol";
-import {Member_challengeRevoke} from "../../../src/implementation/laws/Member_challengeRevoke.sol";
+import {Public_assignRole} from "../../../src/implementation/laws/Public_assignRole.sol";
+import {Public_challengeRevoke} from "../../../src/implementation/laws/Public_challengeRevoke.sol";
 import {Member_proposeCoreValue} from "../../../src/implementation/laws/Member_proposeCoreValue.sol";
 import {Senior_acceptProposedLaw} from "../../../src/implementation/laws/Senior_acceptProposedLaw.sol";
 import {Senior_assignRole} from "../../../src/implementation/laws/Senior_assignRole.sol";
@@ -151,10 +151,16 @@ contract AgDaoTest is Test {
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
     assert(uint8(proposalStateTwo) == 4); // == ProposalState.Completed
 
-    ShortString newRequirement = agDao.coreRequirements(0);
+    ShortString newRequirement = agDao.coreRequirements(1);
     string memory requirement = newRequirement.toString(); 
     console2.logString(requirement);  
     vm.assertEq(abi.encode(requirement), abi.encode('accounts need to be human'));
+  }
+
+  function testGetCoreValues() public {
+    string[] memory coreValues = agDao.getCoreValues();
+    assert(coreValues.length == 1);
+    console2.logString(coreValues[0]);
   }
 
   function testRemovedMemberCannotBeReinstituted() public {
@@ -189,7 +195,7 @@ contract AgDaoTest is Test {
     
     // Alice tries to reinstate themselves as member.
     vm.prank(alice);  
-    vm.expectRevert(Member_assignRole.Member_assignRole__AccountBlacklisted.selector);
+    vm.expectRevert(Public_assignRole.Public_assignRole__AccountBlacklisted.selector);
     agDao.execute(constituentLaws[0], lawCalldata, keccak256(bytes("I request membership to agDAO.")));
   }
 
@@ -232,7 +238,7 @@ contract AgDaoTest is Test {
 
     vm.prank(alice); // = a whale
     uint256 proposalIdTwo = agDao.propose(
-      constituentLaws[10], // = Member_challengeRevoke
+      constituentLaws[10], // = Public_challengeRevoke
       lawCalldataChallenge, 
       descriptionChallenge
     );
@@ -288,7 +294,7 @@ contract AgDaoTest is Test {
       // deploying laws //
       vm.startPrank(bob);
       // re assigning roles // 
-      laws[0] = address(new Member_assignRole(agDaoAddress_));
+      laws[0] = address(new Public_assignRole(agDaoAddress_));
       laws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
       laws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
       laws[3] = address(new Member_assignWhale(agDaoAddress_, agCoinsAddress_));
@@ -304,7 +310,7 @@ contract AgDaoTest is Test {
       
       // re enforcing core values as requirement for external funding //   
       laws[9] = address(new Whale_revokeMember(agDaoAddress_, agCoinsAddress_));
-      laws[10] = address(new Member_challengeRevoke(agDaoAddress_, address(laws[9])));
+      laws[10] = address(new Public_challengeRevoke(agDaoAddress_, address(laws[9])));
       laws[11] = address(new Senior_reinstateMember(agDaoAddress_, agCoinsAddress_, address(laws[10])));
       vm.stopPrank();
 

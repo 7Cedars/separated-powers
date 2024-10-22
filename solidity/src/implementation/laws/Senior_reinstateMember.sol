@@ -24,7 +24,7 @@ contract Senior_reinstateMember is Law {
     address public agDao;
     uint256 agCoinsReward = 250_000; 
     
-    constructor(address payable agDao_, address agCoins_, address Member_challengeRevoke) // can take a address parentLaw param. 
+    constructor(address payable agDao_, address agCoins_, address Public_challengeRevoke) // can take a address parentLaw param. 
       Law(
         "Senior_reinstateMember", // = name
         "Senior can reinstate a member, following a challenge by the member having been revoked.", // = description
@@ -32,8 +32,8 @@ contract Senior_reinstateMember is Law {
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         51, // = quorum in percent
         51, // = succeedAt in percent
-        3_600, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
-        Member_challengeRevoke // = parent Law 
+        75,// votingPeriod_ in blocks, Note: these are L1 ethereum blocks! 
+        Public_challengeRevoke // = parent Law 
     ) {
       agDao = agDao_;
       agCoins = agCoins_;

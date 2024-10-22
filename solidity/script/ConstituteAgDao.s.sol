@@ -7,13 +7,14 @@ import {IAuthoritiesManager} from "../src/interfaces/IAuthoritiesManager.sol";
 
 contract ConstituteAgDao is Script {
     error DeployFactoryProgrmas__DeployedContractAtAddress(address deploymentAddress);
-    
-    address agDaoAddress = 0xe55DbF3B724fc6a590630C94f5f63C976880235a; 
-    address[] constituentLaws = [0x222132954f22E5fb097a5921b4A0e427cB75B218, 0x19A8EE0a026026e02186c1c8ab763e94037dAf14, 0xFF1fE9d55a314056F90dD6CA2DafC5c77473eDFf, 0xd2aBB3eb2E55a143c7CE4E7aC500701e5DA1fDE3, 0xb50d1ef36d391536fF3CC8B659EDd5E7CDe5aeD8, 0x95b3c9eB943f6f2f9A7428b712eEAC406c3D6763, 0x28488b3e7daD21f98d551db09fd4Eb02af0Af9eD, 0x8508D5b9bA7F255F70E8022A8aFbDe72083773f8, 0x84bb5992386442282964b65a1a6cb060B4924a75, 0x9179B96E052eDa5a2eE94774c630A74D052b4Fb8, 0xBc4995d96857C9cbaD3bcFe7B51cD1f5a56BA4cf, 0x4D871ede1C865aBC0acf658E6c290060b85cbFB8];
+    uint64 SENIOR_ROLE = 1;
+    address agDaoAddress = 0x001A6a16D2fc45248e00351314bCE898B7d8578f; 
+    address[] constituentLaws = [0x7Dcbd2DAc6166F77E8e7d4b397EB603f4680794C, 0x420bf9045BFD5449eB12E068AEf31251BEb576b1, 0x3216EB8D8fF087536835600a7e0B32687744Ef65, 0xbb45079e74399e7238AAF63C764C3CeE7D77712F, 0x0Ea769CD03D6159088F14D3b23bF50702b5d4363, 0xa2c0C9d9762c51DA258d008C92575A158121c87d, 0xfb7291B8FbA99C9FC29E95797914777562983D71, 0x8383547475d9ade41cE23D9Aa4D81E85D1eAdeBD, 0xBfa0747E3AC40c628352ff65a1254cC08f1957Aa, 0x71504Ced3199f8a0B32EaBf4C274D1ddD87Ecc4d, 0x0735199AeDba32A4E1BaF963A3C5C1D2930BdfFd, 0x57C9a89c8550fAf69Ab86a9A4e5c96BcBC270af9];
     
     /* Functions */
     function run() external {
-       IAuthoritiesManager.ConstituentRole[] memory constituentRoles = new IAuthoritiesManager.ConstituentRole[](0);
+       IAuthoritiesManager.ConstituentRole[] memory constituentRoles = new IAuthoritiesManager.ConstituentRole[](1);
+       constituentRoles[0] = IAuthoritiesManager.ConstituentRole(vm.envAddress("DEV2_ADDRESS"), SENIOR_ROLE);
 
         vm.startBroadcast();
             AgDao(payable(agDaoAddress)).constitute(constituentLaws, constituentRoles);

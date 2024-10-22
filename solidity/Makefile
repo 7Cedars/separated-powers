@@ -45,11 +45,9 @@ arbSepoliaForkedTest :; forge test ${ARB_SEPOLIA_TEST_ARGS}
 anvilDeploy :; forge script script/DeployAgDao.s.sol:DeployAgDao $(ANVIL_ARGS_0)
 anvilConstitute :; forge script script/ConstituteAgDao.s.sol:ConstituteAgDao $(ANVIL_ARGS_0)
 
-arbSepoliaTestDeploy :; forge script script/TestDeploy.s.sol:TestDeploy $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaDeploy :; forge script script/DeployAgDao.s.sol:DeployAgDao $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaConstitute :;  forge script script/ConstituteAgDao.s.sol:ConstituteAgDao $(ARB_SEPOLIA_DEPLOY_ARGS)
 
-optSepoliaTestDeploy :; forge script script/TestDeploy.s.sol:TestDeploy $(OPT_SEPOLIA_DEPLOY_ARGS)
 optSepoliaDeploy :; forge script script/DeployAgDao.s.sol:DeployAgDao $(OPT_SEPOLIA_DEPLOY_ARGS)
 optSepoliaConstitute :;  forge script script/ConstituteAgDao.s.sol:ConstituteAgDao $(OPT_SEPOLIA_DEPLOY_ARGS)
 

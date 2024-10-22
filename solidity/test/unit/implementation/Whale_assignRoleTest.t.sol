@@ -13,8 +13,8 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 // constitutional laws
 import {Admin_setLaw} from "../../../src/implementation/laws/Admin_setLaw.sol";
-import {Member_assignRole} from "../../../src/implementation/laws/Member_assignRole.sol";
-import {Member_challengeRevoke} from "../../../src/implementation/laws/Member_challengeRevoke.sol";
+import {Public_assignRole} from "../../../src/implementation/laws/Public_assignRole.sol";
+import {Public_challengeRevoke} from "../../../src/implementation/laws/Public_challengeRevoke.sol";
 import {Member_proposeCoreValue} from "../../../src/implementation/laws/Member_proposeCoreValue.sol";
 import {Senior_acceptProposedLaw} from "../../../src/implementation/laws/Senior_acceptProposedLaw.sol";
 import {Senior_assignRole} from "../../../src/implementation/laws/Senior_assignRole.sol";
@@ -152,7 +152,7 @@ contract Member_assignWhaleTest is Test {
       // deploying laws //
       vm.startPrank(bob);
       // re assigning roles // 
-      laws[0] = address(new Member_assignRole(agDaoAddress_));
+      laws[0] = address(new Public_assignRole(agDaoAddress_));
       laws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
       laws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
       laws[3] = address(new Member_assignWhale(agDaoAddress_, agCoinsAddress_));
@@ -168,7 +168,7 @@ contract Member_assignWhaleTest is Test {
       
       // re enforcing core values as requirement for external funding //   
       laws[9] = address(new Whale_revokeMember(agDaoAddress_, agCoinsAddress_));
-      laws[10] = address(new Member_challengeRevoke(agDaoAddress_, address(laws[9])));
+      laws[10] = address(new Public_challengeRevoke(agDaoAddress_, address(laws[9])));
       laws[11] = address(new Senior_reinstateMember(agDaoAddress_, agCoinsAddress_, address(laws[10])));
       vm.stopPrank();
 

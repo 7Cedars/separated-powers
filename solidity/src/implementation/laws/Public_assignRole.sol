@@ -15,22 +15,22 @@ import {AgDao} from "../AgDao.sol";
  *  
  * @dev When executed, it simply assigns the member role to the account. 
  */
-contract Member_assignRole is Law {
-    error Member_assignRole__IncorrectRequiredStatement(); 
-    error Member_assignRole__AccountBlacklisted(); 
+contract Public_assignRole is Law {
+    error Public_assignRole__IncorrectRequiredStatement(); 
+    error Public_assignRole__AccountBlacklisted(); 
 
     string private requiredStatement = "I request membership to agDAO.";
     address public agDao;  
     
     constructor(address payable agDao_) // can take a address parentLaw param. 
       Law(
-        "Member_assignRole", // = name
+        "Public_assignRole", // = name
         "Any account can become member of the agDAO by sending keccak256(bytes('I request membership to agDAO.') to the agDAO. Blacklisted accounts cannot become members.", // = description
         type(uint64).max, // = access PUBLIC_ROLE
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = no quorum, means no vote. 
         0, // = succeedAt in percent
-        0, // votingPeriod_ in blocks
+        0, // votingPeriod_ in blocks  Note: these are L1 ethereum blocks! 
         address(0) // = parent Law 
     ) {
       agDao = agDao_;
@@ -54,12 +54,12 @@ contract Member_assignRole is Law {
       // step 1: decode the calldata. 
       bytes32 requiredDescriptionHash = keccak256(bytes(requiredStatement)); 
       if (requiredDescriptionHash != descriptionHash) {
-        revert Member_assignRole__IncorrectRequiredStatement();
+        revert Public_assignRole__IncorrectRequiredStatement();
       }
 
       // check if account is blacklisted. 
       if (AgDao(payable(agDao)).blacklistedAccounts(executioner) == true) {
-        revert Member_assignRole__AccountBlacklisted();
+        revert Public_assignRole__AccountBlacklisted();
       }
 
       // NB: note, no check if a proposal has succeeded. This law can be called directly. 

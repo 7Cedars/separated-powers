@@ -33,7 +33,7 @@ contract Member_assignWhale is Law {
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = no quorum, means no vote. 
         0, // = succeedAt in percent
-        0, // votingPeriod_ in blocks 
+        0, // votingPeriod_ in blocks. Note: these are L1 ethereum blocks! 
         address(0) // = parent Law 
     ) {
       agDao = agDao_;
@@ -62,7 +62,7 @@ contract Member_assignWhale is Law {
       uint256 balanceAccount = ERC20(agCoins).balanceOf(accountToAssess);
       uint48 since = SeparatedPowers(payable(agDao)).hasRoleSince(accountToAssess, WHALE_ROLE);
 
-      // step 3: Note that check for proposal to have passed & setting proposal as completed is missing. This action can be executed without setting a proposal or passing a vote.  
+      // step 3: Note that check for proposal to have passed & setting proposal as completed is missing. This action is executed without setting a proposal or passing a vote.  
 
       // step 4: set data structure for call to execute function.
       address[] memory tar = new address[](2);

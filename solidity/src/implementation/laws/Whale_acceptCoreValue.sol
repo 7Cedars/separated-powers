@@ -41,7 +41,7 @@ contract Whale_acceptCoreValue is Law {
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         30, // = quorum
         51, // = succeedAt in percent
-        3_600, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
+        75,// votingPeriod_ in blocks,  Note: these are L1 ethereum blocks! 
         member_proposeCoreValue // = parent Law 
     ) {
       agDao = agDao_;
