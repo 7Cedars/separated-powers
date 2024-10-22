@@ -25,9 +25,10 @@ contract AgDao is SeparatedPowers {
   event AgDao_RequirementRemoved(uint256 index);
   event AgDao_AccountBlacklisted(address account, bool isBlackListed);
 
-  constructor( ) SeparatedPowers(
-    'agDao'// name of the DAO. 
-    ) {} 
+  constructor( ) SeparatedPowers('agDao') // name of the DAO. 
+    { // an example core value of agDao.  
+      coreRequirements.push("All accounts must be human.".toShortString());
+    } 
 
   // a few functions that are specific to the AgDao.
   function addRequirement(ShortString requirement) public onlySeparatedPowers {

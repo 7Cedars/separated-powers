@@ -33,7 +33,7 @@ contract Member_assignWhale is Law {
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = no quorum, means no vote. 
         0, // = succeedAt in percent
-        0, // votingPeriod_ in blocks 
+        0, // votingPeriod_ in blocks. Note: these are L1 ethereum blocks! 
         address(0) // = parent Law 
     ) {
       agDao = agDao_;

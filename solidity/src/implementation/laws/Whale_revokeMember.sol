@@ -30,7 +30,7 @@ contract Whale_revokeMember is Law {
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         50, // = quorum in percent
         66, // = succeedAt in percent
-        3_600, // votingPeriod_ in blocks, On arbitrum each block is about .5 (half) a second. This is about half an hour. 
+        75,// votingPeriod_ in blocks,  Note: these are L1 ethereum blocks! - about twelve seconds per block, five blocks per minute. 
         address(0) // = parent Law 
     ) {
       agDao = agDao_;

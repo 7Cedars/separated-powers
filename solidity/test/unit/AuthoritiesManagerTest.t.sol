@@ -127,7 +127,7 @@ contract AuthoritiesManagerTest is Test {
     agDao.castVote(proposalId, 1); // = For 
 
     // go forward in time. 
-    vm.roll(4_000); // == beyond durintion of 3_600 
+    vm.roll(4_000); // == beyond durintion of 150 
     ISeparatedPowers.ProposalState proposalState = agDao.state(proposalId); 
     assert(uint8(proposalState) == 3); // == ProposalState.Succeeded
 

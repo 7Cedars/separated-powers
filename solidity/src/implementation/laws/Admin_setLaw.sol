@@ -31,7 +31,7 @@ import {ISeparatedPowers} from "../../interfaces/ISeparatedPowers.sol";
         agDao_, // = SeparatedPower.sol derived contract. Core of protocol.   
         0, // = quorum
         0, // = succeedAt in percent
-        0, // votingPeriod_ in blocks 
+        0, // votingPeriod_ in blocks  Note: these are L1 ethereum blocks! 
         Senior_acceptProposedLaw // = parent Law 
     ) {
       agDao = agDao_;

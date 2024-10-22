@@ -212,7 +212,7 @@ contract SeparatedPowersTest is Test {
     bytes memory lawCalldata = abi.encode(david); 
     vm.prank(charlotte); // = already a senior
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
-    vm.roll(4_000); // == beyond durintion of 3_600, proposal is defeated because quorum not reached. 
+    vm.roll(4_000); // == beyond durintion of 75,proposal is defeated because quorum not reached. 
  
     vm.expectRevert(SeparatedPowers.SeparatedPowers__ProposalNotActive.selector); 
     vm.prank(charlotte); // is a senior. 
@@ -228,7 +228,7 @@ contract SeparatedPowersTest is Test {
     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
     // go forward in time. -- not votes are cast. 
-    vm.roll(4_000); // == beyond durintion of 3_600 
+    vm.roll(4_000); // == beyond durintion of 150 
     ISeparatedPowers.ProposalState proposalState = agDao.state(proposalId);
     assert(uint8(proposalState) == 2); // == ProposalState.Defeated
   }
@@ -247,7 +247,7 @@ contract SeparatedPowersTest is Test {
     agDao.castVote(proposalId, 1); // = For 
 
     // go forward in time. 
-    vm.roll(4_000); // == beyond durintion of 3_600 
+    vm.roll(4_000); // == beyond durintion of 150 
     ISeparatedPowers.ProposalState proposalState = agDao.state(proposalId); 
     assert(uint8(proposalState) == 3); // == ProposalState.Succeeded
   }
@@ -266,7 +266,7 @@ contract SeparatedPowersTest is Test {
     agDao.castVoteWithReason (proposalId, 1, "This is a test");  // = For 
 
     // go forward in time. 
-    vm.roll(4_000); // == beyond durintion of 3_600 
+    vm.roll(4_000); // == beyond durintion of 150 
     ISeparatedPowers.ProposalState proposalState = agDao.state(proposalId); 
     assert(uint8(proposalState) == 3); // == ProposalState.Succeeded
   }
@@ -289,7 +289,7 @@ contract SeparatedPowersTest is Test {
     agDao.proposalVotes(proposalId);
 
     // go forward in time. 
-    vm.roll(4_000); // == beyond durintion of 3_600 
+    vm.roll(4_000); // == beyond durintion of 150 
     ISeparatedPowers.ProposalState proposalState = agDao.state(proposalId); 
     assert(uint8(proposalState) == 2); // == ProposalState.Defeated
   }
@@ -314,7 +314,7 @@ contract SeparatedPowersTest is Test {
     agDao.castVote(proposalId, 1); // = For 
 
     // go forward in time. 
-    vm.roll(4_000); // == beyond durintion of 3_600 
+    vm.roll(4_000); // == beyond durintion of 150 
     ISeparatedPowers.ProposalState proposalState = agDao.state(proposalId); 
     assert(uint8(proposalState) == 3); // == ProposalState.Succeeded
 
@@ -343,7 +343,7 @@ contract SeparatedPowersTest is Test {
       agDao.castVote(proposalId, 1); // = for
 
       // go forward in time. 
-      vm.roll(4_000); // == beyond durintion of 3_600 
+      vm.roll(4_000); // == beyond durintion of 150 
       ISeparatedPowers.ProposalState proposalState = agDao.state(proposalId); 
       assert(uint8(proposalState) == 2); // == ProposalState.Defeated
 
@@ -371,7 +371,7 @@ contract SeparatedPowersTest is Test {
       agDao.castVote(proposalId, 1); // = for
 
       // go forward in time. 
-      vm.roll(4_000); // == beyond durintion of 3_600 
+      vm.roll(4_000); // == beyond durintion of 150 
       ISeparatedPowers.ProposalState proposalState1 = agDao.state(proposalId); 
       assert(uint8(proposalState1) == 3); // == ProposalState.Defeated
 

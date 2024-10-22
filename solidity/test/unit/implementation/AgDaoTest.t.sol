@@ -151,7 +151,7 @@ contract AgDaoTest is Test {
     ISeparatedPowers.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
     assert(uint8(proposalStateTwo) == 4); // == ProposalState.Completed
 
-    ShortString newRequirement = agDao.coreRequirements(0);
+    ShortString newRequirement = agDao.coreRequirements(1);
     string memory requirement = newRequirement.toString(); 
     console2.logString(requirement);  
     vm.assertEq(abi.encode(requirement), abi.encode('accounts need to be human'));

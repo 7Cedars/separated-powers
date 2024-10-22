@@ -94,10 +94,10 @@ const ProposalView:  React.FC<ProposalViewProps> = ({proposal, isDisabled}: Prop
                             } 
                         </h4>
                         <p className='text-white text-right'>
-                            Start vote: block {Number(proposal.voteStart)}
+                            Start vote: L1 block {Number(proposal.voteStart)}
                         </p>
                         <p className='text-white text-right'>
-                            end vote: block {Number(proposal.voteEnd)}
+                            end vote: L1 block {Number(proposal.voteEnd)}
                         </p>
                     </div>
                 </section>
