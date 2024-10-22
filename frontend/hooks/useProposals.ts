@@ -3,7 +3,7 @@ import { readContracts } from '@wagmi/core'
 import { wagmiConfig } from '../context/wagmiConfig'
 import { useCallback, useEffect, useRef, useState } from "react";
 import { agDaoAbi } from "@/context/abi";
-import { Hex, Log, parseEventLogs } from "viem"
+import { Hex, Log, parseEventLogs, ParseEventLogsReturnType } from "viem"
 import { publicClient } from "@/context/clients";
 import { lawContracts } from "@/context/lawContracts";
 import { readContract } from "wagmi/actions";
@@ -31,8 +31,9 @@ export const useProposals = () => {
             eventName: 'ProposalCreated',
             logs
           })
-          console.log({fetchedLogs})
-          const fetchedProposals: Proposal[] = fetchedLogs.map(log =>  log.args as Proposal)
+          const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
+          const fetchedProposals: Proposal[] = fetchedLogsTyped.map(log => log.args as Proposal)
+          
           return fetchedProposals
         } catch (error) {
             setStatus("error") 
