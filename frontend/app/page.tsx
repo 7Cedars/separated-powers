@@ -39,7 +39,7 @@ const DashboardPage: React.FC = () => {
         args: [wallet && wallet.address ? wallet.address as `0x${string}` : `0x0`]
       })
     
-    console.log("@DashboardPage", {authenticated, roles, wallet})
+    // console.log("@DashboardPage", {authenticated, roles, wallet})
 
     useEffect(() => {
         if (ready && wallet && status == "idle") fetchRoles(wallet)

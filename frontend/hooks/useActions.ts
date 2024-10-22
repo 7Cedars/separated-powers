@@ -4,6 +4,7 @@ import { Status } from "../context/types"
 import { lawContracts } from "@/context/lawContracts";
 import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
+import { useWaitForTransactionReceipt } from "wagmi";
 
 export const useActions = () => {
   const [status, setStatus ] = useState<Status>("idle")
@@ -12,7 +13,15 @@ export const useActions = () => {
   const [error, setError] = useState<any | null>(null)
   const agDaoAddress: `0x${string}` = lawContracts.find((law: any) => law.contract === "AgDao")?.address as `0x${string}`
 
-  console.log({transactionHash, law, status})
+  const {error: errorReceipt, status: statusReceipt} = useWaitForTransactionReceipt({
+    confirmations: 2, 
+    hash: transactionHash,
+  })
+
+  useEffect(() => {
+    if (statusReceipt === "success") setStatus("success")
+    if (statusReceipt === "error") setStatus("error")
+  }, [statusReceipt])
 
   const propose = useCallback( 
     async (
@@ -30,12 +39,10 @@ export const useActions = () => {
               args: [targetLaw, lawCalldata, description]
             })
             setTransactionHash(result)
-            setStatus("success")
         } catch (error) {
             setStatus("error") 
             setError(error)
         }
-        setLaw(undefined)
   }, [ ])
 
   const cancel = useCallback( 
@@ -54,13 +61,10 @@ export const useActions = () => {
             args: [targetLaw, lawCalldata, descriptionHash]
           })
           setTransactionHash(result)
-          setStatus("success")
       } catch (error) {
           setStatus("error") 
           setError(error)
       }
-        setStatus("success")
-        setLaw(undefined)
   }, [ ])
 
   const execute = useCallback( 
@@ -79,13 +83,10 @@ export const useActions = () => {
             args: [targetLaw, lawCalldata, descriptionHash]
           })
           setTransactionHash(result)
-          setStatus("success")
       } catch (error) {
           setStatus("error") 
           setError(error)
       }
-        setStatus("success")
-        setLaw(undefined)
   }, [ ])
 
   // note: I did not implement castVoteWithReason -- to much work for now. 
@@ -104,13 +105,10 @@ export const useActions = () => {
             args: [proposalId, support]
           })
           setTransactionHash(result)
-          setStatus("success")
       } catch (error) {
           setStatus("error") 
           setError(error)
       }
-        setStatus("success")
-        setLaw(undefined)
   }, [ ])
 
   return {status, error, law, propose, cancel, execute, castVote}

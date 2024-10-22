@@ -14,7 +14,7 @@ export const useProposals = () => {
   const [proposals, setProposals] = useState<Proposal[] | undefined>() 
   const agDaoAddress: `0x${string}` = lawContracts.find((law: any) => law.contract === "AgDao")?.address as `0x${string}`
 
-  console.log("@useProposal:", {proposals, status, error})
+  // console.log("@useProposal:", {proposals, status, error})
 
   const getProposals = useCallback( 
     async () => {

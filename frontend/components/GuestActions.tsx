@@ -5,6 +5,7 @@ import { userActionsProps } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
 import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
+import { TwoSeventyRingWithBg } from 'react-svg-spinners';
 
 const GuestActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
     const [addressSenior, setAddressSenior] = useState<`0x${string}`>();
@@ -53,11 +54,18 @@ const GuestActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                 <div className="flex flex-row justify-left mt-6">
                     <button
                         onClick={handleAssignRole}
-                        className="w-fit bg-white text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
+                        className="flex flex-row justify-center items-center bg-white text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
                         disabled = {isDisabled}
                     >
-                        Claim member role
+                        {law === lawContracts.find((law: any) => law.contract === "Public_assignRole")?.address as `0x${string}` ?  
+                                status === "loading" ? <TwoSeventyRingWithBg className='text-blue-600'/> :
+                                status === "success" ? 'success' : 
+                                status === "error" ? 'Error' :
+                                "Idle"
+                            : "Claim role" 
+                            }
                     </button>
+                    
                 </div>
         </div>
         
@@ -91,10 +99,16 @@ const GuestActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                 <div className="flex flex-row justify-start mt-6">
                     <button
                         onClick={handleChallengeRevoke}
-                        className="w-fit bg-white text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
+                        className="flex flex-row justify-center items-center bg-white text-purple-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
                         disabled = {isDisabled} 
                     >
-                        Challenge revoke (NB: this creates a proposal you need to accept) 
+                          {law === lawContracts.find((law: any) => law.contract === "Public_challengeRevoke")?.address as `0x${string}` ?  
+                                status === "loading" ? <TwoSeventyRingWithBg className='text-blue-600'/> :
+                                status === "success" ? 'success' : 
+                                status === "error" ? 'Error' :
+                                "Idle"
+                            : "Challenge revoke (NB: this creates a proposal you need to accept) " 
+                            }                        
                     </button>
                 </div>
         </div>

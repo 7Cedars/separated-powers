@@ -5,6 +5,7 @@ import { useActions } from '@/hooks/useActions';
 import { userActionsProps } from '@/context/types';
 import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
+import { TwoSeventyRingWithBg } from "react-svg-spinners";
 
 const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActionsProps ) => {
     const [newValue, setNewValue] = useState<string>('');
@@ -12,6 +13,8 @@ const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
     const [descriptionA, setDescriptionA] = useState<string>('');
     const [descriptionB, setDescriptionB] = useState<string>('');
     const {status, error, law, propose, execute} = useActions(); 
+
+    console.log("@memberActions:", {status, error, law})
 
     const handleProposeCoreValue = async () => {
         const lawCalldata: string = encodeAbiParameters(parseAbiParameters("bytes"), [toHex(newValue)]);
@@ -61,10 +64,16 @@ const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     <div className="flex flex-row justify-start">
                         <button
                             onClick={handleProposeCoreValue}
-                            className="w-fit bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-100"
+                            className="flex flex-row justify-center items-center bg-white text-blue-600 min-w-60 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition duration-100"
                             disabled = {isDisabled}
                         >
-                            Propose Value
+                            {law === lawContracts.find((law: any) => law.contract === "Member_proposeCoreValue")?.address as `0x${string}` ?  
+                                status === "loading" ? <TwoSeventyRingWithBg className='text-blue-600'/> :
+                                status === "success" ? 'success' : 
+                                status === "error" ? 'Error' :
+                                "Idle"
+                            : "Propose Value" 
+                            }
                         </button>
                     </div>
         
@@ -96,10 +105,16 @@ const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     <div className="flex flex-row justify-start">
                         <button
                             onClick={handleAssignWhale}
-                            className="w-fit bg-white text-blue-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
+                            className="flex flex-row justify-center items-center bg-white text-blue-600 min-w-60 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
                             disabled = {isDisabled}
                         >
-                            Assess account
+                            {law === lawContracts.find((law: any) => law.contract === "Member_assignWhale")?.address as `0x${string}` ? 
+                                status === "loading" ? <TwoSeventyRingWithBg className='text-blue-600'/> :
+                                status === "success" ? 'success' : 
+                                status === "error" ? 'Error' :
+                                "idle"
+                            : "Assess account"
+                            }
                         </button>
                     </div>
         

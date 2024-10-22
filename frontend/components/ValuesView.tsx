@@ -17,9 +17,9 @@ const ValuesView:  React.FC = () => {
 
   const coreValues = data as string[]
 
-  const test = bytesToString(hexToBytes(data as `0x${string}`))
+  // const test = bytesToString(hexToBytes(data as `0x${string}`))
 
-  console.log("@ValuesView", {data, error, status, test})
+  console.log("@ValuesView", {data, error, status})
 
   return (
       <>
