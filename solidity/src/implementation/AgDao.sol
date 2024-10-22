@@ -51,7 +51,11 @@ contract AgDao is SeparatedPowers {
   }
 
   /* getter function */ 
-  function getCoreValues() public returns (ShortString[] memory coreValues)  {
-    return coreRequirements;
+  function getCoreValues() public returns (string[] memory coreValues)  {
+    coreValues = new string[](coreRequirements.length);
+    for (uint256 i = 0; i < coreRequirements.length; i++) {
+      coreValues[i] = coreRequirements[i].toString();
+    }
+    return coreValues;
   }
 }

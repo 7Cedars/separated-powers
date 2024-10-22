@@ -157,6 +157,12 @@ contract AgDaoTest is Test {
     vm.assertEq(abi.encode(requirement), abi.encode('accounts need to be human'));
   }
 
+  function testGetCoreValues() public {
+    string[] memory coreValues = agDao.getCoreValues();
+    assert(coreValues.length == 1);
+    console2.logString(coreValues[0]);
+  }
+
   function testRemovedMemberCannotBeReinstituted() public {
     // proposing... 
     address memberToRevoke = alice;

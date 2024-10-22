@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { lawContracts } from '@/context/lawContracts';
-import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
+import { bytesToString, encodeAbiParameters, hexToBytes, hexToString, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
 import { useReadContract } from 'wagmi'
 import { agDaoAbi } from '@/context/abi';
 
@@ -17,15 +17,9 @@ const ValuesView:  React.FC = () => {
 
   const coreValues = data as string[]
 
-  const {data: coreRequirementsData, error: coreRequirementsError, status: coreRequirementsStatus}  = useReadContract({
-    abi: agDaoAbi,
-    address: agDaoContract?.address as `0x${string}`,
-    functionName: 'coreRequirements',
-    args: [0n]
-  })
+  const test = bytesToString(hexToBytes(data as `0x${string}`))
 
-  console.log("@ValuesView", {data, error, status})
-  console.log("@ValuesView", {coreRequirementsData, coreRequirementsError, coreRequirementsStatus})
+  console.log("@ValuesView", {data, error, status, test})
 
   return (
       <>
@@ -37,7 +31,7 @@ const ValuesView:  React.FC = () => {
         </div>
 
         {
-          coreValues.length > 0 ?
+          coreValues && coreValues.length > 0 ?
             coreValues.map((value: string, index: number) => (
               <div key={index} className='text-center text-gray-800'>
                 <span className='text-lg font-semibold m-3'>{value}</span>
