@@ -54,11 +54,11 @@ const DashboardPage: React.FC = () => {
         {
         ready == true  ?
 
-        <div className="p-6 w-full bg-gray-100  flex flex-col items-center ">
-            <h1 className="w-full text-3xl font-bold text-center mt-20 mb-2">Welcome to AgDAO</h1>
-            <h2 className="w-full text-lg mb-2 text-center">A decentralised system of checks and balances for funding aligned accounts</h2>
+        <div className="p-6 min-h-screen w-full bg-gray-100  flex flex-col items-center">
+            <h1 className="w-full text-3xl font-bold text-center mt-20 mb-2 text-gray-800">Welcome to AgDAO</h1>
+            <h2 className="w-full text-lg mb-2 text-center text-gray-800">A decentralised system of checks and balances for funding aligned accounts</h2>
             <div className="flex flex-col mb-8 w-full items-center">
-            <Link href="/about" className="underline mb-4">
+            <Link href="/about" className="underline mb-4 text-gray-800">
                 About   
             </Link>
                 
@@ -92,7 +92,7 @@ const DashboardPage: React.FC = () => {
                
             </div>
             
-            <div className="flex flex-row mb-6 w-full">
+            <div className="flex flex-row mb-6 w-full text-gray-800">
                 <button 
                     className="w-full font-bold font-xl text-center aria-selected:opacity-100 opacity-25 py-2 px-4"
                     onClick={() => setMode("Values")}

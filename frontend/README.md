@@ -1,3 +1,28 @@
+<p align="center">
+
+<br />
+<div align="center">
+  <a href="https://github.com/7Cedars/separated-powers"> 
+    <img src="../public/logo.png" alt="Logo" width="300" height="300">
+  </a>
+
+<h2 align="center">Separated Powers </h2>
+  <p align="center">
+    A protocol providing restricted governance processes for DAOs. 
+    <br />
+    <br />
+    <!--NB: TO DO --> 
+    <a href="../README.md">Conceptual overview</a>
+    ·
+    <a href="#getting-started">Getting Started</a>
+    ·
+    <a href="#live-version">Live version</a>
+  </p>
+  <br />
+  <br />
+</div>
+
+
 ## Getting Started
 
 First, install the dependencies 
@@ -15,5 +40,5 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see das
 
 ## Live version 
 
-A live version can be seen on [vercel](http://localhost:3000).  
+A live version can be seen on [vercel](https://separated-powers.vercel.app/).  
 
