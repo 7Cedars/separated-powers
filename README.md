@@ -19,7 +19,7 @@
     <br />
     <br />
     <!--NB: TO DO --> 
-    <a href="/solidity/README.md">Solidity protocol</a> ·
+    <a href="/solidity">Solidity protocol</a> ·
     <a href="https://sepolia.arbiscan.io/address/0x001a6a16d2fc45248e00351314bce898b7d8578f">Proof of Concept (Arbiscan)</a> ·
     <a href="https://separated-powers.vercel.app/">Proof of Concept (dApp)</a>
   </p>
@@ -28,7 +28,7 @@
 <div align="center">
 For the judges of the RnDAO CollabTech 2024 Hackathon  
     <br />
-    <a href="https://github.com/7Cedars/separated-powers"> See the description of our project here! </a>
+    <a href="https://www.tella.tv/video/centralized-governance-dilemma-ew5k"><b> Watch our project pitch here </b> </a>
     <br />
 </div>
 
@@ -115,18 +115,18 @@ The best way to gain a deeper understanding of the protocol is to start at `soli
 
 ```
 .
-├── frontend                     # App workspace
-|    ├── README.md               # All information needed to run the dApp locally. 
+├── frontend          # App workspace
+|    ├── README.md    # All information needed to run the dApp locally. 
 │    └── ...
 │
-├── public                       # Images
+├── public            # Images
 |
-├── solidity                     # Contains all the contracts, interfaces and tests. 
-│    ├── README.md               # All information needed to run contracts locally, test and deploy contracts.   
+├── solidity          # Contains all the contracts, interfaces and tests. 
+│    ├── README.md    # All information needed to run contracts locally, test and deploy contracts.   
 │    └── ...                     
 | 
 ├── LICENSE
-└── README.md
+└── README.md         # This file
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
