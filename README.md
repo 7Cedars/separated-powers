@@ -15,26 +15,20 @@
 <h3 align="center">Separated Powers: Introducing separation of powers to DAO Governance </h3>
 
   <p align="center">
-    A protocol providing restricted governance processes for DAOs. 
-    <br />
-    <a href="https://github.com/7Cedars/separated-powers"><strong>Explore the docs »</strong></a>
+    A protocol providing restricted governance processes for DAOs.
     <br />
     <br />
     <!--NB: TO DO --> 
-    <a href="https://sepolia.arbiscan.io/">SoP example (Arbiscan)</a>
-    ·
-    <a href="https://sepolia.arbiscan.io/">SoP example (dApp)</a>
-    ·
-    <a href="https://github.com/7Cedars/loyalty-program-contracts/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/7Cedars/loyalty-program-contracts/issues">Request Feature</a>
+    <a href="/solidity/README.md">Solidity protocol</a> ·
+    <a href="https://sepolia.arbiscan.io/address/0x001a6a16d2fc45248e00351314bce898b7d8578f">Proof of Concept (Arbiscan)</a> ·
+    <a href="https://separated-powers.vercel.app/">Proof of Concept (dApp)</a>
   </p>
 </div>
 
 <div align="center">
-For the judges of the RnDAO CollabTech Hackathon  
+For the judges of the RnDAO CollabTech 2024 Hackathon  
     <br />
-    <a href="https://github.com/7Cedars/separated-powers"> See our pitch here! </a>
+    <a href="https://github.com/7Cedars/separated-powers"> See the description of our project here! </a>
     <br />
 </div>
 
@@ -46,23 +40,15 @@ For the judges of the RnDAO CollabTech Hackathon
     <li>
       <a href="#about">About</a>
       <ul>
+        <li><a href="#the-problem">The problem</a></li>
+        <li><a href="#the-solution">The solution</a></li>
+        <li><a href="#how-it-works">How it works</a></li>
         <li><a href="#important-files-and-folders">Important files and folders</a></li>
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -70,7 +56,7 @@ For the judges of the RnDAO CollabTech Hackathon
 ## About
 Separated Powers restricts governance processes along access roles. 
 
-### What is the problem? 
+### The problem 
 The centralisation of power in DAO governance. 
 - Voting power tends to be centralised around a small group of users with a large amount of (governance) tokens. 
 - Voter disengagement among DAO members that do not own large amounts of governance tokens.
@@ -78,7 +64,7 @@ The centralisation of power in DAO governance.
 
 DAOs control crypto that is worth billions of dollars. Still, the amount is tiny when compared to national economies or companies such as Apple. Blockchains will only reach their full potential if they are truly decentralised, give ownership to all their users and provide a safe environment for day-to-day use.  
 
-### What is the solution?
+### The solution
 To foster decentralised DAO governance, separated Powers restricts governance processes along access roles. This enables: 
 - defining multiple groups within blockchain communities. 
 - assigning them restricted powers. 
@@ -87,7 +73,7 @@ To foster decentralised DAO governance, separated Powers restricts governance pr
 
 Using roles to separate powers in governance is a tried and true approach to safeguarding decentralisation of (social, political and economic) assets in light of their tendency to centralise around informal elites.
 
-### How does it work? 
+### How it works 
 To introduce role restrictions to governance processes, the Separated Powers protocol forces all governance actions to refer to whitelisted and role restricted external contracts. 
 
 These contracts 
@@ -113,22 +99,12 @@ Consider the following steps:
 - When a user with role B calls the execute function of law B, it checks if _both_ proposal A and proposal B have passed. If this is the case, the intended action is executed.
 - The proposal chain can be made as long as required.
 
+It allows, for instance, users with role A to propose a change and users with role B to accept that change. In such a case, power becomes balanced between the two roles: A has power of initiative, B power of execution. 
+
 As a flowchart
-  <a href="https://github.com/7Cedars/separated-powers/blob/master/public/SeparatedPowers_flowchart.png"> 
-    <img src="public/SeparatedPowers_flowchart.png" alt="Flowchart Governance.sol" width="100%" height="100%">
+  <a href="https://github.com/7Cedars/separated-powers/blob/master/public/SeparatedPowers_flowchart2.png"> 
+    <img src="public/SeparatedPowers_flowchart2.png" alt="Flowchart Governance.sol" width="100%" height="100%">
   </a>
-
-<!-- £todo this still needs proper review -->
-#### What does Sop DAO governance look like? 
-Laws, role restricted governance processes and chained proposals provide a completely new approach to building DAO governance. As such, they provide a wealth of possibilities. 
-
-- All complexity is abstracted away from the core governance process to a set of laws: guardian roles, queuing proposals, time locks, weighted voting... all are implemented as laws, making DAO governance far more modular. 
-- The possibility for checks and balances between roles, creates the incentive to decentralise power in name of security. In contrast, mainstream approach today create an incentive to have a small group of trusted actors 'vet' all decisions. 
-- Instead of vertically devolving powers in DAOs to optimise DAO management (see the Hats protocol), Separated Powers devolves powers and responsibilities horizontally. 
-- Laws allow for any kind of logic to be encoded into governance. The governance protocol itself is intentionally simple and opinionated, laws are completely open and free. Anything can be build with them.  
-- If problems arise with DAO governance, Separated Powers allows for specific laws to be deactivated. It means a DAO does not need to pause its entire governance protocol. Pausing can be selective.  
-
-These are just some examples of the implications of using Separated Powers. Many more can be given.  
 
 #### Gaining a deeper understanding of Separated Powers 
 For now, the protocol does not have extensive documentation. It does have extensive natspecs throughout the protocol contracts. 
@@ -161,6 +137,11 @@ The best way to gain a deeper understanding of the protocol is to start at `soli
 * Solidity 0.8.26
 * Foundry 0.2.0
 * OpenZeppelin 5.0.2
+* React 18
+* NextJS 14
+* Tailwind css
+* Wagmi / viem
+* Privy.io
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
