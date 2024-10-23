@@ -28,7 +28,7 @@
 <div align="center">
 For the judges of the RnDAO CollabTech 2024 Hackathon  
     <br />
-    <a href="https://github.com/7Cedars/separated-powers"><b> Watch our project pitch here </b> </a>
+    <a href="https://www.tella.tv/video/centralized-governance-dilemma-ew5k"><b> Watch our project pitch here </b> </a>
     <br />
 </div>
 
