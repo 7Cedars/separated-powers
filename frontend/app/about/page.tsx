@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 
 export default function Page() { 
@@ -22,12 +22,13 @@ export default function Page() {
                             <li>Anyone can become a community member of AgDao.</li>
                             <li>Community members are paid in agCoins for governance participation.</li>
                             <li>Community members can transfer agCoins to any address they want.</li> 
-                            <li>Whales can revoke member roles of accounts that fund non-aligned addresses.</li>
-                            <li>Members can challenge this decision and be reinstated.</li>
+                            <li>Whales can revoke and blacklist member roles of accounts that fund non-aligned addresses.</li>
+                            <li>Members can challenge a decision to revoke their membership.</li>
+                            <li>Seniors can uphold a challenge and reinstate a member.</li>
                             <li>Whales can propose new laws, senior can accept them, and the admin implements them.</li>
                         </ul>
 
-                        <h2 className="font-bold my-4"> See the actions tab in the dashboard for concrete implementation of protocol rules. </h2>
+                        <h2 className="font-bold my-4"> See the actions tab in the dashboard for concrete implementation of protocol laws. </h2>
                     </div>
                 </div>
 
