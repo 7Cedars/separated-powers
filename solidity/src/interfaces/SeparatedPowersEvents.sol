@@ -55,5 +55,18 @@ interface SeparatedPowersEvents {
     /// @notice Emitted when...
     /// £todo param...
     /// etc.
-    event LawSet(address indexed law, bool indexed active, bool indexed lawChanged);
+
+    event LawSet(
+        address indexed law, 
+        uint32 indexed allowedRole, 
+        bool indexed existingLaw,
+        uint8 quorum, 
+        uint8 succeedAt, 
+        uint32 votingPeriod
+        );
+
+    /// @notice Emitted when...
+    /// £todo param...
+    /// etc.
+    event LawRevoked(address indexed law); 
 }

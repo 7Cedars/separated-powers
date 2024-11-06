@@ -75,29 +75,61 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     //////////////////////////////////////////////////////////////
     /// @dev  external function to batch activate laws and roles in a DAO. Can only be called once, and only by Admin.
     ///
-    /// @param constituentLaws : the addresses of the laws to be activated. Can only be one address.
-    /// @param constitutionalRoles : the roles of the laws to be activated.
+    /// @param laws : the addresses of the laws to be activated.
+    /// @param allowedRoles : the allowed roles of the laws.
+    /// @param quorums : the quorums of the laws.
+    /// @param succeedAts : the succeedAts of the laws.
+    /// @param votingPeriods : the votingPeriods of the laws.
+    /// @param constituentRoles : the constituent roles of the roles.
+    /// @param constituentAccounts : the constituent accounts of the roles.
     ///
     /// emits a {ProposalCreated} event.
-    function constitute(address[] memory constituentLaws, ConstituentRole[] memory constitutionalRoles) external;
-
-    /// @notice set role access.
-    ///
-    /// @param roleId role identifier
-    /// @param account account address
-    /// @param access access
-    ///
-    /// @dev this function can only be called from within {SeperatedPowers}.
-    function setRole(uint48 roleId, address account, bool access) external;
+    function constitute(
+        address[] memory laws,
+        uint32[] memory allowedRoles,
+        uint8[] memory quorums,
+        uint8[] memory succeedAts, 
+        uint32[] memory votingPeriods,
+        // roles data 
+        uint48[] memory constituentRoles, 
+        address[] memory constituentAccounts
+        ) external;
 
     /// @notice set a law to active or inactive.
     ///
     /// @dev
     /// @param law address of the law.
-    /// @param active bool to set the law to active or inactive.
+    /// @param allowedRole : the allowed role of the law.
+    /// @param quorum : the quorum of the law.
+    /// @param succeedAt : the succeedAt of the law.
+    /// @param votingPeriod : the votingPeriod of the law.
     ///
     /// @dev this function can only be called from the execute function of SeperatedPowers.sol.
-    function setLaw(address law, bool active) external;
+    function setLaw(address law, uint32 allowedRole, uint8 quorum, uint8 succeedAt, uint32 votingPeriod) external;
+
+    /// @notice set a law to active or inactive.
+    ///
+    /// @dev
+    /// @param law address of the law.
+    ///
+    /// @dev this function can only be called from the execute function of SeperatedPowers.sol.
+    function revokeLaw(address law) external;
+
+    /// @notice set role access.
+    ///
+    /// @param roleId role identifier
+    /// @param account account address
+    ///
+    /// @dev this function can only be called from within {SeperatedPowers}.
+    function assignRole(uint48 roleId, address account) external;
+
+    /// @notice set role access.
+    ///
+    /// @param roleId role identifier
+    /// @param account account address
+    ///
+    /// @dev this function can only be called from within {SeperatedPowers}.
+    function revokeRole(uint48 roleId, address account) external;
 
     //////////////////////////////////////////////////////////////
     //                      VIEW FUNCTIONS                      //

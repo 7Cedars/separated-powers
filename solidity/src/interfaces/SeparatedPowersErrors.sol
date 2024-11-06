@@ -43,9 +43,18 @@ interface SeparatedPowersErrors {
 
     /// @notice £todo description.
     error SeparatedPowers__ProposalNotActive();
+    
+    /// @notice £todo description.
+    error SeparatedPowers__LawCheckFailed(); 
 
     /// @notice £todo description.
     error SeparatedPowers__NoAccessToTargetLaw();
+
+    /// @notice £todo description.
+    error SeparatedPowers__LawNotActive();
+
+    /// @notice £todo description.
+    error SeparatedPowers__InvalidArrayLengths();
 
     /// @notice £todo description.
     error SeparatedPowers__InvalidCallData();

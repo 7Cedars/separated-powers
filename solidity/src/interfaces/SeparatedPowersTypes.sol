@@ -48,22 +48,15 @@ interface SeparatedPowersTypes {
         Abstain
     }
 
-    // NB! £todo This has NOT been implemented yet. But I DO think it is the way to go! -- it places all crucial data at the central protocol. + does not need to call external contracts that often.  
     /// @dev struct keeping track of settings for a law.
     struct LawConfig {
-        // slot 1 
-        bytes32 name; // 32
-
-        // slot 2
+        // 1 memory slot 
         address lawAddress; // 20
-        uint48 allowedRole; // 6
+        uint32 allowedRole; // 4
         uint8 quorum; // 1
         uint8 succeedAt; // 1
         uint32 votingPeriod; // 4 
-        
-        // slot 3 and onward 
-        address[] parentLaws;  
-        string uri; // variable length;    
+        bool active; // 1
     }
 
     /// @dev struct keeping track of 1) account acceess to role and 2) total amount of members of role.

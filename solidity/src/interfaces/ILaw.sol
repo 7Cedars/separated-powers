@@ -25,4 +25,11 @@ interface ILaw {
     function executeLaw(address executioner, bytes memory lawCallData, bytes32 descriptionHash)
         external
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
+    
+    /**
+     * @param lawCallData call data to be executed.
+     */
+    function checkLaw(address executioner, bytes memory lawCallData, bytes32 descriptionHash)
+        external
+        returns (bool passed);
 }

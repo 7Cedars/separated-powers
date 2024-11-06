@@ -5,6 +5,7 @@ import { SeparatedPowers } from "./SeparatedPowers.sol";
 import { ILaw } from "./interfaces/ILaw.sol";
 import { ERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
+import "../lib/openzeppelin-contracts/contracts/utils/ShortStrings.sol";
 
 /**
  * @notice Base implementation of a Law in the SeparatedPowers protocol. It is meant to be inherited by law implementations.
@@ -20,12 +21,18 @@ import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspectio
  *
  */
 contract Law is IERC165, ERC165, ILaw {
-    address payable public immutable separatedPowers; // address to related separatedPower contract. Laws cannot be shared between them. They have to be re-initialised through a constructor function. 
+    using ShortStrings for *;
+
+    ShortString public immutable name;
+    string public description;
+    address[] private _dependencies;
     
     /// @dev Constructor function for Law contract.
-    constructor( ) { 
-        separatedPowers = msg.sender; 
-        }
+    constructor(string memory name_, string memory description_, address[] memory dependencies_) {
+        name = name_.toShortString();
+        description = description_;
+        _dependencies = dependencies_;
+    }
 
     /**
      * @dev See {ILaw-executeLaw}.
@@ -33,24 +40,37 @@ contract Law is IERC165, ERC165, ILaw {
      * @dev this function needs to be overwritten with the custom logic of the law.
      *
      */
-    function executeLaw(address /* executioner */, bytes memory /* lawCalldata */, bytes32 /* descriptionHash */ )
+    function executeLaw(address executioner, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         virtual
-        returns (address[] memory /* targets */, uint256[] memory /* values */, bytes[] memory /* calldatas */ )
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // laws can only be called by the protocol that initiated them. 
-        if (msg.sender != separatedPowers) {
-          revert Law__AccessNotAuthorized(msg.sender);
-        }
-
         // Normal work flow of a law: 
-        // 1: check conditions met
-        // 2: set proposal to complete
-        // 3: create executeCallData
-        // 4: call execute at {SeparatedPowers} with the executeCallData.  
-
+        // 0: check if any additional conditions have been met. 
+        (bool passed) = checkLaw(executioner, lawCalldata, descriptionHash);
+        
+        if (passed) {
+            // 1: if relevant, check if proposal passed
+            // 2: set proposal to complete
+            // 3: create executeCallData
+            // 4: call execute at {SeparatedPowers} with the executeCallData.  
+        }
+        
         // That said, this flow is optional. Any logic can be build into a law. See examples in the `implementations/laws` folder 
+    }
 
+    /**
+     * @dev See {ILaw-executeLaw}.
+     *
+     * @dev this function can be used to check if dependencies have been met before a proposal is proposed. See {SeparataedPowers::_propose}.
+     *
+     */
+    function checkLaw(address /* executioner */, bytes memory /* lawCalldata */, bytes32 /* descriptionHash */ )
+        public
+        virtual
+        returns (bool passed)
+    {
+        return true; // default
     }
 
     /**
