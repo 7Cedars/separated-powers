@@ -11,27 +11,29 @@ import "../lib/openzeppelin-contracts/contracts/utils/ShortStrings.sol";
  * @notice Base implementation of a Law in the SeparatedPowers protocol. It is meant to be inherited by law implementations.
  *
  * @dev A law has the following characteristics:
- * - It is only accesible to one roleId.
- * - It gives accounts who hold this roleId the privilege to call external contracts.
- * - It constrains these privileges with specific conditions, for instance a proposal to a specific other law needs to have passed.
+ * - They are role restricted. 
+ * - Gives privileges to call external contracts and functions.
+ * - Constrains these privileges through specific conditions 
+ *      - These constrains can be internal: a proposal to this law needs to have passed. (this needs to be implemented in the excuteLaw function)
+ *      - These constrains can also be external: a proposal to _another_ law needs to have passed. (these dependences needs to be implemented in the checkDependencies function)
  *
- * note NB! If a law is linked to a parent law, the description needs to be the same as the description of the parent law.
- *
- * @author 7Cedars, Oct 2024 RnDAO CollabTech Hackathon
+ * @author 7Cedars
  *
  */
 contract Law is IERC165, ERC165, ILaw {
     using ShortStrings for *;
 
-    ShortString public immutable name;
-    string public description;
-    address[] private _dependencies;
-    
+    ShortString public immutable name; // name of the law
+    address private _separatedPowers; // the address of the core governance protocol
+    address[] private _dependencies; // law dependencies 
+    string public description; // description of the law
+
     /// @dev Constructor function for Law contract.
     constructor(string memory name_, string memory description_, address[] memory dependencies_) {
         name = name_.toShortString();
-        description = description_;
+        _separatedPowers = msg.sender;
         _dependencies = dependencies_;
+        description = description_;
     }
 
     /**
@@ -46,11 +48,16 @@ contract Law is IERC165, ERC165, ILaw {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // Normal work flow of a law: 
-        // 0: check if any additional conditions have been met. 
-        (bool passed) = checkLaw(executioner, lawCalldata, descriptionHash);
+        // 0 check if law was called from core protocol. 
+        if (msg.sender != _separatedPowers) {
+            revert ILaw__AccessNotAuthorized(msg.sender);
+        }
+
+        // 1: check if conditions among dependencies have been met. 
+        (bool passed) = checkDependencies(executioner, lawCalldata, descriptionHash);
         
         if (passed) {
-            // 1: if relevant, check if proposal passed
+            // 1: if relevant, check if related proposal passed (if applicable)
             // 2: set proposal to complete
             // 3: create executeCallData
             // 4: call execute at {SeparatedPowers} with the executeCallData.  
@@ -65,7 +72,7 @@ contract Law is IERC165, ERC165, ILaw {
      * @dev this function can be used to check if dependencies have been met before a proposal is proposed. See {SeparataedPowers::_propose}.
      *
      */
-    function checkLaw(address /* executioner */, bytes memory /* lawCalldata */, bytes32 /* descriptionHash */ )
+    function checkDependencies(address /* executioner */, bytes memory /* lawCalldata */, bytes32 /* descriptionHash */ )
         public
         virtual
         returns (bool passed)

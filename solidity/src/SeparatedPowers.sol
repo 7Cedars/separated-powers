@@ -107,7 +107,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         virtual
         returns (uint256 proposalId)
     {
-        (bool passed) = Law(targetLaw).checkLaw(msg.sender, lawCalldata, keccak256(bytes(description)));
+        (bool passed) = Law(targetLaw).checkDependencies(msg.sender, lawCalldata, keccak256(bytes(description)));
         if (!passed) {
             revert SeparatedPowers__LawCheckFailed();
         }
