@@ -24,14 +24,14 @@ contract Law is IERC165, ERC165, ILaw {
     using ShortStrings for *;
 
     ShortString public immutable name; // name of the law
-    address private _separatedPowers; // the address of the core governance protocol
+    address public separatedPowers; // the address of the core governance protocol
     address[] private _dependencies; // law dependencies 
     string public description; // description of the law
 
     /// @dev Constructor function for Law contract.
     constructor(string memory name_, string memory description_, address[] memory dependencies_) {
         name = name_.toShortString();
-        _separatedPowers = msg.sender;
+        separatedPowers = msg.sender;
         _dependencies = dependencies_;
         description = description_;
     }
@@ -49,7 +49,7 @@ contract Law is IERC165, ERC165, ILaw {
     {
         // Normal work flow of a law: 
         // 0 check if law was called from core protocol. 
-        if (msg.sender != _separatedPowers) {
+        if (msg.sender != separatedPowers) {
             revert ILaw__AccessNotAuthorized(msg.sender);
         }
 

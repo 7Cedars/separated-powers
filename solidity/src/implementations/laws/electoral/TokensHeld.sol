@@ -3,8 +3,7 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 /**
  * @notice This contract assigns accounts to roles by the tokens that they hold. 
@@ -28,11 +27,11 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * - translates a simple token based voting system to separated powers. 
  * - Note this logic can also be applied with a delegation logic added. Not only taking simple token holdings into account, but also delegated tokens. 
  */
-contract AssignRoleByTokensHeld is Law {
-    error AssignRoleByTokensHeld__Error();
-    error AssignRoleByTokensHeld__AlreadyNominated(address nominee);
+contract TokensHeld is Law {
+    error TokensHeld__Error();
+    error TokensHeld__AlreadyNominated(address nominee);
 
-    address private immutable ERC_20_TOKEN;
+    address private immutable ERC_1155_TOKEN;
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
 
@@ -41,9 +40,9 @@ contract AssignRoleByTokensHeld is Law {
     uint48 private _lastElection;
     address[] private _nomineesSorted;
 
-    event AssignRoleByTokensHeld__NominationReceived(address indexed nominee);
-    event AssignRoleByTokensHeld__NominationRevoked(address indexed nominee);
-    event AssignRoleByTokensHeld__RolesAssigned(uint32 indexed roleId, address[] indexed roleHolders);
+    event TokensHeld__NominationReceived(address indexed nominee);
+    event TokensHeld__NominationRevoked(address indexed nominee);
+    event TokensHeld__RolesAssigned(uint32 indexed roleId, address indexed roleHolder);
 
     constructor(
         string memory name_, 
@@ -72,13 +71,13 @@ contract AssignRoleByTokensHeld is Law {
         // elected accounts are stored in a mapping and have to be accepted. 
         if (nominateMe) {
             if (_nominees[executioner] != 0) {
-                revert AssignRoleByTokensHeld__AlreadyNominated(executioner);
+                revert TokensHeld__AlreadyNominated(executioner);
             }
 
             _nominees[executioner] = uint48(block.timestamp);
             _nomineesSorted.push(executioner);
 
-            emit AssignRoleByTokensHeld__NominationReceived(executioner);
+            emit TokensHeld__NominationReceived(executioner);
         }
 
         // revoke nomination if executionar is nominated and nominateMe == false
@@ -92,7 +91,7 @@ contract AssignRoleByTokensHeld is Law {
                 }
             }
 
-            emit AssignRoleByTokensHeld__NominationRevoked(executioner);
+            emit TokensHeld__NominationRevoked(executioner);
         }
 
         // elects roles if assignRoles == true
@@ -105,14 +104,14 @@ contract AssignRoleByTokensHeld is Law {
                 bytes[] memory cal = new bytes[](numberNominees);
 
                 for (uint256 i; i < numberNominees; i++) {
-                    tar[i] = _separatedPowers;
+                    tar[i] = separatedPowers;
                     val[i] = 0;
                     cal[i] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); 
                 }
                 return (tar, val, cal);
 
             } else {
-                uint256[] memory _balances = ERC_1155_TOKEN.balanceOfBatch(_nomineesSorted, new uint256[](MAX_ROLE_HOLDERS));
+                uint256[] memory _balances = ERC1155(ERC_1155_TOKEN).balanceOfBatch(_nomineesSorted, new uint256[](MAX_ROLE_HOLDERS));
                 
                 address[] memory tar = new address[](MAX_ROLE_HOLDERS);
                 uint256[] memory val = new uint256[](MAX_ROLE_HOLDERS);
@@ -122,21 +121,21 @@ contract AssignRoleByTokensHeld is Law {
                 // 1. we add 1 to each nominee's position, if we found a account that holds more tokens. 
                 // 2. if the position is greater than MAX_ROLE_HOLDERS, we break. (it means there are more accounts that have more tokens than MAX_ROLE_HOLDERS)
                 // 3. if the position is less than MAX_ROLE_HOLDERS, we assign the roles. - because loop did not break.  
-                for (uint256 i; i < balances.length; i++) {
+                for (uint256 i; i < _balances.length; i++) {
                     uint256 position; 
                     uint256 index; 
-                    for (uint256 j; j <  balances.length; j++) {
-                        if (balances[i] < balances[j]) {
+                    for (uint256 j; j <  _balances.length; j++) {
+                        if (_balances[i] < _balances[j]) {
                             position++; 
                             if (position > MAX_ROLE_HOLDERS) {
                                 break; 
                             } else {
-                                tar[index] = _separatedPowers;
+                                tar[index] = separatedPowers;
                                 val[index] = 0;
-                                cal[index] = abi.encodeWithSelector(0x446b340f, ROLE_ID, nomineesSorted[i]); // selector probably wrong. check later. 
+                                cal[index] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); // selector probably wrong. check later. 
                                 index++; 
                                 
-                                emit AssignRoleByTokensHeld__RolesAssigned(ROLE_ID, _nomineesSorted[i]);
+                                emit TokensHeld__RolesAssigned(ROLE_ID, _nomineesSorted[i]);
                             }
                         }  
                     }

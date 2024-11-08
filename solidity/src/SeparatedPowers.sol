@@ -67,6 +67,9 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         _name = name_;
         _setRole(ADMIN_ROLE, msg.sender, true); // the account that initiates a SeparatedPowers contract is set to its admin.
 
+        roles[ADMIN_ROLE].amountMembers = 1; // the number of admins at set up is 1. 
+        roles[PUBLIC_ROLE].amountMembers = type(uint256).max; // the number for holders of the PUBLIC_ROLE is type(uint256).max. 
+
         emit SeparatedPowers__Initialized(address(this));
     }
 
