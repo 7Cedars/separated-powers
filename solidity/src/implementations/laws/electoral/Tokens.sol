@@ -27,9 +27,9 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
  * - translates a simple token based voting system to separated powers. 
  * - Note this logic can also be applied with a delegation logic added. Not only taking simple token holdings into account, but also delegated tokens. 
  */
-contract TokensHeld is Law {
-    error TokensHeld__Error();
-    error TokensHeld__AlreadyNominated(address nominee);
+contract Tokens is Law {
+    error Tokens__Error();
+    error Tokens__AlreadyNominated(address nominee);
 
     address private immutable ERC_1155_TOKEN;
     uint256 private immutable MAX_ROLE_HOLDERS;
@@ -40,9 +40,9 @@ contract TokensHeld is Law {
     uint48 private _lastElection;
     address[] private _nomineesSorted;
 
-    event TokensHeld__NominationReceived(address indexed nominee);
-    event TokensHeld__NominationRevoked(address indexed nominee);
-    event TokensHeld__RolesAssigned(uint32 indexed roleId, address indexed roleHolder);
+    event Tokens__NominationReceived(address indexed nominee);
+    event Tokens__NominationRevoked(address indexed nominee);
+    event Tokens__RolesAssigned(uint32 indexed roleId, address indexed roleHolder);
 
     constructor(
         string memory name_, 
@@ -65,19 +65,19 @@ contract TokensHeld is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // decode the calldata.
-        (bool nominateMe, bool assignRoles, bool acceptRole) = abi.decode(lawCalldata, (bool, bool, bool));
+        (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
         
         // nominate if nominateMe == true 
         // elected accounts are stored in a mapping and have to be accepted. 
         if (nominateMe) {
             if (_nominees[executioner] != 0) {
-                revert TokensHeld__AlreadyNominated(executioner);
+                revert Tokens__AlreadyNominated(executioner);
             }
 
             _nominees[executioner] = uint48(block.timestamp);
             _nomineesSorted.push(executioner);
 
-            emit TokensHeld__NominationReceived(executioner);
+            emit Tokens__NominationReceived(executioner);
         }
 
         // revoke nomination if executionar is nominated and nominateMe == false
@@ -91,11 +91,17 @@ contract TokensHeld is Law {
                 }
             }
 
-            emit TokensHeld__NominationRevoked(executioner);
+            emit Tokens__NominationRevoked(executioner);
         }
 
         // elects roles if assignRoles == true
         if (assignRoles) {
+            // NB! £todo: revoke roles of previously selected nominees! 
+
+            // create call data of lenght _elected + _nomineesSorted OR MAX_ROLE_HOLDERS. 
+            // the populate: first with calls to revoke, then with calls to assign. 
+            // it's not pretty. Are there more efficient ways?
+ 
             uint256 numberNominees = _nomineesSorted.length; 
             
             if (numberNominees < MAX_ROLE_HOLDERS) {
@@ -135,7 +141,7 @@ contract TokensHeld is Law {
                                 cal[index] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); // selector probably wrong. check later. 
                                 index++; 
                                 
-                                emit TokensHeld__RolesAssigned(ROLE_ID, _nomineesSorted[i]);
+                                emit Tokens__RolesAssigned(ROLE_ID, _nomineesSorted[i]);
                             }
                         }  
                     }

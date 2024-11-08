@@ -1,90 +1,141 @@
-// // SPDX-License-Identifier: MIT
-// pragma solidity 0.8.26;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.26;
 
-// import { Law } from "../../../Law.sol";
-// import { SeparatedPowers } from "../../../SeparatedPowers.sol";
-// import { SeparatedPowersTypes } from "../../../interfaces/SeparatedPowersTypes.sol";
-// import { ISeparatedPowers } from "../../../interfaces/ISeparatedPowers.sol";
+import { Law } from "../../../Law.sol";
+import { SeparatedPowers } from "../../../SeparatedPowers.sol";
+import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
-// /**
-//  * @notice This law allows a senior to assign accounts to a senior role, as long as maximum number of senior roles has not been reached.
-//  *
-//  * @dev The contract is an example of a law that
-//  * - has access control and needs a proposal to be voted through.
-//  * - has an additional conditional check. In this case the number of accounts that hold a senior role cannot exceed 10.
-//  *
-//  */
-// contract Senior_assignRole is Law {
-//     error Senior_assignRole__AlreadySenior();
-//     error Senior_assignRole__TooManySeniors();
-//     error Senior_assignRole__ProposalVoteNotSucceeded(uint256 proposalId);
+/**
+ * @notice This contract assigns accounts to roles by the tokens that they hold. 
+ * - At construction time, the following is set: 
+ *    - the amount of role holders {N}
+ *    - the roleId {R} to be assigned
+ *    - the ERC20 token {T} address to be assessed.
+ *
+ * - The contract is meant to be open (using PUBLIC_ROLE at SeperatedPowers protocol), but can also be role restricted. 
+ *    - anyone can nominate themselves for the role. 
+ *    - anyone can call the law to have it (re)assign accounts to the law. 
+ *
+ * - The logic: 
+ *    - If fewer than N accounts are nominated, all will be assigne roleId R.
+ *    - If more than N accounts are nominated, the accounts that hold most ERC20 T will be assigned roleId R.
+ *
+ * @dev The contract is an example of a law that
+ * - has does not need a proposal to be voted through. It can be called directly.
+ * - has two internal mechanisms: nominate or elect. Which one is run depends on calldata input.  
+ * - doess not have to role restricted.
+ * - translates a simple token based voting system to separated powers. 
+ * - Note this logic can also be applied with a delegation logic added. Not only taking simple token holdings into account, but also delegated tokens. 
+ */
+contract Randomly is Law {
+    error Randomly__Error();
+    error Randomly__AlreadyNominated(address nominee);
 
-//     address public agCoins;
-//     address public agDao;
-//     uint256 agCoinsReward = 150_000;
-//     uint256 maxNumberOfSeniors = 10;
+    uint256 private immutable MAX_ROLE_HOLDERS;
+    uint32 private immutable ROLE_ID;
 
-//     constructor(
-//         address payable agDao_,
-//         address agCoins_ // can take a address parentLaw param.
-//     )
-//         Law(
-//             "Senior_assignRole", // = name
-//             "Seniors can assign accounts to available senior role. A maximum of ten holders can be assigned. If passed the proposer receives a reward in agCoins", // = description
-//             1, // = access senior
-//             agDao_, // = SeparatedPower.sol derived contract. Core of protocol.
-//             50, // = quorum in percent
-//             66, // = succeedAt in percent
-//             75, // votingPeriod_ in blocks,  Note: these are L1 ethereum blocks!
-//             address(0) // = parent Law
-//         )
-//     {
-//         agDao = agDao_;
-//         agCoins = agCoins_;
-//     }
+    mapping (address => uint48) private _nominees;
+    address[] private _nomineesSorted;
+    mapping (address => uint48) private _elected;
+    address[] private _electedSorted;
+    uint48 private _lastElection;
 
-//     function executeLaw(address executioner, bytes memory lawCalldata, bytes32 descriptionHash)
-//         external
-//         override
-//         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-//     {
-//         // step 0: check if caller is the SeparatedPowers protocol.
-//         if (msg.sender != daoCore) {
-//             revert Law__AccessNotAuthorized(msg.sender);
-//         }
+    event Randomly__NominationReceived(address indexed nominee);
+    event Randomly__NominationRevoked(address indexed nominee);
+    event Randomly__RolesAssigned(uint32 indexed roleId, address indexed roleHolder);
 
-//         // step 1: decode the calldata.
-//         (address newSenior) = abi.decode(lawCalldata, (address));
+    constructor(
+        string memory name_, 
+        string memory description_, 
+        address[] memory dependencies_, 
+        uint256 maxRoleHolders_,
+        uint32 roleId_  
+    )
+        Law(name_, description_, dependencies_)
+    {
+        MAX_ROLE_HOLDERS = maxRoleHolders_;
+        ROLE_ID = roleId_;
+    }
 
-//         // step 2: check if newSenior is already a member and if the maximum amount of seniors has already been met.
-//         if (SeparatedPowers(payable(agDao)).hasRoleSince(newSenior, accessRole) != 0) {
-//             revert Senior_assignRole__AlreadySenior();
-//         }
-//         uint256 amountSeniors = SeparatedPowers(payable(agDao)).getAmountRoleHolders(1);
-//         if (amountSeniors >= maxNumberOfSeniors) {
-//             revert Senior_assignRole__TooManySeniors();
-//         }
+    function executeLaw(address executioner, bytes memory lawCalldata, bytes32 descriptionHash)
+        external
+        override
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+    {
+        // decode the calldata.
+        (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
+        
+        // nominate if nominateMe == true 
+        // elected accounts are stored in a mapping and have to be accepted. 
+        if (nominateMe) {
+            if (_nominees[executioner] != 0) {
+                revert Randomly__AlreadyNominated(executioner);
+            }
 
-//         // step 3: check if vote for this proposal has succeeded.
-//         uint256 proposalId = hashProposal(address(this), lawCalldata, descriptionHash);
-//         if (SeparatedPowers(payable(agDao)).state(proposalId) != SeparatedPowersTypes.ProposalState.Succeeded) {
-//             revert Senior_assignRole__ProposalVoteNotSucceeded(proposalId);
-//         }
+            _nominees[executioner] = uint48(block.timestamp);
+            _nomineesSorted.push(executioner);
 
-//         // step 4: set proposal to completed.
-//         SeparatedPowers(payable(agDao)).complete(lawCalldata, descriptionHash);
+            emit Randomly__NominationReceived(executioner);
+        }
 
-//         // step 5: creating data to send to the execute function of agDAO's SepearatedPowers contract.
-//         address[] memory tar = new address[](1);
-//         uint256[] memory val = new uint256[](1);
-//         bytes[] memory cal = new bytes[](1);
+        // revoke nomination if executionar is nominated and nominateMe == false
+        if (!nominateMe && _nominees[executioner] != 0) {
+            _nominees[executioner] = 0;
+            for (uint256 i; i < _nomineesSorted.length; i++) {
+                if (_nomineesSorted[i] == executioner) {
+                    _nomineesSorted[i] = _nomineesSorted[_nomineesSorted.length - 1];
+                    _nomineesSorted.pop();
+                    break;
+                }
+            }
 
-//         // action: add membership role to applicant.
-//         tar[0] = agDao;
-//         val[0] = 0;
-//         cal[0] = abi.encodeWithSelector(0xd2ab9970, 1, newSenior, true); // = setRole(uint48 roleId, address account, bool access);
+            emit Randomly__NominationRevoked(executioner);
+        }
 
-//         // step 6: return data
-//         return (tar, val, cal);
-//     }
-// }
+        // elects roles if assignRoles == true
+        if (assignRoles) {
+          for (uint256 i = 0; i < _nomineesSorted.length; i++) {
+            // £todo here have to revoke roles first. 
+          }
+
+            uint256 numberNominees = _nomineesSorted.length; 
+            
+            if (numberNominees < MAX_ROLE_HOLDERS) {
+                address[] memory tar = new address[](numberNominees);
+                uint256[] memory val = new uint256[](numberNominees);
+                bytes[] memory cal = new bytes[](numberNominees);
+
+                for (uint256 i; i < numberNominees; i++) {
+                    tar[i] = separatedPowers;
+                    val[i] = 0;
+                    cal[i] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); 
+                }
+                return (tar, val, cal);
+
+            } else {
+                address[] memory tar = new address[](MAX_ROLE_HOLDERS);
+                uint256[] memory val = new uint256[](MAX_ROLE_HOLDERS);
+                bytes[] memory cal = new bytes[](MAX_ROLE_HOLDERS);
+                
+                uint256 index;
+                while (index < MAX_ROLE_HOLDERS) {
+                  // computionally expensive, and pseudo random. But easy to understand as example.
+                  // £todo, mechanism here should be improved. 
+                  for (uint256 i; i < numberNominees; i++) {
+                    uint256 psuedoRandomValue = uint256(keccak256(abi.encodePacked(block.number, descriptionHash, i))); 
+                    if (psuedoRandomValue % numberNominees == 0 && _elected[_nomineesSorted[i]] == 0) {
+                          tar[index] = separatedPowers;
+                          val[index] = 0;
+                          cal[index] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); // selector probably wrong. check later. 
+                          _elected[_nomineesSorted[i]] = uint48(block.timestamp);
+                          _electedSorted.push(_nomineesSorted[i]);
+                          index++; 
+                    }
+                  }
+                }
+                return (tar, val, cal);
+            }
+        }
+    }
+
+}
