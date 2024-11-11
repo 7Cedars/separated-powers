@@ -4,7 +4,7 @@ pragma solidity 0.8.26;
 import { Law } from "../../../Law.sol";
 
 /**
- * @notice This contract allows the execution of a present action. 
+ * @notice This contract allows the execution of a preset action. 
  * - At construction time, it sets:
  * - address[] memory targets
  * - uint256[] memory values 
@@ -18,12 +18,12 @@ import { Law } from "../../../Law.sol";
  *
  * @dev The contract is a key example of giving specific executive powers to a particular role.
  */
-contract PresetExecution is Law {
+contract Preset is Law {
     address[] private _targets; 
     uint256[] private _values;
     bytes[] private _calldatas;
 
-    event PresetExecution__Initialized(address[] targets, uint256[] values, bytes[] calldatas);
+    event Preset__Initialized(address[] targets, uint256[] values, bytes[] calldatas);
     
     constructor(string memory name_, string memory description_, address[] memory targets_, uint256[] memory values_, bytes[] memory calldatas_) 
         Law(name_, description_, targets_)
@@ -32,7 +32,7 @@ contract PresetExecution is Law {
         _values = values_;
         _calldatas = calldatas_; 
 
-        emit PresetExecution__Initialized(_targets, _values, _calldatas);
+        emit Preset__Initialized(_targets, _values, _calldatas);
     }
 
     function executeLaw(address executioner, bytes memory lawCalldata, bytes32 descriptionHash)
@@ -41,12 +41,14 @@ contract PresetExecution is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // decode the calldata.
-        // note: no check on decoded call data. If needed, this can be added.
+        // note: no check on decoded call data. If needed, this can be added through a bespoke modifier.
         (bool execute) = abi.decode(lawCalldata, (bool));
-
-        // send calldata straight to the SeparatedPowers protocol. 
+        
+        // log execution block 
+        // and send calldata straight to the SeparatedPowers protocol. 
         if (execute) {
-          return (targets, values, calldatas);
+            executions.push(uint48(block.number)); 
+            return (targets, values, calldatas);
         }
     }
 }

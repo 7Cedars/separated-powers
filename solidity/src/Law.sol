@@ -25,14 +25,12 @@ contract Law is IERC165, ERC165, ILaw {
 
     ShortString public immutable name; // name of the law
     address public separatedPowers; // the address of the core governance protocol
-    address[] private _dependencies; // law dependencies 
-    string public description; // description of the law
+    uint48[] public executions; // timeslot at which law has been executed.  
 
     /// @dev Constructor function for Law contract.
-    constructor(string memory name_, string memory description_, address[] memory dependencies_) {
-        name = name_.toShortString();
+    constructor(string memory name_, string memory description_) {
         separatedPowers = msg.sender;
-        _dependencies = dependencies_;
+        name = name_.toShortString();
         description = description_;
     }
 
@@ -47,37 +45,12 @@ contract Law is IERC165, ERC165, ILaw {
         virtual
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // Normal work flow of a law: 
-        // 0 check if law was called from core protocol. 
-        if (msg.sender != separatedPowers) {
-            revert ILaw__AccessNotAuthorized(msg.sender);
-        }
+        // if implementation of law does not override this function, returns empty arrays.  
 
-        // 1: check if conditions among dependencies have been met. 
-        (bool passed) = checkDependencies(executioner, lawCalldata, descriptionHash);
-        
-        if (passed) {
-            // 1: if relevant, check if related proposal passed (if applicable)
-            // 2: set proposal to complete
-            // 3: create executeCallData
-            // 4: call execute at {SeparatedPowers} with the executeCallData.  
-        }
-        
-        // That said, this flow is optional. Any logic can be build into a law. See examples in the `implementations/laws` folder 
-    }
-
-    /**
-     * @dev See {ILaw-executeLaw}.
-     *
-     * @dev this function can be used to check if dependencies have been met before a proposal is proposed. See {SeparataedPowers::_propose}.
-     *
-     */
-    function checkDependencies(address /* executioner */, bytes memory /* lawCalldata */, bytes32 /* descriptionHash */ )
-        public
-        virtual
-        returns (bool passed)
-    {
-        return true; // default
+        address[] memory tar = new address[](0);
+        uint256[] memory val = new uint256[](0);
+        bytes[] memory cal = new bytes[](0);
+        return (tar, val, cal);
     }
 
     /**

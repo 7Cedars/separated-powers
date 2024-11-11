@@ -582,8 +582,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         return roles[roleId].amountMembers;
     }
 
-    /// @dev See {ISeperatedPowers.proposalDeadline}
-    function proposalDeadline(uint256 proposalId) public view virtual returns (uint256) {
+    /// @dev See {ISeperatedPowers.proposalDeadline} 
+    function proposalDeadline(uint256 proposalId) public view virtual returns (uint256) { // uint48 + uint32 => uint256. £test if this works properly. 
         return _proposals[proposalId].voteStart + _proposals[proposalId].voteDuration;
     }
 
