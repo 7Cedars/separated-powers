@@ -13,9 +13,9 @@ import { Law } from "../../../Law.sol";
 
 contract Preset is Law {
     /// the targets, values and calldatas to be used in the calls: set at construction.
-    address[] private immutable _targets;
-    uint256[] private immutable _values;
-    bytes[] private immutable _calldatas; 
+    address[] private _targets;
+    uint256[] private _values;
+    bytes[] private _calldatas; 
 
     /// emitted when the law is initialised.
     event Preset__Initialized(address[] targets, uint256[] values, bytes[] calldatas);
@@ -23,11 +23,10 @@ contract Preset is Law {
     /// @notice constructor of the law
     /// @param name_ the name of the law.
     /// @param description_ the description of the law.
-    /// @param targets_ the targets contracts to call.
     /// @param values_ the values to use in the calls.
     /// @param calldatas_ the calldatas to use in the calls.
     constructor(string memory name_, string memory description_, address[] memory targets_, uint256[] memory values_, bytes[] memory calldatas_) 
-        Law(name_, description_, targets_)
+        Law(name_, description_)
     { 
         _targets = targets_;
         _values = values_;

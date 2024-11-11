@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 /// 
 /// @notice Interface for the SeparatedPowers protocol.
-///Code derived from OpenZeppelin's Governor.sol contract.
+/// Code derived from OpenZeppelin's Governor.sol contract.
 ///
 /// @dev the interface also includes type declarations, but errors and events are placed in {SeparatedPowers}.
 ///
@@ -25,12 +25,16 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
      
     /// @notice external function to call to execute a proposal.
     /// The function can only be called from a whitelisted Law contract.
-    ///
+    /// 
     /// @param targetLaw : the address of the law to be executed. Can only be one address.
     /// @param lawCalldata : the calldata to be passed to the law
     /// @param descriptionHash : the descriptionHash of the proposal
     ///
     /// @dev note: the arrays of targets, values and calldatas must have the same length.
+    /// 
+    /// Note any references to proposals (as in OpenZeppelin's {Governor} contract are removed.
+    /// The mechanism of SeparatedPowers detaches proposals from execution logic.
+    /// Instead, proposal checks are placed in the {Law::executeLaw} function.
     function execute(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash) external payable;
 
     /// @dev external function to call to set a proposal to completed. It should be called when execution logic of a law is about to be executed.
@@ -38,7 +42,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     ///
     /// @param lawCalldata : the calldata that was passed to the law, and is part of the proposal.
     /// @param descriptionHash : the descriptionHash of the proposal
-    function complete(bytes memory lawCalldata, bytes32 descriptionHash) external;
+    function complete(address proposer, bytes memory lawCalldata, bytes32 descriptionHash) external;
 
     /// @dev external function to call to cancel a proposal.
     /// Note The function can only be called by the account that proposed the proposal.
@@ -152,10 +156,13 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     function proposalDeadline(uint256 proposalId) external returns (uint256);
 
     /// @notice returns the block number since the account has held the role. Returns 0 if account does not currently hold the role.
-    ///
     /// @param account account address
     /// @param roleId role identifier
     function hasRoleSince(address account, uint48 roleId) external returns (uint48 since);
+
+    /// @notice returns the number of role holders.
+    /// @param roleId role identifier
+    function getAmountRoleHolders(uint48 roleId) external returns (uint256);
 
     /// @notice returns bool if law is set as active or not. (true = active, false = inactive).
     /// @param law address of the law.
@@ -190,7 +197,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// This callData can have any kind of data.
     ///
     /// The call that is executed at the Law has the traditional layout of targets[], values[], calldatas[].
-    function hashProposal(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+    function hashProposal(address proposer, address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         returns (uint256);
 }

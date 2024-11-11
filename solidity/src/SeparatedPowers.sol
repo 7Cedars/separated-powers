@@ -79,7 +79,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //                  GOVERNANCE LOGIC                        //
     //////////////////////////////////////////////////////////////
-    /// @inheritdoc {ISeperatedPowers.propose}
+    /// @inheritdoc ISeparatedPowers
     function propose(address targetLaw, bytes memory lawCalldata, string memory description)
         external
         virtual
@@ -122,7 +122,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         );
     }
 
-    /// @inheritdoc {IseperatedPowers.cancel}
+    /// @inheritdoc ISeparatedPowers
     function cancel(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         virtual
@@ -139,13 +139,14 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     /// @notice Internal cancel mechanism with minimal restrictions. A proposal can be cancelled in any state other than
     /// Cancelled or Executed. Once cancelled a proposal cannot be re-submitted.
     ///
+    /// @dev the account to cancel must be the account that created the proposal.
     /// Emits a {SeperatedPowersEvents::ProposalCanceled} event.
     function _cancel(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         internal
         virtual
         returns (uint256)
     {
-        uint256 proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
+        uint256 proposalId = hashProposal(msg.sender, targetLaw, lawCalldata, descriptionHash);
 
         if (_proposals[proposalId].targetLaw == address(0)) {
             revert SeparatedPowers__InvalidProposalId();
@@ -161,11 +162,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         return proposalId;
     }
 
-    /// @inheritdoc {ISeperatedPowers.execute}
-    ///
-    /// Note any references to proposals (as in OpenZeppelin's {Governor} contract are removed.
-    /// The mechanism of SeparatedPowers detaches proposals from execution logic.
-    /// Instead, proposal checks are placed in the {Law::executeLaw} function.
+    /// @inheritdoc ISeparatedPowers
     function execute(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash) external payable virtual {
         // check 1: does executioner have access to law being executed?
         uint32 allowedRole = laws[targetLaw].allowedRole;
@@ -203,9 +200,9 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
     }
 
-    /// @inheritdoc {ISeperatedPowers.complete}
-    function complete(bytes memory lawCalldata, bytes32 descriptionHash) external virtual {
-        uint256 proposalId = hashProposal(msg.sender, lawCalldata, descriptionHash);
+    /// @inheritdoc ISeparatedPowers
+    function complete(address proposer, bytes memory lawCalldata, bytes32 descriptionHash) external virtual {
+        uint256 proposalId = hashProposal(proposer, msg.sender, lawCalldata, descriptionHash);
 
         _complete(proposalId);
     }
@@ -235,13 +232,13 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         emit ProposalCompleted(proposalId);
     }
 
-    /// @dev See {ISeperatedPowers.castVote}.
+    /// @inheritdoc ISeparatedPowers
     function castVote(uint256 proposalId, uint8 support) external virtual {
         address voter = msg.sender;
         return _castVote(proposalId, voter, support, "");
     }
 
-    /// @dev See {ISeperatedPowers.castVoteWithReason}.
+    /// @inheritdoc ISeparatedPowers
     function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) public virtual {
         address voter = msg.sender;
         return _castVote(proposalId, voter, support, reason);
@@ -271,7 +268,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //                  ROLE AND LAW ADMIN                      //
     //////////////////////////////////////////////////////////////
-    /// @inheritdoc {ISeperatedPowers.constitute}
+    /// @inheritdoc ISeparatedPowers
     function constitute(
         // laws data
         address[] memory laws,
@@ -318,7 +315,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
     }
 
-    /// @inheritdoc {ISeperatedPowers.setLaw} 
+    /// @inheritdoc ISeparatedPowers
     function setLaw(
         address law, 
         uint32 allowedRole,
@@ -329,7 +326,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             _setLaw(law, allowedRole, quorum, succeedAt, votingPeriod);
     }
 
-    /// @inheritdoc {ISeperatedPowers.revokeLaw}
+    /// @inheritdoc ISeparatedPowers
     function revokeLaw(address law) public onlySeparatedPowers {
         if (!laws[law].active) {
             revert SeparatedPowers__LawNotActive();
@@ -373,7 +370,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         emit LawSet(law, allowedRole, existingLaw, quorum, succeedAt, votingPeriod);
     }
 
-    /// @inheritdoc {ISeperatedPowers.setRole}
+    /// @inheritdoc ISeparatedPowers
     function setRole(uint48 roleId, address account, bool access) public virtual onlySeparatedPowers {
         _setRole(roleId, account, access);
     }
@@ -453,7 +450,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
     }
 
-    /// @inheritdoc {ISeperatedPowers.hashProposal}
+    /// @inheritdoc ISeparatedPowers
     function hashProposal(address proposer, address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         pure
@@ -466,7 +463,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //                      VIEW FUNCTIONS                      //
     //////////////////////////////////////////////////////////////
-    /// @inheritdoc {ISeperatedPowers.state}
+    /// @inheritdoc ISeparatedPowers
     function state(uint256 proposalId) public view virtual returns (ProposalState) {
         // We read the struct fields into the stack at once so Solidity emits a single SLOAD
         Proposal storage proposal = _proposals[proposalId];
@@ -514,12 +511,12 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         return since != 0;
     }
 
-    /// @inheritdoc {ISeparatedPowers::hasVoted}
+    /// @inheritdoc ISeparatedPowers
     function hasVoted(uint256 proposalId, address account) public view virtual returns (bool) {
         return _proposals[proposalId].hasVoted[account];
     }
 
-    /// @inheritdoc {ISeparatedPowers::proposals}
+    /// @inheritdoc ISeparatedPowers
     function proposalVotes(uint256 proposalId)
         public
         view
@@ -530,22 +527,22 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         return (proposal.againstVotes, proposal.forVotes, proposal.abstainVotes);
     }
 
-    /// @inheritdoc {ISeparatedPowers::hasRoleSince}
+    /// @inheritdoc ISeparatedPowers
     function hasRoleSince(address account, uint48 roleId) public view returns (uint48 since) {
         return roles[roleId].members[account];
     }
 
-    /// @inheritdoc {ISeparatedPowers::getAmountRoleHolders}
+    /// @inheritdoc ISeparatedPowers
     function getAmountRoleHolders(uint48 roleId) public view returns (uint256 amountMembers) {
         return roles[roleId].amountMembers;
     }
 
-    /// @inheritdoc {ISeparatedPowers::proposalDeadline} 
+    /// @inheritdoc ISeparatedPowers
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256) { // uint48 + uint32 => uint256. £test if this works properly. 
         return _proposals[proposalId].voteStart + _proposals[proposalId].voteDuration;
     }
 
-    /// @inheritdoc {ILawsManager.getActiveLaw}
+    /// @inheritdoc ISeparatedPowers
     function getActiveLaw(address law) external view returns (bool active) {
         return laws[law].active;
     }
@@ -553,17 +550,17 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //                       COMPLIENCE                         //
     //////////////////////////////////////////////////////////////
-    /// @inheritdoc {IERC721Receiver::onERC721Received}.
+    /// @notice implements ERC721Receiver
     function onERC721Received(address, address, uint256, bytes memory) public virtual returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
-    /// @inheritdoc {IERC1155Receiver::onERC1155Received}.
+    /// @notice implements ERC1155Receiver
     function onERC1155Received(address, address, uint256, uint256, bytes memory) public virtual returns (bytes4) {
         return this.onERC1155Received.selector;
     }
 
-    /// @inheritdoc {IERC1155Receiver::onERC1155BatchReceived}.
+    /// @notice implements ERC1155BatchReceiver
     function onERC1155BatchReceived(address, address, uint256[] memory, uint256[] memory, bytes memory)
         public
         virtual

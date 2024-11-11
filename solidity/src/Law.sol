@@ -30,6 +30,7 @@ contract Law is IERC165, ERC165, ILaw {
 
     ShortString public immutable name; // name of the law
     address public separatedPowers; // the address of the core governance protocol
+    string public description;
     uint48[] public executions; // log of block numbers at which the law was executed.  
 
     /// @dev Constructor function for Law contract.
@@ -39,7 +40,7 @@ contract Law is IERC165, ERC165, ILaw {
         description = description_;
     }
     
-    /// @inheritdoc {ILaw-executeLaw}.
+    /// @inheritdoc ILaw
     function executeLaw(address executioner, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         virtual
@@ -51,12 +52,12 @@ contract Law is IERC165, ERC165, ILaw {
         return (tar, val, cal);
     }
 
-    /// @inheritdoc {ILaw-getExecutions}.
-    function getExecutions() public view returns (uint48[] executions) {
+    /// @inheritdoc ILaw
+    function getExecutions() public view returns (uint48[] memory executions) {
         return executions;
     }
 
-    /// @inheritdoc {IERC165-supportsInterface}.
+    /// @notice implements ERC165
     function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(ILaw).interfaceId || super.supportsInterface(interfaceId);
     }

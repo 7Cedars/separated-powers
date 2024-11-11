@@ -28,14 +28,12 @@ contract Direct is Law {
     event Direct__AccountAssigned(uint32 indexed roleId, address indexed account);
     event Direct__AccountRevoked(uint32 indexed roleId, address indexed account);
 
-    // address[] private dependencies_ = new address[](0);
-
     constructor(
         string memory name_, 
         string memory description_, 
         uint32 roleId_  
     )
-        Law(name_, description_, new address[](0))
+        Law(name_, description_)
     {
         ROLE_ID = roleId_;
     }

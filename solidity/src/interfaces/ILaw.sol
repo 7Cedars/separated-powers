@@ -21,4 +21,6 @@ interface ILaw {
         external
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
     
+    /// @notice Returns the list of block numbers at which the law was executed.
+    function getExecutions() external view returns (uint48[] memory executions);
 }
