@@ -1,38 +1,39 @@
 // SPDX-License-Identifier: MIT
-/**
- * @notice Interface for the SeparatedPowers protocol.
- * Code derived from OpenZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
- *
- * @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon
- */
+/// 
+/// @notice Types used in the SeparatedPowers protocol. Code derived from OpenZeppelin's Governor.sol contract. 
+///
+/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
 interface SeparatedPowersTypes {
-    /// @dev struct for a proposal.
+    /// @notice struct to keep track of a proposal.
     ///
-    /// note A proposal includes a reference to the law that it is aimed at.
+    /// @dev in contrast to other Governance protocols, a proposal in {SeparatedPowers} always includes a reference to a law.
     /// This enables the role restriction of governance processes in {SeparatedPowers}.
+    /// 
+    /// @dev in contrast to other Governance protocols, votes are not weighted and can hence be a uint32, not a uint256.
+    /// @dev votes are logged at the proposal. In on struct. This is in contrast to other governance protocols where ProposalVote is a separate struct. 
     struct Proposal {
         // slot 1. 
-        address targetLaw; //   20
-        uint48 voteStart; //   6
+        address targetLaw; // 20
+        uint48 voteStart; // 6
         uint32 voteDuration; // 4
-        bool cancelled; //    1
-        bool completed; //    1
+        bool cancelled; // 1
+        bool completed; // 1
 
         // slot 2
         uint32 againstVotes; // 4 as votes are not weighted, uint32 is sufficient to count number of votes.  -- this is a big gas saver. As such, combining the proposalCore and ProposalVote is (I think) okay
         uint32 forVotes; // 4
         uint32 abstainVotes; // 4 
         
-        // slot 2 or 3 ? have to check this out. 
-        mapping(address voter => bool) hasVoted; // ? 
+        // slot 2 or 3 ? £check: have to check this out. 
+        mapping(address voter => bool) hasVoted; // 20 ?  
     }
 
-    /// @dev enum for the state of a proposal.
+    /// @notice enum for the state of a proposal.
     ///
-    /// note that a proposal cannot be set as 'executed' as in Governor.sol. It can only be set as 'completed'.
-    /// Execution logic in {SeparatedPowers} is separated from the proposal logic.
+    /// @dev that a proposal cannot be set as 'executed' as in Governor.sol. It can only be set as 'completed'.
+    /// This is because execution logic in {SeparatedPowers} is separated from the proposal logic.
     enum ProposalState {
         Active,
         Cancelled,
@@ -41,36 +42,30 @@ interface SeparatedPowersTypes {
         Completed
     }
 
-    /// @dev Supported vote types. Matches Governor Bravo ordering.
+    /// @notice Supported vote types. Matches Governor Bravo ordering.
     enum VoteType {
         Against,
         For,
         Abstain
     }
 
-    /// @dev struct keeping track of settings for a law.
+    /// @notice struct to keep track of settings for a law.
     struct LawConfig {
         // 1 memory slot 
-        address lawAddress; // 20
-        uint32 allowedRole; // 4
-        uint8 quorum; // 1
-        uint8 succeedAt; // 1
-        uint32 votingPeriod; // 4 
-        bool active; // 1
+        address lawAddress; // address of the law
+        uint32 allowedRole; // role restriction of law
+        bool active; // Is the law active? Initiates as false. 
+        // note: following 3 items are only used when law needs a proposal vote to be executed.
+        uint8 quorum; // quorum needed for a vote to succeed. 
+        uint8 succeedAt; // vote threshold: percentage of 'For' votes needed for a vote to succeed.
+        uint32 votingPeriod; // period voting is open.
     }
 
-    /// @dev struct keeping track of 1) account acceess to role and 2) total amount of members of role.
+    /// @notice struct keeping track of 
+    /// - an account's access to roleId 
+    /// - the total amount of members of role (this enables role based voting). 
     struct Role {
-        // Members of the role.
         mapping(address account => uint48 since) members;
         uint256 amountMembers;
     }
-
-    /// this is a struct for just one function. Let's see if we can drop it. 
-    /// @dev struct keeping track of 1) account acceess to role and 2) total amount of members of role.
-    // struct ConstituentRole {
-    //     // Members of the role.
-    //     address account;
-    //     uint48 roleId;
-    // }
 }

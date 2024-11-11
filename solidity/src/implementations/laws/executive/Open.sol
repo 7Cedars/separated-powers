@@ -1,32 +1,34 @@
 // SPDX-License-Identifier: MIT
+
+/// @notice A base contract that executes a open action.
+///  
+/// Note As the contract allows for any action to be executed, it severely limits the functionality of the SeparatedPowers protocol. 
+/// - any role that has access to this law, can execute any function. It has full power of the DAO. 
+/// - if this law is restricted by PUBLIC_ROLE, it means that anyone has access to it. Which means that anyone is given the right to do anything through the DAO. 
+/// - The contract should always be used in combination with modifiers from {PowerModiifiers}. 
+/// 
+/// The logic: 
+/// - any the lawCalldata includes targets[], values[], calldatas[] - that are send straight to the SeparatedPowers protocol. without any checks.  
+/// 
+/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 
-/**
- * @notice This contract allows the execution of any action. 
- * - At construction time, no data is set
- *
- * - As the contract allows for any action to be executed, it severely limits the functionality of the SeparatedPowers protocol. 
- *    - any role that has access to this law, can execute any function. It has full power of the DAO. 
- *    - if this law is restricted by PUBLIC_ROLE, it means that anyone has access to it. Which means that anyone is given the right to do anything through the DAO. 
- *    - Use this law with great caution.  
- *
- * - The logic: 
- *    - any the lawCalldata includes targets[], values[], calldatas[] - that are send straight to the SeparatedPowers protocol. without any checks.  
- *
- * @dev The contract is an example of the power of the SeparatedPowers protocol, by showing what happens if we disable it.  
- * - If anyone is given the right to do anything - there is no need for any governance. 
- * - It also means the DAO cannot function as it lacks any control over its funds. 
- */
 contract Open is Law {
-    address[] private targets_; 
-    
+    /// @notice Constructor function for Open contract.
+    /// @param name_ name of the law
+    /// @param description_ description of the law    
     constructor(string memory name_, string memory description_)
-        Law(name_, description_, targets_)
+        Law(name_, description_)
     { }
 
-    function executeLaw(address executioner, bytes memory lawCalldata, bytes32 descriptionHash)
+    /// @notice Execute the open action.
+    /// @param proposer the address of the proposer
+    /// @param lawCalldata the calldata of the law
+    /// @param descriptionHash the description hash of the law
+    function executeLaw(address proposer, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)

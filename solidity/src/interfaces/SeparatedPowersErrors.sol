@@ -1,73 +1,61 @@
 // SPDX-License-Identifier: MIT
-/**
- * @notice Interface for the SeparatedPowers protocol.
- * Code derived from OpenZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
- *
- * @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon
- */
+
+/// @notice Errors used in the SeparatedPowers protocol. 
+/// Code derived from OpenZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
+///
+/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+
 pragma solidity 0.8.26;
 
 interface SeparatedPowersErrors {
-    /// @notice £todo description.
+    /// @notice Emitted when constitute is called more than once.  
     error SeparatedPowers__ConstitutionAlreadyExecuted();
 
-    /// @notice £todo description.
+    /// @notice Emitted when a function is called from a contract that is not SeparatedPowers.
     error SeparatedPowers__OnlySeparatedPowers();
 
-    /// @notice £todo description.
+    /// @notice Emitted when a function is called by an account that lacks the correct roleId.
     error SeparatedPowers__AccessDenied();
 
-    /// @notice £todo description.
+    // emitted when a role access is called, but role access is already set at requested access.
+    error SeparatedPowers__RoleAccessNotChanged();
+
+    /// @notice Emitted when a execution is attempted on a proposal that is not active.
     error SeparatedPowers__UnexpectedProposalState();
 
-    /// @notice £todo description.
+    /// @notice Emitted when a proposal id is invalid.
     error SeparatedPowers__InvalidProposalId();
 
-    /// @notice £todo description.
-    error SeperatedPowers__NonExistentProposal(uint256 proposalId);
-
-    /// @notice £todo description.
+    /// @notice Emitted when a proposal is already completed.
     error SeparatedPowers__ProposalAlreadyCompleted();
 
-    /// @notice £todo description.
+    /// @notice Emitted when a proposal is has been cancelled.
     error SeparatedPowers__ProposalCancelled();
 
-    /// @notice £todo description.
+    /// @notice Emitted when cancelling a proposal that does not reference an active law.
     error SeparatedPowers__CancelCallNotFromActiveLaw(); 
 
-    /// @notice £todo description.
+    /// @notice Emitted when completing a proposal that does not reference an active law.
     error SeparatedPowers__CompleteCallNotFromActiveLaw();
 
-    /// @notice £todo description.
-    error SeparatedPowers__OnlyProposer(address caller);
-
-    /// @notice £todo description.
+    /// @notice Emitted when a proposal is not active.
     error SeparatedPowers__ProposalNotActive();
-    
-    /// @notice £todo description.
-    error SeparatedPowers__LawCheckFailed(); 
 
-    /// @notice £todo description.
-    error SeparatedPowers__NoAccessToTargetLaw();
-
-    /// @notice £todo description.
+    /// @notice Emitted when a law is not active.
     error SeparatedPowers__LawNotActive();
 
-    /// @notice £todo description.
+    /// @notice Emitted when Array lengths are not the same at the {constitute} function.
     error SeparatedPowers__InvalidArrayLengths();
 
-    /// @notice £todo description.
+    /// @notice Emitted when a callData is invalid.
     error SeparatedPowers__InvalidCallData();
 
-    /// @notice £todo description.
-    error SeparatedPowers__NotAuthorized();
-
-    /// @notice £todo description.
+    /// @notice Emitted when a law does not have the correct interface.
     error SeparatedPowers__IncorrectInterface(address law);
 
-    /// @notice £todo description.
+    /// @notice Emitted when an account has already cast a vote for a proposal.
     error SeparatedPowers__AlreadyCastVote(address account);
 
-    /// @notice £todo description.
+    /// @notice Emitted when a vote type is invalid.
     error SeparatedPowers__InvalidVoteType();
 }

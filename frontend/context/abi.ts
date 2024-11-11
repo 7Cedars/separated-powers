@@ -743,7 +743,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__NoAccessToTargetLaw",
+    "name": "SeparatedPowers__AccessDenied",
     "inputs": []
   },
   {

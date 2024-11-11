@@ -128,7 +128,7 @@
 //     vm.prank(charlotte); // = already a senior
 //     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
-//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__NoAccessToTargetLaw.selector); 
+//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector); 
 //     vm.prank(eve); // not a senior. 
 //     agDao.castVote(proposalId, 1);
 //   }

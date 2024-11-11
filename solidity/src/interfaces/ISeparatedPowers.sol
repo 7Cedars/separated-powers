@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
+/// 
 /// @notice Interface for the SeparatedPowers protocol.
 ///Code derived from OpenZeppelin's Governor.sol contract.
 ///
 /// @dev the interface also includes type declarations, but errors and events are placed in {SeparatedPowers}.
 ///
-/// @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon
-
+/// @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon 
 pragma solidity 0.8.26;
 
 import { SeparatedPowersErrors } from "./SeparatedPowersErrors.sol";
@@ -16,19 +16,15 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     //////////////////////////////////////////////////////////////
     //                  GOVERNANCE FUNCTIONS                    //
     //////////////////////////////////////////////////////////////
-    /// @dev the external function to call when a new proposal is created.
+    /// @notice the external function to call when a new proposal is created.
     ///
     /// @param targetLaw : the address of the law to be executed. Can only be one address.
     /// @param lawCalldata : the calldata to be passed to the law
     /// @param description : the description of the proposal
-    ///
-    /// emits a {ProposalCreated} event.
-    function propose(address targetLaw, bytes memory lawCalldata, string memory description)
-        external
-        returns (uint256);
-
-    /// @dev external function to call when a proposal is executed.
-    /// Note The function can only be called from a whitelisted Law contract.
+    function propose(address targetLaw, bytes memory lawCalldata, string memory description) external returns (uint256);
+     
+    /// @notice external function to call to execute a proposal.
+    /// The function can only be called from a whitelisted Law contract.
     ///
     /// @param targetLaw : the address of the law to be executed. Can only be one address.
     /// @param lawCalldata : the calldata to be passed to the law
@@ -121,15 +117,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @param account account address
     ///
     /// @dev this function can only be called from within {SeperatedPowers}.
-    function assignRole(uint48 roleId, address account) external;
-
-    /// @notice set role access.
-    ///
-    /// @param roleId role identifier
-    /// @param account account address
-    ///
-    /// @dev this function can only be called from within {SeperatedPowers}.
-    function revokeRole(uint48 roleId, address account) external;
+    function setRole(uint48 roleId, address account, bool access) external;
 
     //////////////////////////////////////////////////////////////
     //                      VIEW FUNCTIONS                      //

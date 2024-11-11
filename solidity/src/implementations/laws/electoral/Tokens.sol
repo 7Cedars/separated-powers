@@ -1,32 +1,34 @@
 // SPDX-License-Identifier: MIT
+
+// note that natspecs are wip. 
+
+/// @notice This contract assigns accounts to roles by the tokens that they hold. 
+/// - At construction time, the following is set: 
+///    - the amount of role holders {N}
+///    - the roleId {R} to be assigned
+///    - the ERC20 token {T} address to be assessed.
+///
+/// - The contract is meant to be open (using PUBLIC_ROLE at SeperatedPowers protocol), but can also be role restricted. 
+///    - anyone can nominate themselves for the role. 
+///    - anyone can call the law to have it (re)assign accounts to the law. 
+///
+/// - The logic: 
+///    - If fewer than N accounts are nominated, all will be assigne roleId R.
+///    - If more than N accounts are nominated, the accounts that hold most ERC20 T will be assigned roleId R.
+///
+/// @dev The contract is an example of a law that
+/// - has does not need a proposal to be voted through. It can be called directly.
+/// - has two internal mechanisms: nominate or elect. Which one is run depends on calldata input.  
+/// - doess not have to role restricted.
+/// - translates a simple token based voting system to separated powers. 
+/// - Note this logic can also be applied with a delegation logic added. Not only taking simple token holdings into account, but also delegated tokens. 
+
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
-/**
- * @notice This contract assigns accounts to roles by the tokens that they hold. 
- * - At construction time, the following is set: 
- *    - the amount of role holders {N}
- *    - the roleId {R} to be assigned
- *    - the ERC20 token {T} address to be assessed.
- *
- * - The contract is meant to be open (using PUBLIC_ROLE at SeperatedPowers protocol), but can also be role restricted. 
- *    - anyone can nominate themselves for the role. 
- *    - anyone can call the law to have it (re)assign accounts to the law. 
- *
- * - The logic: 
- *    - If fewer than N accounts are nominated, all will be assigne roleId R.
- *    - If more than N accounts are nominated, the accounts that hold most ERC20 T will be assigned roleId R.
- *
- * @dev The contract is an example of a law that
- * - has does not need a proposal to be voted through. It can be called directly.
- * - has two internal mechanisms: nominate or elect. Which one is run depends on calldata input.  
- * - doess not have to role restricted.
- * - translates a simple token based voting system to separated powers. 
- * - Note this logic can also be applied with a delegation logic added. Not only taking simple token holdings into account, but also delegated tokens. 
- */
 contract Tokens is Law {
     error Tokens__Error();
     error Tokens__AlreadyNominated(address nominee);

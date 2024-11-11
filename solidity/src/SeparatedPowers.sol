@@ -1,32 +1,29 @@
 // SPDX-License-Identifier: MIT
 
-/// @notice The core contract of the SeparatedPowers protocol. Inherits from {LawsManager}, {AuthoritiesManager} and {Law}.
+/// @notice The core contract of the SeparatedPowers protocol. Inherits from {ISeparatedPowers}.
 /// Code derived from OpenZeppelin's Governor.sol contract.
 ///
-/// Note that originally, Governor.sol is abstract and needs modules to be added to function. In contrast, SeparatedPowers is not set as abstract and is self-contained.
-/// Any additional functionality should be brought in through laws.
+/// @dev Inoriginally, Governor.sol is abstract and needs modules to be added to function. 
+/// In contrast, SeparatedPowers is not set as abstract and is self-contained. 
+/// Any additional functionality is added through laws.
 /// Although the protocol does allow functions to be updated in inhereted contracts, this should be avoided if possible.
 ///
-/// The protocol is meant to be inherited by a contract that implements a DAO. See for an example {implementation/AgDao.sol}.
+/// The protocol is meant to be inherited by a contract that implements a DAO. See for example ./implementations.
 ///
 /// Other differences:
 /// - No ERC165 in the core protocol, this can change later. Laws do support ERC165 interfaces.
-/// - The use of {clock} is removed. Only blocknumbers are used at the moment, no timestamps.
-/// - There is currently no protection against front-running proposals.
-/// - The contract structure is different than the one used by OpenZeppelin's Governor.sol. See the end of this contract for the structure I followed.
+/// - The use of {clock} is removed. Only blocknumbers are used at the moment, no timestamps. This also applies to laws. 
 ///
-/// @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon
+/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+
 pragma solidity 0.8.26;
 
 import { Law } from "./Law.sol";
 import { ILaw } from "./interfaces/ILaw.sol";
 import { ISeparatedPowers } from "./interfaces/ISeparatedPowers.sol";
 import { ERC165Checker } from "../lib/openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
-import { Context } from "@openzeppelin/contracts/utils/Context.sol";
 import { Address } from "../lib/openzeppelin-contracts/contracts/utils/Address.sol";
 import { EIP712 } from "../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
-import { SeparatedPowersErrors } from "./interfaces/SeparatedPowersErrors.sol";
-import { SeparatedPowersEvents } from "./interfaces/SeparatedPowersEvents.sol";
 
 contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
@@ -39,17 +36,15 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     // two roles are preset: ADMIN_ROLE == 0 and PUBLIC_ROLE == type(uint48).max.
     uint48 public constant ADMIN_ROLE = type(uint48).min; // == 0
     uint48 public constant PUBLIC_ROLE = type(uint48).max; // == a lot
-    uint256 constant DENOMINATOR = 100;
+    uint256 constant DENOMINATOR = 100; // = 100%
 
-    string private _name; // name of the DAO.
-    bool private _constituentLawsExecuted; // has the constitute function been called before.
+    string public name; // name of the DAO.
+    bool private _constituentLawsExecuted; // has the constitute function been called before? 
 
     //////////////////////////////////////////////////////////////
     //                          MODIFIERS                       //
     //////////////////////////////////////////////////////////////
-    /// @notice A modifier that sets a function to only be callable by the {SeparatedPowers} contract itself.
-    ///
-    /// @dev It can used in derived contracts to easily protect functions from being called from outside the protocol.
+    /// @notice A modifier that sets a function to only be callable by the {SeparatedPowers} contract.
     modifier onlySeparatedPowers() {
         if (msg.sender != address(this)) {
             revert SeparatedPowers__OnlySeparatedPowers();
@@ -60,22 +55,22 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //              CONSTRUCTOR & RECEIVE                       //
     //////////////////////////////////////////////////////////////
-    /// @notice  Sets the value for {name} and {version} at the time of construction.
+    /// @notice  Sets the value for {name} at the time of construction.
     ///
     /// @param name_ name of the contract
     constructor(string memory name_) EIP712(name_, version()) {
-        _name = name_;
+        name = name_;
         _setRole(ADMIN_ROLE, msg.sender, true); // the account that initiates a SeparatedPowers contract is set to its admin.
 
         roles[ADMIN_ROLE].amountMembers = 1; // the number of admins at set up is 1. 
-        roles[PUBLIC_ROLE].amountMembers = type(uint256).max; // the number for holders of the PUBLIC_ROLE is type(uint256).max. 
+        roles[PUBLIC_ROLE].amountMembers = type(uint256).max; // the number for holders of the PUBLIC_ROLE is type(uint256).max. As in, everyone has this role. 
 
         emit SeparatedPowers__Initialized(address(this));
     }
 
     /// @notice receive function enabling ETH deposits.
     ///
-    /// @dev This is a virtual function, and can be overridden in child contracts.
+    /// @dev This is a virtual function, and can be overridden in the DAO implementation.
     /// @dev No access control on this function: anyone can send funds into the main contract.
     receive() external payable virtual {
         emit FundsReceived(msg.value);
@@ -84,13 +79,13 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //                  GOVERNANCE LOGIC                        //
     //////////////////////////////////////////////////////////////
-    /// @dev see {ISeperatedPowers.propose}
+    /// @inheritdoc {ISeperatedPowers.propose}
     function propose(address targetLaw, bytes memory lawCalldata, string memory description)
         external
         virtual
         returns (uint256)
     {
-        // check 1: does msg.sender have access to targetLaw?
+        // check: does msg.sender have access to targetLaw?
         uint32 allowedRole = laws[targetLaw].allowedRole;
         if (roles[allowedRole].members[msg.sender] == 0 && allowedRole != PUBLIC_ROLE) {
             revert SeparatedPowers__AccessDenied();
@@ -104,19 +99,14 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     ///
     /// @dev The mechanism checks for access of proposer and for the length of targets and calldatas.
     ///
-    /// Emits a {ProposalCreated} event.
+    /// Emits a {SeperatedPowersEvents::ProposalCreated} event.
     function _propose(address proposer, address targetLaw, bytes memory lawCalldata, string memory description)
         internal
         virtual
         returns (uint256 proposalId)
     {
-        (bool passed) = Law(targetLaw).checkDependencies(msg.sender, lawCalldata, keccak256(bytes(description)));
-        if (!passed) {
-            revert SeparatedPowers__LawCheckFailed();
-        }
-
-        // note that targetLaw AND proposer are hashed into the proposalId. By including proposer in the hash, front running is avoided.
-        proposalId = hashProposal(targetLaw, lawCalldata, keccak256(bytes(description)));
+        // note that targetLaw AND proposer are hashed into the proposalId. By including proposer in the hash, front running a proposal is made impossible.
+        proposalId = hashProposal(proposer, targetLaw, lawCalldata, keccak256(bytes(description)));
         if (_proposals[proposalId].voteStart != 0) {
             revert SeparatedPowers__UnexpectedProposalState();
         }
@@ -124,7 +114,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         uint32 duration = laws[targetLaw].votingPeriod;
         Proposal storage proposal = _proposals[proposalId];
         proposal.targetLaw = targetLaw;
-        proposal.voteStart = uint48(block.number); // at the moment proposal is made, voting start. There is no delay functionality.
+        proposal.voteStart = uint48(block.number); // note that the moment proposal is made, voting start. There is no delay functionality.
         proposal.voteDuration = duration;
 
         emit ProposalCreated(
@@ -132,7 +122,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         );
     }
 
-    /// @dev See {IseperatedPowers.cancel}
+    /// @inheritdoc {IseperatedPowers.cancel}
     function cancel(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         virtual
@@ -147,9 +137,9 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @notice Internal cancel mechanism with minimal restrictions. A proposal can be cancelled in any state other than
-    /// Cancelled or Executed. Once cancelled a proposal can't be re-submitted.
+    /// Cancelled or Executed. Once cancelled a proposal cannot be re-submitted.
     ///
-    /// Emits a {ISeperatedPowers-ProposalCanceled} event.
+    /// Emits a {SeperatedPowersEvents::ProposalCanceled} event.
     function _cancel(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         internal
         virtual
@@ -171,11 +161,11 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         return proposalId;
     }
 
-    /// @dev see {ISeperatedPowers.execute}
+    /// @inheritdoc {ISeperatedPowers.execute}
     ///
-    /// Note any reference to proposal (as in OpenZeppelin's Governor.sol) are removed.
+    /// Note any references to proposals (as in OpenZeppelin's {Governor} contract are removed.
     /// The mechanism of SeparatedPowers detaches proposals from execution logic.
-    /// Instead, proposal checks are placed in the {complete} function which is called by laws.
+    /// Instead, proposal checks are placed in the {Law::executeLaw} function.
     function execute(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash) external payable virtual {
         // check 1: does executioner have access to law being executed?
         uint32 allowedRole = laws[targetLaw].allowedRole;
@@ -184,20 +174,21 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
 
         // calling target law: receiving targets, values and calldatas to execute.
+        // Note that this call will revert if any conditions are not met.  
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
             Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
 
-        // execute.
+        // If the previous call was successful, execute.
         if (targets.length > 0) {
             _executeOperations(targets, values, calldatas);
         }
     }
 
-    /// @notice Internal execution mechanism. Can be overridden (without a super call) to modify the way execution is
-    /// performed
+    /// @notice Internal execution mechanism. 
+    /// Can be overridden (without a super call) to modify the way execution is performed
     ///
     /// NOTE: Calling this function directly will NOT check the current state of the proposal, set the executed flag to
-    /// true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute} or {_execute}.
+    /// true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute}.
     function _executeOperations(address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
         internal
         virtual
@@ -212,14 +203,15 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
     }
 
-    /// @dev see {ISeperatedPowers.complete}
+    /// @inheritdoc {ISeperatedPowers.complete}
     function complete(bytes memory lawCalldata, bytes32 descriptionHash) external virtual {
         uint256 proposalId = hashProposal(msg.sender, lawCalldata, descriptionHash);
 
         _complete(proposalId);
     }
 
-    /// @dev see {ISeperatedPowers.complete}
+    /// @notice internal mechanism for setting a proposal as completed. 
+    /// runs through several checks before setting the proposal as completed.
     function _complete(uint256 proposalId) internal virtual {
         // check 1: is call from an active law?
         if (!laws[msg.sender].active) {
@@ -255,9 +247,10 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         return _castVote(proposalId, voter, support, reason);
     }
 
-    /// @notice Internal vote casting mechanism: Check that the proposal is active, and that account is has access to targetLaw.
+    /// @notice Internal vote casting mechanism. 
+    /// Check that the proposal is active, and that account is has access to targetLaw.
     ///
-    /// Emits a {ISeperatedPowers-VoteCast} event.
+    /// Emits a {SeperatedPowersEvents::VoteCast} event.
     function _castVote(uint256 proposalId, address account, uint8 support, string memory reason) internal virtual {
         // Check that the proposal is active, that it has not been paused, cancelled or ended yet.
         if (SeparatedPowers(payable(address(this))).state(proposalId) != ProposalState.Active) {
@@ -267,7 +260,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         address targetLaw = _proposals[proposalId].targetLaw;
         uint32 allowedRole = laws[targetLaw].allowedRole;
         if (roles[allowedRole].members[account] == 0 && allowedRole != PUBLIC_ROLE) {
-            revert SeparatedPowers__NoAccessToTargetLaw();
+            revert SeparatedPowers__AccessDenied();
         }
         // if all this passes: cast vote.
         _countVote(proposalId, account, support);
@@ -278,10 +271,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //                  ROLE AND LAW ADMIN                      //
     //////////////////////////////////////////////////////////////
-    /// @dev see {ISeperatedPowers.constitute}
-    // NB: Note that constituentRoles is now an addressp[][]: an array of arrays of addresses. 
-    // Each index of the top array corresponds to a RoleId. 
-    // Each index of the bottom array corresponds to an address.
+    /// @inheritdoc {ISeperatedPowers.constitute}
     function constitute(
         // laws data
         address[] memory laws,
@@ -318,41 +308,29 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         // if checks pass, set _constituentLawsExecuted to true...
         _constituentLawsExecuted = true;
 
-        // £TODO refactor  
-        // ...and execute constitutional laws
+        // ...set laws
         for (uint256 i = 0; i < laws.length; i++) {
             _setLaw(laws[i], allowedRoles[i], quorums[i], succeedAts[i], votingPeriods[i]);
         }
+        // ...and set roles 
         for (uint256 i = 0; i < constituentRoles.length; i++) {
             _setRole(constituentRoles[i], constituentAccounts[i], true);
         }
     }
 
-    // £TODO Is it possible to create a function {createLaw} that takes as input a constructor data and returns an address?
-    // all laws have the same interface 
-    /// @dev {see ... }
+    /// @inheritdoc {ISeperatedPowers.setLaw} 
     function setLaw(
         address law, 
         uint32 allowedRole,
         uint8 quorum,
         uint8 succeedAt, 
         uint32 votingPeriod
-        ) public { 
-        // check is caller the protocol?
-        if (msg.sender != address(this)) {
-            revert SeparatedPowers__NotAuthorized();
-        }
-
-        _setLaw(law, allowedRole, quorum, succeedAt, votingPeriod);
+        ) public onlySeparatedPowers { 
+            _setLaw(law, allowedRole, quorum, succeedAt, votingPeriod);
     }
 
-    /// @dev {see ILawsManager.setLaw}
-    function revokeLaw(address law) public {
-        // check is caller the protocol?
-        if (msg.sender != address(this)) {
-            revert SeparatedPowers__NotAuthorized();
-        }
-
+    /// @inheritdoc {ISeperatedPowers.revokeLaw}
+    function revokeLaw(address law) public onlySeparatedPowers {
         if (!laws[law].active) {
             revert SeparatedPowers__LawNotActive();
         }
@@ -361,15 +339,15 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         laws[law].active = false;
     }
 
-    /// @notice internal function to set a law to active or inactive.
+    /// @notice internal function to set a law or revoke it.
     ///
-    /// params = £todo 
+    /// @param law address of the law.
+    /// @param allowedRole : the allowed role of the law.
+    /// @param quorum : the quorum of the law.
+    /// @param succeedAt : the succeedAt of the law.
+    /// @param votingPeriod : the votingPeriod of the law.
     ///
-    /// @dev this function can only be called from the execute function of SeperatedPowers.sol.
-    ///
-    /// returns bool lawChanged, true if the law is set as active.
-    ///
-    /// emits a LawSet event.
+    /// Emits a {SeperatedPowersEvents::LawSet} event.
     function _setLaw(
         address law, 
         uint32 allowedRole,
@@ -395,42 +373,27 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         emit LawSet(law, allowedRole, existingLaw, quorum, succeedAt, votingPeriod);
     }
 
-    /// @dev see {IAuthoritiesManager.setRole}
-    function assignRole(uint48 roleId, address account) public virtual {
-        // this function can only be called from within SeperatedPowers.
-        if (msg.sender != address(this)) {
-            revert SeparatedPowers__NotAuthorized();
-        }
-        _setRole(roleId, account, true);
+    /// @inheritdoc {ISeperatedPowers.setRole}
+    function setRole(uint48 roleId, address account, bool access) public virtual onlySeparatedPowers {
+        _setRole(roleId, account, access);
     }
 
-    /// @dev see {IAuthoritiesManager.setRole}
-    function revokeRole(uint48 roleId, address account) public virtual {
-        // this function can only be called from within SeperatedPowers.
-        if (msg.sender != address(this)) {
-            revert SeparatedPowers__NotAuthorized();
-        }
-        _setRole(roleId, account, false);
-    }
-
-    /// @notice Internal version of {setRole} without access control. Returns true if the role was newly granted.
+    /// @notice Internal version of {setRole} without access control.  
     ///
-    /// Emits a {RoleGranted} event.
+    /// Emits a {SeperatedPowersEvents::RolSet} event.
     function _setRole(uint48 roleId, address account, bool access) internal virtual {
         bool newMember = roles[roleId].members[account] == 0;
-        bool accessChanged;
 
         if (access && newMember) {
             roles[roleId].members[account] = uint48(block.number); // 'since' is set at current block.number
             roles[roleId].amountMembers++;
-            accessChanged = true;
         } else if (!access && !newMember) {
             roles[roleId].members[account] = 0;
             roles[roleId].amountMembers--;
-            accessChanged = true;
+        } else {
+            revert SeparatedPowers__RoleAccessNotChanged();
         }
-
-        emit RoleSet(roleId, account, accessChanged);
+        emit RoleSet(roleId, account);
     }
 
     //////////////////////////////////////////////////////////////
@@ -448,11 +411,10 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         uint32 allowedRole = laws[targetLaw].allowedRole;
         uint256 amountMembers = roles[allowedRole].amountMembers;
 
-        return
-            quorum == 0 || (amountMembers * quorum) / DENOMINATOR <= proposal.forVotes + proposal.abstainVotes;
+        return (quorum == 0 || (amountMembers * quorum) / DENOMINATOR <= proposal.forVotes + proposal.abstainVotes); 
     }
     
-    /// @dev internal function {voteSucceeded} that checks if a vote for a given proposal has succeeded.
+    /// @notice internal function {voteSucceeded} that checks if a vote for a given proposal has succeeded.
     ///
     /// @param proposalId id of the proposal.
     /// @param targetLaw address of the law that the proposal belongs to.
@@ -468,7 +430,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         return quorum == 0 || amountMembers * succeedAt <= proposal.forVotes * DENOMINATOR;
     }
 
-        /// @notice internal function {countVote} that counts against, for, and abstain votes for a given proposal.
+    /// @notice internal function {countVote} that counts against, for, and abstain votes for a given proposal.
     ///
     /// @dev In this module, the support follows the `VoteType` enum (from Governor Bravo).
     /// @dev It does not check if account has roleId referenced in proposalId. This has to be done by {SeparatedPowers.castVote} function.
@@ -491,20 +453,20 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
     }
 
-    /// @dev see {ISeperatedPowers.hashProposal}
-    function hashProposal(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+    /// @inheritdoc {ISeperatedPowers.hashProposal}
+    function hashProposal(address proposer, address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         pure
         virtual
         returns (uint256)
     {
-        return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
+        return uint256(keccak256(abi.encode(proposer, targetLaw, lawCalldata, descriptionHash)));
     }
 
     //////////////////////////////////////////////////////////////
     //                      VIEW FUNCTIONS                      //
     //////////////////////////////////////////////////////////////
-    /// @dev see {ISeperatedPowers.state}
+    /// @inheritdoc {ISeperatedPowers.state}
     function state(uint256 proposalId) public view virtual returns (ProposalState) {
         // We read the struct fields into the stack at once so Solidity emits a single SLOAD
         Proposal storage proposal = _proposals[proposalId];
@@ -521,7 +483,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         uint256 start = _proposals[proposalId].voteStart; // = startDate
 
         if (start == 0) {
-            revert SeperatedPowers__NonExistentProposal(proposalId);
+            revert SeparatedPowers__InvalidProposalId();
         }
 
         uint256 deadline = proposalDeadline(proposalId);
@@ -536,17 +498,12 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
     }
 
-    /// @notice saves the name of the SeparatedPowers implementation.
-    function name() public view virtual returns (string memory) {
-        return _name;
-    }
-
     /// @notice saves the version of the SeparatedPowers implementation.
     function version() public pure returns (string memory) {
         return "1";
     }
 
-    /// @notice public function {canCallLaw} that checks if a caller can call a given law.
+    /// @notice public function {SeparatedPowers::canCallLaw} that checks if a caller can call a given law.
     ///
     /// @param caller address of the caller.
     /// @param targetLaw address of the law to check.
@@ -557,12 +514,12 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         return since != 0;
     }
 
-    /// @dev see {IAuthoritiesManager.hasVoted}
+    /// @inheritdoc {ISeparatedPowers::hasVoted}
     function hasVoted(uint256 proposalId, address account) public view virtual returns (bool) {
         return _proposals[proposalId].hasVoted[account];
     }
 
-    /// @dev see {IAuthoritiesManager.proposals}
+    /// @inheritdoc {ISeparatedPowers::proposals}
     function proposalVotes(uint256 proposalId)
         public
         view
@@ -573,21 +530,22 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         return (proposal.againstVotes, proposal.forVotes, proposal.abstainVotes);
     }
 
-    /// @dev see {IAuthoritiesManager.hasRoleSince}
+    /// @inheritdoc {ISeparatedPowers::hasRoleSince}
     function hasRoleSince(address account, uint48 roleId) public view returns (uint48 since) {
         return roles[roleId].members[account];
     }
 
+    /// @inheritdoc {ISeparatedPowers::getAmountRoleHolders}
     function getAmountRoleHolders(uint48 roleId) public view returns (uint256 amountMembers) {
         return roles[roleId].amountMembers;
     }
 
-    /// @dev See {ISeperatedPowers.proposalDeadline} 
+    /// @inheritdoc {ISeparatedPowers::proposalDeadline} 
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256) { // uint48 + uint32 => uint256. £test if this works properly. 
         return _proposals[proposalId].voteStart + _proposals[proposalId].voteDuration;
     }
 
-    /// @dev {see ILawsManager.getActiveLaw}
+    /// @inheritdoc {ILawsManager.getActiveLaw}
     function getActiveLaw(address law) external view returns (bool active) {
         return laws[law].active;
     }
@@ -595,17 +553,17 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //                       COMPLIENCE                         //
     //////////////////////////////////////////////////////////////
-    /// @dev See {IERC721Receiver-onERC721Received}.
+    /// @inheritdoc {IERC721Receiver::onERC721Received}.
     function onERC721Received(address, address, uint256, bytes memory) public virtual returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
-    /// @dev See {IERC1155Receiver-onERC1155Received}.
+    /// @inheritdoc {IERC1155Receiver::onERC1155Received}.
     function onERC1155Received(address, address, uint256, uint256, bytes memory) public virtual returns (bytes4) {
         return this.onERC1155Received.selector;
     }
 
-    /// @dev See {IERC1155Receiver-onERC1155BatchReceived}.
+    /// @inheritdoc {IERC1155Receiver::onERC1155BatchReceived}.
     function onERC1155BatchReceived(address, address, uint256[] memory, uint256[] memory, bytes memory)
         public
         virtual

@@ -1,22 +1,24 @@
 // SPDX-License-Identifier: MIT
+
+// note that natspecs are wip. 
+
+/// @notice This contract that assigns or revokes a roleId to the person that called the law.  
+/// - At construction time, the following is set: 
+///    - the role Id that the contract will be assigned or revoked.  
+///
+/// - The contract is meant to be restricted by a specific role, allowing an outsider to freely claim an (entry) role into a DAO. 
+///
+/// - The logic: 
+///
+/// @dev The contract is an example of a law that
+/// - an open role elect law. 
+
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
-/**
- * @notice This contract that assigns or revokes a roleId to the person that called the law.  
- * - At construction time, the following is set: 
- *    - the role Id that the contract will be assigned or revoked.  
- *
- * - The contract is meant to be restricted by a specific role, allowing an outsider to freely claim an (entry) role into a DAO. 
- *
- * - The logic: 
- *
- * @dev The contract is an example of a law that
- * - an open role elect law. 
- */
 contract Direct is Law {
     error Direct__AccountAlreadyHasRole();
     error Direct__AccountDoesNotHaveRole();

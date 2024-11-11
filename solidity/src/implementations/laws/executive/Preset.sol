@@ -1,30 +1,31 @@
 // SPDX-License-Identifier: MIT
+
+/// @notice A base contract that executes a preset action. 
+/// 
+/// The logic: 
+/// - anythe lawCalldata includes a single bool. If the bool is set to true, it will aend the present calldatas to the execute function of the SeparatedPowers protocol.  
+///
+/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 
-/**
- * @notice This contract allows the execution of a preset action. 
- * - At construction time, it sets:
- * - address[] memory targets
- * - uint256[] memory values 
- * - bytes[] memory calldatas
- *
- * - The contract allows for a specific action to be executed directly, and be role restricted, but without a vote. 
- *    - if this law is restricted by PUBLIC_ROLE, it means that anyone has access to it. Which means that anyone is given the right to do execute the given action through the DAO.
- *
- * - The logic: 
- *    - anythe lawCalldata includes a single bool. If the bool is set to true, it will aend the present calldatas to the execute function of the SeparatedPowers protocol.  
- *
- * @dev The contract is a key example of giving specific executive powers to a particular role.
- */
 contract Preset is Law {
-    address[] private _targets; 
-    uint256[] private _values;
-    bytes[] private _calldatas;
+    /// the targets, values and calldatas to be used in the calls: set at construction.
+    address[] private immutable _targets;
+    uint256[] private immutable _values;
+    bytes[] private immutable _calldatas; 
 
+    /// emitted when the law is initialised.
     event Preset__Initialized(address[] targets, uint256[] values, bytes[] calldatas);
     
+    /// @notice constructor of the law
+    /// @param name_ the name of the law.
+    /// @param description_ the description of the law.
+    /// @param targets_ the targets contracts to call.
+    /// @param values_ the values to use in the calls.
+    /// @param calldatas_ the calldatas to use in the calls.
     constructor(string memory name_, string memory description_, address[] memory targets_, uint256[] memory values_, bytes[] memory calldatas_) 
         Law(name_, description_, targets_)
     { 
@@ -35,7 +36,11 @@ contract Preset is Law {
         emit Preset__Initialized(_targets, _values, _calldatas);
     }
 
-    function executeLaw(address executioner, bytes memory lawCalldata, bytes32 descriptionHash)
+    /// @notice execute the law.
+    /// @param proposer the proposer of the law.
+    /// @param lawCalldata the calldata of the law.
+    /// @param descriptionHash the description hash of the law.
+    function executeLaw(address proposer, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
