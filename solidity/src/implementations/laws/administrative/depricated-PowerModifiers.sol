@@ -6,8 +6,8 @@
 pragma solidity 0.8.26;
 
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
-import { SeparatedPowersTypes } from "../../interfaces/SeparatedPowersTypes.sol";
 import { Law } from "../../Law.sol";
+import { SeparatedPowersTypes } from "../../interfaces/SeparatedPowersTypes.sol";
 
 library PowerModifiers {
   error PowerModifiers__ProposalVoteNotSucceeded(uint256 proposalId);
@@ -23,16 +23,16 @@ library PowerModifiers {
 
   /// @notice A modifier that sets a function to be conditioned by a proposal vote.
   /// This modifier ensures that the function is only callable if a proposal has passed a vote.
-  modifier needsVote(address proposer, bytes memory lawCalldata, bytes32 descriptionHash) {
-      uint256 proposalId = _hashProposal(proposer, address(this), lawCalldata, descriptionHash);
-      address separatedPowers = Law(address(this)).separatedPowers();
+  // modifier needsVote(address proposer, bytes memory lawCalldata, bytes32 descriptionHash) {
+  //     uint256 proposalId = _hashProposal(proposer, address(this), lawCalldata, descriptionHash);
+  //     address separatedPowers = Law(address(this)).separatedPowers();
 
-      if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ProposalState.Succeeded) {
-          revert PowerModifiers__ProposalVoteNotSucceeded(proposalId);
-      }
+  //     if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ProposalState.Succeeded) {
+  //         revert PowerModifiers__ProposalVoteNotSucceeded(proposalId);
+  //     }
 
-      _;
-  }
+  //     _;
+  // }
 
   /// @notice A modifier that removes execute data from a law. 
   /// The law can only be used as initiator for a proposal as a result. 
@@ -40,14 +40,14 @@ library PowerModifiers {
   /// It allows for a governance flow where 
   /// - roleId A only has the power to propose a law and 
   /// - roleId B only has the power to execute a proposed law. 
-  modifier proposeOnly() { // £CHECK is this executed BEFORE the return call? Would seem to be logical. Lets check
-    _;
+  // modifier proposeOnly() { // £CHECK is this executed BEFORE the return call? Would seem to be logical. Lets check
+  //   _;
 
-    address[] memory tar = new address[](0);
-    uint256[] memory val = new uint256[](0);
-    bytes[] memory cal = new bytes[](0);
+  //   address[] memory tar = new address[](0);
+  //   uint256[] memory val = new uint256[](0);
+  //   bytes[] memory cal = new bytes[](0);
 
-  }
+  // }
 
   /// @notice A modifier that makes the execution of a law conditional on a deadline having passed.
   /// @param blocks the number of blocks to wait before executing the law.
@@ -80,54 +80,54 @@ library PowerModifiers {
   /// either by absolute numbers or by a time gap (measured in blocks) between executions. 
   /// @param maxExecution the maximum number of executions allowed.
   /// @param gapExecutions the minimum number of blocks between executions.
-  modifier limitExecutions(
-    uint256 maxExecution, 
-    uint256 gapExecutions
-    ) { 
-      uint48[] memory executions = Law(address(this)).getExecutions(); 
-      uint256 numberOfExecutions = executions.length;
+  // modifier limitExecutions(
+  //   uint256 maxExecution, 
+  //   uint256 gapExecutions
+  //   ) { 
+  //     uint48[] memory executions = Law(address(this)).getExecutions(); 
+  //     uint256 numberOfExecutions = executions.length;
     
-      if (numberOfExecutions >= maxExecution) {
-          revert PowerModifiers__ExecutionLimitReached();
-      }
+  //     if (numberOfExecutions >= maxExecution) {
+  //         revert PowerModifiers__ExecutionLimitReached();
+  //     }
 
-      if (block.number - executions[numberOfExecutions - 1] < gapExecutions) {
-          revert PowerModifiers__ExecutionGapTooSmall();
-      }  
+  //     if (block.number - executions[numberOfExecutions - 1] < gapExecutions) {
+  //         revert PowerModifiers__ExecutionGapTooSmall();
+  //     }  
       
-      _; 
-  }
+  //     _; 
+  // }
 
-  /// @notice A modifier that conditions a law's execution on a proposal vote of a parent law having passed.
-  /// @param parentLaw the address of the parent law.
-  /// 
-  /// @dev This modifier allows for a governance flow where 
-  /// - roleId A has to have passed a proposal, before 
-  /// - roleId B can execute the proposal.
-  /// It creates a balance of power between roleId B and roleId A: they need to _both_ pass a proposal for an action to be executed.
-  /// @dev It works well in combination with the {proposeOnly} modifier.
-  modifier balancePower(address proposer, address parentLaw, bytes memory lawCalldata, bytes32 descriptionHash) {
-    address separatedPowers = Law(address(this)).separatedPowers();
-    if (parentLaw == address(0)) {
-        revert PowerModifiers__NoZeroAddress();
-    } 
+  // /// @notice A modifier that conditions a law's execution on a proposal vote of a parent law having passed.
+  // /// @param parentLaw the address of the parent law.
+  // /// 
+  // /// @dev This modifier allows for a governance flow where 
+  // /// - roleId A has to have passed a proposal, before 
+  // /// - roleId B can execute the proposal.
+  // /// It creates a balance of power between roleId B and roleId A: they need to _both_ pass a proposal for an action to be executed.
+  // /// @dev It works well in combination with the {proposeOnly} modifier.
+  // modifier balancePower(address proposer, address parentLaw, bytes memory lawCalldata, bytes32 descriptionHash) {
+  //   address separatedPowers = Law(address(this)).separatedPowers();
+  //   if (parentLaw == address(0)) {
+  //       revert PowerModifiers__NoZeroAddress();
+  //   } 
 
-    (address lawAddressA, uint32 allowedRoleA, , , , ) = SeparatedPowers(payable(separatedPowers)).laws(parentLaw); 
-    (address lawAddressB, uint32 allowedRoleB, , , , ) = SeparatedPowers(payable(separatedPowers)).laws(parentLaw);
-    if (lawAddressA == address(0) || lawAddressB == address(0)) {
-      revert PowerModifiers__LawNotRecognised();
-    }
-    if (allowedRoleA == allowedRoleB) {
-      revert PowerModifiers__RoleIdsNotDifferent();
-    }
+  //   (address lawAddressA, uint32 allowedRoleA, , , , ) = SeparatedPowers(payable(separatedPowers)).laws(parentLaw); 
+  //   (address lawAddressB, uint32 allowedRoleB, , , , ) = SeparatedPowers(payable(separatedPowers)).laws(parentLaw);
+  //   if (lawAddressA == address(0) || lawAddressB == address(0)) {
+  //     revert PowerModifiers__LawNotRecognised();
+  //   }
+  //   if (allowedRoleA == allowedRoleB) {
+  //     revert PowerModifiers__RoleIdsNotDifferent();
+  //   }
     
-    uint256 proposalId = _hashProposal(proposer, parentLaw, lawCalldata, descriptionHash);
-    if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ProposalState.Succeeded) {
-        revert PowerModifiers__ParentProposalVoteNotSucceeded(proposalId);
-    }
+  //   uint256 proposalId = _hashProposal(proposer, parentLaw, lawCalldata, descriptionHash);
+  //   if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ProposalState.Succeeded) {
+  //       revert PowerModifiers__ParentProposalVoteNotSucceeded(proposalId);
+  //   }
     
-    _;
-  }
+  //   _;
+  // }
 
   /// @notice A modifier that conditions a law's execution on a proposal vote of a parent law having completed.
   /// @param parentLaw the address of the parent law.
@@ -150,13 +150,13 @@ library PowerModifiers {
     _;
   }
 
-  /// @notice an internal helper function for hashing proposals. 
-  function _hashProposal( 
-    address proposer, 
-    address targetLaw, 
-    bytes memory lawCalldata, 
-    bytes32 descriptionHash
-    ) internal pure returns (uint256) {
-      return uint256(keccak256(abi.encode(proposer, targetLaw, lawCalldata, descriptionHash)));
-  }
+  // /// @notice an internal helper function for hashing proposals. 
+  // function _hashProposal( 
+  //   address proposer, 
+  //   address targetLaw, 
+  //   bytes memory lawCalldata, 
+  //   bytes32 descriptionHash
+  //   ) internal pure returns (uint256) {
+  //     return uint256(keccak256(abi.encode(proposer, targetLaw, lawCalldata, descriptionHash)));
+  // }
 }

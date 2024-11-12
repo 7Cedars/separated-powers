@@ -34,8 +34,8 @@ contract Law is IERC165, ERC165, ILaw {
     uint48[] public executions; // log of block numbers at which the law was executed.  
 
     /// @dev Constructor function for Law contract.
-    constructor(string memory name_, string memory description_) {
-        separatedPowers = msg.sender;
+    constructor(string memory name_, string memory description_, address separatedPowers_) {
+        separatedPowers = separatedPowers_;
         name = name_.toShortString();
         description = description_;
     }
@@ -60,5 +60,15 @@ contract Law is IERC165, ERC165, ILaw {
     /// @notice implements ERC165
     function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(ILaw).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /// @notice an internal helper function for hashing proposals. 
+    function _hashProposal( 
+        address proposer, 
+        address targetLaw, 
+        bytes memory lawCalldata, 
+        bytes32 descriptionHash
+        ) internal pure returns (uint256) {
+        return uint256(keccak256(abi.encode(proposer, targetLaw, lawCalldata, descriptionHash)));
     }
 }

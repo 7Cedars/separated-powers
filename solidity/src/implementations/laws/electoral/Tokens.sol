@@ -49,13 +49,13 @@ contract Tokens is Law {
     constructor(
         string memory name_, 
         string memory description_, 
-        address payable erc20Token_,
+        address payable erc1155Token_,
         uint256 maxRoleHolders_,
         uint32 roleId_  
     )
         Law(name_, description_)
     {
-        ERC_1155_TOKEN = erc20Token_;
+        ERC_1155_TOKEN = erc1155Token_;
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
     }
