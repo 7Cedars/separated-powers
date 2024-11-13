@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 
-// note that natspecs are wip. 
+// note that natspecs are wip.
 
-/// @notice This contract that assigns or revokes a roleId to the person that called the law.  
-/// - At construction time, the following is set: 
-///    - the role Id that the contract will be assigned or revoked.  
+/// @notice This contract that assigns or revokes a roleId to the person that called the law.
+/// - At construction time, the following is set:
+///    - the role Id that the contract will be assigned or revoked.
 ///
-/// - The contract is meant to be restricted by a specific role, allowing an outsider to freely claim an (entry) role into a DAO. 
+/// - The contract is meant to be restricted by a specific role, allowing an outsider to freely claim an (entry) role into a DAO.
 ///
-/// - The logic: 
+/// - The logic:
 ///
 /// @dev The contract is an example of a law that
-/// - an open role elect law. 
+/// - an open role elect law.
 
 pragma solidity 0.8.26;
 
@@ -28,13 +28,7 @@ contract Direct is Law {
     event Direct__AccountAssigned(uint32 indexed roleId, address indexed account);
     event Direct__AccountRevoked(uint32 indexed roleId, address indexed account);
 
-    constructor(
-        string memory name_, 
-        string memory description_, 
-        uint32 roleId_  
-    )
-        Law(name_, description_)
-    {
+    constructor(string memory name_, string memory description_, uint32 roleId_) Law(name_, description_) {
         ROLE_ID = roleId_;
     }
 
@@ -51,24 +45,24 @@ contract Direct is Law {
         uint256[] memory val = new uint256[](1);
         bytes[] memory cal = new bytes[](1);
 
+        // £ to do: I combined the laws into one. Simplifying flow. 
         if (revoke) {
-          if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(executioner, ROLE_ID) == 0) {
-            revert Direct__AccountDoesNotHaveRole(); 
-          }
+            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(executioner, ROLE_ID) == 0) {
+                revert Direct__AccountDoesNotHaveRole();
+            }
 
-          tar[0] = separatedPowers;
-          val[0] = 0;
-          cal[0] = abi.encodeWithSelector(0x22ec1861, ROLE_ID, executioner); // selector = revokeRole
-          return (tar, val, cal);
-
+            tar[0] = separatedPowers;
+            val[0] = 0;
+            cal[0] = abi.encodeWithSelector(0x22ec1861, ROLE_ID, executioner); // selector = revokeRole
+            return (tar, val, cal);
         } else {
-          if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(executioner, ROLE_ID) != 0) {
-            revert Direct__AccountAlreadyHasRole(); 
-          }
-          tar[0] = separatedPowers;
-          val[0] = 0;
-          cal[0] = abi.encodeWithSelector(0x446b340f, ROLE_ID, executioner); // selector = assignRole
-          return (tar, val, cal);
+            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(executioner, ROLE_ID) != 0) {
+                revert Direct__AccountAlreadyHasRole();
+            }
+            tar[0] = separatedPowers;
+            val[0] = 0;
+            cal[0] = abi.encodeWithSelector(0x446b340f, ROLE_ID, executioner); // selector = assignRole
+            return (tar, val, cal);
         }
     }
 }

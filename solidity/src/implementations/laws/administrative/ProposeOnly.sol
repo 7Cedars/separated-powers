@@ -17,8 +17,6 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 contract ProposeOnly is Law {
   error ProposeOnly__NoZeroAddress();
 
-  address private immutable _parentLaw;
-
   ShortString public immutable name; // name of the law
   address public separatedPowers; // the address of the core governance protocol
   string public description;
@@ -34,7 +32,7 @@ contract ProposeOnly is Law {
       if (parentLaw_ == address(0)) {
         revert ProposeOnly__NoZeroAddress();
       } 
-      _parentLaw = parentLaw_;
+      parentLaw = parentLaw_;
       }
 
   function executeLaw(address proposer, bytes memory lawCalldata, bytes32 descriptionHash) {

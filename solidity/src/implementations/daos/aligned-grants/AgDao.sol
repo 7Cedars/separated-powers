@@ -17,6 +17,7 @@ contract AlignedGrantsDao is SeparatedPowers {
     uint48 public constant SENIOR_ROLE = 1;
     uint48 public constant WHALE_ROLE = 2;
     uint48 public constant MEMBER_ROLE = 3;
+    
 
     ShortString[] public coreRequirements; // description of short strings. have to be shorter than 31 characters.
     mapping(address => bool) public blacklistedAccounts; // description of short strings. have to be shorter than 31 characters.

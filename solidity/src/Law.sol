@@ -30,6 +30,7 @@ contract Law is IERC165, ERC165, ILaw {
 
     ShortString public immutable name; // name of the law
     address public separatedPowers; // the address of the core governance protocol
+    address public parentLaw; // optional slot to save a parentLaw. 
     string public description;
     uint48[] public executions; // log of block numbers at which the law was executed.  
 

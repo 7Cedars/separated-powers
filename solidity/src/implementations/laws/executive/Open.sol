@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 
 /// @notice A base contract that executes a open action.
-///  
-/// Note As the contract allows for any action to be executed, it severely limits the functionality of the SeparatedPowers protocol. 
-/// - any role that has access to this law, can execute any function. It has full power of the DAO. 
-/// - if this law is restricted by PUBLIC_ROLE, it means that anyone has access to it. Which means that anyone is given the right to do anything through the DAO. 
-/// - The contract should always be used in combination with modifiers from {PowerModiifiers}. 
-/// 
-/// The logic: 
-/// - any the lawCalldata includes targets[], values[], calldatas[] - that are send straight to the SeparatedPowers protocol. without any checks.  
-/// 
+///
+/// Note As the contract allows for any action to be executed, it severely limits the functionality of the SeparatedPowers protocol.
+/// - any role that has access to this law, can execute any function. It has full power of the DAO.
+/// - if this law is restricted by PUBLIC_ROLE, it means that anyone has access to it. Which means that anyone is given the right to do anything through the DAO.
+/// - The contract should always be used in combination with modifiers from {PowerModiifiers}.
+///
+/// The logic:
+/// - any the lawCalldata includes targets[], values[], calldatas[] - that are send straight to the SeparatedPowers protocol. without any checks.
+///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 
 pragma solidity 0.8.26;
@@ -19,10 +19,8 @@ import { Law } from "../../../Law.sol";
 contract Open is Law {
     /// @notice Constructor function for Open contract.
     /// @param name_ name of the law
-    /// @param description_ description of the law    
-    constructor(string memory name_, string memory description_)
-        Law(name_, description_)
-    { }
+    /// @param description_ description of the law
+    constructor(string memory name_, string memory description_) Law(name_, description_) { }
 
     /// @notice Execute the open action.
     /// @param proposer the address of the proposer
@@ -35,10 +33,10 @@ contract Open is Law {
     {
         // decode the calldata.
         // note: no check on decoded call data. If needed, this can be added.
-        (targets, values, calldatas) = abi.decode(lawCalldata, (address[] , uint256[], bytes[]));
+        (targets, values, calldatas) = abi.decode(lawCalldata, (address[], uint256[], bytes[]));
 
         // send calldata straight to the SeparatedPowers protocol.
-        executions.push(uint48(block.number)); 
+        executions.push(uint48(block.number));
         return (targets, values, calldatas);
     }
 }
