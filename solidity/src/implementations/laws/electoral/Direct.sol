@@ -20,9 +20,6 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract Direct is Law {
-    error Direct__AccountAlreadyHasRole();
-    error Direct__AccountDoesNotHaveRole();
-
     uint32 private immutable ROLE_ID;
 
     event Direct__AccountAssigned(uint32 indexed roleId, address indexed account);
@@ -32,7 +29,7 @@ contract Direct is Law {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(address executioner, bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address proposer, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
@@ -47,21 +44,22 @@ contract Direct is Law {
 
         // £ to do: I combined the laws into one. Simplifying flow. 
         if (revoke) {
-            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(executioner, ROLE_ID) == 0) {
-                revert Direct__AccountDoesNotHaveRole();
+            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(proposer, ROLE_ID) == 0) {
+                cal[0] = abi.encode("account does not have role".toShortString()); 
+                return (tar, val, cal);
             }
-
             tar[0] = separatedPowers;
             val[0] = 0;
-            cal[0] = abi.encodeWithSelector(0x22ec1861, ROLE_ID, executioner); // selector = revokeRole
+            cal[0] = abi.encodeWithSelector(0x22ec1861, ROLE_ID, proposer); // selector = revokeRole
             return (tar, val, cal);
         } else {
-            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(executioner, ROLE_ID) != 0) {
-                revert Direct__AccountAlreadyHasRole();
+            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(proposer, ROLE_ID) != 0) {
+                cal[0] = abi.encode("account already has role".toShortString()); 
+                return (tar, val, cal);
             }
             tar[0] = separatedPowers;
             val[0] = 0;
-            cal[0] = abi.encodeWithSelector(0x446b340f, ROLE_ID, executioner); // selector = assignRole
+            cal[0] = abi.encodeWithSelector(0x446b340f, ROLE_ID, proposer); // selector = assignRole
             return (tar, val, cal);
         }
     }

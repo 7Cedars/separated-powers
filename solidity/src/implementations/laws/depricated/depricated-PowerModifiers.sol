@@ -136,19 +136,19 @@ library PowerModifiers {
   /// - roleId A executes a law. 
   /// - roleId B can challenge its execution after it has been executed. 
   /// It creates a situation where roleId B can check the power of roleId A. 
-  modifier checkPower(address proposer, address parentLaw, bytes memory lawCalldata, bytes32 descriptionHash) {
-    address separatedPowers = Law(address(this)).separatedPowers();
-    if (parentLaw == address(0)) {
-        revert PowerModifiers__NoZeroAddress();
-    } 
+  // modifier checkPower(address proposer, address parentLaw, bytes memory lawCalldata, bytes32 descriptionHash) {
+  //   address separatedPowers = Law(address(this)).separatedPowers();
+  //   if (parentLaw == address(0)) {
+  //       revert PowerModifiers__NoZeroAddress();
+  //   } 
     
-    uint256 proposalId = _hashProposal(proposer, parentLaw, lawCalldata, descriptionHash);
-    if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ProposalState.Completed) {
-        revert PowerModifiers__ParentProposalVoteNotCompleted(proposalId);
-    }
+  //   uint256 proposalId = _hashProposal(proposer, parentLaw, lawCalldata, descriptionHash);
+  //   if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ProposalState.Completed) {
+  //       revert PowerModifiers__ParentProposalVoteNotCompleted(proposalId);
+  //   }
     
-    _;
-  }
+  //   _;
+  // }
 
   // /// @notice an internal helper function for hashing proposals. 
   // function _hashProposal( 

@@ -35,30 +35,36 @@ contract NeedsVote is Law {
       }
 
   function executeLaw(address proposer, bytes memory lawCalldata, bytes32 descriptionHash) {
+    address[] tar = new address[](1);
+    uint256[] val = new uint256[](1);
+    bytes[] cal = new bytes[](1);
+    tar[0] = address(this);
+
+    // check if  conditions of the parent law have passed. If not, return message from parent law to protocol.
+    (address[] tar2, uint256[] val2, bytes[] cal2) = Law(_parentLaw).executeLaw(proposer, lawCalldata, descriptionHash)
+    if (tar2[0] == _parentLaw || tar2[0] == address(0)) {     
+      cal[0] = abi.encode("parentlaw check failed".toShortString()); 
+      return (tar, val, cal);
+    }
+    
     // check if vote on this law has succeeded.
+    // if not, return message to protocol.
     uint256 proposalId = _hashProposal(proposer, address(this), lawCalldata, descriptionHash);
     if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ProposalState.Succeeded) {
-        revert PowerModifiers__ProposalVoteNotSucceeded(proposalId);
-    }
-
-    // check if  conditions of the parent law have passed. 
-    Law(parentLaw).executeLaw(proposer, lawCalldata, descriptionHash)
+      cal[0] = abi.encode("proposal not succeeded".toShortString()); 
+      return (tar, val, cal);
+    } 
 
     // if all this passes. 
-    // If no execute: return empty arrays. 
+    // If no execute: return message to protocol.
     if (!_execute) { 
-      address[] tar = new address[](0);
-      uint256[] val = new uint256[](0);
-      bytes[] cal = new bytes[](0); 
-
+      cal[0] = abi.encode("execute disabled".toShortString()); 
       return (tar, val, cal);
-    // if execute: return arrays of original law. 
     } else {
       // retrieve the original executive law. - and execute. 
       address executiveLaw = Law(_parentLaw).parentLaw();
-      return (
-        Law(executiveLaw).executeLaw(proposer, lawCalldata, descriptionHash)
-      );
+      (address[] tar, uint256[] val, bytes[] cal) = Law(executiveLaw).executeLaw(proposer, lawCalldata, descriptionHash); 
+      return (tar, val, cal);
     }
   }
 }

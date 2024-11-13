@@ -30,9 +30,6 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract Randomly is Law {
-    error Randomly__Error();
-    error Randomly__AlreadyNominated(address nominee);
-
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
 
@@ -70,7 +67,11 @@ contract Randomly is Law {
         // elected accounts are stored in a mapping and have to be accepted. 
         if (nominateMe) {
             if (_nominees[executioner] != 0) {
-                revert Randomly__AlreadyNominated(executioner);
+                address[] memory tar = new address[](1);
+                uint256[] memory val = new uint256[](1);
+                bytes[] memory cal = new bytes[](1);
+                cal[0] = abi.encode("Nominee already nominated".toShortString()); 
+                return (tar, val, cal);
             }
 
             _nominees[executioner] = uint48(block.timestamp);
@@ -112,7 +113,6 @@ contract Randomly is Law {
                     cal[i] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); 
                 }
                 return (tar, val, cal);
-
             } else {
                 address[] memory tar = new address[](MAX_ROLE_HOLDERS);
                 uint256[] memory val = new uint256[](MAX_ROLE_HOLDERS);

@@ -30,9 +30,6 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract Tokens is Law {
-    error Tokens__Error();
-    error Tokens__AlreadyNominated(address nominee);
-
     address private immutable ERC_1155_TOKEN;
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
@@ -70,9 +67,12 @@ contract Tokens is Law {
         // elected accounts are stored in a mapping and have to be accepted.
         if (nominateMe) {
             if (_nominees[executioner] != 0) {
-                revert Tokens__AlreadyNominated(executioner);
+                address[] memory tar = new address[](1);
+                uint256[] memory val = new uint256[](1);
+                bytes[] memory cal = new bytes[](1);
+                cal[0] = abi.encode("Nominee already nominated".toShortString()); 
+                return (tar, val, cal);
             }
-
             _nominees[executioner] = uint48(block.timestamp);
             _nomineesSorted.push(executioner);
 

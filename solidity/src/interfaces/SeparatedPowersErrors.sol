@@ -17,6 +17,9 @@ interface SeparatedPowersErrors {
     /// @notice Emitted when a function is called by an account that lacks the correct roleId.
     error SeparatedPowers__AccessDenied();
 
+    /// @notice Emmitted when a law does not need a proposal.
+    error SeparatedPowers__LawDoesNotNeedProposal(); 
+
     // emitted when a role access is called, but role access is already set at requested access.
     error SeparatedPowers__RoleAccessNotChanged();
 

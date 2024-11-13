@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-contract Constitution {
+import { Script, console2 } from "lib/forge-std/src/Script.sol";
 
-  uint256 constant NUMBER_OF_LAWS = 12;
+contract Constitution is Script {
+  uint256 constant NUMBER_OF_LAWS = 13;
 
   function getConstitution(address payable dao_, address mock1155_) external view returns (
     address[] memory laws,
@@ -18,7 +19,6 @@ contract Constitution {
         uint8[] memory succeedAts = uint8[](NUMBER_OF_LAWS); 
         uint32[] memory votingPeriods = uint32[](NUMBER_OF_LAWS);
 
-        
         //////////////////////////////////////////////////////////////
         //              CHAPTER 1: ELECT ROLES                      //
         //////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ contract Constitution {
         ///////////////////////////////////////
         // initiate law
         laws[0] = address(new Direct(
-          "Public can apply for member role", 
+          "Public can apply for member role", // max 31 chars
           "anyone can apply for a member role in the Aligned Grants Dao", 
           AlignedGrantsDao.MEMBER_ROLE()
         )); 
@@ -42,7 +42,7 @@ contract Constitution {
         //////////////////////////////////////////////////////
         // step 1: initiate law //
         laws[1] = address(new Tokens(
-          "Members can nominate themselves as a whale and call whale election", 
+          "Members can nominate themselves as a whale and call whale election", // max 31 chars
           "Members can call (and pay for) a whale election at any time. They can also nominate themselves. No vote needed", 
           address payable erc1155Token_,
           uint256 maxRoleHolders_,
@@ -56,24 +56,23 @@ contract Constitution {
         ////////////////////////////////////////////////////////////////////
         // Law 2 + 3: seniors can propose and vote to (de)select seniors  // 
         //////////////////////////////////////////////////////////////////// 
-        // initiate law - the actual executive law is set at admin. 
-        // no-one should be allowed to access this law directly. ADMIN_ROLE is meant for these cases. 
-        laws[2] = address(new Direct(
-          "Seniors elect seniors", 
+        // initiate law. Note: this law is NOT set as an active laws in the protocol. 
+        // It will never be called directly, by anyone, from the protocol.  
+        address parentLaw = address(new Direct(
+          "Seniors elect seniors", // max 31 chars
           "Seniors can propose and vote to (de)select seniors.", 
           AlignedGrantsDao.SENIOR_ROLE(); 
         )); 
-        allowedRoles[2] = AlignedGrantsDao.ADMIN_ROLE(); 
         
         // {NeedsVote} makes its parent law subject to a vote. 
-        laws[3] = address(new NeedsVote(
-          laws[2], // parent contract
+        laws[2] = address(new NeedsVote(
+          parentLaw, // parent contract
           true // should it execute its parent contract if vote passes?  
         )); 
-        allowedRoles[3] = AlignedGrantsDao.SENIOR_ROLE(); 
-        quorums[3] = 30;  // = 30% quorum needed
-        succeedAts[3] = 51;  // = 51% simple majority needed for assigning and revoking members. 
-        votingPeriods[3] = 1200; // = number of blocks 
+        allowedRoles[2] = AlignedGrantsDao.SENIOR_ROLE(); 
+        quorums[2] = 30;  // = 30% quorum needed
+        succeedAts[2] = 51;  // = 51% simple majority needed for assigning and revoking members. 
+        votingPeriods[2] = 1200; // = number of blocks 
 
 
         //////////////////////////////////////////////////////////////
@@ -86,16 +85,15 @@ contract Constitution {
         // initiate law - the actual executive law is set at admin. 
         // no-one should be allowed to access this law directly. ADMIN_ROLE is meant for these cases. 
         laws[4] = address(new AdoptValue(
-          "Members propose, whales accept value", 
+          "Members propose, whales accept value", // max 31 chars
           "Members vote to propose a new value to be selected. Whales can accept a proposed vale and add it to the core values of the Dao"
         )); 
-        allowedRoles[4] = AlignedGrantsDao.ADMIN_ROLE(); 
         
         // {NeedsVote} makes its parent law subject to a vote. 
         // in this case Members can vote on a proposal to execute law[4]. But they cannot execute it. 
         laws[5] = address(new NeedsVote(
           laws[4], // parent contract
-          false // this vote should accept the proposal, but not execute  
+          false // this vote can accept the proposal, but cannot execute the law  
         )); 
         allowedRoles[5] = AlignedGrantsDao.MEMBER_ROLE(); 
         quorums[5] = 60;  // = 60% quorum needed
@@ -113,20 +111,73 @@ contract Constitution {
         succeedAts[6] = 66;  // =  two/thirds majority needed for   
         votingPeriods[6] = 1200; // = number of blocks to vote 
 
-
         //////////////////////////////////////////////////////////////////////
         //        Law 7 + 8 Whales can vote to revoke a member's role       // 
         ////////////////////////////////////////////////////////////////////// 
+        // initiate law - the actual executive law is set at admin. 
+        // no-one should be allowed to access this law directly. ADMIN_ROLE is meant for these cases. 
+        laws[7] = address(new RevokeRole(
+          "Whales can revoke member role", // max 31 chars
+          "Subject to a vote, whales can revoke a member's role"
+        ));
 
+        // {NeedsVote} makes its parent law subject to a vote. 
+        // in this case Whales can vote on a proposal to execute law[7]. If votes passes, it can be executed. 
+        laws[8] = address(new NeedsVote(
+          laws[7], // parent contract
+          true // this vote makes execution possible. 
+        )); 
+        allowedRoles[8] = AlignedGrantsDao.WHALE_ROLE(); 
+        quorums[8] = 80;  // = 30% quorum needed
+        succeedAts[8] = 66;  // =  two/thirds majority needed for   
+        votingPeriods[8] = 1200; // = number of blocks to vote
 
+        /////////////////////////////////////////////////////////////////////////////////////
+        //                    Law 9, 10: Members can challenge a revoke                    // 
+        /////////////////////////////////////////////////////////////////////////////////////
+        // initiate law - the actual executive law is automatically to admin role Id (0).  
+        laws[9] = address(new ChallengeExecution(
+          "Members can challenge revoke of their role", // max 31 chars
+          "Members can challenge their role revocation. They will need to create a proposal that they themselves can pass."
+        ));
 
-
+        // {NeedsVote} makes its parent law subject to a vote. 
+        // In this case the only thing that is needed is to create a proposal. 
+        // Hence the proposal passes with 0 votes (and can be proposed and passed by any account that holds a member roleId.)
+        laws[10] = address(new NeedsVote(
+          laws[9], // parent contract
+          true // this vote makes execution possible. 
+        )); 
+        allowedRoles[10] = AlignedGrantsDao.MEMBER_ROLE(); 
+        quorums[10] = 0;  // = 0% quorum needed 
+        succeedAts[10] = 0;  // =  no threshold   
+        votingPeriods[10] = 1200; // = time to pass the proposal. -- it also acts as a delay mechanism. 
 
         //////////////////////////////////////////////////////////////////////
-        //     Law 9, 10, 11 Members can vote to revoke a member's role     // 
+        //       Law 11, 12 Members can vote to revoke a member's role      // 
         ////////////////////////////////////////////////////////////////////// 
+                // initiate law - the actual executive law is automatically to admin role Id (0).  
+        laws[11] = address(new RevertRevokeRole(
+          "Seniors can accept a Member revoke challenge and reinstate the role",  // max 31 chars
+          "Seniors can accept a Member revoke challenge and reinstate the role."
+        ));
 
+        // {NeedsVote} makes its parent law subject to a vote. 
+        // In this case the only thing that is needed is to create a proposal. 
+        // Hence the proposal passes with 0 votes (and can be proposed and passed by any account that holds a member roleId.)
+        laws[12] = address(new NeedsVote(
+          laws[11], // parent contract
+          true // this vote makes execution possible. 
+        )); 
+        allowedRoles[12] = AlignedGrantsDao.SENIOR_ROLE(); 
+        quorums[12] = 20;  // = 20% quorum needed 
+        succeedAts[12] = 67;  // =  two thitrds majority needed   
+        votingPeriods[12] = 1200; // = time to pass the proposal. 
 
+        //////////////////////////////////////////////////////////////////////
+        //       Law 13,... adding new laws and revoking existing ones      // 
+        ////////////////////////////////////////////////////////////////////// 
+        // tbi. 
 
         //////////////////////////////////////////////////////////////
         //                  RETURN CONSTITUTION                     //

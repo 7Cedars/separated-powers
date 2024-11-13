@@ -91,6 +91,16 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             revert SeparatedPowers__AccessDenied();
         }
 
+        // check if the target law needs proposal to pass. 
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
+            Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
+        // only if it needs a proposal will it return targetLaw as first target.  
+        // £security: this check fails very easily: if you have a law that returns target as a first target. 
+        // is this a problem? 
+        if (targets[0] != targetLaw) {
+            revert SeparatedPowers__LawDoesNotNeedProposal();
+        }
+        
         // if check passes: propose.
         return _propose(msg.sender, targetLaw, lawCalldata, description);
     }
@@ -107,7 +117,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     {
         // note that targetLaw AND proposer are hashed into the proposalId. By including proposer in the hash, front running a proposal is made impossible.
         proposalId = hashProposal(proposer, targetLaw, lawCalldata, keccak256(bytes(description)));
-        if (_proposals[proposalId].voteStart != 0) {
+        if (_proposals[proposalId].voteStart == 0) {
             revert SeparatedPowers__UnexpectedProposalState();
         }
 
@@ -128,9 +138,15 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         virtual
         returns (uint256)
     {
-        // check: is call from an active law? -- Note that this
-        if (!laws[msg.sender].active) {
-            revert SeparatedPowers__CancelCallNotFromActiveLaw();
+        uint256 proposalId = hashProposal(msg.sender, targetLaw, lawCalldata, descriptionHash);
+        if (_proposals[proposalId].targetLaw == address(0)) {
+            revert SeparatedPowers__InvalidProposalId();
+        }
+        if (_proposals[proposalId].completed || _proposals[proposalId].cancelled) {
+            revert SeparatedPowers__UnexpectedProposalState();
+        }
+        if (msg.sender != _proposals[proposalId].proposer) {
+            revert SeparatedPowers__AccessDenied();
         }
 
         return _cancel(targetLaw, lawCalldata, descriptionHash);
@@ -176,7 +192,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
 
         // If the previous call was successful, execute.
-        if (targets.length > 0) {
+        if (targets.length > 0 && targets[0] != targetLaw) {
             _executeOperations(targets, values, calldatas);
         }
     }
@@ -202,6 +218,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
     /// @inheritdoc ISeparatedPowers
     function complete(address proposer, bytes memory lawCalldata, bytes32 descriptionHash) external virtual {
+        // NB: £security CAN ANYONE call this function and set a proposal as completed?! 
         uint256 proposalId = hashProposal(proposer, msg.sender, lawCalldata, descriptionHash);
 
         _complete(proposalId);
@@ -226,6 +243,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         if (_proposals[proposalId].cancelled == true) {
             revert SeparatedPowers__ProposalCancelled();
         }
+
+        // £todo: check if vote has passed?! // execution has been done?
 
         // if checks pass: complete & emit event.
         _proposals[proposalId].completed = true;
