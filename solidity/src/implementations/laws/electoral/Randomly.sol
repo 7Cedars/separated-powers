@@ -28,8 +28,11 @@ pragma solidity 0.8.26;
 import { Law } from "../../../Law.sol";
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 contract Randomly is Law {
+    using ShortStrings for *;
+    
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
 
@@ -46,96 +49,97 @@ contract Randomly is Law {
     constructor(
         string memory name_, 
         string memory description_, 
+        address payable separatedPowers_,
         uint256 maxRoleHolders_,
         uint32 roleId_  
     )
-        Law(name_, description_)
+        Law(name_, description_, separatedPowers_)
     {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(address executioner, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
-        override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-    {
-        // decode the calldata.
-        (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
-        
-        // nominate if nominateMe == true 
-        // elected accounts are stored in a mapping and have to be accepted. 
-        if (nominateMe) {
-            if (_nominees[executioner] != 0) {
-                address[] memory tar = new address[](1);
-                uint256[] memory val = new uint256[](1);
-                bytes[] memory cal = new bytes[](1);
-                cal[0] = abi.encode("Nominee already nominated".toShortString()); 
-                return (tar, val, cal);
-            }
-
-            _nominees[executioner] = uint48(block.timestamp);
-            _nomineesSorted.push(executioner);
-
-            emit Randomly__NominationReceived(executioner);
-        }
-
-        // revoke nomination if executionar is nominated and nominateMe == false
-        if (!nominateMe && _nominees[executioner] != 0) {
-            _nominees[executioner] = 0;
-            for (uint256 i; i < _nomineesSorted.length; i++) {
-                if (_nomineesSorted[i] == executioner) {
-                    _nomineesSorted[i] = _nomineesSorted[_nomineesSorted.length - 1];
-                    _nomineesSorted.pop();
-                    break;
-                }
-            }
-
-            emit Randomly__NominationRevoked(executioner);
-        }
-
-        // elects roles if assignRoles == true
-        if (assignRoles) {
-          for (uint256 i = 0; i < _nomineesSorted.length; i++) {
-            // £todo here have to revoke roles first. 
-          }
-
-            uint256 numberNominees = _nomineesSorted.length; 
+    function executeLaw(
+        address executioner, 
+        bytes memory lawCalldata, 
+        bytes32 descriptionHash
+        ) external override returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) {
+            // decode the calldata.
+            (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
             
-            if (numberNominees < MAX_ROLE_HOLDERS) {
-                address[] memory tar = new address[](numberNominees);
-                uint256[] memory val = new uint256[](numberNominees);
-                bytes[] memory cal = new bytes[](numberNominees);
+            // nominate if nominateMe == true 
+            // elected accounts are stored in a mapping and have to be accepted. 
+            if (nominateMe) {
+                if (_nominees[executioner] != 0) {
+                    address[] memory tar = new address[](1);
+                    uint256[] memory val = new uint256[](1);
+                    bytes[] memory cal = new bytes[](1);
+                    cal[0] = abi.encode("Nominee already nominated".toShortString()); 
+                    return (tar, val, cal);
+                }
 
-                for (uint256 i; i < numberNominees; i++) {
-                    tar[i] = separatedPowers;
-                    val[i] = 0;
-                    cal[i] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); 
-                }
-                return (tar, val, cal);
-            } else {
-                address[] memory tar = new address[](MAX_ROLE_HOLDERS);
-                uint256[] memory val = new uint256[](MAX_ROLE_HOLDERS);
-                bytes[] memory cal = new bytes[](MAX_ROLE_HOLDERS);
-                
-                uint256 index;
-                while (index < MAX_ROLE_HOLDERS) {
-                  // computionally expensive, and pseudo random. But easy to understand as example.
-                  // £todo, mechanism here should be improved. 
-                  for (uint256 i; i < numberNominees; i++) {
-                    uint256 psuedoRandomValue = uint256(keccak256(abi.encodePacked(block.number, descriptionHash, i))); 
-                    if (psuedoRandomValue % numberNominees == 0 && _elected[_nomineesSorted[i]] == 0) {
-                          tar[index] = separatedPowers;
-                          val[index] = 0;
-                          cal[index] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); // selector probably wrong. check later. 
-                          _elected[_nomineesSorted[i]] = uint48(block.timestamp);
-                          _electedSorted.push(_nomineesSorted[i]);
-                          index++; 
-                    }
-                  }
-                }
-                return (tar, val, cal);
+                _nominees[executioner] = uint48(block.timestamp);
+                _nomineesSorted.push(executioner);
+
+                emit Randomly__NominationReceived(executioner);
             }
+
+            // revoke nomination if executionar is nominated and nominateMe == false
+            if (!nominateMe && _nominees[executioner] != 0) {
+                _nominees[executioner] = 0;
+                for (uint256 i; i < _nomineesSorted.length; i++) {
+                    if (_nomineesSorted[i] == executioner) {
+                        _nomineesSorted[i] = _nomineesSorted[_nomineesSorted.length - 1];
+                        _nomineesSorted.pop();
+                        break;
+                    }
+                }
+
+                emit Randomly__NominationRevoked(executioner);
+            }
+
+            // elects roles if assignRoles == true
+            if (assignRoles) {
+            for (uint256 i = 0; i < _nomineesSorted.length; i++) {
+                // £todo here have to revoke roles first. 
+            }
+
+                uint256 numberNominees = _nomineesSorted.length; 
+                
+                if (numberNominees < MAX_ROLE_HOLDERS) {
+                    address[] memory tar = new address[](numberNominees);
+                    uint256[] memory val = new uint256[](numberNominees);
+                    bytes[] memory cal = new bytes[](numberNominees);
+
+                    for (uint256 i; i < numberNominees; i++) {
+                        tar[i] = separatedPowers;
+                        val[i] = 0;
+                        cal[i] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); 
+                    }
+                    return (tar, val, cal);
+                } else {
+                    address[] memory tar = new address[](MAX_ROLE_HOLDERS);
+                    uint256[] memory val = new uint256[](MAX_ROLE_HOLDERS);
+                    bytes[] memory cal = new bytes[](MAX_ROLE_HOLDERS);
+                    
+                    uint256 index;
+                    while (index < MAX_ROLE_HOLDERS) {
+                    // computionally expensive, and pseudo random. But easy to understand as example.
+                    // £todo, mechanism here should be improved. 
+                    for (uint256 i; i < numberNominees; i++) {
+                        uint256 psuedoRandomValue = uint256(keccak256(abi.encodePacked(block.number, descriptionHash, i))); 
+                        if (psuedoRandomValue % numberNominees == 0 && _elected[_nomineesSorted[i]] == 0) {
+                            tar[index] = separatedPowers;
+                            val[index] = 0;
+                            cal[index] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); // selector probably wrong. check later. 
+                            _elected[_nomineesSorted[i]] = uint48(block.timestamp);
+                            _electedSorted.push(_nomineesSorted[i]);
+                            index++; 
+                        }
+                    }
+                    }
+                    return (tar, val, cal);
+                }
         }
     }
 

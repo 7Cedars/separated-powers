@@ -20,17 +20,20 @@ contract Open is Law {
     /// @notice Constructor function for Open contract.
     /// @param name_ name of the law
     /// @param description_ description of the law
-    constructor(string memory name_, string memory description_) Law(name_, description_) { }
+    /// @param separatedPowers_ the address of the core governance protocol
+    constructor(string memory name_, string memory description_, address separatedPowers_) Law(name_, description_, separatedPowers_) { }
 
     /// @notice Execute the open action.
-    /// @param proposer the address of the proposer
     /// @param lawCalldata the calldata of the law
-    /// @param descriptionHash the description hash of the law
-    function executeLaw(address proposer, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
-        override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-    {
+    function executeLaw(
+        address /*proposer*/, 
+        bytes memory lawCalldata, 
+        bytes32 /*descriptionHash*/ 
+        ) external override returns (
+            address[] memory targets, 
+            uint256[] memory values, 
+            bytes[] memory calldatas
+            ){
         // decode the calldata.
         // note: no check on decoded call data. If needed, this can be added.
         (targets, values, calldatas) = abi.decode(lawCalldata, (address[], uint256[], bytes[]));

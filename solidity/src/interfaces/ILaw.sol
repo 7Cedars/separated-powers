@@ -17,9 +17,11 @@ interface ILaw {
     ///
     /// @dev the arrays of targets, values and calldatas must have the same length.
     /// @dev Note that this function should be overridden (without a super call) to add logic of the law. 
-    function executeLaw(address proposer, bytes memory lawCallData, bytes32 descriptionHash)
-        external
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
+    function executeLaw(
+        address proposer, 
+        bytes memory lawCallData, 
+        bytes32 descriptionHash
+        ) external returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
     
     /// @notice Returns the list of block numbers at which the law was executed.
     function getExecutions() external view returns (uint48[] memory executions);

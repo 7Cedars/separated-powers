@@ -25,25 +25,32 @@ contract Preset is Law {
     /// @param description_ the description of the law.
     /// @param values_ the values to use in the calls.
     /// @param calldatas_ the calldatas to use in the calls.
-    constructor(string memory name_, string memory description_, address[] memory targets_, uint256[] memory values_, bytes[] memory calldatas_) 
-        Law(name_, description_)
-    { 
-        _targets = targets_;
-        _values = values_;
-        _calldatas = calldatas_; 
+    constructor(
+        string memory name_, 
+        string memory description_, 
+        address separatedPowers_, 
+        address[] memory targets_, 
+        uint256[] memory values_, 
+        bytes[] memory calldatas_
+        )  Law(name_, description_, separatedPowers_) { 
+            _targets = targets_;
+            _values = values_;
+            _calldatas = calldatas_; 
 
-        emit Preset__Initialized(_targets, _values, _calldatas);
+            emit Preset__Initialized(_targets, _values, _calldatas);
     }
 
     /// @notice execute the law.
-    /// @param proposer the proposer of the law.
     /// @param lawCalldata the calldata of the law.
-    /// @param descriptionHash the description hash of the law.
-    function executeLaw(address proposer, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
-        override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-    {
+    function executeLaw(
+        address /* proposer*/, 
+        bytes memory lawCalldata, 
+        bytes32 /* descriptionHash */
+        ) external override returns (
+            address[] memory targets, 
+            uint256[] memory values, 
+            bytes[] memory calldatas
+            ) {
         // decode the calldata.
         // note: no check on decoded call data. If needed, this can be added through a bespoke modifier.
         (bool execute) = abi.decode(lawCalldata, (bool));

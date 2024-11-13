@@ -18,21 +18,25 @@ pragma solidity 0.8.26;
 import { Law } from "../../../Law.sol";
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 contract Direct is Law {
+    using ShortStrings for *;
+
     uint32 private immutable ROLE_ID;
 
     event Direct__AccountAssigned(uint32 indexed roleId, address indexed account);
     event Direct__AccountRevoked(uint32 indexed roleId, address indexed account);
 
-    constructor(string memory name_, string memory description_, uint32 roleId_) Law(name_, description_) {
+    constructor(string memory name_, string memory description_, address separatedPowers_, uint32 roleId_) Law(name_, description_, separatedPowers_) {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(address proposer, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
-        override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+    function executeLaw(
+        address proposer, 
+        bytes memory lawCalldata, 
+        bytes32 /* descriptionHash */
+        ) external override returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // step 1: decode the calldata.
         (bool revoke) = abi.decode(lawCalldata, (bool));

@@ -22,11 +22,12 @@ interface SeparatedPowersTypes {
         bool completed; // 1
 
         // slot 2
+        address proposer; // 20
         uint32 againstVotes; // 4 as votes are not weighted, uint32 is sufficient to count number of votes.  -- this is a big gas saver. As such, combining the proposalCore and ProposalVote is (I think) okay
         uint32 forVotes; // 4
         uint32 abstainVotes; // 4 
         
-        // slot 2 or 3 ? £check: have to check this out. 
+        // slots 3.. £check: have to check this out. 
         mapping(address voter => bool) hasVoted; // 20 ?  
     }
 

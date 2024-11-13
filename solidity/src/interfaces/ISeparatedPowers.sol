@@ -91,7 +91,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
         uint8[] memory succeedAts, 
         uint32[] memory votingPeriods,
         // roles data 
-        uint48[] memory constituentRoles, 
+        uint32[] memory constituentRoles, 
         address[] memory constituentAccounts
         ) external;
 
@@ -121,7 +121,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @param account account address
     ///
     /// @dev this function can only be called from within {SeperatedPowers}.
-    function setRole(uint48 roleId, address account, bool access) external;
+    function setRole(uint32 roleId, address account, bool access) external;
 
     //////////////////////////////////////////////////////////////
     //                      VIEW FUNCTIONS                      //
@@ -158,11 +158,11 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @notice returns the block number since the account has held the role. Returns 0 if account does not currently hold the role.
     /// @param account account address
     /// @param roleId role identifier
-    function hasRoleSince(address account, uint48 roleId) external returns (uint48 since);
+    function hasRoleSince(address account, uint32 roleId) external returns (uint48 since);
 
     /// @notice returns the number of role holders.
     /// @param roleId role identifier
-    function getAmountRoleHolders(uint48 roleId) external returns (uint256);
+    function getAmountRoleHolders(uint32 roleId) external returns (uint256);
 
     /// @notice returns bool if law is set as active or not. (true = active, false = inactive).
     /// @param law address of the law.

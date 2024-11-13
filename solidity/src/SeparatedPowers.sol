@@ -31,11 +31,11 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     /////////////////////////////////////////////////////////////
     mapping(uint256 proposalId => Proposal) private _proposals; // mapping from proposalId to proposal
     mapping(address lawAddress => LawConfig) public laws;
-    mapping(uint48 roleId => Role) public roles;
+    mapping(uint32 roleId => Role) public roles;
 
     // two roles are preset: ADMIN_ROLE == 0 and PUBLIC_ROLE == type(uint48).max.
-    uint48 public constant ADMIN_ROLE = type(uint48).min; // == 0
-    uint48 public constant PUBLIC_ROLE = type(uint48).max; // == a lot
+    uint32 public constant ADMIN_ROLE = type(uint32).min; // == 0
+    uint32 public constant PUBLIC_ROLE = type(uint32).max; // == a lot
     uint256 constant DENOMINATOR = 100; // = 100%
 
     string public name; // name of the DAO.
@@ -92,9 +92,10 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
 
         // check if the target law needs proposal to pass. 
-        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
+        bytes32 descriptionHash = keccak256(bytes(description)); 
+        (address[] memory targets, , ) =
             Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
-        // only if it needs a proposal will it return targetLaw as first target.  
+        // only if it needs a proposal will it return targetLaw as a first target.  
         // £security: this check fails very easily: if you have a law that returns target as a first target. 
         // is this a problem? 
         if (targets[0] != targetLaw) {
@@ -126,6 +127,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         proposal.targetLaw = targetLaw;
         proposal.voteStart = uint48(block.number); // note that the moment proposal is made, voting start. There is no delay functionality.
         proposal.voteDuration = duration;
+        proposal.proposer = proposer;
 
         emit ProposalCreated(
             proposalId, proposer, targetLaw, "", lawCalldata, block.number, block.number + duration, description
@@ -139,12 +141,6 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         returns (uint256)
     {
         uint256 proposalId = hashProposal(msg.sender, targetLaw, lawCalldata, descriptionHash);
-        if (_proposals[proposalId].targetLaw == address(0)) {
-            revert SeparatedPowers__InvalidProposalId();
-        }
-        if (_proposals[proposalId].completed || _proposals[proposalId].cancelled) {
-            revert SeparatedPowers__UnexpectedProposalState();
-        }
         if (msg.sender != _proposals[proposalId].proposer) {
             revert SeparatedPowers__AccessDenied();
         }
@@ -187,14 +183,17 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
 
         // calling target law: receiving targets, values and calldatas to execute.
-        // Note that this call will revert if any conditions are not met.
+        // Note this call should never revert. It should always receive data from law.  
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
             Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
 
-        // If the previous call was successful, execute.
-        if (targets.length > 0 && targets[0] != targetLaw) {
-            _executeOperations(targets, values, calldatas);
+        // check data that law returned. 
+        if (targets.length == 0 || targets[0] == targetLaw || targets[0] == address(0)) {
+            revert SeparatedPowers__LawDidNotPassChecks();
         }
+
+        // If checks passed, execute.
+        _executeOperations(targets, values, calldatas);
     }
 
     /// @notice Internal execution mechanism.
@@ -218,7 +217,6 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
     /// @inheritdoc ISeparatedPowers
     function complete(address proposer, bytes memory lawCalldata, bytes32 descriptionHash) external virtual {
-        // NB: £security CAN ANYONE call this function and set a proposal as completed?! 
         uint256 proposalId = hashProposal(proposer, msg.sender, lawCalldata, descriptionHash);
 
         _complete(proposalId);
@@ -228,6 +226,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     /// runs through several checks before setting the proposal as completed.
     function _complete(uint256 proposalId) internal virtual {
         // check 1: is call from an active law?
+        // note: this function can only be called from an active law.
         if (!laws[msg.sender].active) {
             revert SeparatedPowers__CompleteCallNotFromActiveLaw();
         }
@@ -243,8 +242,6 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         if (_proposals[proposalId].cancelled == true) {
             revert SeparatedPowers__ProposalCancelled();
         }
-
-        // £todo: check if vote has passed?! // execution has been done?
 
         // if checks pass: complete & emit event.
         _proposals[proposalId].completed = true;
@@ -290,13 +287,13 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     /// @inheritdoc ISeparatedPowers
     function constitute(
         // laws data
-        address[] memory laws,
+        address[] memory constituentLaws,
         uint32[] memory allowedRoles,
         uint8[] memory quorums,
         uint8[] memory succeedAts,
         uint32[] memory votingPeriods,
         // roles data
-        uint48[] memory constituentRoles,
+        uint32[] memory constituentRoles,
         address[] memory constituentAccounts
     ) external virtual {
         // check 1: only admin can call this function
@@ -306,8 +303,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
         // check 2: check lengths of arrays
         if (
-            laws.length != allowedRoles.length || laws.length != quorums.length || laws.length != succeedAts.length
-                || laws.length != votingPeriods.length || constituentRoles.length != constituentAccounts.length
+            constituentLaws.length != allowedRoles.length || constituentLaws.length != quorums.length || constituentLaws.length != succeedAts.length
+                || constituentLaws.length != votingPeriods.length || constituentRoles.length != constituentAccounts.length
         ) {
             revert SeparatedPowers__InvalidArrayLengths();
         }
@@ -321,8 +318,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         _constituentLawsExecuted = true;
 
         // ...set laws
-        for (uint256 i = 0; i < laws.length; i++) {
-            _setLaw(laws[i], allowedRoles[i], quorums[i], succeedAts[i], votingPeriods[i]);
+        for (uint256 i = 0; i < constituentLaws.length; i++) {
+            _setLaw(constituentLaws[i], allowedRoles[i], quorums[i], succeedAts[i], votingPeriods[i]);
         }
         // ...and set roles
         for (uint256 i = 0; i < constituentRoles.length; i++) {
@@ -380,14 +377,14 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function setRole(uint48 roleId, address account, bool access) public virtual onlySeparatedPowers {
+    function setRole(uint32 roleId, address account, bool access) public virtual onlySeparatedPowers {
         _setRole(roleId, account, access);
     }
 
     /// @notice Internal version of {setRole} without access control.
     ///
     /// Emits a {SeperatedPowersEvents::RolSet} event.
-    function _setRole(uint48 roleId, address account, bool access) internal virtual {
+    function _setRole(uint32 roleId, address account, bool access) internal virtual {
         bool newMember = roles[roleId].members[account] == 0;
 
         if (access && newMember) {
@@ -429,7 +426,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
         uint8 succeedAt = laws[targetLaw].succeedAt;
         uint8 quorum = laws[targetLaw].quorum;
-        uint48 allowedRole = laws[targetLaw].allowedRole;
+        uint32 allowedRole = laws[targetLaw].allowedRole;
         uint256 amountMembers = roles[allowedRole].amountMembers;
 
         // note if quorum is set to 0 in a Law, it will automatically return true.
@@ -537,12 +534,12 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function hasRoleSince(address account, uint48 roleId) public view returns (uint48 since) {
+    function hasRoleSince(address account, uint32 roleId) public view returns (uint48 since) {
         return roles[roleId].members[account];
     }
 
     /// @inheritdoc ISeparatedPowers
-    function getAmountRoleHolders(uint48 roleId) public view returns (uint256 amountMembers) {
+    function getAmountRoleHolders(uint32 roleId) public view returns (uint256 amountMembers) {
         return roles[roleId].amountMembers;
     }
 

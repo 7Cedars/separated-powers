@@ -22,11 +22,13 @@ pragma solidity 0.8.26;
 import { ILaw } from "./interfaces/ILaw.sol";
 import { ERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
-import "../lib/openzeppelin-contracts/contracts/utils/ShortStrings.sol";
+import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 
 contract Law is IERC165, ERC165, ILaw {
     using ShortStrings for *; 
+
+    error Law__NoZeroAddress();
 
     ShortString public immutable name; // name of the law
     address public separatedPowers; // the address of the core governance protocol
@@ -42,7 +44,7 @@ contract Law is IERC165, ERC165, ILaw {
     }
     
     /// @inheritdoc ILaw
-    function executeLaw(address executioner, bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address /* proposer */, bytes memory /* lawCalldata */ , bytes32 /* descriptionHash */)
         external
         virtual
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
@@ -54,7 +56,7 @@ contract Law is IERC165, ERC165, ILaw {
     }
 
     /// @inheritdoc ILaw
-    function getExecutions() public view returns (uint48[] memory executions) {
+    function getExecutions() public view returns (uint48[] memory) {
         return executions;
     }
 
