@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-/// 
-/// @notice Events used in the SeparatedPowers protocol. 
+///
+/// @notice Events used in the SeparatedPowers protocol.
 /// Code derived from OpenZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
@@ -11,7 +11,7 @@ interface SeparatedPowersEvents {
     /// @param contractAddress the address of the contract
     event SeparatedPowers__Initialized(address contractAddress);
 
-    /// @notice Emitted when protocol receives funds/  
+    /// @notice Emitted when protocol receives funds/
     /// @param value the amount of funds received
     event FundsReceived(uint256 value);
 
@@ -46,7 +46,7 @@ interface SeparatedPowersEvents {
     /// @notice Emitted when a vote is cast.
     /// @param account the address of the account that cast the vote
     /// @param proposalId the id of the proposal
-    /// @param support support of the vote: Against, For or Abstain. 
+    /// @param support support of the vote: Against, For or Abstain.
     /// @param reason the reason for the vote
     event VoteCast(address indexed account, uint256 indexed proposalId, uint8 indexed support, string reason);
 
@@ -63,15 +63,15 @@ interface SeparatedPowersEvents {
     /// @param succeedAt the vote threshold: percentage of 'For' votes needed for a vote to succeed
     /// @param votingPeriod the period voting is open
     event LawSet(
-        address indexed law, 
-        uint32 indexed allowedRole, 
+        address indexed law,
+        uint32 indexed allowedRole,
         bool indexed existingLaw,
-        uint8 quorum, 
-        uint8 succeedAt, 
+        uint8 quorum,
+        uint8 succeedAt,
         uint32 votingPeriod
-        );
+    );
 
     /// @notice Emitted when a law is revoked.
     /// @param law the address of the law
-    event LawRevoked(address indexed law); 
+    event LawRevoked(address indexed law);
 }

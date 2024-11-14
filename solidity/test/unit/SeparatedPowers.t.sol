@@ -27,16 +27,16 @@
 
 // /**
 // * @notice Unit tests for the core Separated Powers protocol.
-// * 
-// * @dev tests build on the agDao example. 
-// * @dev for chained proposal tests, see the 'chain propsals' section. 
+// *
+// * @dev tests build on the agDao example.
+// * @dev for chained proposal tests, see the 'chain propsals' section.
 // */
 // contract SeparatedPowersTest is Test {
 //   /* Type declarations */
 //   SeparatedPowers separatedPowers;
 //   AgDao agDao;
 //   AgCoins agCoins;
-//   address[] constituentLaws;  
+//   address[] constituentLaws;
 
 //   /* addresses */
 //   address alice = makeAddr("alice");
@@ -48,19 +48,19 @@
 
 //   /* state variables */
 //   uint48 public constant ADMIN_ROLE = type(uint48).min; // == 0
-//   uint48 public constant PUBLIC_ROLE = type(uint48).max; // == a lot. This role is for everyone. 
-//   uint48 public constant SENIOR_ROLE = 1; 
-//   uint48 public constant WHALE_ROLE = 2; 
-//   uint48 public constant MEMBER_ROLE = 3; 
-//   bytes32 SALT = bytes32(hex'7ceda5'); 
+//   uint48 public constant PUBLIC_ROLE = type(uint48).max; // == a lot. This role is for everyone.
+//   uint48 public constant SENIOR_ROLE = 1;
+//   uint48 public constant WHALE_ROLE = 2;
+//   uint48 public constant MEMBER_ROLE = 3;
+//   bytes32 SALT = bytes32(hex'7ceda5');
 
 //   /* modifiers */
 
 //   ///////////////////////////////////////////////
 //   ///                   Setup                 ///
 //   ///////////////////////////////////////////////
-//   function setUp() public {     
-//     vm.roll(10); 
+//   function setUp() public {
+//     vm.roll(10);
 //     vm.startBroadcast(alice);
 //       agDao = new AgDao();
 //       agCoins = new AgCoins(address(agDao));
@@ -81,12 +81,11 @@
 
 //     /* setup laws */
 //     constituentLaws = _deployLaws(payable(address(agDao)), address(agCoins));
-    
+
 //     vm.startBroadcast(alice);
 //     agDao.constitute(constituentLaws, constituentRoles);
 //     vm.stopBroadcast();
 //   }
-
 
 //   //////////////////////////////////////////////////////////////
 //   //            TESTING GOVERNANCE LOGIC                      //
@@ -94,16 +93,16 @@
 //   /* {propose} */
 //   function testProposeRevertsWhenAccountLacksCredentials() public {
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david); 
-    
-//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector); 
+//     bytes memory lawCalldata = abi.encode(david);
+
+//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
 //     vm.prank(david);
 //     agDao.propose(constituentLaws[1], lawCalldata, description);
 //   }
 
-//   function testProposePassesWithCorrectCredentials() public { 
+//   function testProposePassesWithCorrectCredentials() public {
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david); 
+//     bytes memory lawCalldata = abi.encode(david);
 
 //     vm.prank(charlotte); // = already a senior
 //     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
@@ -114,110 +113,110 @@
 
 //   // function testPublicLawsAccessibleToEveryone() public {
 //     // £todo Complete this one later because it is necessary to go through whole governance trajectory to call a relevant law ({Public_challengeRevoke})
-//     // bytes memory lawCalldata = abi.encode(keccak256(bytes("I request membership to agDAO."))); 
+//     // bytes memory lawCalldata = abi.encode(keccak256(bytes("I request membership to agDAO.")));
 
 //     // vm.prank(charlotte); // = already a senior
 //     // uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 //   // }
 
-//   /* voting */ 
+//   /* voting */
 //   function testVotingIsNotPossibleForProposalsOutsideCredentials() public {
-//     // prep 
+//     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david); 
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = already a senior
 //     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
-//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector); 
-//     vm.prank(eve); // not a senior. 
+//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
+//     vm.prank(eve); // not a senior.
 //     agDao.castVote(proposalId, 1);
 //   }
 
 //   function testVotingIsNotPossibleForDefeatedProposals() public {
 //     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david); 
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = already a senior
 //     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
-//     vm.roll(4_000); // == beyond durintion of 75,proposal is defeated because quorum not reached. 
- 
-//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__ProposalNotActive.selector); 
-//     vm.prank(charlotte); // is a senior. 
+//     vm.roll(4_000); // == beyond durintion of 75,proposal is defeated because quorum not reached.
+
+//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__ProposalNotActive.selector);
+//     vm.prank(charlotte); // is a senior.
 //     agDao.castVote(proposalId, 1);
 //   }
 
 //   /* state change proposals */
 //   function testProposalDefeatedIfQuorumNotReachedInTime () public {
-//     // prep 
+//     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david); 
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = already a senior
 //     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
-//     // go forward in time. -- not votes are cast. 
-//     vm.roll(4_000); // == beyond durintion of 150 
+//     // go forward in time. -- not votes are cast.
+//     vm.roll(4_000); // == beyond durintion of 150
 //     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId);
 //     assert(uint8(proposalState) == 2); // == ProposalState.Defeated
 //   }
 
 //   function testProposalSucceededIfQuorumReachedInTime () public {
-//     // prep 
+//     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david); 
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = already a senior
 //     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
-//     // members vote in 'for' in support of david joining. 
+//     // members vote in 'for' in support of david joining.
 //     vm.prank(alice);
-//     agDao.castVote(proposalId, 1); // = For 
-//     vm.prank(bob); 
-//     agDao.castVote(proposalId, 1); // = For 
+//     agDao.castVote(proposalId, 1); // = For
+//     vm.prank(bob);
+//     agDao.castVote(proposalId, 1); // = For
 
-//     // go forward in time. 
-//     vm.roll(4_000); // == beyond durintion of 150 
-//     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId); 
+//     // go forward in time.
+//     vm.roll(4_000); // == beyond durintion of 150
+//     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId);
 //     assert(uint8(proposalState) == 3); // == ProposalState.Succeeded
 //   }
 
 //   function testVotesWithReasonsWorks() public {
-//     // prep 
+//     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david); 
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = already a senior
 //     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
-//     // members vote in 'for' in support of david joining. 
+//     // members vote in 'for' in support of david joining.
 //     vm.prank(alice);
-//     agDao.castVoteWithReason (proposalId, 1, "This is a test"); // = For 
-//     vm.prank(bob); 
-//     agDao.castVoteWithReason (proposalId, 1, "This is a test");  // = For 
+//     agDao.castVoteWithReason (proposalId, 1, "This is a test"); // = For
+//     vm.prank(bob);
+//     agDao.castVoteWithReason (proposalId, 1, "This is a test");  // = For
 
-//     // go forward in time. 
-//     vm.roll(4_000); // == beyond durintion of 150 
-//     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId); 
+//     // go forward in time.
+//     vm.roll(4_000); // == beyond durintion of 150
+//     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId);
 //     assert(uint8(proposalState) == 3); // == ProposalState.Succeeded
 //   }
 
 //   function testProposalDefeatedIfQuorumReachedButNotEnoughForVotes () public {
-//     // prep 
+//     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david); 
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = already a senior
 //     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
-//     // members vote in 'for' in support of david joining. 
+//     // members vote in 'for' in support of david joining.
 //     vm.prank(alice);
-//     agDao.castVote(proposalId, 0); // = against 
-//     vm.prank(bob); 
-//     agDao.castVote(proposalId, 0); // = against 
-//     vm.prank(charlotte); 
-//     agDao.castVote(proposalId, 1); // = For 
+//     agDao.castVote(proposalId, 0); // = against
+//     vm.prank(bob);
+//     agDao.castVote(proposalId, 0); // = against
+//     vm.prank(charlotte);
+//     agDao.castVote(proposalId, 1); // = For
 
 //     agDao.proposalVotes(proposalId);
 
-//     // go forward in time. 
-//     vm.roll(4_000); // == beyond durintion of 150 
-//     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId); 
+//     // go forward in time.
+//     vm.roll(4_000); // == beyond durintion of 150
+//     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId);
 //     assert(uint8(proposalState) == 2); // == ProposalState.Defeated
 //   }
 
@@ -225,99 +224,98 @@
 //     // £todo Complete this one later because it is necessary to go through whole governance trajectory to call a relevant law ({Public_challengeRevoke})
 //   // }
 
-
 //   /* execute proposals */
 //   function testWhenProposalPassesLawCanBeExecuted() public {
 //     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david);  
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = already a senior
-//     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); // 
+//     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); //
 
-//     // members vote in 'for' in support of david joining. 
+//     // members vote in 'for' in support of david joining.
 //     vm.prank(alice);
-//     agDao.castVote(proposalId, 1); // = For 
-//     vm.prank(bob); 
-//     agDao.castVote(proposalId, 1); // = For 
+//     agDao.castVote(proposalId, 1); // = For
+//     vm.prank(bob);
+//     agDao.castVote(proposalId, 1); // = For
 
-//     // go forward in time. 
-//     vm.roll(4_000); // == beyond durintion of 150 
-//     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId); 
+//     // go forward in time.
+//     vm.roll(4_000); // == beyond durintion of 150
+//     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId);
 //     assert(uint8(proposalState) == 3); // == ProposalState.Succeeded
 
 //     // execute
-//     vm.prank(charlotte); 
+//     vm.prank(charlotte);
 //     agDao.execute(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
 
 //     // check
 //     uint48 since = agDao.hasRoleSince(david, SENIOR_ROLE);
-//     assert(since != 0); 
+//     assert(since != 0);
 //   }
 
 //   function testWhenProposalDefeatsLawCannotBeExecuted() public {
 //       // prep
 //       string memory description = "Inviting david to join senior role at agDao";
-//       bytes memory lawCalldata = abi.encode(david);  
+//       bytes memory lawCalldata = abi.encode(david);
 //       vm.prank(charlotte); // = already a senior
-//       uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); // 
+//       uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); //
 
-//       // members vote 'against' support of david joining. 
+//       // members vote 'against' support of david joining.
 //       vm.prank(alice);
-//       agDao.castVote(proposalId, 0); // = against 
-//       vm.prank(bob); 
 //       agDao.castVote(proposalId, 0); // = against
-//       vm.prank(charlotte); 
+//       vm.prank(bob);
+//       agDao.castVote(proposalId, 0); // = against
+//       vm.prank(charlotte);
 //       agDao.castVote(proposalId, 1); // = for
 
-//       // go forward in time. 
-//       vm.roll(4_000); // == beyond durintion of 150 
-//       SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId); 
+//       // go forward in time.
+//       vm.roll(4_000); // == beyond durintion of 150
+//       SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId);
 //       assert(uint8(proposalState) == 2); // == ProposalState.Defeated
 
 //       // execute
 //       vm.expectRevert(abi.encodeWithSelector(
 //         Senior_assignRole.Senior_assignRole__ProposalVoteNotSucceeded.selector, proposalId
-//       )); 
-//       vm.prank(charlotte); 
+//       ));
+//       vm.prank(charlotte);
 //       agDao.execute(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
 //   }
 
 //   function testExecuteLawSetsProposalToCompleted() public {
 //      // prep
 //       string memory description = "Inviting david to join senior role at agDao";
-//       bytes memory lawCalldata = abi.encode(david);  
+//       bytes memory lawCalldata = abi.encode(david);
 //       vm.prank(charlotte); // = already a senior
-//       uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); 
+//       uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description);
 
-//       // seniors vote 'for' support of david joining. 
+//       // seniors vote 'for' support of david joining.
 //       vm.prank(alice);
-//       agDao.castVote(proposalId, 1); // = for 
-//       vm.prank(bob); 
 //       agDao.castVote(proposalId, 1); // = for
-//       vm.prank(charlotte); 
+//       vm.prank(bob);
+//       agDao.castVote(proposalId, 1); // = for
+//       vm.prank(charlotte);
 //       agDao.castVote(proposalId, 1); // = for
 
-//       // go forward in time. 
-//       vm.roll(4_000); // == beyond duration of 150 
-//       SeparatedPowersTypes.ProposalState proposalState1 = agDao.state(proposalId); 
+//       // go forward in time.
+//       vm.roll(4_000); // == beyond duration of 150
+//       SeparatedPowersTypes.ProposalState proposalState1 = agDao.state(proposalId);
 //       assert(uint8(proposalState1) == 3); // == ProposalState.Succeeded
 
-//       // execute 
-//       vm.prank(charlotte); 
+//       // execute
+//       vm.prank(charlotte);
 //       agDao.execute(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
 
 //       // check
-//       SeparatedPowersTypes.ProposalState proposalState2 = agDao.state(proposalId); 
+//       SeparatedPowersTypes.ProposalState proposalState2 = agDao.state(proposalId);
 //       assert(uint8(proposalState2) == 4); // == ProposalState.Completed
 //   }
 
-//   /* cancel proposals */ 
+//   /* cancel proposals */
 //   function testCancellingProposalsEmitsCorrectEvent() public {
 //     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david);  
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = already a senior
-//     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); // 
+//     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); //
 
 //     vm.expectEmit(true, false, false, false);
 //     emit SeparatedPowersEvents.ProposalCancelled(proposalId);
@@ -328,25 +326,25 @@
 //   function testCancellingProposalsSetsStateToCancelled() public {
 //     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david);  
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = already a senior
-//     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); // 
-    
+//     uint256 proposalId = agDao.propose(constituentLaws[1], lawCalldata, description); //
+
 //     vm.prank(charlotte);
 //     agDao.cancel(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
-    
-//     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId); 
+
+//     SeparatedPowersTypes.ProposalState proposalState = agDao.state(proposalId);
 //     assert(uint8(proposalState) == 1); // == ProposalState.Cancelled
 //   }
 
 //   function testCancelRevertsWhenAccountDoesNotHaveCorrectRole() public {
 //     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david);  
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = charlotte is a senior
-//     agDao.propose(constituentLaws[1], lawCalldata, description); // 
+//     agDao.propose(constituentLaws[1], lawCalldata, description); //
 
-//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector); 
+//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
 //     vm.prank(david);
 //     agDao.cancel(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
 //   }
@@ -354,203 +352,203 @@
 //   function testCancelledProposalsCannotBeExecuted() public {
 //     // prep
 //     string memory description = "Inviting david to join senior role at agDao";
-//     bytes memory lawCalldata = abi.encode(david);  
+//     bytes memory lawCalldata = abi.encode(david);
 //     vm.prank(charlotte); // = already a senior
-//     agDao.propose(constituentLaws[1], lawCalldata, description); // 
+//     agDao.propose(constituentLaws[1], lawCalldata, description); //
 
 //     vm.startPrank(charlotte);
 //     agDao.cancel(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
 
-//     vm.expectRevert(); 
+//     vm.expectRevert();
 //     agDao.execute(constituentLaws[1], lawCalldata, keccak256(bytes(description)));
-//     vm.stopPrank(); 
+//     vm.stopPrank();
 //   }
-  
+
 //   /* chain propsals */
 //   function testSuccessfulChainOfProposalsLeadsToSuccessfulExecution() public {
-//     /* PROPOSAL LINK 1: a whale proposes a law. */   
-//     // proposing... 
+//     /* PROPOSAL LINK 1: a whale proposes a law. */
+//     // proposing...
 //     address newLaw = address(new Public_assignRole(payable(address(agDao))));
 //     string memory description = "Proposing to add a new Law";
-//     bytes memory lawCalldata = abi.encode(newLaw, true);  
-    
+//     bytes memory lawCalldata = abi.encode(newLaw, true);
+
 //     vm.prank(eve); // = a whale
 //     uint256 proposalIdOne = agDao.propose(
 //       constituentLaws[4], // = Whale_proposeLaw
-//       lawCalldata, 
+//       lawCalldata,
 //       description
 //     );
-    
-//     // whales vote... Only david and eve are whales. 
+
+//     // whales vote... Only david and eve are whales.
 //     vm.prank(david);
-//     agDao.castVote(proposalIdOne, 1); // = for 
-//     vm.prank(eve); 
+//     agDao.castVote(proposalIdOne, 1); // = for
+//     vm.prank(eve);
 //     agDao.castVote(proposalIdOne, 1); // = for
 
 //     vm.roll(4_000);
 
-//     // executing... 
+//     // executing...
 //     vm.prank(david);
 //     agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
-//     // check 
-//     SeparatedPowersTypes.ProposalState proposalStateOne = agDao.state(proposalIdOne); 
+//     // check
+//     SeparatedPowersTypes.ProposalState proposalStateOne = agDao.state(proposalIdOne);
 //     assert(uint8(proposalStateOne) == 4); // == ProposalState.Completed
 
-//     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
+//     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
 //     // proposing...
 //     vm.roll(5_000);
 //     vm.prank(charlotte); // = a senior
 //     uint256 proposalIdTwo = agDao.propose(
 //       constituentLaws[5], // = Senior_acceptProposedLaw
-//       lawCalldata, 
+//       lawCalldata,
 //       description
 //     );
 
 //     // seniors vote... alice, bob and charlotte are seniors.
 //     vm.prank(alice);
-//     agDao.castVote(proposalIdTwo, 1); // = for 
-//     vm.prank(bob); 
 //     agDao.castVote(proposalIdTwo, 1); // = for
-//     vm.prank(charlotte); 
+//     vm.prank(bob);
+//     agDao.castVote(proposalIdTwo, 1); // = for
+//     vm.prank(charlotte);
 //     agDao.castVote(proposalIdTwo, 1); // = for
 
 //     vm.roll(9_000);
 
-//     // executing... 
+//     // executing...
 //     vm.prank(bob);
 //     agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
-//     // check 
-//     SeparatedPowersTypes.ProposalState proposalStateTwo = agDao.state(proposalIdTwo); 
+//     // check
+//     SeparatedPowersTypes.ProposalState proposalStateTwo = agDao.state(proposalIdTwo);
 //     assert(uint8(proposalStateTwo) == 4); // == ProposalState.Completed
 
 //     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
 //     vm.roll(10_000);
-//     vm.prank(alice); // = admin role 
+//     vm.prank(alice); // = admin role
 //     agDao.execute(constituentLaws[6], lawCalldata, keccak256(bytes(description)));
 
-//     // check if law has been set to active. 
+//     // check if law has been set to active.
 //     bool active = agDao.activeLaws(newLaw);
 //     assert (active == true);
 //   }
 
 //   function testWhaleDefeatStopsChain() public {
-//     /* PROPOSAL LINK 1: a whale proposes a law. */   
-//     // proposing... 
+//     /* PROPOSAL LINK 1: a whale proposes a law. */
+//     // proposing...
 //     address newLaw = address(new Public_assignRole(payable(address(agDao))));
 //     string memory description = "Proposing to add a new Law";
-//     bytes memory lawCalldata = abi.encode(newLaw, true);  
-    
+//     bytes memory lawCalldata = abi.encode(newLaw, true);
+
 //     vm.prank(eve); // = a whale
 //     uint256 proposalIdOne = agDao.propose(
 //       constituentLaws[4], // = Whale_proposeLaw
-//       lawCalldata, 
+//       lawCalldata,
 //       description
 //     );
-    
-//     // whales vote... Only david and eve are whales. 
+
+//     // whales vote... Only david and eve are whales.
 //     vm.prank(david);
-//     agDao.castVote(proposalIdOne, 0); // = against 
-//     vm.prank(eve); 
+//     agDao.castVote(proposalIdOne, 0); // = against
+//     vm.prank(eve);
 //     agDao.castVote(proposalIdOne, 0); // = against
 
 //     vm.roll(4_000);
 
-//     // executing does not work. 
+//     // executing does not work.
 //     vm.prank(david);
 //     vm.expectRevert(abi.encodeWithSelector(
 //       Whale_proposeLaw.Whale_proposeLaw__ProposalVoteNotSucceeded.selector, proposalIdOne
 //     ));
 //     agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
-//     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
+//     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
 //     // proposing...
 //     vm.roll(5_000);
-//     // NB: Note that it IS possible to create proposals that link back to non executed proposals. 
-//     // this is something to fix at a later date. 
-//     // proposals will not execute though. See below. 
+//     // NB: Note that it IS possible to create proposals that link back to non executed proposals.
+//     // this is something to fix at a later date.
+//     // proposals will not execute though. See below.
 //     vm.prank(charlotte); // = a senior
 //     uint256 proposalIdTwo = agDao.propose(
 //       constituentLaws[5], // = Senior_acceptProposedLaw
-//       lawCalldata, 
+//       lawCalldata,
 //       description
 //     );
 
 //     // seniors vote... alice, bob and charlotte are seniors.
 //     vm.prank(alice);
-//     agDao.castVote(proposalIdTwo, 1); // = for 
-//     vm.prank(bob); 
 //     agDao.castVote(proposalIdTwo, 1); // = for
-//     vm.prank(charlotte); 
+//     vm.prank(bob);
+//     agDao.castVote(proposalIdTwo, 1); // = for
+//     vm.prank(charlotte);
 //     agDao.castVote(proposalIdTwo, 1); // = for
 
 //     vm.roll(9_000);
 
-//     // executing... 
+//     // executing...
 //     vm.prank(bob);
-//     vm.expectRevert(abi.encodeWithSelector( 
+//     vm.expectRevert(abi.encodeWithSelector(
 //       Senior_acceptProposedLaw.Senior_acceptProposedLaw__ParentProposalNotCompleted.selector, proposalIdOne
-//     )); 
+//     ));
 //     agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 //   }
 
 //   function testSeniorDefeatStopsChain() public {
-//         /* PROPOSAL LINK 1: a whale proposes a law. */   
-//     // proposing... 
+//         /* PROPOSAL LINK 1: a whale proposes a law. */
+//     // proposing...
 //     address newLaw = address(new Public_assignRole(payable(address(agDao))));
 //     string memory description = "Proposing to add a new Law";
-//     bytes memory lawCalldata = abi.encode(newLaw, true);  
-    
+//     bytes memory lawCalldata = abi.encode(newLaw, true);
+
 //     vm.prank(eve); // = a whale
 //     uint256 proposalIdOne = agDao.propose(
 //       constituentLaws[4], // = Whale_proposeLaw
-//       lawCalldata, 
+//       lawCalldata,
 //       description
 //     );
-    
-//     // whales vote... Only david and eve are whales. 
+
+//     // whales vote... Only david and eve are whales.
 //     vm.prank(david);
-//     agDao.castVote(proposalIdOne, 1); // = for 
-//     vm.prank(eve); 
+//     agDao.castVote(proposalIdOne, 1); // = for
+//     vm.prank(eve);
 //     agDao.castVote(proposalIdOne, 1); // = for
 
 //     vm.roll(4_000);
 
-//     // executing... 
+//     // executing...
 //     vm.prank(david);
 //     agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
-//     /* PROPOSAL LINK 2: a seniors accept the proposed law. */   
+//     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
 //     vm.roll(5_000);
 //     vm.prank(charlotte); // = a senior
 //     uint256 proposalIdTwo = agDao.propose(
 //       constituentLaws[5], // = Senior_acceptProposedLaw
-//       lawCalldata, 
+//       lawCalldata,
 //       description
 //     );
 
 //     // seniors vote... alice, bob and charlotte are seniors.
 //     vm.prank(alice);
-//     agDao.castVote(proposalIdTwo, 0); // = against 
-//     vm.prank(bob); 
 //     agDao.castVote(proposalIdTwo, 0); // = against
-//     vm.prank(charlotte); 
+//     vm.prank(bob);
+//     agDao.castVote(proposalIdTwo, 0); // = against
+//     vm.prank(charlotte);
 //     agDao.castVote(proposalIdTwo, 0); // = against
 
 //     vm.roll(9_000);
 
-//     // executing... 
+//     // executing...
 //     vm.prank(bob);
 //     vm.expectRevert(abi.encodeWithSelector(
 //       Senior_acceptProposedLaw.Senior_acceptProposedLaw__ProposalNotSucceeded.selector, proposalIdTwo
-//     )); 
+//     ));
 //     agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
 //     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
-//     vm.roll(10_000);    
-//     vm.prank(alice); // = admin role 
-//     vm.expectRevert(); 
+//     vm.roll(10_000);
+//     vm.prank(alice); // = admin role
+//     vm.expectRevert();
 //     agDao.execute(constituentLaws[6], lawCalldata, keccak256(bytes(description)));
 //   }
 
@@ -563,37 +561,37 @@
 //     vm.expectEmit(true, false, false, false);
 //     emit SeparatedPowersEvents.SeparatedPowers__Initialized(address(agDao));
 
-//     vm.prank(alice); 
+//     vm.prank(alice);
 //     separatedPowers = new SeparatedPowers("TestDao");
 //   }
 
 //   function testDeployProtocolSetsSenderToAdmin () public {
-//     vm.prank(alice); 
+//     vm.prank(alice);
 //     separatedPowers = new SeparatedPowers("TestDao");
 
 //     assert (separatedPowers.hasRoleSince(alice, ADMIN_ROLE) != 0);
 //   }
-  
+
 //   function testLawsRevertWhenNotActivated () public {
 //     string memory requiredStatement = "I request membership to agDAO.";
 //     bytes32 requiredStatementHash = keccak256(bytes(requiredStatement));
 //     bytes memory lawCalldata = abi.encode(requiredStatementHash);
-    
-//     vm.startPrank(alice); 
+
+//     vm.startPrank(alice);
 //     AgDao agDaoTest = new AgDao();
 //     Law memberAssignRole = new Public_assignRole(payable(address(agDaoTest)));
 //     vm.stopPrank();
 
-//     vm.prank(bob); 
-//     agDaoTest.execute(address(memberAssignRole), lawCalldata, keccak256(bytes(requiredStatement))); 
+//     vm.prank(bob);
+//     agDaoTest.execute(address(memberAssignRole), lawCalldata, keccak256(bytes(requiredStatement)));
 //   }
 
 //   function testConstituteSetsLawsToActive() public {
 //     SeparatedPowersTypes.ConstituentRole[] memory constituentRoles = new SeparatedPowersTypes.ConstituentRole[](1);
 //     constituentRoles[0] = SeparatedPowersTypes.ConstituentRole(alice, MEMBER_ROLE);
 //     constituentLaws = _deployLaws(payable(address(agDao)), address(agCoins));
-    
-//     vm.startPrank(alice); 
+
+//     vm.startPrank(alice);
 //     AgDao agDaoTest = new AgDao();
 //     agDaoTest.constitute(constituentLaws, constituentRoles);
 //     vm.stopPrank();
@@ -614,8 +612,8 @@
 //   }
 
 //   function testConstituteCannotBeCalledByNonAdmin() public {
-//     vm.roll(15); 
-//     vm.startBroadcast(alice); // => alice automatically set as admin. 
+//     vm.roll(15);
+//     vm.startBroadcast(alice); // => alice automatically set as admin.
 //       agDao = new AgDao();
 //       agCoins = new AgCoins(address(agDao));
 //     vm.stopBroadcast();
@@ -624,8 +622,8 @@
 //     constituentRoles[0] = SeparatedPowersTypes.ConstituentRole(alice, MEMBER_ROLE);
 //     constituentLaws = _deployLaws(payable(address(agDao)), address(agCoins));
 
-//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector); 
-//     vm.startBroadcast(bob); // != admin 
+//     vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
+//     vm.startBroadcast(bob); // != admin
 //     agDao.constitute(constituentLaws, constituentRoles);
 //     vm.stopBroadcast();
 //   }
@@ -777,7 +775,7 @@
 //     agDao.execute(constituentLaws[6], lawCalldata, keccak256(bytes(description)));
 //   }
 
-//   /* Role Management */ 
+//   /* Role Management */
 //   /* adding and removing roles */
 //   function testSetRoleCannotBeCalledFromOutsidePropotocol() public {
 //     vm.prank(alice); // = Admin
@@ -951,7 +949,6 @@
 //     assert (agDao.hasVoted(proposalId, charlotte) == true);
 //   }
 
-
 //   ///////////////////////////////////////////////
 //   ///                   Helpers               ///
 //   ///////////////////////////////////////////////
@@ -960,27 +957,27 @@
 
 //       // deploying laws //
 //       vm.startPrank(bob);
-//       // re assigning roles // 
+//       // re assigning roles //
 //       laws[0] = address(new Public_assignRole(agDaoAddress_));
 //       laws[1] = address(new Senior_assignRole(agDaoAddress_, agCoinsAddress_));
 //       laws[2] = address(new Senior_revokeRole(agDaoAddress_, agCoinsAddress_));
 //       laws[3] = address(new Member_assignWhale(agDaoAddress_, agCoinsAddress_));
-      
-//       // re activating & deactivating laws  // 
+
+//       // re activating & deactivating laws  //
 //       laws[4] = address(new Whale_proposeLaw(agDaoAddress_, agCoinsAddress_));
 //       laws[5] = address(new Senior_acceptProposedLaw(agDaoAddress_, agCoinsAddress_, address(laws[4])));
 //       laws[6] = address(new Admin_setLaw(agDaoAddress_, address(laws[5])));
 
-//       // re updating core values // 
+//       // re updating core values //
 //       laws[7] = address(new Member_proposeCoreValue(agDaoAddress_, agCoinsAddress_));
 //       laws[8] = address(new Whale_acceptCoreValue(agDaoAddress_, agCoinsAddress_, address(laws[7])));
-      
-//       // re enforcing core values as requirement for external funding //   
+
+//       // re enforcing core values as requirement for external funding //
 //       laws[9] = address(new Whale_revokeMember(agDaoAddress_, agCoinsAddress_));
 //       laws[10] = address(new Public_challengeRevoke(agDaoAddress_, address(laws[9])));
 //       laws[11] = address(new Senior_reinstateMember(agDaoAddress_, agCoinsAddress_, address(laws[10])));
 //       vm.stopPrank();
 
-//       return laws; 
+//       return laws;
 //     }
 // }

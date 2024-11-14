@@ -28,15 +28,16 @@ contract Direct is Law {
     event Direct__AccountAssigned(uint32 indexed roleId, address indexed account);
     event Direct__AccountRevoked(uint32 indexed roleId, address indexed account);
 
-    constructor(string memory name_, string memory description_, address separatedPowers_, uint32 roleId_) Law(name_, description_, separatedPowers_) {
+    constructor(string memory name_, string memory description_, address separatedPowers_, uint32 roleId_)
+        Law(name_, description_, separatedPowers_)
+    {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(
-        address proposer, 
-        bytes memory lawCalldata, 
-        bytes32 /* descriptionHash */
-        ) external override returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+    function executeLaw(address proposer, bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+        external
+        override
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // step 1: decode the calldata.
         (bool revoke) = abi.decode(lawCalldata, (bool));
@@ -46,10 +47,10 @@ contract Direct is Law {
         uint256[] memory val = new uint256[](1);
         bytes[] memory cal = new bytes[](1);
 
-        // £ to do: I combined the laws into one. Simplifying flow. 
+        // £ to do: I combined the laws into one. Simplifying flow.
         if (revoke) {
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(proposer, ROLE_ID) == 0) {
-                cal[0] = abi.encode("account does not have role".toShortString()); 
+                cal[0] = abi.encode("account does not have role".toShortString());
                 return (tar, val, cal);
             }
             tar[0] = separatedPowers;
@@ -58,7 +59,7 @@ contract Direct is Law {
             return (tar, val, cal);
         } else {
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(proposer, ROLE_ID) != 0) {
-                cal[0] = abi.encode("account already has role".toShortString()); 
+                cal[0] = abi.encode("account already has role".toShortString());
                 return (tar, val, cal);
             }
             tar[0] = separatedPowers;

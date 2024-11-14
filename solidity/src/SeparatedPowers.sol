@@ -91,17 +91,16 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             revert SeparatedPowers__AccessDenied();
         }
 
-        // check if the target law needs proposal to pass. 
-        bytes32 descriptionHash = keccak256(bytes(description)); 
-        (address[] memory targets, , ) =
-            Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
-        // only if it needs a proposal will it return targetLaw as a first target.  
-        // £security: this check fails very easily: if you have a law that returns target as a first target. 
-        // is this a problem? 
+        // check if the target law needs proposal to pass.
+        bytes32 descriptionHash = keccak256(bytes(description));
+        (address[] memory targets,,) = Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
+        // only if it needs a proposal will it return targetLaw as a first target.
+        // £security: this check fails very easily: if you have a law that returns target as a first target.
+        // is this a problem?
         if (targets[0] != targetLaw) {
             revert SeparatedPowers__LawDoesNotNeedProposal();
         }
-        
+
         // if check passes: propose.
         return _propose(msg.sender, targetLaw, lawCalldata, description);
     }
@@ -183,11 +182,11 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
 
         // calling target law: receiving targets, values and calldatas to execute.
-        // Note this call should never revert. It should always receive data from law.  
+        // Note this call should never revert. It should always receive data from law.
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
             Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
 
-        // check data that law returned. 
+        // check data that law returned.
         if (targets.length == 0 || targets[0] == targetLaw || targets[0] == address(0)) {
             revert SeparatedPowers__LawDidNotPassChecks();
         }
@@ -303,8 +302,9 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
         // check 2: check lengths of arrays
         if (
-            constituentLaws.length != allowedRoles.length || constituentLaws.length != quorums.length || constituentLaws.length != succeedAts.length
-                || constituentLaws.length != votingPeriods.length || constituentRoles.length != constituentAccounts.length
+            constituentLaws.length != allowedRoles.length || constituentLaws.length != quorums.length
+                || constituentLaws.length != succeedAts.length || constituentLaws.length != votingPeriods.length
+                || constituentRoles.length != constituentAccounts.length
         ) {
             revert SeparatedPowers__InvalidArrayLengths();
         }

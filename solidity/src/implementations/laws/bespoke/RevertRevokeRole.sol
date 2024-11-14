@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-/// Note natspecs are still WIP. 
+/// Note natspecs are still WIP.
 ///
 /// @notice A modifier that sets a function to be conditioned by a proposal vote.
 /// This modifier ensures that the function is only callable if a proposal has passed a vote.
@@ -11,19 +11,17 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 contract RevertRevokeRole is Law {
-  using ShortStrings for *;
+    using ShortStrings for *;
 
-  bool private immutable _execute;
+    bool private immutable _execute;
 
-  constructor(string memory name_, string memory description_, address separatedPowers_ ) 
-        Law(name_, description_, separatedPowers_) 
+    constructor(string memory name_, string memory description_, address separatedPowers_)
+        Law(name_, description_, separatedPowers_)
     { }
 
-  function executeLaw(      
-    address proposer, 
-    bytes memory lawCalldata, 
-    bytes32 descriptionHash
-    ) external override returns (address[] memory tar, uint256[] memory val, bytes[] memory cal) {
-
-  }
+    function executeLaw(address proposer, bytes memory lawCalldata, bytes32 descriptionHash)
+        external
+        override
+        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
+    { }
 }

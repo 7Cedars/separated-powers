@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-/// @notice Errors used in the SeparatedPowers protocol. 
+/// @notice Errors used in the SeparatedPowers protocol.
 /// Code derived from OpenZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
@@ -8,7 +8,7 @@
 pragma solidity 0.8.26;
 
 interface SeparatedPowersErrors {
-    /// @notice Emitted when constitute is called more than once.  
+    /// @notice Emitted when constitute is called more than once.
     error SeparatedPowers__ConstitutionAlreadyExecuted();
 
     /// @notice Emitted when a function is called from a contract that is not SeparatedPowers.
@@ -18,7 +18,7 @@ interface SeparatedPowersErrors {
     error SeparatedPowers__AccessDenied();
 
     /// @notice Emmitted when a law does not need a proposal.
-    error SeparatedPowers__LawDoesNotNeedProposal(); 
+    error SeparatedPowers__LawDoesNotNeedProposal();
 
     // emitted when a role access is called, but role access is already set at requested access.
     error SeparatedPowers__RoleAccessNotChanged();
@@ -39,7 +39,7 @@ interface SeparatedPowersErrors {
     error SeparatedPowers__ProposalCancelled();
 
     /// @notice Emitted when cancelling a proposal that does not reference an active law.
-    error SeparatedPowers__CancelCallNotFromActiveLaw(); 
+    error SeparatedPowers__CancelCallNotFromActiveLaw();
 
     /// @notice Emitted when completing a proposal that does not reference an active law.
     error SeparatedPowers__CompleteCallNotFromActiveLaw();
