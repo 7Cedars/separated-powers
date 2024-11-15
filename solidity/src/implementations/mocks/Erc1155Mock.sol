@@ -9,15 +9,13 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
  */
 contract Erc1155Mock is ERC1155 {
     error Erc1155Mock__NoZeroAmount();
-    error Erc1155Mock__AmountExceedsMax();
+    error Erc1155Mock__AmountExceedsMax(uint256 amount, uint256 maxAmount);
 
-    uint256 constant MAX_AMOUNT_COINS_TO_MINT = 20_000;
+    uint256 constant MAX_AMOUNT_COINS_TO_MINT = 100_000_000;
     uint256 constant COIN_ID = 0;
 
     // the dao address receives half of mintable coins.
-    constructor(address dao) ERC1155("") {
-        _mint(dao, COIN_ID, type(uint256).max / 2, "");
-    }
+    constructor() ERC1155("mock") { }
 
     // a public non-restricted function that allows anyone to mint coins. Only restricted by max allowed coins to mint.
     function mintCoins(uint256 amount) public {
@@ -25,7 +23,7 @@ contract Erc1155Mock is ERC1155 {
             revert Erc1155Mock__NoZeroAmount();
         }
         if (amount > MAX_AMOUNT_COINS_TO_MINT) {
-            revert Erc1155Mock__AmountExceedsMax();
+            revert Erc1155Mock__AmountExceedsMax(amount, MAX_AMOUNT_COINS_TO_MINT);
         }
 
         _mint(msg.sender, COIN_ID, amount, "");

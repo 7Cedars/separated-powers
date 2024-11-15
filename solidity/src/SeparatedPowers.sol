@@ -52,6 +52,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         _;
     }
 
+    // need to add check for zero address & implement where necessary.  
+
     //////////////////////////////////////////////////////////////
     //              CONSTRUCTOR & RECEIVE                       //
     //////////////////////////////////////////////////////////////
@@ -174,6 +176,39 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
+    function castVote(uint256 proposalId, uint8 support) external virtual {
+        address voter = msg.sender;
+        return _castVote(proposalId, voter, support, "");
+    }
+
+    /// @inheritdoc ISeparatedPowers
+    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) public virtual {
+        address voter = msg.sender;
+        return _castVote(proposalId, voter, support, reason);
+    }
+
+    /// @notice Internal vote casting mechanism.
+    /// Check that the proposal is active, and that account is has access to targetLaw.
+    ///
+    /// Emits a {SeperatedPowersEvents::VoteCast} event.
+    function _castVote(uint256 proposalId, address account, uint8 support, string memory reason) internal virtual {
+        // Check that the proposal is active, that it has not been paused, cancelled or ended yet.
+        if (SeparatedPowers(payable(address(this))).state(proposalId) != ProposalState.Active) {
+            revert SeparatedPowers__ProposalNotActive();
+        }
+        // Note that we check if account has access to the law targetted in the proposal.
+        address targetLaw = _proposals[proposalId].targetLaw;
+        uint32 allowedRole = laws[targetLaw].allowedRole;
+        if (roles[allowedRole].members[account] == 0 && allowedRole != PUBLIC_ROLE) {
+            revert SeparatedPowers__AccessDenied();
+        }
+        // if all this passes: cast vote.
+        _countVote(proposalId, account, support);
+
+        emit VoteCast(account, proposalId, support, reason);
+    }
+
+    /// @inheritdoc ISeparatedPowers
     function execute(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash) external payable virtual {
         // check 1: does executioner have access to law being executed?
         uint32 allowedRole = laws[targetLaw].allowedRole;
@@ -245,39 +280,6 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         // if checks pass: complete & emit event.
         _proposals[proposalId].completed = true;
         emit ProposalCompleted(proposalId);
-    }
-
-    /// @inheritdoc ISeparatedPowers
-    function castVote(uint256 proposalId, uint8 support) external virtual {
-        address voter = msg.sender;
-        return _castVote(proposalId, voter, support, "");
-    }
-
-    /// @inheritdoc ISeparatedPowers
-    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) public virtual {
-        address voter = msg.sender;
-        return _castVote(proposalId, voter, support, reason);
-    }
-
-    /// @notice Internal vote casting mechanism.
-    /// Check that the proposal is active, and that account is has access to targetLaw.
-    ///
-    /// Emits a {SeperatedPowersEvents::VoteCast} event.
-    function _castVote(uint256 proposalId, address account, uint8 support, string memory reason) internal virtual {
-        // Check that the proposal is active, that it has not been paused, cancelled or ended yet.
-        if (SeparatedPowers(payable(address(this))).state(proposalId) != ProposalState.Active) {
-            revert SeparatedPowers__ProposalNotActive();
-        }
-        // Note that we check if account has access to the law targetted in the proposal.
-        address targetLaw = _proposals[proposalId].targetLaw;
-        uint32 allowedRole = laws[targetLaw].allowedRole;
-        if (roles[allowedRole].members[account] == 0 && allowedRole != PUBLIC_ROLE) {
-            revert SeparatedPowers__AccessDenied();
-        }
-        // if all this passes: cast vote.
-        _countVote(proposalId, account, support);
-
-        emit VoteCast(account, proposalId, support, reason);
     }
 
     //////////////////////////////////////////////////////////////

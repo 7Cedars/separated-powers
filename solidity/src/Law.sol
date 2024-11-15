@@ -24,7 +24,7 @@ import { ERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
-contract Law is IERC165, ERC165, ILaw {
+contract Law is ERC165, ILaw {
     using ShortStrings for *;
 
     error Law__NoZeroAddress();

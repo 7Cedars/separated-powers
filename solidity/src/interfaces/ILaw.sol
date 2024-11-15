@@ -4,9 +4,11 @@
 /// Code derived from OpenZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+import {IERC165} from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
+
 pragma solidity 0.8.26;
 
-interface ILaw {
+interface ILaw is IERC165 {
     error ILaw__AccessNotAuthorized(address caller);
 
     /// @notice external function to execute a law.

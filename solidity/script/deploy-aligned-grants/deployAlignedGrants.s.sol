@@ -8,33 +8,44 @@ import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
 import { Law } from "../../src/Law.sol";
 import { SeparatedPowersTypes } from "../../src/interfaces/SeparatedPowersTypes.sol";
 import { AlignedGrants } from "../../src/implementations/daos/AlignedGrants.sol";
-import { ERC1155Mock } from "../../src/implementations/mocks/ERC1155Mock.sol";
+import { Erc1155Mock } from "../../src/implementations/mocks/Erc1155Mock.sol";
 import { Constitution } from "./Constitution.s.sol";
 import { Founders } from "./Founders.s.sol";
 
 contract DeployAlignedGrants is Script {
     /* Functions */
-    function run() external returns (AlignedGrants, ERC1155Mock) {
+    function run(Erc1155Mock erc1155Mock) external returns (
+        AlignedGrants, 
+        address[] memory laws,
+        uint32[] memory allowedRoles,
+        uint8[] memory quorums,
+        uint8[] memory succeedAts,
+        uint32[] memory votingPeriods,  
+        uint32[] memory constituentRoles, 
+        address[] memory constituentAccounts
+        ) {
         Constitution constitution = new Constitution();
         Founders founders = new Founders();
         //
         vm.startBroadcast();
-        AlignedGrants agDao = new AlignedGrants();
-        ERC1155Mock mock1155 = new ERC1155Mock(payable(address(agDao)));
-
+        AlignedGrants alignedGrants = new AlignedGrants();
+        
         (
             address[] memory laws,
             uint32[] memory allowedRoles,
             uint8[] memory quorums,
             uint8[] memory succeedAts,
             uint32[] memory votingPeriods
-        ) = constitution.initiate(payable(address(agDao)), payable(address((mock1155))));
+            ) = constitution.initiate(payable(address(alignedGrants)), payable(address((erc1155Mock))));
 
-        (uint32[] memory constituentRoles, address[] memory constituentAccounts) = founders.get();
+        (
+            uint32[] memory constituentRoles, 
+            address[] memory constituentAccounts
+            ) = founders.get(payable(address(alignedGrants)));
 
-        agDao.constitute(laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts);
+        alignedGrants.constitute(laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts);
         vm.stopBroadcast();
 
-        return (agDao, mock1155);
+        return (alignedGrants, laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts);
     }
 }
