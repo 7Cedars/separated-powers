@@ -121,8 +121,8 @@ pragma solidity 0.8.26;
 //     agDao.execute(constituentLaws[7], lawCalldata, keccak256(bytes(description)));
 
 //     // check
-//     SeparatedPowersTypes.ProposalState proposalStateOne = agDao.state(proposalIdOne);
-//     assert(uint8(proposalStateOne) == 4); // == ProposalState.Completed
+//     SeparatedPowersTypes.ActionState proposalStateOne = agDao.state(proposalIdOne);
+//     assert(uint8(proposalStateOne) == 4); // == ActionState.Completed
 
 //     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
 //     // proposing...
@@ -148,8 +148,8 @@ pragma solidity 0.8.26;
 //     agDao.execute(constituentLaws[8], lawCalldata, keccak256(bytes(description)));
 
 //     // check
-//     SeparatedPowersTypes.ProposalState proposalStateTwo = agDao.state(proposalIdTwo);
-//     assert(uint8(proposalStateTwo) == 4); // == ProposalState.Completed
+//     SeparatedPowersTypes.ActionState proposalStateTwo = agDao.state(proposalIdTwo);
+//     assert(uint8(proposalStateTwo) == 4); // == ActionState.Completed
 
 //     ShortString newRequirement = agDao.coreRequirements(1);
 //     string memory requirement = newRequirement.toString();
@@ -189,8 +189,8 @@ pragma solidity 0.8.26;
 //     agDao.execute(constituentLaws[9], lawCalldata, keccak256(bytes(description)));
 
 //     // check
-//     SeparatedPowersTypes.ProposalState proposalStateOne = agDao.state(proposalIdOne);
-//     assert(uint8(proposalStateOne) == 4); // == ProposalState.Completed
+//     SeparatedPowersTypes.ActionState proposalStateOne = agDao.state(proposalIdOne);
+//     assert(uint8(proposalStateOne) == 4); // == ActionState.Completed
 //     assert (agDao.blacklistedAccounts(alice) == true);
 
 //     // Alice tries to reinstate themselves as member.
@@ -226,8 +226,8 @@ pragma solidity 0.8.26;
 //     agDao.execute(constituentLaws[9], lawCalldata, keccak256(bytes(description)));
 
 //     // check if alice has indeed been blacklisted.
-//     SeparatedPowersTypes.ProposalState proposalStateOne = agDao.state(proposalIdOne);
-//     assert(uint8(proposalStateOne) == 4); // == ProposalState.Completed
+//     SeparatedPowersTypes.ActionState proposalStateOne = agDao.state(proposalIdOne);
+//     assert(uint8(proposalStateOne) == 4); // == ActionState.Completed
 //     assert (agDao.blacklistedAccounts(alice) == true);
 
 //     vm.roll(5_000);
@@ -249,8 +249,8 @@ pragma solidity 0.8.26;
 //     agDao.execute(constituentLaws[10], lawCalldataChallenge, keccak256(bytes(descriptionChallenge)));
 
 //     // check
-//     SeparatedPowersTypes.ProposalState proposalStateTwo = agDao.state(proposalIdTwo);
-//     assert(uint8(proposalStateTwo) == 4); // == ProposalState.Completed
+//     SeparatedPowersTypes.ActionState proposalStateTwo = agDao.state(proposalIdTwo);
+//     assert(uint8(proposalStateTwo) == 4); // == ActionState.Completed
 
 //     vm.roll(10_000);
 //     // PROPOSAL LINK 3: challenge is accepted by Seniors, member is reinstated.
@@ -276,8 +276,8 @@ pragma solidity 0.8.26;
 //     agDao.execute(constituentLaws[11], lawCalldataChallenge, keccak256(bytes(descriptionChallenge)));
 
 //     // check
-//     SeparatedPowersTypes.ProposalState proposalStateThree = agDao.state(proposalIdThree);
-//     assert(uint8(proposalStateThree) == 4); // == ProposalState.Completed
+//     SeparatedPowersTypes.ActionState proposalStateThree = agDao.state(proposalIdThree);
+//     assert(uint8(proposalStateThree) == 4); // == ActionState.Completed
 
 //     // check if alice has indeed been reinstated.
 //     agDao.hasRoleSince(alice, MEMBER_ROLE);

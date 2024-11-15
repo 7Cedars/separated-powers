@@ -1,6 +1,6 @@
 "use client"
 
-import { ProposalViewProps, Vote } from '@/context/types';
+import { ExecutiveActionViewProps, Vote } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
 import React, { useState } from 'react';
 import { lawContracts } from '@/context/lawContracts';
@@ -25,7 +25,7 @@ const textColour = [
     "text-purple-600"
 ]
 
-const ProposalView:  React.FC<ProposalViewProps> = ({proposal, isDisabled}: ProposalViewProps) => {
+const ExecutiveActionView:  React.FC<ExecutiveActionViewProps> = ({proposal, isDisabled}: ExecutiveActionViewProps) => {
     const {status, error, law, execute, castVote} = useActions(); 
     const lawTitle: `0x${string}` = lawContracts.find((law: any) => law.address === proposal.targetLaw)?.description as `0x${string}`
     const roleId: number = Number(lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId) 
@@ -68,13 +68,13 @@ const ProposalView:  React.FC<ProposalViewProps> = ({proposal, isDisabled}: Prop
                 <section className='grid grid-cols-2'>
                     <div className='flex flex-col items-start gap-1'>
                         <h4 className='text-white text-lg font-semibold text-left'>
-                            Proposal: {lawTitle}
+                            ExecutiveAction: {lawTitle}
                         </h4>
                         <p className='text-white text-left'>
-                            Proposal Id: {`${String(proposal.proposalId).slice(0, 6)}...${String(proposal.proposalId).slice(-6)}`}
+                            ExecutiveAction Id: {`${String(proposal.proposalId).slice(0, 6)}...${String(proposal.proposalId).slice(-6)}`}
                         </p>
                         <p className='text-white text-left'>
-                            Proposer: {`${String(proposal.proposer).slice(0, 6)}...${String(proposal.proposer).slice(-6)}`}
+                            Proposer: {`${String(proposal.initiator).slice(0, 6)}...${String(proposal.initiator).slice(-6)}`}
                         </p>
                     </div>
                     <div className='flex flex-col items-end gap-1'>
@@ -156,4 +156,4 @@ const ProposalView:  React.FC<ProposalViewProps> = ({proposal, isDisabled}: Prop
     );
 };
 
-export default ProposalView;
+export default ExecutiveActionView;

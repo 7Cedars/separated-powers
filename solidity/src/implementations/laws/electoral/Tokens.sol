@@ -115,7 +115,7 @@ contract Tokens is Law {
                 for (uint256 i; i < numberNominees; i++) {
                     tar[i] = separatedPowers;
                     val[i] = 0;
-                    cal[i] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]);
+                    cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true);
                 }
                 return (tar, val, cal);
             } else {
@@ -141,7 +141,7 @@ contract Tokens is Law {
                             } else {
                                 tar[index] = separatedPowers;
                                 val[index] = 0;
-                                cal[index] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); // selector probably wrong. check later.
+                                cal[index] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true); // selector probably wrong. check later.
                                 index++;
 
                                 emit Tokens__RolesAssigned(ROLE_ID, _nomineesSorted[i]);

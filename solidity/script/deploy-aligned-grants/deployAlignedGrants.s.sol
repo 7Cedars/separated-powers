@@ -13,6 +13,14 @@ import { Constitution } from "./Constitution.s.sol";
 import { Founders } from "./Founders.s.sol";
 
 contract DeployAlignedGrants is Script {
+    address[] laws;
+    uint32[] allowedRoles;
+    uint8[] quorums;
+    uint8[] succeedAts;
+    uint32[] votingPeriods;  
+    uint32[] constituentRoles; 
+    address[] constituentAccounts; 
+
     /* Functions */
     function run(Erc1155Mock erc1155Mock) external returns (
         AlignedGrants, 
@@ -22,7 +30,7 @@ contract DeployAlignedGrants is Script {
         uint8[] memory succeedAts,
         uint32[] memory votingPeriods,  
         uint32[] memory constituentRoles, 
-        address[] memory constituentAccounts
+        address[] memory constituentAccounts 
         ) {
         Constitution constitution = new Constitution();
         Founders founders = new Founders();
@@ -31,16 +39,16 @@ contract DeployAlignedGrants is Script {
         AlignedGrants alignedGrants = new AlignedGrants();
         
         (
-            address[] memory laws,
-            uint32[] memory allowedRoles,
-            uint8[] memory quorums,
-            uint8[] memory succeedAts,
-            uint32[] memory votingPeriods
+            laws,
+            allowedRoles,
+            quorums,
+            succeedAts,
+            votingPeriods
             ) = constitution.initiate(payable(address(alignedGrants)), payable(address((erc1155Mock))));
 
         (
-            uint32[] memory constituentRoles, 
-            address[] memory constituentAccounts
+            constituentRoles, 
+            constituentAccounts
             ) = founders.get(payable(address(alignedGrants)));
 
         alignedGrants.constitute(laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts);

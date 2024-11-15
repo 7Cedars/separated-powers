@@ -16,7 +16,7 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 
-contract Open is Law {
+contract ExecutiveActionOnly is Law {
     /// @notice Constructor function for Open contract.
     /// @param name_ name of the law
     /// @param description_ description of the law
@@ -27,17 +27,15 @@ contract Open is Law {
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
-    function executeLaw(address, /*proposer*/ bytes memory lawCalldata, bytes32 /*descriptionHash*/ )
+    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 /*descriptionHash*/ )
         external
         override
+        // needVote() //  needs vote to pass
+        // needsParentCompleted() // needs parent Law to be completed. 
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // decode the calldata.
-        // note: no check on decoded call data. If needed, this can be added.
-        (targets, values, calldatas) = abi.decode(lawCalldata, (address[], uint256[], bytes[]));
-
-        // send calldata straight to the SeparatedPowers protocol.
-        executions.push(uint48(block.number));
-        return (targets, values, calldatas);
+        // at execution, send empty calldata to protocol. -- nothing gets done. 
+        tar[0] = address(1); // protocol should not revert. 
+        return (tar, val, cal);
     }
 }

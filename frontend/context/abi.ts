@@ -276,7 +276,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "function",
-    "name": "hashProposal",
+    "name": "hashExecutiveAction",
     "inputs": [
       { "name": "targetLaw", "type": "address", "internalType": "address" },
       { "name": "lawCalldata", "type": "bytes", "internalType": "bytes" },
@@ -436,7 +436,7 @@ export const agDaoAbi =  [
       {
         "name": "",
         "type": "uint8",
-        "internalType": "enum ISeparatedPowers.ProposalState"
+        "internalType": "enum ISeparatedPowers.ActionState"
       }
     ],
     "stateMutability": "view"
@@ -539,7 +539,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "event",
-    "name": "ProposalCancelled",
+    "name": "ExecutiveActionCancelled",
     "inputs": [
       {
         "name": "proposalId",
@@ -552,7 +552,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "event",
-    "name": "ProposalCompleted",
+    "name": "ExecutiveActionCompleted",
     "inputs": [
       {
         "name": "proposalId",
@@ -565,7 +565,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "event",
-    "name": "ProposalCreated",
+    "name": "ExecutiveActionCreated",
     "inputs": [
       {
         "name": "proposalId",
@@ -574,7 +574,7 @@ export const agDaoAbi =  [
         "internalType": "uint256"
       },
       {
-        "name": "proposer",
+        "name": "initiator",
         "type": "address",
         "indexed": false,
         "internalType": "address"
@@ -738,7 +738,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__InvalidProposalId",
+    "name": "SeparatedPowers__InvalidExecutiveActionId",
     "inputs": []
   },
   {
@@ -760,27 +760,27 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__ProposalAlreadyCompleted",
+    "name": "SeparatedPowers__ExecutiveActionAlreadyCompleted",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__ProposalCancelled",
+    "name": "SeparatedPowers__ExecutiveActionCancelled",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__ProposalNotActive",
+    "name": "SeparatedPowers__ExecutiveActionNotActive",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__UnexpectedProposalState",
+    "name": "SeparatedPowers__UnexpectedActionState",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeperatedPowers__NonExistentProposal",
+    "name": "SeperatedPowers__NonExistentExecutiveAction",
     "inputs": [
       { "name": "proposalId", "type": "uint256", "internalType": "uint256" }
     ]

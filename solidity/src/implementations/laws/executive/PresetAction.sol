@@ -11,14 +11,14 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 
-contract Preset is Law {
+contract PresetAction is Law {
     /// the targets, values and calldatas to be used in the calls: set at construction.
     address[] private _targets;
     uint256[] private _values;
     bytes[] private _calldatas;
 
     /// emitted when the law is initialised.
-    event Preset__Initialized(address[] targets, uint256[] values, bytes[] calldatas);
+    event PresetAction__Initialized(address[] targets, uint256[] values, bytes[] calldatas);
 
     /// @notice constructor of the law
     /// @param name_ the name of the law.
@@ -37,12 +37,12 @@ contract Preset is Law {
         _values = values_;
         _calldatas = calldatas_;
 
-        emit Preset__Initialized(_targets, _values, _calldatas);
+        emit PresetAction__Initialized(_targets, _values, _calldatas);
     }
 
     /// @notice execute the law.
     /// @param lawCalldata the calldata of the law.
-    function executeLaw(address, /* proposer*/ bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(address, /* initiator*/ bytes memory lawCalldata, bytes32 /* descriptionHash */ )
         external
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)

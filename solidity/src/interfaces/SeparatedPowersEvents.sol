@@ -17,16 +17,16 @@ interface SeparatedPowersEvents {
 
     /// @notice Emitted when a proposal is created.
     /// @param proposalId the id of the proposal
-    /// @param proposer the address of the proposer
+    /// @param initiator the address of the initiator
     /// @param targetLaw the address of the target law
     /// @param signature the signature of the proposal
     /// @param ececuteCalldata the calldata to be passed to the law
     /// @param voteStart the start of the voting period
     /// @param voteEnd the end of the voting period
     /// @param description the description of the proposal
-    event ProposalCreated(
+    event ExecutiveActionCreated(
         uint256 proposalId,
-        address proposer,
+        address initiator,
         address targetLaw,
         string signature,
         bytes ececuteCalldata,
@@ -37,11 +37,11 @@ interface SeparatedPowersEvents {
 
     /// @notice Emitted when proposal is completed.
     /// @param proposalId the id of the proposal
-    event ProposalCompleted(uint256 indexed proposalId);
+    event ExecutiveActionCompleted(uint256 indexed proposalId);
 
     /// @notice Emitted when proposal is cancelled.
     /// @param proposalId the id of the proposal
-    event ProposalCancelled(uint256 indexed proposalId);
+    event ExecutiveActionCancelled(uint256 indexed proposalId);
 
     /// @notice Emitted when a vote is cast.
     /// @param account the address of the account that cast the vote
@@ -74,4 +74,6 @@ interface SeparatedPowersEvents {
     /// @notice Emitted when a law is revoked.
     /// @param law the address of the law
     event LawRevoked(address indexed law);
+
+    event ExecutiveActionExecuted(address[] targets, uint256[] values, bytes[] calldata calldatas);
 }

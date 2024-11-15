@@ -7,7 +7,7 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
-import { AlignedGrantsDao } from "../../../AlignedGrantsDao.sol";
+import { AlignedGrants } from "../../../implementations/daos/AlignedGrants.sol";
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
@@ -18,19 +18,20 @@ contract AdoptValue is Law {
         Law(name_, description_, separatedPowers_)
     { }
 
-    function executeLaw(address proposer, bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         override
+        // needsVote() include here a modifier?  
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
     { 
-        string memory newValue = abi.decode(lawCalldata, (string newValue));
+        bytes32 newValue = abi.decode(lawCalldata, (bytes32));
 
         tar = new address[](1);
         val = new uint256[](1);
         cal = new bytes[](1);
 
         tar[0] = separatedPowers;
-        cal[0] = abi.encodeWithSignature(AlignedGrantsDao.setBlacklistAccount, revokedAccount, false);
+        cal[0] = abi.encodeWithSignature("addCoreValue(string)", newValue);
         return (tar, val, cal);
     }
 }

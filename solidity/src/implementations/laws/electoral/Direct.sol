@@ -34,7 +34,7 @@ contract Direct is Law {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(address proposer, bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 /* descriptionHash */ )
         external
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
@@ -47,24 +47,23 @@ contract Direct is Law {
         uint256[] memory val = new uint256[](1);
         bytes[] memory cal = new bytes[](1);
 
-        // £ to do: I combined the laws into one. Simplifying flow.
         if (revoke) {
-            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(proposer, ROLE_ID) == 0) {
+            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) == 0) {
                 cal[0] = abi.encode("account does not have role".toShortString());
                 return (tar, val, cal);
             }
             tar[0] = separatedPowers;
             val[0] = 0;
-            cal[0] = abi.encodeWithSelector(0x22ec1861, ROLE_ID, proposer); // selector = revokeRole
+            cal[0] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, initiator, false); // selector = revokeRole
             return (tar, val, cal);
         } else {
-            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(proposer, ROLE_ID) != 0) {
+            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) != 0) {
                 cal[0] = abi.encode("account already has role".toShortString());
                 return (tar, val, cal);
             }
             tar[0] = separatedPowers;
             val[0] = 0;
-            cal[0] = abi.encodeWithSelector(0x446b340f, ROLE_ID, proposer); // selector = assignRole
+            cal[0] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, initiator, true); // selector = assignRole
             return (tar, val, cal);
         }
     }

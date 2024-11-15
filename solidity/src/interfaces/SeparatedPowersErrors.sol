@@ -10,6 +10,9 @@ pragma solidity 0.8.26;
 interface SeparatedPowersErrors {
     /// @notice Emitted when constitute is called more than once.
     error SeparatedPowers__ConstitutionAlreadyExecuted();
+    
+    /// @notice Emitted when a law is not active.
+    error SeparatedPowers__NotActiveLaw();
 
     /// @notice Emitted when a function is called from a contract that is not SeparatedPowers.
     error SeparatedPowers__OnlySeparatedPowers();
@@ -18,34 +21,31 @@ interface SeparatedPowersErrors {
     error SeparatedPowers__AccessDenied();
 
     /// @notice Emmitted when a law does not need a proposal.
-    error SeparatedPowers__LawDoesNotNeedProposal();
+    error SeparatedPowers__LawDoesNotNeedProposalVote();
 
     // emitted when a role access is called, but role access is already set at requested access.
     error SeparatedPowers__RoleAccessNotChanged();
 
     /// @notice Emitted when a execution is attempted on a proposal that is not active.
-    error SeparatedPowers__UnexpectedProposalState();
+    error SeparatedPowers__UnexpectedActionState();
 
     // @notice Emitted when a law does not pass checks.
     error SeparatedPowers__LawDidNotPassChecks();
 
     /// @notice Emitted when a proposal id is invalid.
-    error SeparatedPowers__InvalidProposalId();
+    error SeparatedPowers__InvalidExecutiveActionId();
 
     /// @notice Emitted when a proposal is already completed.
-    error SeparatedPowers__ProposalAlreadyCompleted();
+    error SeparatedPowers__ExecutiveActionAlreadyCompleted();
 
     /// @notice Emitted when a proposal is has been cancelled.
-    error SeparatedPowers__ProposalCancelled();
+    error SeparatedPowers__ExecutiveActionCancelled();
 
     /// @notice Emitted when cancelling a proposal that does not reference an active law.
     error SeparatedPowers__CancelCallNotFromActiveLaw();
 
-    /// @notice Emitted when completing a proposal that does not reference an active law.
-    error SeparatedPowers__CompleteCallNotFromActiveLaw();
-
     /// @notice Emitted when a proposal is not active.
-    error SeparatedPowers__ProposalNotActive();
+    error SeparatedPowers__ExecutiveActionNotActive();
 
     /// @notice Emitted when a law is not active.
     error SeparatedPowers__LawNotActive();

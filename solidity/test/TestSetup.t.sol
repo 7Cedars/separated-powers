@@ -31,7 +31,7 @@ import { Tokens } from "../src/implementations/laws/electoral/Tokens.sol";
 import { Randomly } from "../src/implementations/laws/electoral/Randomly.sol";
 import { AdoptValue } from "../src/implementations/laws/bespoke/AdoptValue.sol";
 import { RevokeRole } from "../src/implementations/laws/bespoke/RevokeRole.sol";
-import { RevertRevokeRole } from "../src/implementations/laws/bespoke/RevertRevokeRole.sol";
+import { RevertRevokeMemberRole } from "../src/implementations/laws/bespoke/RevertRevokeMemberRole.sol";
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents {
     // protocol and mocks 
@@ -60,7 +60,7 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     Randomly randomly;
     AdoptValue adoptValue;
     RevokeRole revokeRole;
-    RevertRevokeRole revertRevokeRole;
+    RevertRevokeMemberRole revertRevokeRole;
 
     // roles 
     uint32 SENIOR_ROLE;

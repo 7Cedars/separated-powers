@@ -29,7 +29,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //                           STORAGE                        //
     /////////////////////////////////////////////////////////////
-    mapping(uint256 proposalId => Proposal) private _proposals; // mapping from proposalId to proposal
+    mapping(uint256 actionId => ExecutiveAction) private _executiveActions; // mapping from actionId to executiveAction
     mapping(address lawAddress => LawConfig) public laws;
     mapping(uint32 roleId => Role) public roles;
 
@@ -51,8 +51,6 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
         _;
     }
-
-    // need to add check for zero address & implement where necessary.  
 
     //////////////////////////////////////////////////////////////
     //              CONSTRUCTOR & RECEIVE                       //
@@ -87,20 +85,21 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         virtual
         returns (uint256)
     {
-        // check: does msg.sender have access to targetLaw?
+        // check 1: does msg.sender have access to targetLaw?
         uint32 allowedRole = laws[targetLaw].allowedRole;
         if (roles[allowedRole].members[msg.sender] == 0 && allowedRole != PUBLIC_ROLE) {
             revert SeparatedPowers__AccessDenied();
         }
+        // check 2: is targetLaw is an active law?
+        if (!laws[targetLaw].active) {
+            revert SeparatedPowers__NotActiveLaw();
+        }
 
-        // check if the target law needs proposal to pass.
+        // check 3: does target law need proposal vote to pass? 
         bytes32 descriptionHash = keccak256(bytes(description));
-        (address[] memory targets,,) = Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
-        // only if it needs a proposal will it return targetLaw as a first target.
-        // £security: this check fails very easily: if you have a law that returns target as a first target.
-        // is this a problem?
-        if (targets[0] != targetLaw) {
-            revert SeparatedPowers__LawDoesNotNeedProposal();
+        (,, bytes32[] memory calldatas) = Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
+        if (calldatas[0].toString() != "proposal not succeeded") {
+            revert SeparatedPowers__LawDoesNotNeedProposalVote();
         }
 
         // if check passes: propose.
@@ -109,29 +108,29 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
     /// @notice Internal propose mechanism. Can be overridden to add more logic on proposal creation.
     ///
-    /// @dev The mechanism checks for access of proposer and for the length of targets and calldatas.
+    /// @dev The mechanism checks for access of initiator and for the length of targets and calldatas.
     ///
-    /// Emits a {SeperatedPowersEvents::ProposalCreated} event.
-    function _propose(address proposer, address targetLaw, bytes memory lawCalldata, string memory description)
+    /// Emits a {SeperatedPowersEvents::ExecutiveActionCreated} event.
+    function _propose(address initiator, address targetLaw, bytes memory lawCalldata, string memory description)
         internal
         virtual
-        returns (uint256 proposalId)
+        returns (uint256 actionId)
     {
-        // note that targetLaw AND proposer are hashed into the proposalId. By including proposer in the hash, front running a proposal is made impossible.
-        proposalId = hashProposal(proposer, targetLaw, lawCalldata, keccak256(bytes(description)));
-        if (_proposals[proposalId].voteStart == 0) {
-            revert SeparatedPowers__UnexpectedProposalState();
+        // note that targetLaw AND initiator are hashed into the actionId. By including initiator in the hash, front running a proposal is made impossible.
+        actionId = hashExecutiveAction(initiator, targetLaw, lawCalldata, keccak256(bytes(description)));
+        if (_executiveActions[actionId].voteStart == 0) {
+            revert SeparatedPowers__UnexpectedActionState();
         }
 
         uint32 duration = laws[targetLaw].votingPeriod;
-        Proposal storage proposal = _proposals[proposalId];
-        proposal.targetLaw = targetLaw;
-        proposal.voteStart = uint48(block.number); // note that the moment proposal is made, voting start. There is no delay functionality.
-        proposal.voteDuration = duration;
-        proposal.proposer = proposer;
+        ExecutiveAction storage executiveAction = _executiveActions[actionId];
+        executiveAction.targetLaw = targetLaw;
+        executiveAction.voteStart = uint48(block.number); // note that the moment proposal is made, voting start. There is no delay functionality.
+        executiveAction.voteDuration = duration;
+        executiveAction.initiator = initiator;
 
-        emit ProposalCreated(
-            proposalId, proposer, targetLaw, "", lawCalldata, block.number, block.number + duration, description
+        emit ExecutiveActionCreated(
+            actionId, initiator, targetLaw, "", lawCalldata, block.number, block.number + duration, description
         );
     }
 
@@ -141,100 +140,120 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         virtual
         returns (uint256)
     {
-        uint256 proposalId = hashProposal(msg.sender, targetLaw, lawCalldata, descriptionHash);
-        if (msg.sender != _proposals[proposalId].proposer) {
+        uint256 actionId = hashExecutiveAction(msg.sender, targetLaw, lawCalldata, descriptionHash);
+        // only initiator can cancel a proposal
+        if (msg.sender != _executiveActions[actionId].initiator) {
             revert SeparatedPowers__AccessDenied();
         }
 
         return _cancel(targetLaw, lawCalldata, descriptionHash);
     }
 
-    /// @notice Internal cancel mechanism with minimal restrictions. A proposal can be cancelled in any state other than
-    /// Cancelled or Executed. Once cancelled a proposal cannot be re-submitted.
+    /// @notice Internal cancel mechanism with minimal restrictions. A executiveAction can be cancelled in any state other than
+    /// Cancelled or Executed. Once cancelled a executiveAction cannot be re-submitted.
     ///
-    /// @dev the account to cancel must be the account that created the proposal.
-    /// Emits a {SeperatedPowersEvents::ProposalCanceled} event.
+    /// @dev the account to cancel must be the account that created the executiveAction.
+    /// Emits a {SeperatedPowersEvents::ExecutiveActionCanceled} event.
     function _cancel(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         internal
         virtual
         returns (uint256)
     {
-        uint256 proposalId = hashProposal(msg.sender, targetLaw, lawCalldata, descriptionHash);
-
-        if (_proposals[proposalId].targetLaw == address(0)) {
-            revert SeparatedPowers__InvalidProposalId();
+        uint256 actionId = hashExecutiveAction(msg.sender, targetLaw, lawCalldata, descriptionHash);
+        
+        if (_executiveActions[actionId].targetLaw == address(0)) {
+            revert SeparatedPowers__InvalidExecutiveActionId();
+        }
+        if (_executiveActions[actionId].completed || _executiveActions[actionId].cancelled) {
+            revert SeparatedPowers__UnexpectedActionState();
         }
 
-        if (_proposals[proposalId].completed || _proposals[proposalId].cancelled) {
-            revert SeparatedPowers__UnexpectedProposalState();
-        }
+        _executiveActions[actionId].cancelled = true;
+        emit ExecutiveActionCancelled(actionId);
 
-        _proposals[proposalId].cancelled = true;
-        emit ProposalCancelled(proposalId);
-
-        return proposalId;
+        return actionId;
     }
 
     /// @inheritdoc ISeparatedPowers
-    function castVote(uint256 proposalId, uint8 support) external virtual {
+    function castVote(uint256 actionId, uint8 support) external virtual {
         address voter = msg.sender;
-        return _castVote(proposalId, voter, support, "");
+        return _castVote(actionId, voter, support, "");
     }
 
     /// @inheritdoc ISeparatedPowers
-    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) public virtual {
+    function castVoteWithReason(uint256 actionId, uint8 support, string calldata reason) public virtual {
         address voter = msg.sender;
-        return _castVote(proposalId, voter, support, reason);
+        return _castVote(actionId, voter, support, reason);
     }
 
     /// @notice Internal vote casting mechanism.
-    /// Check that the proposal is active, and that account is has access to targetLaw.
+    /// Check that the executiveAction is active, and that account is has access to targetLaw.
     ///
     /// Emits a {SeperatedPowersEvents::VoteCast} event.
-    function _castVote(uint256 proposalId, address account, uint8 support, string memory reason) internal virtual {
-        // Check that the proposal is active, that it has not been paused, cancelled or ended yet.
-        if (SeparatedPowers(payable(address(this))).state(proposalId) != ProposalState.Active) {
-            revert SeparatedPowers__ProposalNotActive();
+    function _castVote(uint256 actionId, address account, uint8 support, string memory reason) internal virtual {
+        // Check that the executiveAction is active, that it has not been paused, cancelled or ended yet.
+        if (SeparatedPowers(payable(address(this))).state(actionId) != ActionState.Active) {
+            revert SeparatedPowers__ExecutiveActionNotActive();
         }
-        // Note that we check if account has access to the law targetted in the proposal.
-        address targetLaw = _proposals[proposalId].targetLaw;
+        // Note that we check if account has access to the law targetted in the executiveAction.
+        address targetLaw = _executiveActions[actionId].targetLaw;
         uint32 allowedRole = laws[targetLaw].allowedRole;
         if (roles[allowedRole].members[account] == 0 && allowedRole != PUBLIC_ROLE) {
             revert SeparatedPowers__AccessDenied();
         }
         // if all this passes: cast vote.
-        _countVote(proposalId, account, support);
+        _countVote(actionId, account, support);
 
-        emit VoteCast(account, proposalId, support, reason);
+        emit VoteCast(account, actionId, support, reason);
     }
 
     /// @inheritdoc ISeparatedPowers
     function execute(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash) external payable virtual {
+        uint256 actionId = hashExecutiveAction(msg.sender, targetLaw, lawCalldata, descriptionHash);
         // check 1: does executioner have access to law being executed?
         uint32 allowedRole = laws[targetLaw].allowedRole;
         if (roles[allowedRole].members[msg.sender] == 0 && allowedRole != PUBLIC_ROLE) {
             revert SeparatedPowers__AccessDenied();
         }
+        // check 2: is targetLaw is an active law?
+        if (!laws[targetLaw].active) {
+            revert SeparatedPowers__NotActiveLaw();
+        }
+        // check 3: has action already been set as completed?
+        if (_executiveActions[actionId].completed == true) {
+            revert SeparatedPowers__ExecutiveActionAlreadyCompleted();
+        }
+        // check 4: is executiveAction cancelled?
+        // if law did not need a executiveAction vote, check will pass. 
+        if (_executiveActions[actionId].cancelled == true) {
+            revert SeparatedPowers__ExecutiveActionCancelled();
+        }
 
-        // calling target law: receiving targets, values and calldatas to execute.
+        // if checks pass: calling target law and receiving targets, values and calldatas.
         // Note this call should never revert. It should always receive data from law.
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
             Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
 
-        // check data that law returned.
+        // check return data from law.
         if (targets.length == 0 || targets[0] == targetLaw || targets[0] == address(0)) {
             revert SeparatedPowers__LawDidNotPassChecks();
         }
-
         // If checks passed, execute.
+        _executiveActions[actionId].completed = true;
+        emit ExecutiveActionCompleted(actionId);
+
+        // a targets[0] == address(1) is a signal from a law to indicate that no action should be executed. 
+        if (targets[0] == address(1)) {
+            break; 
+        }
         _executeOperations(targets, values, calldatas);
     }
 
     /// @notice Internal execution mechanism.
     /// Can be overridden (without a super call) to modify the way execution is performed
     ///
-    /// NOTE: Calling this function directly will NOT check the current state of the proposal, set the executed flag to
-    /// true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute}.
+    /// NOTE: Calling this function directly will NOT check the current state of the executiveAction, set the executed flag to
+    /// true or emit the `ExecutiveActionExecuted` event. Executing a executiveAction should be done using {execute}.
     function _executeOperations(address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
         internal
         virtual
@@ -242,44 +261,11 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         if (targets.length != values.length || targets.length != calldatas.length) {
             revert SeparatedPowers__InvalidCallData();
         }
-
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{ value: values[i] }(calldatas[i]);
             Address.verifyCallResult(success, returndata);
         }
-    }
-
-    /// @inheritdoc ISeparatedPowers
-    function complete(address proposer, bytes memory lawCalldata, bytes32 descriptionHash) external virtual {
-        uint256 proposalId = hashProposal(proposer, msg.sender, lawCalldata, descriptionHash);
-
-        _complete(proposalId);
-    }
-
-    /// @notice internal mechanism for setting a proposal as completed.
-    /// runs through several checks before setting the proposal as completed.
-    function _complete(uint256 proposalId) internal virtual {
-        // check 1: is call from an active law?
-        // note: this function can only be called from an active law.
-        if (!laws[msg.sender].active) {
-            revert SeparatedPowers__CompleteCallNotFromActiveLaw();
-        }
-        // check 2: does proposal exist?
-        if (_proposals[proposalId].targetLaw == address(0)) {
-            revert SeparatedPowers__InvalidProposalId();
-        }
-        // check 3: is proposal already completed?
-        if (_proposals[proposalId].completed == true) {
-            revert SeparatedPowers__ProposalAlreadyCompleted();
-        }
-        // check 4: is proposal cancelled?
-        if (_proposals[proposalId].cancelled == true) {
-            revert SeparatedPowers__ProposalCancelled();
-        }
-
-        // if checks pass: complete & emit event.
-        _proposals[proposalId].completed = true;
-        emit ProposalCompleted(proposalId);
+        emit ExecutiveActionExecuted(targets, values, calldatas);
     }
 
     //////////////////////////////////////////////////////////////
@@ -404,27 +390,27 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //                     HELPER FUNCTIONS                     //
     //////////////////////////////////////////////////////////////
-    /// @notice internal function {quorumReached} that checks if the quorum for a given proposal has been reached.
+    /// @notice internal function {quorumReached} that checks if the quorum for a given executiveAction has been reached.
     ///
-    /// @param proposalId id of the proposal.
-    /// @param targetLaw address of the law that the proposal belongs to.
+    /// @param actionId id of the executiveAction.
+    /// @param targetLaw address of the law that the executiveAction belongs to.
     ///
-    function _quorumReached(uint256 proposalId, address targetLaw) internal view virtual returns (bool) {
-        Proposal storage proposal = _proposals[proposalId];
+    function _quorumReached(uint256 actionId, address targetLaw) internal view virtual returns (bool) {
+        ExecutiveAction storage executiveAction = _executiveActions[actionId];
 
         uint8 quorum = laws[targetLaw].quorum;
         uint32 allowedRole = laws[targetLaw].allowedRole;
         uint256 amountMembers = roles[allowedRole].amountMembers;
 
-        return (quorum == 0 || (amountMembers * quorum) / DENOMINATOR <= proposal.forVotes + proposal.abstainVotes);
+        return (quorum == 0 || (amountMembers * quorum) / DENOMINATOR <= executiveAction.forVotes + executiveAction.abstainVotes);
     }
 
-    /// @notice internal function {voteSucceeded} that checks if a vote for a given proposal has succeeded.
+    /// @notice internal function {voteSucceeded} that checks if a vote for a given executiveAction has succeeded.
     ///
-    /// @param proposalId id of the proposal.
-    /// @param targetLaw address of the law that the proposal belongs to.
-    function _voteSucceeded(uint256 proposalId, address targetLaw) internal view virtual returns (bool) {
-        Proposal storage proposal = _proposals[proposalId];
+    /// @param actionId id of the executiveAction.
+    /// @param targetLaw address of the law that the executiveAction belongs to.
+    function _voteSucceeded(uint256 actionId, address targetLaw) internal view virtual returns (bool) {
+        ExecutiveAction storage executiveAction = _executiveActions[actionId];
 
         uint8 succeedAt = laws[targetLaw].succeedAt;
         uint8 quorum = laws[targetLaw].quorum;
@@ -432,74 +418,74 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         uint256 amountMembers = roles[allowedRole].amountMembers;
 
         // note if quorum is set to 0 in a Law, it will automatically return true.
-        return quorum == 0 || amountMembers * succeedAt <= proposal.forVotes * DENOMINATOR;
+        return quorum == 0 || amountMembers * succeedAt <= executiveAction.forVotes * DENOMINATOR;
     }
 
-    /// @notice internal function {countVote} that counts against, for, and abstain votes for a given proposal.
+    /// @notice internal function {countVote} that counts against, for, and abstain votes for a given executiveAction.
     ///
     /// @dev In this module, the support follows the `VoteType` enum (from Governor Bravo).
-    /// @dev It does not check if account has roleId referenced in proposalId. This has to be done by {SeparatedPowers.castVote} function.
-    function _countVote(uint256 proposalId, address account, uint8 support) internal virtual {
-        Proposal storage proposal = _proposals[proposalId];
+    /// @dev It does not check if account has roleId referenced in actionId. This has to be done by {SeparatedPowers.castVote} function.
+    function _countVote(uint256 actionId, address account, uint8 support) internal virtual {
+        ExecutiveAction storage executiveAction = _executiveActions[actionId];
 
-        if (proposal.hasVoted[account]) {
+        if (executiveAction.hasVoted[account]) {
             revert SeparatedPowers__AlreadyCastVote(account);
         }
-        proposal.hasVoted[account] = true;
+        executiveAction.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {
-            proposal.againstVotes++;
+            executiveAction.againstVotes++;
         } else if (support == uint8(VoteType.For)) {
-            proposal.forVotes++;
+            executiveAction.forVotes++;
         } else if (support == uint8(VoteType.Abstain)) {
-            proposal.abstainVotes++;
+            executiveAction.abstainVotes++;
         } else {
             revert SeparatedPowers__InvalidVoteType();
         }
     }
 
     /// @inheritdoc ISeparatedPowers
-    function hashProposal(address proposer, address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+    function hashExecutiveAction(address initiator, address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         pure
         virtual
         returns (uint256)
     {
-        return uint256(keccak256(abi.encode(proposer, targetLaw, lawCalldata, descriptionHash)));
+        return uint256(keccak256(abi.encode(initiator, targetLaw, lawCalldata, descriptionHash)));
     }
 
     //////////////////////////////////////////////////////////////
     //                      VIEW FUNCTIONS                      //
     //////////////////////////////////////////////////////////////
     /// @inheritdoc ISeparatedPowers
-    function state(uint256 proposalId) public view virtual returns (ProposalState) {
+    function state(uint256 actionId) public view virtual returns (ActionState) {
         // We read the struct fields into the stack at once so Solidity emits a single SLOAD
-        Proposal storage proposal = _proposals[proposalId];
-        bool proposalCompleted = proposal.completed;
-        bool proposalCancelled = proposal.cancelled;
+        ExecutiveAction storage executiveAction = _executiveActions[actionId];
+        bool executiveActionCompleted = executiveAction.completed;
+        bool executiveActionCancelled = executiveAction.cancelled;
 
-        if (proposalCompleted) {
-            return ProposalState.Completed;
+        if (executiveActionCompleted) {
+            return ActionState.Completed;
         }
-        if (proposalCancelled) {
-            return ProposalState.Cancelled;
+        if (executiveActionCancelled) {
+            return ActionState.Cancelled;
         }
 
-        uint256 start = _proposals[proposalId].voteStart; // = startDate
+        uint256 start = _executiveActions[actionId].voteStart; // = startDate
 
         if (start == 0) {
-            revert SeparatedPowers__InvalidProposalId();
+            revert SeparatedPowers__InvalidExecutiveActionId();
         }
 
-        uint256 deadline = proposalDeadline(proposalId);
-        address targetLaw = proposal.targetLaw;
+        uint256 deadline = executiveActionDeadline(actionId);
+        address targetLaw = executiveAction.targetLaw;
 
         if (deadline >= block.number) {
-            return ProposalState.Active;
-        } else if (!_quorumReached(proposalId, targetLaw) || !_voteSucceeded(proposalId, targetLaw)) {
-            return ProposalState.Defeated;
+            return ActionState.Active;
+        } else if (!_quorumReached(actionId, targetLaw) || !_voteSucceeded(actionId, targetLaw)) {
+            return ActionState.Defeated;
         } else {
-            return ProposalState.Succeeded;
+            return ActionState.Succeeded;
         }
     }
 
@@ -520,19 +506,19 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function hasVoted(uint256 proposalId, address account) public view virtual returns (bool) {
-        return _proposals[proposalId].hasVoted[account];
+    function hasVoted(uint256 actionId, address account) public view virtual returns (bool) {
+        return _executiveActions[actionId].hasVoted[account];
     }
 
     /// @inheritdoc ISeparatedPowers
-    function proposalVotes(uint256 proposalId)
+    function executiveActionVotes(uint256 actionId)
         public
         view
         virtual
         returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes)
     {
-        Proposal storage proposal = _proposals[proposalId];
-        return (proposal.againstVotes, proposal.forVotes, proposal.abstainVotes);
+        ExecutiveAction storage executiveAction = _executiveActions[actionId];
+        return (executiveAction.againstVotes, executiveAction.forVotes, executiveAction.abstainVotes);
     }
 
     /// @inheritdoc ISeparatedPowers
@@ -546,9 +532,9 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function proposalDeadline(uint256 proposalId) public view virtual returns (uint256) {
+    function executiveActionDeadline(uint256 actionId) public view virtual returns (uint256) {
         // uint48 + uint32 => uint256. £test if this works properly.
-        return _proposals[proposalId].voteStart + _proposals[proposalId].voteDuration;
+        return _executiveActions[actionId].voteStart + _executiveActions[actionId].voteDuration;
     }
 
     /// @inheritdoc ISeparatedPowers

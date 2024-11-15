@@ -8,9 +8,9 @@ import GuestActions from "@/components/GuestActions";
 import AdminActions from "@/components/AdminActions";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useRoles } from "@/hooks/useRoles";
-import { useProposals } from "@/hooks/useProposals";
-import ProposalView from "@/components/ProposalView";
-import { Proposal } from "@/context/types";
+import { useExecutiveActions } from "@/hooks/useExecutiveActions";
+import ExecutiveActionView from "@/components/ExecutiveActionView";
+import { ExecutiveAction } from "@/context/types";
 import ValuesView from "@/components/ValuesView";
 import { lawContracts } from "@/context/lawContracts";
 import { useReadContract } from "wagmi";
@@ -23,12 +23,12 @@ const DashboardPage: React.FC = () => {
     const [whale, setWhale] = useState<boolean>(false);  
     const [member, setMember] = useState<boolean>(false);  
     const [guest, setGuest] = useState<boolean>(true);  
-    const [mode, setMode] = useState<"Values"|"Actions"|"Proposals">("Actions");  
+    const [mode, setMode] = useState<"Values"|"Actions"|"ExecutiveActions">("Actions");  
 
     const {wallets } = useWallets();
     const wallet = wallets[0];
     const {status, error, roles, fetchRoles} = useRoles();
-    const {proposals, status: proposalStatus, error: proposalError, fetchProposals} = useProposals();
+    const {proposals, status: proposalStatus, error: proposalError, fetchExecutiveActions} = useExecutiveActions();
     const {ready, authenticated, login, logout} = usePrivy();
 
     const agCoinsContract = lawContracts.find((law: any) => law.contract === "AgCoins")
@@ -46,7 +46,7 @@ const DashboardPage: React.FC = () => {
     }, [status, ready, wallet])
 
     useEffect(() => {
-        if (mode == "Proposals") fetchProposals()
+        if (mode == "ExecutiveActions") fetchExecutiveActions()
     }, [mode])
 
     return (
@@ -109,10 +109,10 @@ const DashboardPage: React.FC = () => {
                 </button>
                 <button 
                     className="w-full font-bold font-xl text-center aria-selected:opacity-100 opacity-25 py-2 px-4"
-                    onClick={() => setMode("Proposals")}
-                    aria-selected={(mode == "Proposals")}
+                    onClick={() => setMode("ExecutiveActions")}
+                    aria-selected={(mode == "ExecutiveActions")}
                 > 
-                    Proposals
+                    ExecutiveActions
                 </button>
             </div> 
 
@@ -174,20 +174,20 @@ const DashboardPage: React.FC = () => {
                     }
                 </div>
             :
-            mode == "Proposals" ?
+            mode == "ExecutiveActions" ?
             <div className="flex flex-col overflow-y-auto gap-4 bg-white shadow-lg rounded-lg p-6 w-full">
                 {
                 proposals && proposals.length > 0 ? 
                     <>
                         {
                         // This is super clunky, but for now will do 
-                        proposals.map((proposal: Proposal) => (
+                        proposals.map((proposal: ExecutiveAction) => (
                             lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint == 0n && admin || 
                             lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint == 1n && senior ||
                             lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint == 2n && whale ||
                             lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint == 3n && member ||
                             lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint == 4n && guest ?
-                                <ProposalView key={proposal.proposalId} proposal={proposal} isDisabled={
+                                <ExecutiveActionView key={proposal.proposalId} proposal={proposal} isDisabled={
                                     !roles.includes(
                                         lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId as bigint 
                                     ) 

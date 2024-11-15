@@ -14,7 +14,7 @@ import { ChallengeExecution } from "../../src/implementations/laws/administrativ
 // bespoke laws
 import { AdoptValue } from "../../src/implementations/laws/bespoke/AdoptValue.sol";
 import { RevokeRole } from "../../src/implementations/laws/bespoke/RevokeRole.sol";
-import { RevertRevokeRole } from "../../src/implementations/laws/bespoke/RevertRevokeRole.sol";
+import { RevertRevokeMemberRole } from "../../src/implementations/laws/bespoke/RevertRevokeMemberRole.sol";
 
 contract Constitution is Script {
     uint32 constant NUMBER_OF_LAWS = 8;
@@ -151,7 +151,8 @@ contract Constitution is Script {
             new RevokeRole(
                 "Whales -> revoke member", // max 31 chars
                 "Subject to a vote, whales can revoke a member's role",
-                dao_
+                dao_,
+                3 // AlignedGrants.MEMBER_ROLE()
             )
         );
 
@@ -193,10 +194,8 @@ contract Constitution is Script {
         //////////////////////////////////////////////////////////////////////
         // initiate law - the actual executive law is automatically to admin role Id (0).
         address reinstateMemberLaw = address(
-            new RevertRevokeRole(
-                "Seniors reinstate member", // max 31 chars
-                "Seniors can accept a Member revoke challenge and reinstate the role.",
-                dao_
+            new RevertRevokeMemberRole(
+                laws[6] // parent contract
             )
         );
 
