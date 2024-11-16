@@ -62,17 +62,6 @@ contract Law is ERC165, ILaw, PowerModifiers {
         _;
     }
 
-    // Here a modifier that is the opposite of elect, checks if the proposal has NOT passed. It creates an effective veto. 
-    // modifier needsProposalVote(bytes memory lawCalldata, bytes32 descriptionHash) {
-    //     uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
-    //     if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Succeeded)
-    //     {
-    //         cal[0] = abi.encode("proposal not succeeded".toShortString());
-    //         return (tar, val, cal);
-    //     }
-    //     _;
-    // }
-
     modifier needsParentCompleted(bytes memory lawCalldata, bytes32 descriptionHash) {
         if (parentLaw == address(0)) {
             cal[0] = abi.encode("parent law not set".toShortString());
@@ -83,7 +72,22 @@ contract Law is ERC165, ILaw, PowerModifiers {
         uint256 parentProposalId = _hashExecutiveAction(parentLaw, lawCalldata, keccak256(bytes(parentLawDescription)));
         if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Completed)
         {
-            cal[0] = abi.encode("parent proposal not completed".toShortString());
+            cal[0] = abi.encode("parent not completed".toShortString());
+            return (tar, val, cal);
+        }
+        _;
+    }
+ 
+    modifier parentCanBlock(bytes memory lawCalldata, bytes32 descriptionHash) {
+        if (parentLaw == address(0)) {
+            cal[0] = abi.encode("parent law not set".toShortString());
+            return (tar, val, cal);
+        }
+        bytes memory parentLawDescription = parentLaw.description();
+        uint256 proposalId = _hashExecutiveAction(parentLaw, lawCalldata, keccak256(bytes(parentLawDescription)));
+        if (SeparatedPowers(payable(separatedPowers)).state(proposalId) == SeparatedPowersTypes.ActionState.Completed)
+        {
+            cal[0] = abi.encode("parent blocks execution".toShortString());
             return (tar, val, cal);
         }
         _;
