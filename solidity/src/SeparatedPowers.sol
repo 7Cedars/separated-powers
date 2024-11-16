@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 
+/// @title SeparatedPowers
 /// @notice The core contract of the SeparatedPowers protocol. Inherits from {ISeparatedPowers}.
 /// Code derived from OpenZeppelin's Governor.sol contract.
 ///
@@ -108,16 +109,15 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
     /// @notice Internal propose mechanism. Can be overridden to add more logic on proposal creation.
     ///
-    /// @dev The mechanism checks for access of initiator and for the length of targets and calldatas.
+    /// @dev The mechanism checks for the length of targets and calldatas.
     ///
     /// Emits a {SeperatedPowersEvents::ExecutiveActionCreated} event.
-    function _propose(address initiator, address targetLaw, bytes memory lawCalldata, string memory description)
+    function _propose(address targetLaw, bytes memory lawCalldata, string memory description)
         internal
         virtual
         returns (uint256 actionId)
     {
-        // note that targetLaw AND initiator are hashed into the actionId. By including initiator in the hash, front running a proposal is made impossible.
-        actionId = hashExecutiveAction(initiator, targetLaw, lawCalldata, keccak256(bytes(description)));
+        actionId = hashExecutiveAction(targetLaw, lawCalldata, keccak256(bytes(description)));
         if (_executiveActions[actionId].voteStart == 0) {
             revert SeparatedPowers__UnexpectedActionState();
         }
@@ -140,7 +140,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         virtual
         returns (uint256)
     {
-        uint256 actionId = hashExecutiveAction(msg.sender, targetLaw, lawCalldata, descriptionHash);
+        uint256 actionId = hashExecutiveAction(targetLaw, lawCalldata, descriptionHash);
         // only initiator can cancel a proposal
         if (msg.sender != _executiveActions[actionId].initiator) {
             revert SeparatedPowers__AccessDenied();
@@ -159,8 +159,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         virtual
         returns (uint256)
     {
-        uint256 actionId = hashExecutiveAction(msg.sender, targetLaw, lawCalldata, descriptionHash);
-        
+        uint256 actionId = hashExecutiveAction(targetLaw, lawCalldata, descriptionHash);
+
         if (_executiveActions[actionId].targetLaw == address(0)) {
             revert SeparatedPowers__InvalidExecutiveActionId();
         }
@@ -193,7 +193,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     function _castVote(uint256 actionId, address account, uint8 support, string memory reason) internal virtual {
         // Check that the executiveAction is active, that it has not been paused, cancelled or ended yet.
         if (SeparatedPowers(payable(address(this))).state(actionId) != ActionState.Active) {
-            revert SeparatedPowers__ExecutiveActionNotActive();
+            revert SeparatedPowers__ProposalNotActive();
         }
         // Note that we check if account has access to the law targetted in the executiveAction.
         address targetLaw = _executiveActions[actionId].targetLaw;
@@ -445,13 +445,13 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function hashExecutiveAction(address initiator, address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+    function hashExecutiveAction(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         pure
         virtual
         returns (uint256)
     {
-        return uint256(keccak256(abi.encode(initiator, targetLaw, lawCalldata, descriptionHash)));
+        return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
     }
 
     //////////////////////////////////////////////////////////////

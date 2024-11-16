@@ -30,7 +30,7 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
-contract Tokens is Law {
+contract TokensSelect is Law {
     using ShortStrings for *;
 
     address private immutable ERC_1155_TOKEN;
@@ -42,9 +42,9 @@ contract Tokens is Law {
     uint48 private _lastElection;
     address[] private _nomineesSorted;
 
-    event Tokens__NominationReceived(address indexed nominee);
-    event Tokens__NominationRevoked(address indexed nominee);
-    event Tokens__RolesAssigned(uint32 indexed roleId, address indexed roleHolder);
+    event TokensSelect__NominationReceived(address indexed nominee);
+    event TokensSelect__NominationRevoked(address indexed nominee);
+    event TokensSelect__RolesAssigned(uint32 indexed roleId, address indexed roleHolder);
 
     constructor(
         string memory name_,
@@ -80,7 +80,7 @@ contract Tokens is Law {
             _nominees[executioner] = uint48(block.timestamp);
             _nomineesSorted.push(executioner);
 
-            emit Tokens__NominationReceived(executioner);
+            emit TokensSelect__NominationReceived(executioner);
         }
 
         // revoke nomination if executionar is nominated and nominateMe == false
@@ -94,7 +94,7 @@ contract Tokens is Law {
                 }
             }
 
-            emit Tokens__NominationRevoked(executioner);
+            emit TokensSelect__NominationRevoked(executioner);
         }
 
         // elects roles if assignRoles == true
@@ -144,7 +144,7 @@ contract Tokens is Law {
                                 cal[index] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true); // selector probably wrong. check later.
                                 index++;
 
-                                emit Tokens__RolesAssigned(ROLE_ID, _nomineesSorted[i]);
+                                emit TokensSelect__RolesAssigned(ROLE_ID, _nomineesSorted[i]);
                             }
                         }
                     }

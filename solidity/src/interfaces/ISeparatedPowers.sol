@@ -39,13 +39,6 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// Instead, proposal checks are placed in the {Law::executeLaw} function.
     function execute(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash) external payable;
 
-    /// @dev external function to call to set a proposal to completed. It should be called when execution logic of a law is about to be executed.
-    /// Note The function can only be called from a whitelisted Law contract.
-    ///
-    /// @param lawCalldata : the calldata that was passed to the law, and is part of the proposal.
-    /// @param descriptionHash : the descriptionHash of the proposal
-    function complete(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) external;
-
     /// @dev external function to call to cancel a proposal.
     /// Note The function can only be called by the account that proposed the proposal.
     ///
@@ -199,7 +192,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// This callData can have any kind of data.
     ///
     /// The call that is executed at the Law has the traditional layout of targets[], values[], calldatas[].
-    function hashExecutiveAction(address initiator, address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+    function hashExecutiveAction(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         returns (uint256);
 }

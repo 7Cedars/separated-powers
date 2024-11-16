@@ -52,8 +52,8 @@ contract Law is ERC165, ILaw, PowerModifiers {
     ////////////////////////////////////////////////// 
     //                 modifiers                    //
     //////////////////////////////////////////////////
-    modifier needsProposalVote() {
-        uint256 proposalId = _hashExecutiveAction(initiator, address(this), lawCalldata, descriptionHash);
+    modifier needsProposalVote(bytes memory lawCalldata, bytes32 descriptionHash) {
+        uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
         if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Succeeded)
         {
             cal[0] = abi.encode("proposal not succeeded".toShortString());
@@ -62,12 +62,25 @@ contract Law is ERC165, ILaw, PowerModifiers {
         _;
     }
 
-    modifier needsParentCompleted() {
+    // Here a modifier that is the opposite of elect, checks if the proposal has NOT passed. It creates an effective veto. 
+    // modifier needsProposalVote(bytes memory lawCalldata, bytes32 descriptionHash) {
+    //     uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
+    //     if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Succeeded)
+    //     {
+    //         cal[0] = abi.encode("proposal not succeeded".toShortString());
+    //         return (tar, val, cal);
+    //     }
+    //     _;
+    // }
+
+    modifier needsParentCompleted(bytes memory lawCalldata, bytes32 descriptionHash) {
         if (parentLaw == address(0)) {
             cal[0] = abi.encode("parent law not set".toShortString());
             return (tar, val, cal);
         }
-        uint256 proposalId = _hashExecutiveAction(initiator, parentLaw, lawCalldata, descriptionHash);
+        bytes memory parentLawDescription = parentLaw.description();
+        // note: the calldata of the parent law and this law needs to be identitical.
+        uint256 parentProposalId = _hashExecutiveAction(parentLaw, lawCalldata, keccak256(bytes(parentLawDescription)));
         if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Completed)
         {
             cal[0] = abi.encode("parent proposal not completed".toShortString());
@@ -76,8 +89,8 @@ contract Law is ERC165, ILaw, PowerModifiers {
         _;
     }
 
-    modifier delayExecution(uint256 blocksDelay) {
-        uint256 proposalId = _hashExecutiveAction(initiator, address(this), lawCalldata, descriptionHash);
+    modifier delayExecution(uint256 blocksDelay, bytes memory lawCalldata, bytes32 descriptionHash) {
+        uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
         uint256 currentBlock = block.number;
         uint256 deadline = SeparatedPowers(payable(separatedPowers)).proposalDeadline(proposalId);
 
@@ -126,7 +139,7 @@ contract Law is ERC165, ILaw, PowerModifiers {
     }
 
     /// @inheritdoc ILaw
-    function executeLaw(address, /* initiator */ bytes memory, /* lawCalldata */ bytes32 /* descriptionHash */ )
+    function executeLaw(bytes memory, /* lawCalldata */ bytes32 /* descriptionHash */ )
         external
         virtual
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
@@ -148,11 +161,11 @@ contract Law is ERC165, ILaw, PowerModifiers {
     }
 
     /// @notice an internal helper function for hashing proposals.
-    function _hashExecutiveAction(address initiator, address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+    function _hashExecutiveAction(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         internal
         pure
         returns (uint256)
     {
-        return uint256(keccak256(abi.encode(initiator, targetLaw, lawCalldata, descriptionHash)));
+        return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
     }
 }

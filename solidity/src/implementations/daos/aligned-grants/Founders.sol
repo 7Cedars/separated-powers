@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import { Script, console2 } from "lib/forge-std/src/Script.sol";
 import { AlignedGrants } from "../../src/implementations/daos/AlignedGrants.sol";
 
-contract Founders is Script {
+contract Founders {
     uint256 constant NUMBER_OF_FOUNDER_ROLES = 10;
 
     function get(address payable alignedGrants) external returns (uint32[] memory constituentRoles, address[] memory constituentAccounts) {
