@@ -1,46 +1,38 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import { AlignedGrants } from "../../src/implementations/daos/AlignedGrants.sol";
+import { AlignedGrants } from "./AlignedGrants.sol";
 
 contract Founders {
-    uint256 constant NUMBER_OF_FOUNDER_ROLES = 10;
+    uint32[] constituentRoles;
+    address[] constituentAccounts;
 
-    function get(address payable alignedGrants) external returns (uint32[] memory constituentRoles, address[] memory constituentAccounts) {
+    function get(
+        address payable alignedGrants, 
+        address[] memory accounts
+        ) external returns (
+            uint32[] memory, 
+            address[] memory
+            ) {         
         AlignedGrants agDao = AlignedGrants(alignedGrants);
-        
-        constituentRoles = new uint32[](NUMBER_OF_FOUNDER_ROLES);
-        constituentAccounts = new address[](NUMBER_OF_FOUNDER_ROLES);
 
-        address alice = makeAddr("alice");
-        address bob = makeAddr("bob");
-        address charlotte = makeAddr("charlotte");
-        address david = makeAddr("david");
-        address eve = makeAddr("eve");
-        address frank = makeAddr("frank");
+        for (uint32 i = 0; i < accounts.length; i++) {
+            // MEMBER_ROLE
+            constituentRoles.push(agDao.MEMBER_ROLE());
+            constituentAccounts.push(accounts[i]);
 
-        constituentAccounts[0] = alice;
-        constituentRoles[0] = agDao.MEMBER_ROLE();
-        constituentAccounts[1] = bob;
-        constituentRoles[1] = agDao.MEMBER_ROLE();
-        constituentAccounts[2] = charlotte;
-        constituentRoles[2] = agDao.MEMBER_ROLE();
-        constituentAccounts[3] = david;
-        constituentRoles[3] = agDao.MEMBER_ROLE();
-        constituentAccounts[4] = eve;
-        constituentRoles[4] = agDao.MEMBER_ROLE();
-
-        constituentAccounts[5] = alice;
-        constituentRoles[5] = agDao.SENIOR_ROLE();
-        constituentAccounts[6] = bob;
-        constituentRoles[6] = agDao.SENIOR_ROLE();
-        constituentAccounts[7] = charlotte;
-        constituentRoles[7] = agDao.SENIOR_ROLE();
-        
-        constituentAccounts[8] = eve;
-        constituentRoles[8] = agDao.WHALE_ROLE();
-        constituentAccounts[9] = frank;
-        constituentRoles[9] = agDao.WHALE_ROLE();
+            // SENIOR_ROLE
+            if (i % 2 == 0) {
+                constituentRoles.push(agDao.SENIOR_ROLE());
+                constituentAccounts.push(accounts[i]);
+            }
+            
+            // WHALE_ROLE
+            if (i % 3 == 0) {
+                constituentRoles.push(agDao.WHALE_ROLE());
+                constituentAccounts.push(accounts[i]);
+            }        
+        }
 
         //////////////////////////////////////////////////////////////
         //                    RETURN FOUNDERS                       //

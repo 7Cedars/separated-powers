@@ -42,7 +42,7 @@ contract PresetAction is Law {
 
     /// @notice execute the law.
     /// @param lawCalldata the calldata of the law.
-    function executeLaw(address, /* initiator*/ bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(bytes memory lawCalldata, bytes32 /* descriptionHash */ )
         external
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)

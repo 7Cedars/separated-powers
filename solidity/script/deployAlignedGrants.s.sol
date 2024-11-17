@@ -7,10 +7,11 @@ import { Script, console2 } from "lib/forge-std/src/Script.sol";
 import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
 import { Law } from "../../src/Law.sol";
 import { SeparatedPowersTypes } from "../../src/interfaces/SeparatedPowersTypes.sol";
-import { AlignedGrants } from "../../src/implementations/daos/AlignedGrants.sol";
 import { Erc1155Mock } from "../../src/implementations/mocks/Erc1155Mock.sol";
-import { Constitution } from "./Constitution.s.sol";
-import { Founders } from "./Founders.s.sol";
+// dao 
+import { AlignedGrants } from "../../src/implementations/daos/aligned-grants/AlignedGrants.sol";
+import { Constitution } from "../../src/implementations/daos/aligned-grants/Constitution.sol";
+import { Founders } from "../../src/implementations/daos/aligned-grants/Founders.sol";
 
 contract DeployAlignedGrants is Script {
     address[] laws;

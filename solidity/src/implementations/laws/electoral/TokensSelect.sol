@@ -59,42 +59,44 @@ contract TokensSelect is Law {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(address executioner, bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(bytes memory lawCalldata, bytes32 /* descriptionHash */ )
         external
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // decode the calldata.
         (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
+        uint256 actionId = _hashExecutiveAction(address(this), lawCalldata, keccak256(bytes(description)));
+        address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);  
 
         // nominate if nominateMe == true
         // elected accounts are stored in a mapping and have to be accepted.
         if (nominateMe) {
-            if (_nominees[executioner] != 0) {
+            if (_nominees[initiator] != 0) {
                 address[] memory tar = new address[](1);
                 uint256[] memory val = new uint256[](1);
                 bytes[] memory cal = new bytes[](1);
                 cal[0] = abi.encode("Nominee already nominated".toShortString());
                 return (tar, val, cal);
             }
-            _nominees[executioner] = uint48(block.timestamp);
-            _nomineesSorted.push(executioner);
+            _nominees[initiator] = uint48(block.timestamp);
+            _nomineesSorted.push(initiator);
 
-            emit TokensSelect__NominationReceived(executioner);
+            emit TokensSelect__NominationReceived(initiator);
         }
 
         // revoke nomination if executionar is nominated and nominateMe == false
-        if (!nominateMe && _nominees[executioner] != 0) {
-            _nominees[executioner] = 0;
+        if (!nominateMe && _nominees[initiator] != 0) {
+            _nominees[initiator] = 0;
             for (uint256 i; i < _nomineesSorted.length; i++) {
-                if (_nomineesSorted[i] == executioner) {
+                if (_nomineesSorted[i] == initiator) {
                     _nomineesSorted[i] = _nomineesSorted[_nomineesSorted.length - 1];
                     _nomineesSorted.pop();
                     break;
                 }
             }
 
-            emit TokensSelect__NominationRevoked(executioner);
+            emit TokensSelect__NominationRevoked(initiator);
         }
 
         // elects roles if assignRoles == true

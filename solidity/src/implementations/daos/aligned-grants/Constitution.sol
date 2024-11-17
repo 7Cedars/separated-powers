@@ -2,16 +2,20 @@
 pragma solidity 0.8.26;
 
 // electoral laws
-import { Law } from "../../src/Law.sol";
-import { AlignedGrants } from "../../src/implementations/daos/AlignedGrants.sol";
-import { TokensSelect } from "../../src/implementations/laws/electoral/TokensSelect.sol";
-import { DirectSelect } from "../../src/implementations/laws/electoral/DirectSelect.sol";
-// executive laws
+import { Law } from "../../../Law.sol";
+import { TokensSelect } from "../../laws/electoral/TokensSelect.sol";
+import { DirectSelect } from "../../laws/electoral/DirectSelect.sol";
+import {VoteSelect} from "../../laws/electoral/VoteSelect.sol";
 
-// bespoke laws
-import { AdoptValue } from "../../src/implementations/laws/bespoke/AdoptValue.sol";
-import { RevokeRole } from "../../src/implementations/laws/bespoke/RevokeRole.sol";
-import { RevertRevokeMemberRole } from "../../src/implementations/laws/bespoke/RevertRevokeMemberRole.sol";
+// executive laws
+import {ProposalOnly} from "../../laws/executive/ProposalOnly.sol";
+
+// dao and its bespoke laws
+import { AlignedGrants } from "./AlignedGrants.sol";
+import { AdoptValue } from "../../laws/bespoke/AdoptValue.sol";
+import { RevokeRole } from "../../laws/bespoke/RevokeRole.sol";
+import { ReinstateMember } from "../../laws/bespoke/ReinstateMember.sol";
+import { ChallengeRevoke } from "../../laws/bespoke/ChallengeRevoke.sol";
 
 contract Constitution {
     uint32 constant NUMBER_OF_LAWS = 8;
@@ -82,7 +86,7 @@ contract Constitution {
         //////////////////////////////////////////////////////////////
         // Law 3: {ProposeOnly}
         laws[3] = address(
-            new ProposeOnly(
+            new ProposalOnly(
                 "Members propose value",
                 "Members can propose a new value to be selected. They cannot execute it.",
                 dao_ 
@@ -98,7 +102,8 @@ contract Constitution {
             new AdoptValue(
                 "Whales accept value",
                 "Whales can accept and implement a new value that was proposed by members.",
-                dao_ 
+                dao_,
+                laws[3] // parent law 
             )
         );
         allowedRoles[4] = 2; // AlignedGrants.WHALE_ROLE();

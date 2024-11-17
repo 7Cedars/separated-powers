@@ -9,7 +9,7 @@ pragma solidity 0.8.26;
 import { Law } from "../../../Law.sol";
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { SeparatedPowersTypes } from "../../../interfaces/SeparatedPowersTypes.sol";
-import { AlignedGrants } from "../../../implementations/daos/AlignedGrants.sol";
+import { AlignedGrants } from "../../../implementations/daos/aligned-grants/AlignedGrants.sol";
 import { RevokeRole } from "./RevokeRole.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 

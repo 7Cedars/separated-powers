@@ -7,9 +7,8 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
-import { NeedsVote } from "../../../implementations/laws/administrative/NeedsVote.sol";
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";
-import { AlignedGrants } from "../../../implementations/daos/AlignedGrants.sol";
+import { AlignedGrants } from "../../../implementations/daos/aligned-grants/AlignedGrants.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 contract RevokeRole is Law {

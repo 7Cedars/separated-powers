@@ -23,6 +23,9 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 contract DirectSelect is Law {
     using ShortStrings for *;
 
+    error DirectSelect__AccountDoesNotHaveRole();
+    error DirectSelect__AccountAlreaydHasRole();
+
     uint32 private immutable ROLE_ID;
 
     constructor(string memory name_, string memory description_, address separatedPowers_, uint32 roleId_)
@@ -31,13 +34,16 @@ contract DirectSelect is Law {
         ROLE_ID = roleId_;
     }
 
-    function  executeLaw(bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(bytes memory lawCalldata, bytes32 /* descriptionHash */ )
         external
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // step 1: decode the calldata.
         (bool revoke) = abi.decode(lawCalldata, (bool));
+        
+        uint256 actionId = _hashExecutiveAction(address(this), lawCalldata, keccak256(bytes(description)));
+        address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);  
 
         // step 2: create & send return calldata conditional if it is an assign or revoke action.
         address[] memory tar = new address[](1);
@@ -46,8 +52,7 @@ contract DirectSelect is Law {
 
         if (revoke) {
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) == 0) {
-                cal[0] = abi.encode("account does not have role".toShortString());
-                return (tar, val, cal);
+                revert DirectSelect__AccountDoesNotHaveRole();
             }
             tar[0] = separatedPowers;
             val[0] = 0;
@@ -55,8 +60,7 @@ contract DirectSelect is Law {
             return (tar, val, cal);
         } else {
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) != 0) {
-                cal[0] = abi.encode("account already has role".toShortString());
-                return (tar, val, cal);
+                revert DirectSelect__AccountAlreaydHasRole();
             }
             tar[0] = separatedPowers;
             val[0] = 0;

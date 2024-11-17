@@ -75,5 +75,5 @@ interface SeparatedPowersEvents {
     /// @param law the address of the law
     event LawRevoked(address indexed law);
 
-    event ExecutiveActionExecuted(address[] targets, uint256[] values, bytes[] calldata calldatas);
+    event ExecutiveActionExecuted(address[] targets, uint256[] values, bytes[] calldatas);
 }

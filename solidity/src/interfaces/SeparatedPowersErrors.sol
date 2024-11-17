@@ -17,6 +17,9 @@ interface SeparatedPowersErrors {
     /// @notice Emitted when a function is called from a contract that is not SeparatedPowers.
     error SeparatedPowers__OnlySeparatedPowers();
 
+    /// @notice Emitted when a propose is called on a law that does not require a proposal vote. .
+    error SeparatedPowers__NoVoteNeeded();
+
     /// @notice Emitted when a function is called by an account that lacks the correct roleId.
     error SeparatedPowers__AccessDenied();
 
@@ -45,7 +48,7 @@ interface SeparatedPowersErrors {
     error SeparatedPowers__CancelCallNotFromActiveLaw();
 
     /// @notice Emitted when a proposal is not active.
-    error SeparatedPowers__ExecutiveActionNotActive();
+    error SeparatedPowers__ProposalNotActive();
 
     /// @notice Emitted when a law is not active.
     error SeparatedPowers__LawNotActive();

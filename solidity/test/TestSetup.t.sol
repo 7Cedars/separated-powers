@@ -17,21 +17,21 @@ import { SeparatedPowersEvents } from "../src/interfaces/SeparatedPowersEvents.s
 import { Erc1155Mock } from "../src/implementations/mocks/Erc1155Mock.sol";
 
 // deploy scripts 
-import { DeployAlignedGrants } from "../script/deploy-aligned-grants/deployAlignedGrants.s.sol";
+import { DeployAlignedGrants } from "../script/deployAlignedGrants.s.sol";
 
 // daos 
-import { AlignedGrants } from "../src/implementations/daos/AlignedGrants.sol";
+import { AlignedGrants } from "../src/implementations/daos/aligned-grants/AlignedGrants.sol";
 
-// laws 
-import { ChallengeExecution } from "../src/implementations/laws/administrative/ChallengeExecution.sol";
-import { NeedsVote } from "../src/implementations/laws/administrative/NeedsVote.sol";
-import { LimitExecutions } from "../src/implementations/laws/administrative/LimitExecutions.sol";
-import { Direct } from "../src/implementations/laws/electoral/Direct.sol";
-import { Tokens } from "../src/implementations/laws/electoral/Tokens.sol";
-import { Randomly } from "../src/implementations/laws/electoral/Randomly.sol";
+// laws
 import { AdoptValue } from "../src/implementations/laws/bespoke/AdoptValue.sol";
+import { ChallengeRevoke } from "../src/implementations/laws/bespoke/ChallengeRevoke.sol";
 import { RevokeRole } from "../src/implementations/laws/bespoke/RevokeRole.sol";
-import { RevertRevokeMemberRole } from "../src/implementations/laws/bespoke/RevertRevokeMemberRole.sol";
+import { ReinstateMember } from "../src/implementations/laws/bespoke/ReinstateMember.sol";
+import { DirectSelect } from "../src/implementations/laws/electoral/DirectSelect.sol";
+import { TokensSelect } from "../src/implementations/laws/electoral/TokensSelect.sol";
+import { DirectSelect } from "../src/implementations/laws/electoral/DirectSelect.sol";
+import { TokensSelect } from "../src/implementations/laws/electoral/TokensSelect.sol";
+import { ProposalOnly } from "../src/implementations/laws/executive/ProposalOnly.sol";
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents {
     // protocol and mocks 
@@ -52,15 +52,13 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     address[] constituentAccounts;
 
     // laws 
-    ChallengeExecution challengeExecution;
-    NeedsVote needsVote;
-    LimitExecutions limitExecutions;
-    Direct direct;
-    Tokens tokens;
-    Randomly randomly;
     AdoptValue adoptValue;
+    ChallengeRevoke challengeRevoke;
     RevokeRole revokeRole;
-    RevertRevokeMemberRole revertRevokeRole;
+    ReinstateMember reinstateMember;
+    DirectSelect directSelect;
+    TokensSelect tokensSelect;
+    ProposalOnly proposalOnly;
 
     // roles 
     uint32 SENIOR_ROLE;

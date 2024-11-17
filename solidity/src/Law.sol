@@ -31,13 +31,14 @@
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
+import { SeparatedPowers } from "./SeparatedPowers.sol";
+import { SeparatedPowersTypes } from "./interfaces/SeparatedPowersTypes.sol";
 import { ILaw } from "./interfaces/ILaw.sol";
-import { PowerModifiers } from "./PowerModifiers.sol";
 import { ERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
-contract Law is ERC165, ILaw, PowerModifiers {
+contract Law is ERC165, ILaw {
     using ShortStrings for *;
 
     //////////////////////////////////////////////////
@@ -56,39 +57,33 @@ contract Law is ERC165, ILaw, PowerModifiers {
         uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
         if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Succeeded)
         {
-            cal[0] = abi.encode("proposal not succeeded".toShortString());
-            return (tar, val, cal);
+           revert Law__ProposalNotSucceeded(); 
         }
         _;
     }
 
     modifier needsParentCompleted(bytes memory lawCalldata, bytes32 descriptionHash) {
         if (parentLaw == address(0)) {
-            cal[0] = abi.encode("parent law not set".toShortString());
-            return (tar, val, cal);
+            revert Law__ParentLawNotSet(); 
         }
-        bytes memory parentLawDescription = parentLaw.description();
-        // note: the calldata of the parent law and this law needs to be identitical.
+        string memory parentLawDescription = Law(parentLaw).description();
         uint256 parentProposalId = _hashExecutiveAction(parentLaw, lawCalldata, keccak256(bytes(parentLawDescription)));
-        if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Completed)
+        if (SeparatedPowers(payable(separatedPowers)).state(parentProposalId) != SeparatedPowersTypes.ActionState.Completed)
         {
-            cal[0] = abi.encode("parent not completed".toShortString());
-            return (tar, val, cal);
+            revert Law__ParentNotCompleted();
         }
         _;
     }
  
     modifier parentCanBlock(bytes memory lawCalldata, bytes32 descriptionHash) {
         if (parentLaw == address(0)) {
-            cal[0] = abi.encode("parent law not set".toShortString());
-            return (tar, val, cal);
+            revert Law__ParentLawNotSet();
         }
-        bytes memory parentLawDescription = parentLaw.description();
-        uint256 proposalId = _hashExecutiveAction(parentLaw, lawCalldata, keccak256(bytes(parentLawDescription)));
-        if (SeparatedPowers(payable(separatedPowers)).state(proposalId) == SeparatedPowersTypes.ActionState.Completed)
+        string memory parentLawDescription = Law(parentLaw).description();
+        uint256 parentProposalId = _hashExecutiveAction(parentLaw, lawCalldata, keccak256(bytes(parentLawDescription)));
+        if (SeparatedPowers(payable(separatedPowers)).state(parentProposalId) == SeparatedPowersTypes.ActionState.Completed)
         {
-            cal[0] = abi.encode("parent blocks execution".toShortString());
-            return (tar, val, cal);
+            revert Law__ParentBlocksCompletion(); 
         }
         _;
     }
@@ -98,36 +93,23 @@ contract Law is ERC165, ILaw, PowerModifiers {
         uint256 currentBlock = block.number;
         uint256 deadline = SeparatedPowers(payable(separatedPowers)).proposalDeadline(proposalId);
 
-        tar = new address[](1);
-        val = new uint256[](1);
-        cal = new bytes[](1);
-
         if (deadline == 0) {
-            cal[0] = abi.encode("no deadline set".toShortString());
-            return (tar, val, cal);
+            revert Law__NoDeadlineSet();
         }
         if (deadline < currentBlock) {
-            cal[0] = abi.encode("deadline not passed".toShortString());
-            return (tar, val, cal);
+            revert Law__DeadlineNotPassed(); 
         }
         _;     
     }
 
     modifier limitExecutions(uint256 maxExecution, uint256 gapExecutions) {
         uint256 numberOfExecutions = executions.length;
-        tar = new address[](1);
-        val = new uint256[](1);
-        cal = new bytes[](1);
 
-        // check if the limit has been reached
-        if (numberOfExecutions >= _maxExecution) {
-            cal[0] = abi.encode("execution limit reached".toShortString());
-            return (tar, val, cal);
+        if (numberOfExecutions >= maxExecution) {
+            revert Law__ExecutionLimitReached();
         }
-        // check if the gap to the previous execution is large enough
-        if (block.number - executions[numberOfExecutions - 1] < _gapExecutions) {
-            cal[0] = abi.encode("execution gap too small".toShortString());
-            return (tar, val, cal);
+        if (block.number - executions[numberOfExecutions - 1] < gapExecutions) {
+            revert Law__ExecutionGapTooSmall();
         }
         _; 
     }

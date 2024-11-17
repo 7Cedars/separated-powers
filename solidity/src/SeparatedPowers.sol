@@ -95,12 +95,9 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         if (!laws[targetLaw].active) {
             revert SeparatedPowers__NotActiveLaw();
         }
-
         // check 3: does target law need proposal vote to pass? 
-        bytes32 descriptionHash = keccak256(bytes(description));
-        (,, bytes32[] memory calldatas) = Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
-        if (calldatas[0].toString() != "proposal not succeeded") {
-            revert SeparatedPowers__LawDoesNotNeedProposalVote();
+        if (laws[targetLaw].quorum == 0) {
+            revert SeparatedPowers__NoVoteNeeded();
         }
 
         // if check passes: propose.
@@ -112,7 +109,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     /// @dev The mechanism checks for the length of targets and calldatas.
     ///
     /// Emits a {SeperatedPowersEvents::ExecutiveActionCreated} event.
-    function _propose(address targetLaw, bytes memory lawCalldata, string memory description)
+    function _propose(address initiator, address targetLaw, bytes memory lawCalldata, string memory description)
         internal
         virtual
         returns (uint256 actionId)
@@ -209,7 +206,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
     /// @inheritdoc ISeparatedPowers
     function execute(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash) external payable virtual {
-        uint256 actionId = hashExecutiveAction(msg.sender, targetLaw, lawCalldata, descriptionHash);
+        uint256 actionId = hashExecutiveAction(targetLaw, lawCalldata, descriptionHash);
         // check 1: does executioner have access to law being executed?
         uint32 allowedRole = laws[targetLaw].allowedRole;
         if (roles[allowedRole].members[msg.sender] == 0 && allowedRole != PUBLIC_ROLE) {
@@ -229,10 +226,12 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             revert SeparatedPowers__ExecutiveActionCancelled();
         }
 
-        // if checks pass: calling target law and receiving targets, values and calldatas.
+        // if checks pass: set actionId to initiator. 
+        _executiveActions[actionId].initiator = msg.sender; // note if initiator had been set during proposal, it will be overwritten.
+        // and call target law -> receive targets, values and calldatas
         // Note this call should never revert. It should always receive data from law.
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
-            Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
+            Law(targetLaw).executeLaw(lawCalldata, descriptionHash);
 
         // check return data from law.
         if (targets.length == 0 || targets[0] == targetLaw || targets[0] == address(0)) {
@@ -244,7 +243,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
         // a targets[0] == address(1) is a signal from a law to indicate that no action should be executed. 
         if (targets[0] == address(1)) {
-            break; 
+           return;  
         }
         _executeOperations(targets, values, calldatas);
     }
@@ -506,12 +505,17 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
+    function hasRoleSince(address account, uint32 roleId) public view returns (uint48 since) {
+        return roles[roleId].members[account];
+    }
+
+    /// @inheritdoc ISeparatedPowers
     function hasVoted(uint256 actionId, address account) public view virtual returns (bool) {
         return _executiveActions[actionId].hasVoted[account];
     }
 
     /// @inheritdoc ISeparatedPowers
-    function executiveActionVotes(uint256 actionId)
+    function getProposalVotes(uint256 actionId)
         public
         view
         virtual
@@ -522,8 +526,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function hasRoleSince(address account, uint32 roleId) public view returns (uint48 since) {
-        return roles[roleId].members[account];
+    function getInitiatorAction(uint256 actionId) public view virtual returns (address) {
+        return _executiveActions[actionId].initiator;
     }
 
     /// @inheritdoc ISeparatedPowers

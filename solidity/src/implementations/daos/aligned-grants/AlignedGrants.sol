@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import "lib/openzeppelin-contracts/contracts/utils/ShortStrings.sol";
 
 /// @notice Example DAO contract based on the SeparatedPowers protocol. 

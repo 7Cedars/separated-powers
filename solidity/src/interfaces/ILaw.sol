@@ -5,10 +5,11 @@
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 import {IERC165} from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
+import {LawErrors} from "./LawErrors.sol";
 
 pragma solidity 0.8.26;
 
-interface ILaw is IERC165 {
+interface ILaw is IERC165, LawErrors {
     error ILaw__AccessNotAuthorized(address caller);
     error Law__NoZeroAddress();
 
@@ -20,7 +21,7 @@ interface ILaw is IERC165 {
     ///
     /// @dev the arrays of targets, values and calldatas must have the same length.
     /// @dev Note that this function should be overridden (without a super call) to add logic of the law.
-    function executeLaw(address initiator, bytes memory lawCallData, bytes32 descriptionHash)
+    function executeLaw(bytes memory lawCallData, bytes32 descriptionHash)
         external
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
 
