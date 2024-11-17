@@ -15,7 +15,7 @@ import { SeparatedPowersEvents } from "../src/interfaces/SeparatedPowersEvents.s
 
 // mocks 
 import { DaoMock } from "./mocks/DaoMock.sol";
-import { ConstitutionMock } from "./mocks/ConstitutionMock.sol";
+import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
 import { FoundersMock } from "./mocks/FoundersMock.sol";
 import { Erc1155Mock } from "./mocks/Erc1155Mock.sol";
 
@@ -29,7 +29,7 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     // protocol and mocks 
     SeparatedPowers separatedPowers;
     DaoMock daoMock;
-    ConstitutionMock constitutionMock;
+    ConstitutionsMock constitutionsMock;
     FoundersMock foundersMock;
     Erc1155Mock erc1155Mock;
 
@@ -68,7 +68,19 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     string[] daoNames;
 }
 
-abstract contract TestSetup is Test, TestVariables {
+abstract contract TestHelpers {
+    function hashExecutiveAction(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        pure
+        virtual
+        returns (uint256)
+    {
+        return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
+    }
+}
+
+
+abstract contract TestSetup is Test, TestVariables, TestHelpers {
     function setUp() public virtual {
         vm.roll(10);
         setUpVariables();
@@ -105,7 +117,7 @@ abstract contract TestSetup is Test, TestVariables {
         // deploy mocks
         erc1155Mock = new Erc1155Mock();
         daoMock = new DaoMock();
-        constitutionMock = new ConstitutionMock();
+        constitutionsMock = new ConstitutionsMock();
         foundersMock = new FoundersMock();
 
         // get constitution and founders lists. 
@@ -115,7 +127,7 @@ abstract contract TestSetup is Test, TestVariables {
             quorums,
             succeedAts,
             votingPeriods
-            ) = constitutionMock.initiate(payable(address(daoMock)), payable(address((erc1155Mock))));
+            ) = constitutionsMock.initiateFirst(payable(address(daoMock)), payable(address((erc1155Mock))));
 
         (
             constituentRoles, 

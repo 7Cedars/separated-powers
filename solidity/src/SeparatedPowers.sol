@@ -115,7 +115,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         returns (uint256 actionId)
     {
         actionId = hashExecutiveAction(targetLaw, lawCalldata, keccak256(bytes(description)));
-        if (_executiveActions[actionId].voteStart == 0) {
+        if (_executiveActions[actionId].voteStart != 0) {
             revert SeparatedPowers__UnexpectedActionState();
         }
 

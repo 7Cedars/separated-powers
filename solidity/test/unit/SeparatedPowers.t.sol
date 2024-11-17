@@ -1,55 +1,109 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.26;
 
-import "forge-std/Test.sol";
-import "../../src/SeparatedPowers.sol";
-import "../TestSetup.t.sol";
+import  "forge-std/Test.sol";
+import { SeparatedPowers } from  "../../src/SeparatedPowers.sol";
+import { TestSetup } from "../TestSetup.t.sol";
 
 /// @notice Unit tests for the core Separated Powers protocol.
 /// @dev tests build on the Hats protocol example. See // https.... £todo 
 
-// contract DeployTest is TestSetup {
-//     function testDeployAlignedGrants() public {
-//       assertEq(alignedGrantsDao.name(), daoNames[0]);
-//     //   assertEq(alignedGrantsDao.version(), abi.encode("1"));
 
-//       assert(alignedGrantsDao.hasRoleSince(alice, SENIOR_ROLE) != 0);    
-//     }
+//////////////////////////////////////////////////////////////
+//            TESTING GOVERNANCE LOGIC                      //
+//////////////////////////////////////////////////////////////
+contract DeployTest is TestSetup {
+    function testDeployAlignedGrants() public {
+      assertEq(daoMock.name(), daoNames[0]);
+      assertEq(daoMock.version(), "1");
 
-//     function testReceive() public {
-//         vm.prank(alice);
+      assert(daoMock.hasRoleSince(alice, ROLE_ONE) != 0);    
+    }
 
-//         vm.expectEmit(true, false, false, false);
-//         emit SeparatedPowersEvents.FundsReceived(1 ether);
-//         address(alignedGrantsDao).call{value: 1 ether}("");
+    function testReceive() public {
+        vm.prank(alice);
 
-//         assertEq(address(alignedGrantsDao).balance, 1 ether);
-//     }
-// }
+        vm.expectEmit(true, false, false, false);
+        emit FundsReceived(1 ether);
+        address(daoMock).call{value: 1 ether}("");
 
-// contract CreateExecutiveActionTest is TestSetup {
-//     function testProposeRevertsWhenAccountLacksCredentials() public {
-//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
-//         bytes memory lawCalldata = abi.encode(david);
+        assertEq(address(daoMock).balance, 1 ether);
+    }
+}
 
-//         vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
-//         vm.prank(david);
-//         alignedGrantsDao.propose(laws[2], lawCalldata, description);
-//     }
+contract ProposeTest is TestSetup {
+    function testProposeRevertsWhenAccountLacksCredentials() public {
+        string memory description = "Creating a proposal";
+        bytes memory lawCalldata = abi.encode(true);
+        // check if helen does not have ROLE_ONE 
+        address mockAddress = makeAddr("mock");
+        assertEq(daoMock.hasRoleSince(mockAddress, ROLE_ONE ), 0);
 
-//     function testProposePassesWithCorrectCredentials() public {
-//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
-//         bytes memory lawCalldata = abi.encode(david);
+        vm.expectRevert(SeparatedPowers__AccessDenied.selector);
+        vm.prank(mockAddress);
+        daoMock.propose(laws[4], lawCalldata, description);
+    }
 
-//         vm.prank(charlotte); // = already a senior
-//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
+    // function testProposeRevertsIfLawNotActive() public {
+    //  Testing this needs a mock call.
+    // The law needs to have been set, and then deactivated. 
+    // That is the only scenario where this would happen I think.  
+    // 
+    // do later. 
+    // }
 
-//         SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
-//         assert(uint8(proposalState) == 0); // == ActionState.Active
-//     }
-// }
+    function testProposeRevertsIfLawDoesNotNeedVote() public {
+        string memory description = "Creating a proposal";
+        bytes memory lawCalldata = abi.encode("this is dummy Data");
+        address lawThatDoesNotNeedVote = laws[2];
+        // check if david has incorrect role
+        assertEq(daoMock.hasRoleSince(david, allowedRoles[2]), 10);
 
-// contract CancelExecutiveActionTest is TestSetup {
+        vm.prank(david);  
+        vm.expectRevert(SeparatedPowers__NoVoteNeeded.selector);
+        uint256 proposalId = daoMock.propose(lawThatDoesNotNeedVote, lawCalldata, description);
+    }
+
+    function testProposePassesWithCorrectCredentials() public {
+        string memory description = "Creating a proposal";
+        bytes memory lawCalldata = abi.encode(true);
+        // check if charlotte has ROLE_ONE 
+        assertEq(daoMock.hasRoleSince(charlotte, ROLE_ONE), 10);
+
+        vm.prank(charlotte); 
+        uint256 proposalId = daoMock.propose(laws[4], lawCalldata, description);
+
+        ActionState proposalState = daoMock.state(proposalId);
+        assert(uint8(proposalState) == uint8(ActionState.Active)); 
+    }
+
+    function testProposeEmitsEvents() public {
+        string memory description = "Creating a proposal";
+        bytes memory lawCalldata = abi.encode(true);
+        address targetLaw = laws[4];
+        // check if charlotte has ROLE_ONE 
+        assertEq(daoMock.hasRoleSince(charlotte, ROLE_ONE), 10);
+
+        uint256 actionId = hashExecutiveAction(targetLaw, lawCalldata, keccak256(bytes(description)));
+        uint32 duration = votingPeriods[4]; 
+
+        vm.expectEmit(true, false, false, false);
+        emit ExecutiveActionCreated(
+            actionId,
+            charlotte,
+            targetLaw,
+            "",
+            lawCalldata,
+            block.number,
+            block.timestamp + duration,
+            description
+        );
+        vm.prank(charlotte); 
+        uint256 proposalId = daoMock.propose(targetLaw, lawCalldata, description);
+    }
+}
+
+// contract CancelTest is TestSetup {
 //     function testCancellingExecutiveActionsEmitsCorrectEvent() public {
 //         // prep
 //         string memory description = "Inviting david to join senior role at alignedGrantsDao";
@@ -105,7 +159,7 @@ import "../TestSetup.t.sol";
 //     }
 // }
 
-// contract VoteOnExecutiveActionTest is TestSetup {
+// contract VoteTest is TestSetup {
 //     function testVotingIsNotPossibleForExecutiveActionsOutsideCredentials() public {
 //     // prep
 //         string memory description = "Inviting david to join senior role at alignedGrantsDao";
@@ -211,7 +265,7 @@ import "../TestSetup.t.sol";
 
 // }
 
-// contract ExecuteActionTest is TestSetup {
+// contract ExecuteTest is TestSetup {
 //     function testWhenExecutiveActionPassesLawCanBeExecuted() public {
 //         // prep
 //         string memory description = "Inviting david to join senior role at alignedGrantsDao";
@@ -298,9 +352,7 @@ import "../TestSetup.t.sol";
 // }
 
 
-//   //////////////////////////////////////////////////////////////
-//   //            TESTING GOVERNANCE LOGIC                      //
-//   //////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 
 
 //// These should not be here //// 
