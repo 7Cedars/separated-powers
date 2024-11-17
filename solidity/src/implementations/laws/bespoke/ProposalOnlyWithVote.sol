@@ -16,7 +16,7 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 
-contract ProposalOnly is Law {
+contract ProposalOnlyWithVote is Law {
     /// @notice Constructor function for Open contract.
     /// @param name_ name of the law
     /// @param description_ description of the law
@@ -26,8 +26,10 @@ contract ProposalOnly is Law {
     { }
 
     /// @notice Execute the open action.
-    function executeLaw(bytes memory /*lawCalldata*/, bytes32 /*descriptionHash*/ )
+    /// @param lawCalldata the calldata of the law
+    function executeLaw(bytes memory lawCalldata, bytes32 descriptionHash )
         external
+        needsProposalVote(lawCalldata, descriptionHash)
         override
         // needVote() //  needs vote to pass
         // needsParentCompleted() // needs parent Law to be completed. 

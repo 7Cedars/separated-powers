@@ -8,294 +8,294 @@ import "../TestSetup.t.sol";
 /// @notice Unit tests for the core Separated Powers protocol.
 /// @dev tests build on the Hats protocol example. See // https.... £todo 
 
-contract DeployTest is TestSetup {
-    function testDeployAlignedGrants() public {
-      assertEq(alignedGrantsDao.name(), daoNames[0]);
-    //   assertEq(alignedGrantsDao.version(), abi.encode("1"));
+// contract DeployTest is TestSetup {
+//     function testDeployAlignedGrants() public {
+//       assertEq(alignedGrantsDao.name(), daoNames[0]);
+//     //   assertEq(alignedGrantsDao.version(), abi.encode("1"));
 
-      assert(alignedGrantsDao.hasRoleSince(alice, SENIOR_ROLE) != 0);    
-    }
+//       assert(alignedGrantsDao.hasRoleSince(alice, SENIOR_ROLE) != 0);    
+//     }
 
-    function testReceive() public {
-        vm.prank(alice);
+//     function testReceive() public {
+//         vm.prank(alice);
 
-        vm.expectEmit(true, false, false, false);
-        emit SeparatedPowersEvents.FundsReceived(1 ether);
-        address(alignedGrantsDao).call{value: 1 ether}("");
+//         vm.expectEmit(true, false, false, false);
+//         emit SeparatedPowersEvents.FundsReceived(1 ether);
+//         address(alignedGrantsDao).call{value: 1 ether}("");
 
-        assertEq(address(alignedGrantsDao).balance, 1 ether);
-    }
-}
+//         assertEq(address(alignedGrantsDao).balance, 1 ether);
+//     }
+// }
 
-contract CreateExecutiveActionTest is TestSetup {
-    function testProposeRevertsWhenAccountLacksCredentials() public {
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
+// contract CreateExecutiveActionTest is TestSetup {
+//     function testProposeRevertsWhenAccountLacksCredentials() public {
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
 
-        vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
-        vm.prank(david);
-        alignedGrantsDao.propose(laws[2], lawCalldata, description);
-    }
+//         vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
+//         vm.prank(david);
+//         alignedGrantsDao.propose(laws[2], lawCalldata, description);
+//     }
 
-    function testProposePassesWithCorrectCredentials() public {
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
+//     function testProposePassesWithCorrectCredentials() public {
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
 
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
 
-        SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
-        assert(uint8(proposalState) == 0); // == ActionState.Active
-    }
-}
+//         SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
+//         assert(uint8(proposalState) == 0); // == ActionState.Active
+//     }
+// }
 
-contract CancelExecutiveActionTest is TestSetup {
-    function testCancellingExecutiveActionsEmitsCorrectEvent() public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description); //
+// contract CancelExecutiveActionTest is TestSetup {
+//     function testCancellingExecutiveActionsEmitsCorrectEvent() public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description); //
 
-        vm.expectEmit(true, false, false, false);
-        emit SeparatedPowersEvents.ExecutiveActionCancelled(proposalId);
-        vm.prank(charlotte);
-        alignedGrantsDao.cancel(laws[1], lawCalldata, keccak256(bytes(description)));
-    }
+//         vm.expectEmit(true, false, false, false);
+//         emit SeparatedPowersEvents.ExecutiveActionCancelled(proposalId);
+//         vm.prank(charlotte);
+//         alignedGrantsDao.cancel(laws[1], lawCalldata, keccak256(bytes(description)));
+//     }
 
-    function testCancellingExecutiveActionsSetsStateToCancelled() public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description); //
+//     function testCancellingExecutiveActionsSetsStateToCancelled() public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description); //
 
-        vm.prank(charlotte);
-        alignedGrantsDao.cancel(laws[1], lawCalldata, keccak256(bytes(description)));
+//         vm.prank(charlotte);
+//         alignedGrantsDao.cancel(laws[1], lawCalldata, keccak256(bytes(description)));
 
-        SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
-        assert(uint8(proposalState) == 1); // == ActionState.Cancelled
-    }
+//         SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
+//         assert(uint8(proposalState) == 1); // == ActionState.Cancelled
+//     }
 
-    function testCancelRevertsWhenAccountDoesNotHaveCorrectRole() public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = charlotte is a senior
-        alignedGrantsDao.propose(laws[1], lawCalldata, description); //
+//     function testCancelRevertsWhenAccountDoesNotHaveCorrectRole() public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = charlotte is a senior
+//         alignedGrantsDao.propose(laws[1], lawCalldata, description); //
 
-        vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
-        vm.prank(david);
-        alignedGrantsDao.cancel(laws[1], lawCalldata, keccak256(bytes(description)));
-    }
+//         vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
+//         vm.prank(david);
+//         alignedGrantsDao.cancel(laws[1], lawCalldata, keccak256(bytes(description)));
+//     }
 
-    function testCancelledExecutiveActionsCannotBeExecuted() public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        alignedGrantsDao.propose(laws[1], lawCalldata, description); //
+//     function testCancelledExecutiveActionsCannotBeExecuted() public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         alignedGrantsDao.propose(laws[1], lawCalldata, description); //
 
-        vm.startPrank(charlotte);
-        alignedGrantsDao.cancel(laws[1], lawCalldata, keccak256(bytes(description)));
+//         vm.startPrank(charlotte);
+//         alignedGrantsDao.cancel(laws[1], lawCalldata, keccak256(bytes(description)));
 
-        vm.expectRevert();
-        alignedGrantsDao.execute(laws[1], lawCalldata, keccak256(bytes(description)));
-        vm.stopPrank();
-    }
-}
+//         vm.expectRevert();
+//         alignedGrantsDao.execute(laws[1], lawCalldata, keccak256(bytes(description)));
+//         vm.stopPrank();
+//     }
+// }
 
-contract VoteOnExecutiveActionTest is TestSetup {
-    function testVotingIsNotPossibleForExecutiveActionsOutsideCredentials() public {
-    // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
+// contract VoteOnExecutiveActionTest is TestSetup {
+//     function testVotingIsNotPossibleForExecutiveActionsOutsideCredentials() public {
+//     // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
 
-        vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
-        vm.prank(eve); // not a senior.
-        alignedGrantsDao.castVote(proposalId, 1);
-    }
+//         vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__AccessDenied.selector);
+//         vm.prank(eve); // not a senior.
+//         alignedGrantsDao.castVote(proposalId, 1);
+//     }
 
-    function testVotingIsNotPossibleForDefeatedExecutiveActions() public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
-        vm.roll(4_000); // == beyond durintion of 75,proposal is defeated because quorum not reached.
+//     function testVotingIsNotPossibleForDefeatedExecutiveActions() public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
+//         vm.roll(4_000); // == beyond durintion of 75,proposal is defeated because quorum not reached.
 
-        vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__ExecutiveActionNotActive.selector);
-        vm.prank(charlotte); // is a senior.
-        alignedGrantsDao.castVote(proposalId, 1);
-    }
+//         vm.expectRevert(SeparatedPowersErrors.SeparatedPowers__ExecutiveActionNotActive.selector);
+//         vm.prank(charlotte); // is a senior.
+//         alignedGrantsDao.castVote(proposalId, 1);
+//     }
 
-    function testExecutiveActionDefeatedIfQuorumNotReachedInTime () public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
+//     function testExecutiveActionDefeatedIfQuorumNotReachedInTime () public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
 
-        // go forward in time. -- not votes are cast.
-        vm.roll(4_000); // == beyond durintion of 150
-        SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
-        assert(uint8(proposalState) == 2); // == ActionState.Defeated
-    }
+//         // go forward in time. -- not votes are cast.
+//         vm.roll(4_000); // == beyond durintion of 150
+//         SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
+//         assert(uint8(proposalState) == 2); // == ActionState.Defeated
+//     }
 
-    function testExecutiveActionSucceededIfQuorumReachedInTime () public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
+//     function testExecutiveActionSucceededIfQuorumReachedInTime () public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
 
-        // members vote in 'for' in support of david joining.
-        vm.prank(alice);
-        alignedGrantsDao.castVote(proposalId, 1); // = For
-        vm.prank(bob);
-        alignedGrantsDao.castVote(proposalId, 1); // = For
+//         // members vote in 'for' in support of david joining.
+//         vm.prank(alice);
+//         alignedGrantsDao.castVote(proposalId, 1); // = For
+//         vm.prank(bob);
+//         alignedGrantsDao.castVote(proposalId, 1); // = For
 
-        // go forward in time.
-        vm.roll(4_000); // == beyond durintion of 150
-        SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
-        assert(uint8(proposalState) == 3); // == ActionState.Succeeded
-    }
+//         // go forward in time.
+//         vm.roll(4_000); // == beyond durintion of 150
+//         SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
+//         assert(uint8(proposalState) == 3); // == ActionState.Succeeded
+//     }
 
-    function testVotesWithReasonsWorks() public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
+//     function testVotesWithReasonsWorks() public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
 
-        // members vote in 'for' in support of david joining.
-        vm.prank(alice);
-        alignedGrantsDao.castVoteWithReason (proposalId, 1, "This is a test"); // = For
-        vm.prank(bob);
-        alignedGrantsDao.castVoteWithReason (proposalId, 1, "This is a test");  // = For
+//         // members vote in 'for' in support of david joining.
+//         vm.prank(alice);
+//         alignedGrantsDao.castVoteWithReason (proposalId, 1, "This is a test"); // = For
+//         vm.prank(bob);
+//         alignedGrantsDao.castVoteWithReason (proposalId, 1, "This is a test");  // = For
 
-        // go forward in time.
-        vm.roll(4_000); // == beyond durintion of 150
-        SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
-        assert(uint8(proposalState) == 3); // == ActionState.Succeeded
-    }
+//         // go forward in time.
+//         vm.roll(4_000); // == beyond durintion of 150
+//         SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
+//         assert(uint8(proposalState) == 3); // == ActionState.Succeeded
+//     }
 
-    function testExecutiveActionDefeatedIfQuorumReachedButNotEnoughForVotes () public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
+//     function testExecutiveActionDefeatedIfQuorumReachedButNotEnoughForVotes () public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
 
-        // members vote in 'for' in support of david joining.
-        vm.prank(alice);
-        alignedGrantsDao.castVote(proposalId, 0); // = against
-        vm.prank(bob);
-        alignedGrantsDao.castVote(proposalId, 0); // = against
-        vm.prank(charlotte);
-        alignedGrantsDao.castVote(proposalId, 1); // = For
+//         // members vote in 'for' in support of david joining.
+//         vm.prank(alice);
+//         alignedGrantsDao.castVote(proposalId, 0); // = against
+//         vm.prank(bob);
+//         alignedGrantsDao.castVote(proposalId, 0); // = against
+//         vm.prank(charlotte);
+//         alignedGrantsDao.castVote(proposalId, 1); // = For
 
-        alignedGrantsDao.proposalVotes(proposalId);
+//         alignedGrantsDao.proposalVotes(proposalId);
 
-        // go forward in time.
-        vm.roll(4_000); // == beyond durintion of 150
-        SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
-        assert(uint8(proposalState) == 2); // == ActionState.Defeated
-    }
+//         // go forward in time.
+//         vm.roll(4_000); // == beyond durintion of 150
+//         SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
+//         assert(uint8(proposalState) == 2); // == ActionState.Defeated
+//     }
 
-    // function testLawsWithQuorumZeroIsAlwaysSucceeds() public {
-        // £todo Complete this one later because it is necessary to go through whole governance trajectory to call a relevant law ({Public_challengeRevoke})
-    // }
+//     // function testLawsWithQuorumZeroIsAlwaysSucceeds() public {
+//         // £todo Complete this one later because it is necessary to go through whole governance trajectory to call a relevant law ({Public_challengeRevoke})
+//     // }
 
-}
+// }
 
-contract ExecuteActionTest is TestSetup {
-    function testWhenExecutiveActionPassesLawCanBeExecuted() public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description); //
+// contract ExecuteActionTest is TestSetup {
+//     function testWhenExecutiveActionPassesLawCanBeExecuted() public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description); //
 
-        // members vote in 'for' in support of david joining.
-        vm.prank(alice);
-        alignedGrantsDao.castVote(proposalId, 1); // = For
-        vm.prank(bob);
-        alignedGrantsDao.castVote(proposalId, 1); // = For
+//         // members vote in 'for' in support of david joining.
+//         vm.prank(alice);
+//         alignedGrantsDao.castVote(proposalId, 1); // = For
+//         vm.prank(bob);
+//         alignedGrantsDao.castVote(proposalId, 1); // = For
 
-        // go forward in time.
-        vm.roll(4_000); // == beyond durintion of 150
-        SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
-        assert(uint8(proposalState) == 3); // == ActionState.Succeeded
+//         // go forward in time.
+//         vm.roll(4_000); // == beyond durintion of 150
+//         SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
+//         assert(uint8(proposalState) == 3); // == ActionState.Succeeded
 
-        // execute
-        vm.prank(charlotte);
-        alignedGrantsDao.execute(laws[1], lawCalldata, keccak256(bytes(description)));
+//         // execute
+//         vm.prank(charlotte);
+//         alignedGrantsDao.execute(laws[1], lawCalldata, keccak256(bytes(description)));
 
-        // check
-        uint48 since = alignedGrantsDao.hasRoleSince(david, SENIOR_ROLE);
-        assert(since != 0);
-    }
+//         // check
+//         uint48 since = alignedGrantsDao.hasRoleSince(david, SENIOR_ROLE);
+//         assert(since != 0);
+//     }
 
-    // function testWhenExecutiveActionDefeatsLawCannotBeExecuted() public {
-    //     // prep
-    //     string memory description = "Inviting david to join senior role at alignedGrantsDao";
-    //     bytes memory lawCalldata = abi.encode(david);
-    //     vm.prank(charlotte); // = already a senior
-    //     uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description); //
+//     // function testWhenExecutiveActionDefeatsLawCannotBeExecuted() public {
+//     //     // prep
+//     //     string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//     //     bytes memory lawCalldata = abi.encode(david);
+//     //     vm.prank(charlotte); // = already a senior
+//     //     uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description); //
 
-    //     // members vote 'against' support of david joining.
-    //     vm.prank(alice);
-    //     alignedGrantsDao.castVote(proposalId, 0); // = against
-    //     vm.prank(bob);
-    //     alignedGrantsDao.castVote(proposalId, 0); // = against
-    //     vm.prank(charlotte);
-    //     alignedGrantsDao.castVote(proposalId, 1); // = for
+//     //     // members vote 'against' support of david joining.
+//     //     vm.prank(alice);
+//     //     alignedGrantsDao.castVote(proposalId, 0); // = against
+//     //     vm.prank(bob);
+//     //     alignedGrantsDao.castVote(proposalId, 0); // = against
+//     //     vm.prank(charlotte);
+//     //     alignedGrantsDao.castVote(proposalId, 1); // = for
 
-    //     // go forward in time.
-    //     vm.roll(4_000); // == beyond durintion of 150
-    //     SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
-    //     assert(uint8(proposalState) == 2); // == ActionState.Defeated
+//     //     // go forward in time.
+//     //     vm.roll(4_000); // == beyond durintion of 150
+//     //     SeparatedPowersTypes.ActionState proposalState = alignedGrantsDao.state(proposalId);
+//     //     assert(uint8(proposalState) == 2); // == ActionState.Defeated
 
-    //     // execute
-    //     vm.expectRevert(abi.encodeWithSelector(
-    //         Senior_assignRole.Senior_assignRole__ExecutiveActionVoteNotSucceeded.selector, proposalId
-    //     ));
-    //     vm.prank(charlotte);
-    //     alignedGrantsDao.execute(laws[1], lawCalldata, keccak256(bytes(description)));
-    // }
+//     //     // execute
+//     //     vm.expectRevert(abi.encodeWithSelector(
+//     //         Senior_assignRole.Senior_assignRole__ExecutiveActionVoteNotSucceeded.selector, proposalId
+//     //     ));
+//     //     vm.prank(charlotte);
+//     //     alignedGrantsDao.execute(laws[1], lawCalldata, keccak256(bytes(description)));
+//     // }
 
-    function testExecuteLawSetsExecutiveActionToCompleted() public {
-        // prep
-        string memory description = "Inviting david to join senior role at alignedGrantsDao";
-        bytes memory lawCalldata = abi.encode(david);
-        vm.prank(charlotte); // = already a senior
-        uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
+//     function testExecuteLawSetsExecutiveActionToCompleted() public {
+//         // prep
+//         string memory description = "Inviting david to join senior role at alignedGrantsDao";
+//         bytes memory lawCalldata = abi.encode(david);
+//         vm.prank(charlotte); // = already a senior
+//         uint256 proposalId = alignedGrantsDao.propose(laws[1], lawCalldata, description);
 
-        // seniors vote 'for' support of david joining.
-        vm.prank(alice);
-        alignedGrantsDao.castVote(proposalId, 1); // = for
-        vm.prank(bob);
-        alignedGrantsDao.castVote(proposalId, 1); // = for
-        vm.prank(charlotte);
-        alignedGrantsDao.castVote(proposalId, 1); // = for
+//         // seniors vote 'for' support of david joining.
+//         vm.prank(alice);
+//         alignedGrantsDao.castVote(proposalId, 1); // = for
+//         vm.prank(bob);
+//         alignedGrantsDao.castVote(proposalId, 1); // = for
+//         vm.prank(charlotte);
+//         alignedGrantsDao.castVote(proposalId, 1); // = for
 
-        // go forward in time.
-        vm.roll(4_000); // == beyond duration of 150
-        SeparatedPowersTypes.ActionState proposalState1 = alignedGrantsDao.state(proposalId);
-        assert(uint8(proposalState1) == 3); // == ActionState.Succeeded
+//         // go forward in time.
+//         vm.roll(4_000); // == beyond duration of 150
+//         SeparatedPowersTypes.ActionState proposalState1 = alignedGrantsDao.state(proposalId);
+//         assert(uint8(proposalState1) == 3); // == ActionState.Succeeded
 
-        // execute
-        vm.prank(charlotte);
-        alignedGrantsDao.execute(laws[1], lawCalldata, keccak256(bytes(description)));
+//         // execute
+//         vm.prank(charlotte);
+//         alignedGrantsDao.execute(laws[1], lawCalldata, keccak256(bytes(description)));
 
-        // check
-        SeparatedPowersTypes.ActionState proposalState2 = alignedGrantsDao.state(proposalId);
-        assert(uint8(proposalState2) == 4); // == ActionState.Completed
-    }
-}
+//         // check
+//         SeparatedPowersTypes.ActionState proposalState2 = alignedGrantsDao.state(proposalId);
+//         assert(uint8(proposalState2) == 4); // == ActionState.Completed
+//     }
+// }
 
 
 //   //////////////////////////////////////////////////////////////

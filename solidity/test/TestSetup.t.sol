@@ -14,35 +14,26 @@ import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol
 import { SeparatedPowersEvents } from "../src/interfaces/SeparatedPowersEvents.sol";
 
 // mocks 
-import { Erc1155Mock } from "../src/implementations/mocks/Erc1155Mock.sol";
+import { DaoMock } from "./mocks/DaoMock.sol";
+import { ConstitutionMock } from "./mocks/ConstitutionMock.sol";
+import { FoundersMock } from "./mocks/FoundersMock.sol";
+import { Erc1155Mock } from "./mocks/Erc1155Mock.sol";
 
-// deploy scripts 
-import { DeployAlignedGrants } from "../script/deployAlignedGrants.s.sol";
-
-// daos 
-import { AlignedGrants } from "../src/implementations/daos/aligned-grants/AlignedGrants.sol";
-
-// laws
-import { AdoptValue } from "../src/implementations/laws/bespoke/AdoptValue.sol";
-import { ChallengeRevoke } from "../src/implementations/laws/bespoke/ChallengeRevoke.sol";
-import { RevokeRole } from "../src/implementations/laws/bespoke/RevokeRole.sol";
-import { ReinstateMember } from "../src/implementations/laws/bespoke/ReinstateMember.sol";
-import { DirectSelect } from "../src/implementations/laws/electoral/DirectSelect.sol";
+// laws 
+import { VoteOnProposedAction } from "../src/implementations/laws/bespoke/VoteOnProposedAction.sol";
 import { TokensSelect } from "../src/implementations/laws/electoral/TokensSelect.sol";
 import { DirectSelect } from "../src/implementations/laws/electoral/DirectSelect.sol";
-import { TokensSelect } from "../src/implementations/laws/electoral/TokensSelect.sol";
 import { ProposalOnly } from "../src/implementations/laws/executive/ProposalOnly.sol";
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents {
     // protocol and mocks 
     SeparatedPowers separatedPowers;
+    DaoMock daoMock;
+    ConstitutionMock constitutionMock;
+    FoundersMock foundersMock;
     Erc1155Mock erc1155Mock;
 
-    // deploy scripts 
-    DeployAlignedGrants deployAlignedGrants;
-
-    // daos
-    AlignedGrants alignedGrantsDao; 
+    // constitutute dao 
     address[] laws; 
     uint32[] allowedRoles; 
     uint8[] quorums; 
@@ -52,18 +43,15 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     address[] constituentAccounts;
 
     // laws 
-    AdoptValue adoptValue;
-    ChallengeRevoke challengeRevoke;
-    RevokeRole revokeRole;
-    ReinstateMember reinstateMember;
+    VoteOnProposedAction voteOnProposedAction;
     DirectSelect directSelect;
     TokensSelect tokensSelect;
     ProposalOnly proposalOnly;
 
     // roles 
-    uint32 SENIOR_ROLE;
-    uint32 WHALE_ROLE;
-    uint32 MEMBER_ROLE;
+    uint32 ROLE_ONE;
+    uint32 ROLE_TWO;
+    uint32 ROLE_THREE;
 
     // users 
     address alice;
@@ -72,23 +60,25 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     address david;
     address eve;
     address frank;
+    address gary;
+    address helen;
+    address[] users;
 
-    // other 
+    // list of dao names
     string[] daoNames;
 }
 
 abstract contract TestSetup is Test, TestVariables {
     function setUp() public virtual {
-        bytes32 SALT = bytes32(hex"7ceda5");
         vm.roll(10);
         setUpVariables();
     }
 
     // note that this setup does not scale very well re the number of daos.
     function setUpVariables() public virtual {
-        SENIOR_ROLE = 1; 
-        WHALE_ROLE = 2;
-        MEMBER_ROLE = 3;
+        ROLE_ONE = 1; 
+        ROLE_TWO = 2;
+        ROLE_THREE = 3;
 
         // users
         alice = makeAddr("alice");
@@ -97,6 +87,8 @@ abstract contract TestSetup is Test, TestVariables {
         david = makeAddr("david");
         eve = makeAddr("eve");
         frank = makeAddr("frank");
+        gary = makeAddr("gary");
+        helen = makeAddr("helen");
 
         // assign funds 
         vm.deal(alice, 10 ether);
@@ -105,22 +97,34 @@ abstract contract TestSetup is Test, TestVariables {
         vm.deal(david, 10 ether);
         vm.deal(eve, 10 ether);
         vm.deal(frank, 10 ether);
+        vm.deal(gary, 10 ether);
+        vm.deal(helen, 10 ether);
+
+        users = [alice, bob, charlotte, david, eve, frank, gary, helen];
 
         // deploy mocks
         erc1155Mock = new Erc1155Mock();
+        daoMock = new DaoMock();
+        constitutionMock = new ConstitutionMock();
+        foundersMock = new FoundersMock();
 
-        // deploy daos (and laws). 
-        deployAlignedGrants = new DeployAlignedGrants();
+        // get constitution and founders lists. 
         (
-            alignedGrantsDao, 
-            laws, 
-            allowedRoles, 
-            quorums, 
-            succeedAts, 
-            votingPeriods, 
+            laws,
+            allowedRoles,
+            quorums,
+            succeedAts,
+            votingPeriods
+            ) = constitutionMock.initiate(payable(address(daoMock)), payable(address((erc1155Mock))));
+
+        (
             constituentRoles, 
             constituentAccounts
-            ) = deployAlignedGrants.run(erc1155Mock);
-        daoNames.push("AlignedGrants");
+            ) = foundersMock.get(payable(address(daoMock)), users);
+
+        // constitute daoMock. 
+        daoMock.constitute(laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts);
+
+        daoNames.push("DaoMock");
     }
 }

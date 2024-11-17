@@ -16,25 +16,32 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 
-contract ProposalOnly is Law {
-    /// @notice Constructor function for Open contract.
+contract VoteOnProposedAction is Law {
+    /// @notice Constructor function for OpenAction contract.
     /// @param name_ name of the law
     /// @param description_ description of the law
     /// @param separatedPowers_ the address of the core governance protocol
-    constructor(string memory name_, string memory description_, address separatedPowers_)
+    constructor(string memory name_, string memory description_, address separatedPowers_, address parentLaw_)
         Law(name_, description_, separatedPowers_)
-    { }
+    { 
+        parentLaw = parentLaw_;
+    }
 
     /// @notice Execute the open action.
-    function executeLaw(bytes memory /*lawCalldata*/, bytes32 /*descriptionHash*/ )
+    /// @param lawCalldata the calldata of the law
+    function executeLaw(bytes memory lawCalldata, bytes32 descriptionHash )
         external
+        needsParentCompleted(lawCalldata, descriptionHash)
+        needsProposalVote(lawCalldata, descriptionHash)
         override
-        // needVote() //  needs vote to pass
-        // needsParentCompleted() // needs parent Law to be completed. 
-        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // at execution, send empty calldata to protocol. -- nothing gets done. 
-        tar[0] = address(1); // protocol should not revert. 
-        return (tar, val, cal);
+        // decode the calldata.
+        // note: no check on decoded call data. If needed, this can be added.
+        (targets, values, calldatas) = abi.decode(lawCalldata, (address[], uint256[], bytes[]));
+
+        // send calldata straight to the SeparatedPowers protocol.
+        executions.push(uint48(block.number));
+        return (targets, values, calldatas);
     }
 }

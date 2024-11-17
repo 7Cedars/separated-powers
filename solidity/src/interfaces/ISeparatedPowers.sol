@@ -139,7 +139,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @notice Returns the number of against, for, and abstain votes for a proposal.
     ///
     /// @param proposalId id of the proposal.
-    function proposalVotes(uint256 proposalId)
+    function getProposalVotes(uint256 proposalId)
         external
         returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes);
 
@@ -157,7 +157,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
 
     // @notice returns the initiator of an action
     /// @param actionId action id
-    function getInitiatorAction(address actionId) external returns (address initiator);
+    function getInitiatorAction(uint256 actionId) external returns (address initiator);
 
     /// @notice returns the number of role holders.
     /// @param roleId role identifier

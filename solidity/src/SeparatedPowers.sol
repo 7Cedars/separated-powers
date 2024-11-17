@@ -476,7 +476,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             revert SeparatedPowers__InvalidExecutiveActionId();
         }
 
-        uint256 deadline = executiveActionDeadline(actionId);
+        uint256 deadline = proposalDeadline(actionId);
         address targetLaw = executiveAction.targetLaw;
 
         if (deadline >= block.number) {
@@ -526,7 +526,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function getInitiatorAction(uint256 actionId) public view virtual returns (address) {
+    function getInitiatorAction(uint256 actionId) public view virtual returns (address initiator) {
         return _executiveActions[actionId].initiator;
     }
 
@@ -536,7 +536,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function executiveActionDeadline(uint256 actionId) public view virtual returns (uint256) {
+    function proposalDeadline(uint256 actionId) public view virtual returns (uint256) {
         // uint48 + uint32 => uint256. £test if this works properly.
         return _executiveActions[actionId].voteStart + _executiveActions[actionId].voteDuration;
     }

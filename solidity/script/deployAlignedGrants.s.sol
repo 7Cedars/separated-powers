@@ -7,21 +7,13 @@ import { Script, console2 } from "lib/forge-std/src/Script.sol";
 import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
 import { Law } from "../../src/Law.sol";
 import { SeparatedPowersTypes } from "../../src/interfaces/SeparatedPowersTypes.sol";
-import { Erc1155Mock } from "../../src/implementations/mocks/Erc1155Mock.sol";
+import { Erc1155Mock } from "../../test/mocks/Erc1155Mock.sol";
 // dao 
 import { AlignedGrants } from "../../src/implementations/daos/aligned-grants/AlignedGrants.sol";
 import { Constitution } from "../../src/implementations/daos/aligned-grants/Constitution.sol";
 import { Founders } from "../../src/implementations/daos/aligned-grants/Founders.sol";
 
 contract DeployAlignedGrants is Script {
-    address[] laws;
-    uint32[] allowedRoles;
-    uint8[] quorums;
-    uint8[] succeedAts;
-    uint32[] votingPeriods;  
-    uint32[] constituentRoles; 
-    address[] constituentAccounts; 
-
     /* Functions */
     function run(Erc1155Mock erc1155Mock) external returns (
         AlignedGrants, 
