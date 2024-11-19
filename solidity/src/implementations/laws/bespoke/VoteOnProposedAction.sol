@@ -29,7 +29,7 @@ contract VoteOnProposedAction is Law {
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
-    function executeLaw(bytes memory lawCalldata, bytes32 descriptionHash )
+    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         needsParentCompleted(lawCalldata, descriptionHash)
         needsProposalVote(lawCalldata, descriptionHash)

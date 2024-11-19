@@ -25,6 +25,197 @@ pragma solidity 0.8.26;
 // import {Whale_proposeLaw} from "../src/implementation/DAOs/laws/Whale_proposeLaw.sol";
 // import {Whale_revokeMember} from "../src/implementation/DAOs/laws/Whale_revokeMember.sol";
 
+//   /* chain propsals */
+//   function testSuccessfulChainOfExecutiveActionsLeadsToSuccessfulExecution() public {
+//     /* PROPOSAL LINK 1: a whale proposes a law. */
+//     // proposing...
+//     address newLaw = address(new Public_assignRole(payable(address(daoMock))));
+//     string memory description = "Proposing to add a new Law";
+//     bytes memory lawCalldata = abi.encode(newLaw, true);
+
+//     vm.prank(eve); // = a whale
+//     uint256 actionIdOne = daoMock.propose(
+//       laws[4], // = Whale_proposeLaw
+//       lawCalldata,
+//       description
+//     );
+
+//     // whales vote... Only david and eve are whales.
+//     vm.prank(david);
+//     daoMock.castVote(actionIdOne, 1); // = for
+//     vm.prank(eve);
+//     daoMock.castVote(actionIdOne, 1); // = for
+
+//     vm.roll(4_000);
+
+//     // executing...
+//     vm.prank(david);
+//     daoMock.execute(laws[4], lawCalldata, keccak256(bytes(description)));
+
+//     // check
+//     SeparatedPowersTypes.ActionState proposalStateOne = daoMock.state(actionIdOne);
+//     assert(uint8(proposalStateOne) == 4); // == ActionState.Completed
+
+//     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
+//     // proposing...
+//     vm.roll(5_000);
+//     vm.prank(charlotte); // = a senior
+//     uint256 actionIdTwo = daoMock.propose(
+//       laws[5], // = Senior_acceptProposedLaw
+//       lawCalldata,
+//       description
+//     );
+
+//     // seniors vote... alice, bob and charlotte are seniors.
+//     vm.prank(alice);
+//     daoMock.castVote(actionIdTwo, 1); // = for
+//     vm.prank(bob);
+//     daoMock.castVote(actionIdTwo, 1); // = for
+//     vm.prank(charlotte);
+//     daoMock.castVote(actionIdTwo, 1); // = for
+
+//     vm.roll(9_000);
+
+//     // executing...
+//     vm.prank(bob);
+//     daoMock.execute(laws[5], lawCalldata, keccak256(bytes(description)));
+
+//     // check
+//     SeparatedPowersTypes.ActionState proposalStateTwo = daoMock.state(actionIdTwo);
+//     assert(uint8(proposalStateTwo) == 4); // == ActionState.Completed
+
+//     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
+//     vm.roll(10_000);
+//     vm.prank(alice); // = admin role
+//     daoMock.execute(laws[6], lawCalldata, keccak256(bytes(description)));
+
+//     // check if law has been set to active.
+//     bool active = daoMock.activeLaws(newLaw);
+//     assert (active == true);
+//   }
+
+//   function testWhaleDefeatStopsChain() public {
+//     /* PROPOSAL LINK 1: a whale proposes a law. */
+//     // proposing...
+//     address newLaw = address(new Public_assignRole(payable(address(daoMock))));
+//     string memory description = "Proposing to add a new Law";
+//     bytes memory lawCalldata = abi.encode(newLaw, true);
+
+//     vm.prank(eve); // = a whale
+//     uint256 actionIdOne = daoMock.propose(
+//       laws[4], // = Whale_proposeLaw
+//       lawCalldata,
+//       description
+//     );
+
+//     // whales vote... Only david and eve are whales.
+//     vm.prank(david);
+//     daoMock.castVote(actionIdOne, 0); // = against
+//     vm.prank(eve);
+//     daoMock.castVote(actionIdOne, 0); // = against
+
+//     vm.roll(4_000);
+
+//     // executing does not work.
+//     vm.prank(david);
+//     vm.expectRevert(abi.encodeWithSelector(
+//       Whale_proposeLaw.Whale_proposeLaw__ExecutiveActionVoteNotSucceeded.selector, actionIdOne
+//     ));
+//     daoMock.execute(laws[4], lawCalldata, keccak256(bytes(description)));
+
+//     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
+//     // proposing...
+//     vm.roll(5_000);
+//     // NB: Note that it IS possible to create proposals that link back to non executed proposals.
+//     // this is something to fix at a later date.
+//     // proposals will not execute though. See below.
+//     vm.prank(charlotte); // = a senior
+//     uint256 actionIdTwo = daoMock.propose(
+//       laws[5], // = Senior_acceptProposedLaw
+//       lawCalldata,
+//       description
+//     );
+
+//     // seniors vote... alice, bob and charlotte are seniors.
+//     vm.prank(alice);
+//     daoMock.castVote(actionIdTwo, 1); // = for
+//     vm.prank(bob);
+//     daoMock.castVote(actionIdTwo, 1); // = for
+//     vm.prank(charlotte);
+//     daoMock.castVote(actionIdTwo, 1); // = for
+
+//     vm.roll(9_000);
+
+//     // executing...
+//     vm.prank(bob);
+//     vm.expectRevert(abi.encodeWithSelector(
+//       Senior_acceptProposedLaw.Senior_acceptProposedLaw__ParentExecutiveActionNotCompleted.selector, actionIdOne
+//     ));
+//     daoMock.execute(laws[5], lawCalldata, keccak256(bytes(description)));
+//   }
+
+//   function testSeniorDefeatStopsChain() public {
+//         /* PROPOSAL LINK 1: a whale proposes a law. */
+//     // proposing...
+//     address newLaw = address(new Public_assignRole(payable(address(daoMock))));
+//     string memory description = "Proposing to add a new Law";
+//     bytes memory lawCalldata = abi.encode(newLaw, true);
+
+//     vm.prank(eve); // = a whale
+//     uint256 actionIdOne = daoMock.propose(
+//       laws[4], // = Whale_proposeLaw
+//       lawCalldata,
+//       description
+//     );
+
+//     // whales vote... Only david and eve are whales.
+//     vm.prank(david);
+//     daoMock.castVote(actionIdOne, 1); // = for
+//     vm.prank(eve);
+//     daoMock.castVote(actionIdOne, 1); // = for
+
+//     vm.roll(4_000);
+
+//     // executing...
+//     vm.prank(david);
+//     daoMock.execute(laws[4], lawCalldata, keccak256(bytes(description)));
+
+//     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
+//     vm.roll(5_000);
+//     vm.prank(charlotte); // = a senior
+//     uint256 actionIdTwo = daoMock.propose(
+//       laws[5], // = Senior_acceptProposedLaw
+//       lawCalldata,
+//       description
+//     );
+
+//     // seniors vote... alice, bob and charlotte are seniors.
+//     vm.prank(alice);
+//     daoMock.castVote(actionIdTwo, 0); // = against
+//     vm.prank(bob);
+//     daoMock.castVote(actionIdTwo, 0); // = against
+//     vm.prank(charlotte);
+//     daoMock.castVote(actionIdTwo, 0); // = against
+
+//     vm.roll(9_000);
+
+//     // executing...
+//     vm.prank(bob);
+//     vm.expectRevert(abi.encodeWithSelector(
+//       Senior_acceptProposedLaw.Senior_acceptProposedLaw__ExecutiveActionNotSucceeded.selector, actionIdTwo
+//     ));
+//     daoMock.execute(laws[5], lawCalldata, keccak256(bytes(description)));
+
+//     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
+//     vm.roll(10_000);
+//     vm.prank(alice); // = admin role
+//     vm.expectRevert();
+//     daoMock.execute(laws[6], lawCalldata, keccak256(bytes(description)));
+//   }
+
+
+
+
 // contract AgDaoTest is Test {
 //   using ShortStrings for *;
 

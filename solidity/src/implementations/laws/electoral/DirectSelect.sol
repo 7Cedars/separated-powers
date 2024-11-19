@@ -20,6 +20,9 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
+// ONLY FOR TESTING
+import {console} from "lib/forge-std/src/console.sol";
+
 contract DirectSelect is Law {
     using ShortStrings for *;
 
@@ -34,16 +37,13 @@ contract DirectSelect is Law {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 /* descriptionHash */)
         external
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // step 1: decode the calldata.
         (bool revoke) = abi.decode(lawCalldata, (bool));
-        
-        uint256 actionId = _hashExecutiveAction(address(this), lawCalldata, keccak256(bytes(description)));
-        address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);  
 
         // step 2: create & send return calldata conditional if it is an assign or revoke action.
         address[] memory tar = new address[](1);
@@ -59,12 +59,21 @@ contract DirectSelect is Law {
             cal[0] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, initiator, false); // selector = revokeRole
             return (tar, val, cal);
         } else {
+            console.log("SETTING ROLE TRIGGERED");
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) != 0) {
                 revert DirectSelect__AccountAlreaydHasRole();
             }
+            
+            console.log("WAYPOINT 1");
             tar[0] = separatedPowers;
             val[0] = 0;
             cal[0] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, initiator, true); // selector = assignRole
+            
+            console.log("WAYPOINT 2"); 
+            console.log("initiator: ", initiator);
+            console.log("tar: ", tar[0]);
+            console.log("val: ", val[0]);
+            console.logBytes(cal[0]);
             return (tar, val, cal);
         }
     }

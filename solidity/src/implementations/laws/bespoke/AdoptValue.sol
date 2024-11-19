@@ -23,7 +23,7 @@ contract AdoptValue is Law {
             parentLaw = parentLaw_;
     }
 
-    function executeLaw(bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address /*initiator */, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         needsParentCompleted(lawCalldata, descriptionHash)
         override

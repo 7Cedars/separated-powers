@@ -53,6 +53,10 @@ contract Law is ERC165, ILaw {
     ////////////////////////////////////////////////// 
     //                 modifiers                    //
     //////////////////////////////////////////////////
+    /// @notice makes law conditional on a proposal succeeding.
+    ///
+    /// @param lawCalldata the calldata of the law
+    /// @param descriptionHash the description hash of the law
     modifier needsProposalVote(bytes memory lawCalldata, bytes32 descriptionHash) {
         uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
         if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Succeeded)
@@ -62,6 +66,10 @@ contract Law is ERC165, ILaw {
         _;
     }
 
+    /// @notice makes law conditional on a parent law being completed.
+    ///
+    /// @param lawCalldata the calldata of the law
+    /// @param descriptionHash the description hash of the law
     modifier needsParentCompleted(bytes memory lawCalldata, bytes32 descriptionHash) {
         if (parentLaw == address(0)) {
             revert Law__ParentLawNotSet(); 
@@ -74,7 +82,12 @@ contract Law is ERC165, ILaw {
         }
         _;
     }
- 
+
+    /// @notice makes law conditional on a parent law NOT being completed.
+    /// @dev this means a roleId can be given an effective veto to a legal process. If the RoleId does nothing, the law will pass. If they actively oppose, it will fail. 
+    /// 
+    /// @param lawCalldata the calldata of the law
+    /// @param descriptionHash the description hash of the law
     modifier parentCanBlock(bytes memory lawCalldata, bytes32 descriptionHash) {
         if (parentLaw == address(0)) {
             revert Law__ParentLawNotSet();
@@ -88,6 +101,11 @@ contract Law is ERC165, ILaw {
         _;
     }
 
+    /// @notice sets a deadline for when the law can be executed.
+    ///
+    /// @param blocksDelay the number of blocks until the law can be executed
+    /// @param lawCalldata the calldata of the law
+    /// @param descriptionHash the description hash of the law
     modifier delayExecution(uint256 blocksDelay, bytes memory lawCalldata, bytes32 descriptionHash) {
         uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
         uint256 currentBlock = block.number;
@@ -102,6 +120,10 @@ contract Law is ERC165, ILaw {
         _;     
     }
 
+    /// @notice limits the number of times the law can be executed.
+    ///
+    /// @param maxExecution the maximum number of times the law can be executed
+    /// @param gapExecutions the minimum number of blocks between executions
     modifier limitExecutions(uint256 maxExecution, uint256 gapExecutions) {
         uint256 numberOfExecutions = executions.length;
 
@@ -125,7 +147,7 @@ contract Law is ERC165, ILaw {
     }
 
     /// @inheritdoc ILaw
-    function executeLaw(bytes memory, /* lawCalldata */ bytes32 /* descriptionHash */ )
+    function executeLaw(address /* initiator */, bytes memory, /* lawCalldata */ bytes32 /* descriptionHash */ )
         external
         virtual
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)

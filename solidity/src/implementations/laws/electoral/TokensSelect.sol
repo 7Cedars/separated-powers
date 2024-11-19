@@ -59,7 +59,7 @@ contract TokensSelect is Law {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(address /* initiator */, bytes memory lawCalldata, bytes32 /* descriptionHash */ )
         external
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)

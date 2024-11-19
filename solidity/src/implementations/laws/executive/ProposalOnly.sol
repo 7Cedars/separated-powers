@@ -26,7 +26,7 @@ contract ProposalOnly is Law {
     { }
 
     /// @notice Execute the open action.
-    function executeLaw(bytes memory /*lawCalldata*/, bytes32 /*descriptionHash*/ )
+    function executeLaw(address /*initiator*/, bytes memory /*lawCalldata*/, bytes32 /*descriptionHash*/)
         external
         override
         // needVote() //  needs vote to pass

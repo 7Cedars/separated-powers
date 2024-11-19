@@ -60,10 +60,10 @@ interface SeparatedPowersErrors {
     error SeparatedPowers__InvalidCallData();
 
     /// @notice Emitted when a law does not have the correct interface.
-    error SeparatedPowers__IncorrectInterface(address law);
+    error SeparatedPowers__IncorrectInterface();
 
     /// @notice Emitted when an account has already cast a vote for a proposal.
-    error SeparatedPowers__AlreadyCastVote(address account);
+    error SeparatedPowers__AlreadyCastVote();
 
     /// @notice Emitted when a vote type is invalid.
     error SeparatedPowers__InvalidVoteType();

@@ -26,6 +26,9 @@ import { ERC165Checker } from "../lib/openzeppelin-contracts/contracts/utils/int
 import { Address } from "../lib/openzeppelin-contracts/contracts/utils/Address.sol";
 import { EIP712 } from "../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
 
+// £NB ONLY FOR TESTING DO NOT USE IN PRODUCTION
+import {console} from "lib/forge-std/src/console.sol";
+
 contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     //                           STORAGE                        //
@@ -221,30 +224,30 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             revert SeparatedPowers__ExecutiveActionAlreadyCompleted();
         }
         // check 4: is executiveAction cancelled?
-        // if law did not need a executiveAction vote, check will pass. 
+        // if law did not need a executiveAction proposal vote to start with, check will pass. 
         if (_executiveActions[actionId].cancelled == true) {
             revert SeparatedPowers__ExecutiveActionCancelled();
         }
 
-        // if checks pass: set actionId to initiator. 
-        _executiveActions[actionId].initiator = msg.sender; // note if initiator had been set during proposal, it will be overwritten.
-        // and call target law -> receive targets, values and calldatas
-        // Note this call should never revert. It should always receive data from law.
+        // if checks pass, call target law -> receive targets, values and calldatas
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
-            Law(targetLaw).executeLaw(lawCalldata, descriptionHash);
-
-        // check return data from law.
+            Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
+        // check return data law.
         if (targets.length == 0 || targets[0] == targetLaw || targets[0] == address(0)) {
             revert SeparatedPowers__LawDidNotPassChecks();
         }
-        // If checks passed, execute.
+
+        // If checks passed, set executiveAction as completed and emit event.
+        _executiveActions[actionId].initiator = msg.sender; // note if initiator had been set during proposal, it will be overwritten.
         _executiveActions[actionId].completed = true;
         emit ExecutiveActionCompleted(actionId);
 
-        // a targets[0] == address(1) is a signal from a law to indicate that no action should be executed. 
+        // if targets[0] == address(1) nothing should be executed. 
         if (targets[0] == address(1)) {
            return;  
         }
+
+        // otherwise: execute targets[], values[], calldatas[] received from law. 
         _executeOperations(targets, values, calldatas);
     }
 
@@ -347,10 +350,11 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     {
         // check if added address is indeed a law
         if (!ERC165Checker.supportsInterface(law, type(ILaw).interfaceId)) {
-            revert SeparatedPowers__IncorrectInterface(law);
+            revert SeparatedPowers__IncorrectInterface();
         }
 
         bool existingLaw = (laws[law].active);
+
         laws[law] = LawConfig({
             lawAddress: law,
             allowedRole: allowedRole,
@@ -428,7 +432,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         ExecutiveAction storage executiveAction = _executiveActions[actionId];
 
         if (executiveAction.hasVoted[account]) {
-            revert SeparatedPowers__AlreadyCastVote(account);
+            revert SeparatedPowers__AlreadyCastVote();
         }
         executiveAction.hasVoted[account] = true;
 

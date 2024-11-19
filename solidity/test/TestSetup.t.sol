@@ -48,7 +48,14 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     TokensSelect tokensSelect;
     ProposalOnly proposalOnly;
 
+    // vote options 
+    uint8 AGAINST;
+    uint8 FOR;
+    uint8 ABSTAIN;
+
     // roles 
+    uint32 ADMIN_ROLE;
+    uint32 PUBLIC_ROLE;
     uint32 ROLE_ONE;
     uint32 ROLE_TWO;
     uint32 ROLE_THREE;
@@ -88,6 +95,14 @@ abstract contract TestSetup is Test, TestVariables, TestHelpers {
 
     // note that this setup does not scale very well re the number of daos.
     function setUpVariables() public virtual {
+        // votes types 
+        AGAINST = 0; 
+        FOR = 1; 
+        ABSTAIN = 2; 
+        
+        // roles 
+        ADMIN_ROLE = 0;
+        PUBLIC_ROLE = type(uint32).max;
         ROLE_ONE = 1; 
         ROLE_TWO = 2;
         ROLE_THREE = 3;

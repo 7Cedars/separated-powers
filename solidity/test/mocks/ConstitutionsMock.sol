@@ -65,6 +65,8 @@ contract ConstitutionsMock {
         // configuration law 
         allowedRoles[1] = DaoMock(dao_).ROLE_ONE();
 
+        // Note this proposalOnly law has no internal data, as such it cannot actually do anyting. 
+        // This law is only for example and testing purposes.
         laws[2] = address(
             new ProposalOnly(
                 "ROLE_THREE makes proposals", // max 31 chars

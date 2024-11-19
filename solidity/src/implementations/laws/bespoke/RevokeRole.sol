@@ -22,7 +22,7 @@ contract RevokeRole is Law {
         _roleId = roleId_;
     }
 
-    function  executeLaw(bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address /* initiator */, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         needsProposalVote(lawCalldata, descriptionHash)
         override

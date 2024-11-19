@@ -21,7 +21,7 @@ interface ILaw is IERC165, LawErrors {
     ///
     /// @dev the arrays of targets, values and calldatas must have the same length.
     /// @dev Note that this function should be overridden (without a super call) to add logic of the law.
-    function executeLaw(bytes memory lawCallData, bytes32 descriptionHash)
+    function executeLaw(address initiator, bytes memory lawCallData, bytes32 descriptionHash)
         external
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
 

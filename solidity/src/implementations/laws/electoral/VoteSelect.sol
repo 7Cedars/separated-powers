@@ -32,7 +32,7 @@ contract VoteSelect is Law {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address /*initiator */, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         needsProposalVote(lawCalldata, descriptionHash)
         override
