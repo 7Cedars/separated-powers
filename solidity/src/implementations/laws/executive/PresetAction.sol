@@ -42,8 +42,9 @@ contract PresetAction is Law {
 
     /// @notice execute the law.
     /// @param lawCalldata the calldata of the law.
-    function executeLaw(address /* initiator */, bytes memory lawCalldata, bytes32 /* descriptionHash */)
-        external
+    function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+        public
+        virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
@@ -54,8 +55,8 @@ contract PresetAction is Law {
         // log execution block
         // and send calldata straight to the SeparatedPowers protocol.
         if (execute) {
-            executions.push(uint48(block.number));
-            return (targets, values, calldatas);
+            // executions.push(uint48(block.number));
+            return (_targets, _values, _calldatas);
         }
     }
 }

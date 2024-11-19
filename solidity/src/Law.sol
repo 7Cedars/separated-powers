@@ -10,15 +10,15 @@
 /// They take an input from the {SeparatedPowers::execute} in the form of calldata.
 /// They return an output to the same {SeparatedPowers::execute} function in the form of targets[], values[], calldatas[].
 ///
-/// There are four modifiers for laws to use. 
+/// There are four modifiers for laws to use.
 /// - {needsProposalVote}: sets law to need a proposal vote to be executed.
 /// - {needsParentCompleted}: checks if a parent law has been completed.
-/// - {delayExecution}: sets a deadline for when the law can be executed.
+/// - {delayProposalExecution}: sets a deadline for when the law can be executed.
 /// - {limitExecutions}: limits the number of times the law can be executed.
 /// If needed, more modifiers can be added.
 ///
-/// Laws do NOT revert. They always return data. There are some standards for laws to communicate to the protocol. 
-/// - targets[0] == address(0): general error message. Checks did not pass.  
+/// Laws do NOT revert. They always return data. There are some standards for laws to communicate to the protocol.
+/// - targets[0] == address(0): general error message. Checks did not pass.
 /// - targets[0] == address(1): the protocol should not take any further executive action.
 ///
 /// Configuration of the law is handled in the core SeparatedPowers contract.
@@ -26,7 +26,7 @@
 /// - quorum (in case law is restricted by the needsProposalVote modifier)
 /// - vote threshold
 /// - voting period
-///     
+///
 
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
@@ -44,14 +44,15 @@ contract Law is ERC165, ILaw {
     //////////////////////////////////////////////////
     //                 variables                    //
     //////////////////////////////////////////////////
+    address public parentLaw; // optional slot to save a parentLaw.
+    uint48[] public executions = [0]; // optional log of block numbers at which a law was executed.
+
     ShortString public immutable name; // name of the law
     address public separatedPowers; // the address of the core governance protocol
-    address public parentLaw; // optional slot to save a parentLaw.
-    string public description;
-    uint48[] public executions; // log of block numbers at which the law was executed.
+    string public description; // description of the law
 
-    ////////////////////////////////////////////////// 
-    //                 modifiers                    //
+    //////////////////////////////////////////////////
+    //                 MODIFIERS                    //
     //////////////////////////////////////////////////
     /// @notice makes law conditional on a proposal succeeding.
     ///
@@ -59,9 +60,8 @@ contract Law is ERC165, ILaw {
     /// @param descriptionHash the description hash of the law
     modifier needsProposalVote(bytes memory lawCalldata, bytes32 descriptionHash) {
         uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
-        if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Succeeded)
-        {
-           revert Law__ProposalNotSucceeded(); 
+        if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Succeeded) {
+            revert Law__ProposalNotSucceeded();
         }
         _;
     }
@@ -72,31 +72,33 @@ contract Law is ERC165, ILaw {
     /// @param descriptionHash the description hash of the law
     modifier needsParentCompleted(bytes memory lawCalldata, bytes32 descriptionHash) {
         if (parentLaw == address(0)) {
-            revert Law__ParentLawNotSet(); 
+            revert Law__ParentLawNotSet();
         }
-        string memory parentLawDescription = Law(parentLaw).description();
-        uint256 parentProposalId = _hashExecutiveAction(parentLaw, lawCalldata, keccak256(bytes(parentLawDescription)));
-        if (SeparatedPowers(payable(separatedPowers)).state(parentProposalId) != SeparatedPowersTypes.ActionState.Completed)
-        {
+        uint256 parentProposalId = _hashExecutiveAction(parentLaw, lawCalldata, descriptionHash);
+        if (
+            SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
+                != SeparatedPowersTypes.ActionState.Completed
+        ) {
             revert Law__ParentNotCompleted();
         }
         _;
     }
 
     /// @notice makes law conditional on a parent law NOT being completed.
-    /// @dev this means a roleId can be given an effective veto to a legal process. If the RoleId does nothing, the law will pass. If they actively oppose, it will fail. 
-    /// 
+    /// @dev this means a roleId can be given an effective veto to a legal process. If the RoleId does nothing, the law will pass. If they actively oppose, it will fail.
+    ///
     /// @param lawCalldata the calldata of the law
     /// @param descriptionHash the description hash of the law
     modifier parentCanBlock(bytes memory lawCalldata, bytes32 descriptionHash) {
         if (parentLaw == address(0)) {
             revert Law__ParentLawNotSet();
         }
-        string memory parentLawDescription = Law(parentLaw).description();
-        uint256 parentProposalId = _hashExecutiveAction(parentLaw, lawCalldata, keccak256(bytes(parentLawDescription)));
-        if (SeparatedPowers(payable(separatedPowers)).state(parentProposalId) == SeparatedPowersTypes.ActionState.Completed)
-        {
-            revert Law__ParentBlocksCompletion(); 
+        uint256 parentProposalId = _hashExecutiveAction(parentLaw, lawCalldata, descriptionHash);
+        if (
+            SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
+                == SeparatedPowersTypes.ActionState.Completed
+        ) {
+            revert Law__ParentBlocksCompletion();
         }
         _;
     }
@@ -106,7 +108,7 @@ contract Law is ERC165, ILaw {
     /// @param blocksDelay the number of blocks until the law can be executed
     /// @param lawCalldata the calldata of the law
     /// @param descriptionHash the description hash of the law
-    modifier delayExecution(uint256 blocksDelay, bytes memory lawCalldata, bytes32 descriptionHash) {
+    modifier delayProposalExecution(uint256 blocksDelay, bytes memory lawCalldata, bytes32 descriptionHash) {
         uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
         uint256 currentBlock = block.number;
         uint256 deadline = SeparatedPowers(payable(separatedPowers)).proposalDeadline(proposalId);
@@ -114,10 +116,10 @@ contract Law is ERC165, ILaw {
         if (deadline == 0) {
             revert Law__NoDeadlineSet();
         }
-        if (deadline < currentBlock) {
-            revert Law__DeadlineNotPassed(); 
+        if (deadline + blocksDelay > currentBlock) {
+            revert Law__DeadlineNotPassed();
         }
-        _;     
+        _;
     }
 
     /// @notice limits the number of times the law can be executed.
@@ -125,30 +127,34 @@ contract Law is ERC165, ILaw {
     /// @param maxExecution the maximum number of times the law can be executed
     /// @param gapExecutions the minimum number of blocks between executions
     modifier limitExecutions(uint256 maxExecution, uint256 gapExecutions) {
-        uint256 numberOfExecutions = executions.length;
+        uint256 numberOfExecutions = executions.length - 1;
 
         if (numberOfExecutions >= maxExecution) {
             revert Law__ExecutionLimitReached();
         }
-        if (block.number - executions[numberOfExecutions - 1] < gapExecutions) {
+        if (block.number - executions[numberOfExecutions] < gapExecutions) {
             revert Law__ExecutionGapTooSmall();
         }
-        _; 
+
+        executions.push(uint48(block.number));
+        _;
     }
 
     //////////////////////////////////////////////////
-    //                 functions                    //
+    //                 FUNCTIONS                    //
     //////////////////////////////////////////////////
     /// @dev Constructor function for Law contract.
     constructor(string memory name_, string memory description_, address separatedPowers_) {
         separatedPowers = separatedPowers_;
         name = name_.toShortString();
         description = description_;
+
+        emit Law__Initialized(address(this));
     }
 
     /// @inheritdoc ILaw
-    function executeLaw(address /* initiator */, bytes memory, /* lawCalldata */ bytes32 /* descriptionHash */ )
-        external
+    function executeLaw(address, /* initiator */ bytes memory, /* lawCalldata */ bytes32 /* descriptionHash */ )
+        public
         virtual
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
@@ -156,11 +162,6 @@ contract Law is ERC165, ILaw {
         uint256[] memory val = new uint256[](1);
         bytes[] memory cal = new bytes[](1);
         return (tar, val, cal);
-    }
-
-    /// @inheritdoc ILaw
-    function getExecutions() public view returns (uint48[] memory) {
-        return executions;
     }
 
     /// @notice implements ERC165

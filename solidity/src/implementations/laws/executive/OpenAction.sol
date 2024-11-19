@@ -27,8 +27,8 @@ contract OpenAction is Law {
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
-    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 /*descriptionHash*/)
-        external
+    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 /*descriptionHash*/ )
+        public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {

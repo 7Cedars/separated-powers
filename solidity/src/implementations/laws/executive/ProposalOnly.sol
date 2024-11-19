@@ -26,15 +26,19 @@ contract ProposalOnly is Law {
     { }
 
     /// @notice Execute the open action.
-    function executeLaw(address /*initiator*/, bytes memory /*lawCalldata*/, bytes32 /*descriptionHash*/)
-        external
+    function executeLaw(address, /*initiator*/ bytes memory, /*lawCalldata*/ bytes32 /*descriptionHash*/ )
+        public
         override
-        // needVote() //  needs vote to pass
-        // needsParentCompleted() // needs parent Law to be completed. 
-        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
+        returns (
+            // needVote() //  needs vote to pass
+            // needsParentCompleted() // needs parent Law to be completed.
+            address[] memory tar,
+            uint256[] memory val,
+            bytes[] memory cal
+        )
     {
-        // at execution, send empty calldata to protocol. -- nothing gets done. 
-        tar[0] = address(1); // protocol should not revert. 
+        // at execution, send empty calldata to protocol. -- nothing gets done.
+        tar[0] = address(1); // protocol should not revert.
         return (tar, val, cal);
     }
 }

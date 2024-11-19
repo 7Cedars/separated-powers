@@ -14,22 +14,23 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 contract AdoptValue is Law {
     using ShortStrings for *;
 
-    constructor(
-        string memory name_, 
-        string memory description_, 
-        address separatedPowers_,
-        address parentLaw_
-        ) Law(name_, description_, separatedPowers_) { 
-            parentLaw = parentLaw_;
+    constructor(string memory name_, string memory description_, address separatedPowers_, address parentLaw_)
+        Law(name_, description_, separatedPowers_)
+    {
+        parentLaw = parentLaw_;
     }
 
-    function executeLaw(address /*initiator */, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
-        needsParentCompleted(lawCalldata, descriptionHash)
+    function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+        public
         override
-        // needsVote() include here a modifier?  
-        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
-    { 
+        needsParentCompleted(lawCalldata, descriptionHash)
+        returns (
+            // needsVote() include here a modifier?
+            address[] memory tar,
+            uint256[] memory val,
+            bytes[] memory cal
+        )
+    {
         bytes32 newValue = abi.decode(lawCalldata, (bytes32));
 
         tar = new address[](1);

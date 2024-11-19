@@ -18,16 +18,16 @@ contract RevokeRole is Law {
 
     constructor(string memory name_, string memory description_, address separatedPowers_, uint32 roleId_)
         Law(name_, description_, separatedPowers_)
-    { 
+    {
         _roleId = roleId_;
     }
 
-    function executeLaw(address /* initiator */, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
-        needsProposalVote(lawCalldata, descriptionHash)
+    function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+        public
         override
+        needsProposalVote(lawCalldata, descriptionHash)
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
-    { 
+    {
         // retrieve the account to be revoked.
         address accountToBeRevoked = abi.decode(lawCalldata, (address));
 

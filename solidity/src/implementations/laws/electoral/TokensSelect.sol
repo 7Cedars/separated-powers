@@ -59,15 +59,15 @@ contract TokensSelect is Law {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(address /* initiator */, bytes memory lawCalldata, bytes32 /* descriptionHash */ )
-        external
+    function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+        public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // decode the calldata.
         (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
         uint256 actionId = _hashExecutiveAction(address(this), lawCalldata, keccak256(bytes(description)));
-        address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);  
+        address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);
 
         // nominate if nominateMe == true
         // elected accounts are stored in a mapping and have to be accepted.
@@ -143,7 +143,9 @@ contract TokensSelect is Law {
                             } else {
                                 tar[index] = separatedPowers;
                                 val[index] = 0;
-                                cal[index] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true); // selector probably wrong. check later.
+                                cal[index] = abi.encodeWithSelector(
+                                    SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true
+                                ); // selector probably wrong. check later.
                                 index++;
 
                                 emit TokensSelect__RolesAssigned(ROLE_ID, _nomineesSorted[i]);

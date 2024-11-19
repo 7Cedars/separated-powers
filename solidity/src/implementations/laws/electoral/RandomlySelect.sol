@@ -59,21 +59,21 @@ contract Randomly is Law {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(address /*initiator */, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
+    function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+        public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // decode the calldata.
         (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
         uint256 actionId = _hashExecutiveAction(address(this), lawCalldata, keccak256(bytes(description)));
-        address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);  
+        address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);
 
         // nominate if nominateMe == true
         // elected accounts are stored in a mapping and have to be accepted.
         if (nominateMe) {
             if (_nominees[initiator] != 0) {
-              revert RandomlySelect__NomineeAlreadyNominated();
+                revert RandomlySelect__NomineeAlreadyNominated();
             }
 
             _nominees[initiator] = uint48(block.timestamp);

@@ -19,31 +19,27 @@ contract ReinstateMember is Law {
     bool private immutable _execute;
     uint32 immutable MEMBER_ROLE = 3;
 
-    constructor(
-        string memory name_, 
-        string memory description_, 
-        address separatedPowers_,
-        address parentLaw_
-        ) Law(name_, description_, separatedPowers_) { 
-            parentLaw = parentLaw_;
+    constructor(string memory name_, string memory description_, address separatedPowers_, address parentLaw_)
+        Law(name_, description_, separatedPowers_)
+    {
+        parentLaw = parentLaw_;
     }
 
-    function executeLaw(address /*initiator */, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
+    function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        override
         needsParentCompleted(lawCalldata, descriptionHash)
         needsProposalVote(lawCalldata, descriptionHash)
-        override
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
-    { 
+    {
         address originalRevokeLaw = Law(parentLaw).parentLaw();
-        
+
         tar = new address[](2);
         val = new uint256[](2);
         cal = new bytes[](2);
 
         uint256 proposalId = _hashExecutiveAction(originalRevokeLaw, lawCalldata, descriptionHash);
-        if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Completed)
-        {
+        if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Completed) {
             cal[0] = abi.encode("parent proposal not completed".toShortString());
             return (tar, val, cal);
         }
@@ -51,7 +47,7 @@ contract ReinstateMember is Law {
         // retrieve the account that was revoked
         address revokedAccount = abi.decode(lawCalldata, (address));
 
-        // send data to reinstate account to the member role and deblacklist.. 
+        // send data to reinstate account to the member role and deblacklist..
         tar[0] = separatedPowers;
         cal[0] = abi.encodeWithSignature("setRole(uint32,address,bool)", MEMBER_ROLE, revokedAccount, true);
 

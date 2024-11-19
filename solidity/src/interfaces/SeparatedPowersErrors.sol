@@ -10,7 +10,7 @@ pragma solidity 0.8.26;
 interface SeparatedPowersErrors {
     /// @notice Emitted when constitute is called more than once.
     error SeparatedPowers__ConstitutionAlreadyExecuted();
-    
+
     /// @notice Emitted when a law is not active.
     error SeparatedPowers__NotActiveLaw();
 

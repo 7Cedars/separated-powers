@@ -213,9 +213,6 @@ pragma solidity 0.8.26;
 //     daoMock.execute(laws[6], lawCalldata, keccak256(bytes(description)));
 //   }
 
-
-
-
 // contract AgDaoTest is Test {
 //   using ShortStrings for *;
 

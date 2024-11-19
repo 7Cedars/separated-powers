@@ -5,10 +5,10 @@ pragma solidity 0.8.26;
 import { Law } from "../../../Law.sol";
 import { TokensSelect } from "../../laws/electoral/TokensSelect.sol";
 import { DirectSelect } from "../../laws/electoral/DirectSelect.sol";
-import {VoteSelect} from "../../laws/electoral/VoteSelect.sol";
+import { VoteSelect } from "../../laws/electoral/VoteSelect.sol";
 
 // executive laws
-import {ProposalOnly} from "../../laws/executive/ProposalOnly.sol";
+import { ProposalOnly } from "../../laws/executive/ProposalOnly.sol";
 
 // dao and its bespoke laws
 import { AlignedGrants } from "./AlignedGrants.sol";
@@ -42,18 +42,18 @@ contract Constitution {
         // Law 1: {DirectSelect}
         // initiate law
         laws[0] = address(
-                new DirectSelect(
-                    "Public -> MEMBER_ROLE", // max 31 chars
-                    "Anyone can apply for a member role in the Aligned Grants Dao",
-                    dao_,
-                    3 // = member role // somehow MEMBER_ROLE not recognized.
-                )
-            ); 
+            new DirectSelect(
+                "Public -> MEMBER_ROLE", // max 31 chars
+                "Anyone can apply for a member role in the Aligned Grants Dao",
+                dao_,
+                3 // = member role // somehow MEMBER_ROLE not recognized.
+            )
+        );
         // add necessary configurations
         allowedRoles[0] = type(uint32).max;
 
         // Law 1: {TokensSelect}
-        // deploy law 
+        // deploy law
         laws[1] = address(
             new TokensSelect(
                 "Members select WHALE_ROLE", // max 31 chars
@@ -64,7 +64,7 @@ contract Constitution {
                 2 // AlignedGrants.WHALE_ROLE()
             )
         );
-        // configuration law 
+        // configuration law
         allowedRoles[1] = 3; // AlignedGrants.MEMBER_ROLE();
 
         // Law 2: {VoteSelect}
@@ -87,13 +87,11 @@ contract Constitution {
         // Law 3: {ProposeOnly}
         laws[3] = address(
             new ProposalOnly(
-                "Members propose value",
-                "Members can propose a new value to be selected. They cannot execute it.",
-                dao_ 
+                "Members propose value", "Members can propose a new value to be selected. They cannot execute it.", dao_
             )
         );
         allowedRoles[3] = 3; // AlignedGrants.MEMBER_ROLE();
-        quorums[3] = 60; // = 60% quorum needed to pass the proposal 
+        quorums[3] = 60; // = 60% quorum needed to pass the proposal
         succeedAts[3] = 30; // = 51% simple majority needed for assigning and revoking members.
         votingPeriods[3] = 1200; // = number of blocks to vote
 
@@ -103,7 +101,7 @@ contract Constitution {
                 "Whales accept value",
                 "Whales can accept and implement a new value that was proposed by members.",
                 dao_,
-                laws[3] // parent law 
+                laws[3] // parent law
             )
         );
         allowedRoles[4] = 2; // AlignedGrants.WHALE_ROLE();
@@ -117,12 +115,12 @@ contract Constitution {
                 "Whales -> revoke member", // max 31 chars
                 "Subject to a vote, whales can revoke a member's role",
                 dao_,
-                3 // AlignedGrants.MEMBER_ROLE(): the roleId to be revoked.  
+                3 // AlignedGrants.MEMBER_ROLE(): the roleId to be revoked.
             )
         );
         allowedRoles[5] = 2; // AlignedGrants.WHALE_ROLE();
         quorums[5] = 80; // = 80% quorum needed
-        succeedAts[5] = 66; // =  two/thirds majority needed to vote 'For' for voet to succeed. 
+        succeedAts[5] = 66; // =  two/thirds majority needed to vote 'For' for voet to succeed.
         votingPeriods[5] = 1200; // = time (in number of blocks) to vote
 
         // Law 6: {ChallengeRevoke}

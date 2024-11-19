@@ -23,17 +23,17 @@ contract VoteOnProposedAction is Law {
     /// @param separatedPowers_ the address of the core governance protocol
     constructor(string memory name_, string memory description_, address separatedPowers_, address parentLaw_)
         Law(name_, description_, separatedPowers_)
-    { 
+    {
         parentLaw = parentLaw_;
     }
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
-    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
+    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        override
         needsParentCompleted(lawCalldata, descriptionHash)
         needsProposalVote(lawCalldata, descriptionHash)
-        override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // decode the calldata.

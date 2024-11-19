@@ -26,15 +26,13 @@ contract VoteOnPresetAction is Law {
     /// @param description_ description of the law
     /// @param separatedPowers_ the address of the core governance protocol
     constructor(
-        string memory name_, 
-        string memory description_, 
-        address separatedPowers_,  
+        string memory name_,
+        string memory description_,
+        address separatedPowers_,
         address[] memory targets_,
         uint256[] memory values_,
         bytes[] memory calldatas_
-        )
-        Law(name_, description_, separatedPowers_)
-    { 
+    ) Law(name_, description_, separatedPowers_) {
         _targets = targets_;
         _values = values_;
         _calldatas = calldatas_;
@@ -42,10 +40,10 @@ contract VoteOnPresetAction is Law {
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
-    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
-        needsProposalVote(lawCalldata, descriptionHash)
+    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+        public
         override
+        needsProposalVote(lawCalldata, descriptionHash)
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // decode the calldata.

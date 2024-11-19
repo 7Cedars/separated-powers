@@ -27,7 +27,7 @@ import { Address } from "../lib/openzeppelin-contracts/contracts/utils/Address.s
 import { EIP712 } from "../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
 
 // £NB ONLY FOR TESTING DO NOT USE IN PRODUCTION
-import {console} from "lib/forge-std/src/console.sol";
+import { console } from "lib/forge-std/src/console.sol";
 
 contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         if (!laws[targetLaw].active) {
             revert SeparatedPowers__NotActiveLaw();
         }
-        // check 3: does target law need proposal vote to pass? 
+        // check 3: does target law need proposal vote to pass?
         if (laws[targetLaw].quorum == 0) {
             revert SeparatedPowers__NoVoteNeeded();
         }
@@ -224,7 +224,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             revert SeparatedPowers__ExecutiveActionAlreadyCompleted();
         }
         // check 4: is executiveAction cancelled?
-        // if law did not need a executiveAction proposal vote to start with, check will pass. 
+        // if law did not need a executiveAction proposal vote to start with, check will pass.
         if (_executiveActions[actionId].cancelled == true) {
             revert SeparatedPowers__ExecutiveActionCancelled();
         }
@@ -240,14 +240,14 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         // If checks passed, set executiveAction as completed and emit event.
         _executiveActions[actionId].initiator = msg.sender; // note if initiator had been set during proposal, it will be overwritten.
         _executiveActions[actionId].completed = true;
-        emit ExecutiveActionCompleted(actionId);
+        emit ExecutiveActionCompleted(msg.sender, targetLaw, lawCalldata, descriptionHash);
 
-        // if targets[0] == address(1) nothing should be executed. 
+        // if targets[0] == address(1) nothing should be executed.
         if (targets[0] == address(1)) {
-           return;  
+            return;
         }
 
-        // otherwise: execute targets[], values[], calldatas[] received from law. 
+        // otherwise: execute targets[], values[], calldatas[] received from law.
         _executeOperations(targets, values, calldatas);
     }
 
@@ -405,7 +405,10 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         uint32 allowedRole = laws[targetLaw].allowedRole;
         uint256 amountMembers = roles[allowedRole].amountMembers;
 
-        return (quorum == 0 || (amountMembers * quorum) / DENOMINATOR <= executiveAction.forVotes + executiveAction.abstainVotes);
+        return (
+            quorum == 0
+                || (amountMembers * quorum) / DENOMINATOR <= executiveAction.forVotes + executiveAction.abstainVotes
+        );
     }
 
     /// @notice internal function {voteSucceeded} that checks if a vote for a given executiveAction has succeeded.

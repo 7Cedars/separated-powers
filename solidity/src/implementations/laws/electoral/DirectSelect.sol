@@ -21,7 +21,7 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 // ONLY FOR TESTING
-import {console} from "lib/forge-std/src/console.sol";
+import { console } from "lib/forge-std/src/console.sol";
 
 contract DirectSelect is Law {
     using ShortStrings for *;
@@ -37,8 +37,8 @@ contract DirectSelect is Law {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 /* descriptionHash */)
-        external
+    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+        public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
@@ -63,13 +63,13 @@ contract DirectSelect is Law {
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) != 0) {
                 revert DirectSelect__AccountAlreaydHasRole();
             }
-            
+
             console.log("WAYPOINT 1");
             tar[0] = separatedPowers;
             val[0] = 0;
             cal[0] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, initiator, true); // selector = assignRole
-            
-            console.log("WAYPOINT 2"); 
+
+            console.log("WAYPOINT 2");
             console.log("initiator: ", initiator);
             console.log("tar: ", tar[0]);
             console.log("val: ", val[0]);

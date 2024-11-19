@@ -2,7 +2,7 @@
 
 // note that natspecs are wip.
 
-/// 
+///
 /// @notice This contract that assigns or revokes a roleId to the person that called the law.
 /// - At construction time, the following is set:
 ///    - the role Id that the contract will be assigned or revoked.
@@ -32,10 +32,10 @@ contract VoteSelect is Law {
         ROLE_ID = roleId_;
     }
 
-    function executeLaw(address /*initiator */, bytes memory lawCalldata, bytes32 descriptionHash)
-        external
-        needsProposalVote(lawCalldata, descriptionHash)
+    function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+        public
         override
+        needsProposalVote(lawCalldata, descriptionHash)
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // step 1: decode the calldata.
