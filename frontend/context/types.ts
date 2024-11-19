@@ -5,9 +5,9 @@ export type Status = "idle" | "loading" | "error" | "success"
 export type Vote = 0n | 1n | 2n  // = against, for, abstain  
 
 export type userActionsProps = { wallet: ConnectedWallet, isDisabled: boolean }
-export type ExecutiveActionViewProps = { proposal: ExecutiveAction, isDisabled: boolean} 
+export type ProposalViewProps = { proposal: Proposal, isDisabled: boolean} 
 
-export type ExecutiveAction = {
+export type Proposal = {
   targetLaw: `0x${string}`;
   proposalId: number;
   initiator: `0x${string}`;

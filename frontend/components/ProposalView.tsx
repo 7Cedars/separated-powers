@@ -1,6 +1,6 @@
 "use client"
 
-import { ExecutiveActionViewProps, Vote } from '@/context/types';
+import { ProposalViewProps, Vote } from '@/context/types';
 import { useActions } from '@/hooks/useActions';
 import React, { useState } from 'react';
 import { lawContracts } from '@/context/lawContracts';
@@ -25,7 +25,7 @@ const textColour = [
     "text-purple-600"
 ]
 
-const ExecutiveActionView:  React.FC<ExecutiveActionViewProps> = ({proposal, isDisabled}: ExecutiveActionViewProps) => {
+const ProposalView:  React.FC<ProposalViewProps> = ({proposal, isDisabled}: ProposalViewProps) => {
     const {status, error, law, execute, castVote} = useActions(); 
     const lawTitle: `0x${string}` = lawContracts.find((law: any) => law.address === proposal.targetLaw)?.description as `0x${string}`
     const roleId: number = Number(lawContracts.find((law: any) => law.address === proposal.targetLaw)?.accessRoleId) 
@@ -68,10 +68,10 @@ const ExecutiveActionView:  React.FC<ExecutiveActionViewProps> = ({proposal, isD
                 <section className='grid grid-cols-2'>
                     <div className='flex flex-col items-start gap-1'>
                         <h4 className='text-white text-lg font-semibold text-left'>
-                            ExecutiveAction: {lawTitle}
+                            Proposal: {lawTitle}
                         </h4>
                         <p className='text-white text-left'>
-                            ExecutiveAction Id: {`${String(proposal.proposalId).slice(0, 6)}...${String(proposal.proposalId).slice(-6)}`}
+                            Proposal Id: {`${String(proposal.proposalId).slice(0, 6)}...${String(proposal.proposalId).slice(-6)}`}
                         </p>
                         <p className='text-white text-left'>
                             Proposer: {`${String(proposal.initiator).slice(0, 6)}...${String(proposal.initiator).slice(-6)}`}
@@ -156,4 +156,4 @@ const ExecutiveActionView:  React.FC<ExecutiveActionViewProps> = ({proposal, isD
     );
 };
 
-export default ExecutiveActionView;
+export default ProposalView;

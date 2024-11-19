@@ -1,4 +1,4 @@
-import { Status, ExecutiveAction } from "../context/types"
+import { Status, Proposal } from "../context/types"
 import { readContracts } from '@wagmi/core'
 import { wagmiConfig } from '../context/wagmiConfig'
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -8,33 +8,33 @@ import { publicClient } from "@/context/clients";
 import { lawContracts } from "@/context/lawContracts";
 import { readContract } from "wagmi/actions";
 
-export const useExecutiveActions = () => {
+export const useProposals = () => {
   const [status, setStatus ] = useState<Status>("idle")
   const [error, setError] = useState<any | null>(null)
-  const [proposals, setExecutiveActions] = useState<ExecutiveAction[] | undefined>() 
+  const [proposals, setProposals] = useState<Proposal[] | undefined>() 
   const agDaoAddress: `0x${string}` = lawContracts.find((law: any) => law.contract === "AgDao")?.address as `0x${string}`
 
-  // console.log("@useExecutiveAction:", {proposals, status, error})
+  // console.log("@useProposal:", {proposals, status, error})
 
-  const getExecutiveActions = useCallback( 
+  const getProposals = useCallback( 
     async () => {
       if (publicClient) {
         try {
           const logs = await publicClient.getContractEvents({ 
             address: agDaoAddress,
             abi: agDaoAbi, 
-            eventName: 'ExecutiveActionCreated',
+            eventName: 'ProposalCreated',
             fromBlock: 90000000n
           })
           const fetchedLogs = parseEventLogs({
             abi: agDaoAbi,
-            eventName: 'ExecutiveActionCreated',
+            eventName: 'ProposalCreated',
             logs
           })
           const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
-          const fetchedExecutiveActions: ExecutiveAction[] = fetchedLogsTyped.map(log => log.args as ExecutiveAction)
+          const fetchedProposals: Proposal[] = fetchedLogsTyped.map(log => log.args as Proposal)
           
-          return fetchedExecutiveActions
+          return fetchedProposals
         } catch (error) {
             setStatus("error") 
             setError(error)
@@ -42,9 +42,9 @@ export const useExecutiveActions = () => {
       } 
   }, [ ])
 
-  const getActionState = async (proposals: ExecutiveAction[]) => {
-    let proposal: ExecutiveAction
-    let proposalWithState: ExecutiveAction[] = []
+  const getActionState = async (proposals: Proposal[]) => {
+    let proposal: Proposal
+    let proposalWithState: Proposal[] = []
 
     if (publicClient) {
       try {
@@ -68,18 +68,18 @@ export const useExecutiveActions = () => {
     }
   }
 
-  const fetchExecutiveActions = useCallback(
+  const fetchProposals = useCallback(
     async () => {
       setStatus("loading")
 
-      const proposalsWithoutState = await getExecutiveActions()
+      const proposalsWithoutState = await getProposals()
       if (proposalsWithoutState) {
         const proposalsWithState = await getActionState(proposalsWithoutState)
-        setExecutiveActions(proposalsWithState)
+        setProposals(proposalsWithState)
       }
 
       setStatus("success")
     }, [ ])
 
-  return {status, error, proposals, fetchExecutiveActions}
+  return {status, error, proposals, fetchProposals}
 }
