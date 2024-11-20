@@ -1,28 +1,37 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import MemberActions from "@/components/MemberActions";
-import WhaleActions from "@/components/WhaleActions";
-import SeniorActions from "@/components/SeniorActions";
-import GuestActions from "@/components/GuestActions";
-import AdminActions from "@/components/AdminActions";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { useRoles } from "@/hooks/useRoles";
-import { useProposals } from "@/hooks/useProposals";
-import ProposalView from "@/components/ProposalView";
-import { Proposal } from "@/context/types";
-import ValuesView from "@/components/ValuesView";
-import { lawContracts } from "@/context/lawContracts";
-import { useReadContract } from "wagmi";
-import { agCoinsAbi } from "@/context/abi";
-import Link from "next/link";
+// import MemberActions from "@/components/MemberActions";
+// import WhaleActions from "@/components/WhaleActions";
+// import SeniorActions from "@/components/SeniorActions";
+// import GuestActions from "@/components/GuestActions";
+// import AdminActions from "@/components/AdminActions";
+// import { usePrivy, useWallets } from "@privy-io/react-auth";
+// import { useRoles } from "@/hooks/useRoles";
+// import { useProposals } from "@/hooks/useProposals";
+// import ProposalView from "@/components/ProposalView";
+// import { Proposal } from "@/context/types";
+// import ValuesView from "@/components/ValuesView";
+// import { lawContracts } from "@/context/lawContracts";
+// import { useReadContract } from "wagmi";
+// import { agCoinsAbi } from "@/context/abi";
+// import Link from "next/link";
+import { Battery50Icon } from "@heroicons/react/24/outline";
+
 
 const DashboardPage: React.FC = () => {
 
     return (
-        <div> 
-        This site is currently under construction. Check back later.    
-        </div>
+        <section className="w-full h-screen bg-white flex flex-col justify-center items-center p-4">
+            <div className="flex flex-col items-center justify-center w-full h-full text-lg text-center border-4 border-yellow-400 rounded-lg">
+                <div className="flex justify-center items-center"> 
+                    <Battery50Icon className="w-16 h-16" />
+                </div>
+                <div className="text-bold">
+                This site is currently under construction. Check back later.
+                </div>
+            </div>
+        </section>
     )
 }
 // const DashboardPage: React.FC = () => {
