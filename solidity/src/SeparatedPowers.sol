@@ -1,19 +1,25 @@
 // SPDX-License-Identifier: MIT
 
-/// @title SeparatedPowers
-/// @notice The core contract of the SeparatedPowers protocol. Inherits from {ISeparatedPowers}.
-/// Code derived from OpenZeppelin's Governor.sol contract.
+/// @title Separated Powers Protocol v.0.2  
+/// @notice Separated Powers is a Role Restricted Governance Protocol. It provides a flexible, decentralised, efficient and secure governance framework for DAOs.
+/// 
+/// @dev This contract is the core protocol. It is meant to be used in combination with implementations of {Law.sol}. 
+/// @dev Code is derived from OpenZeppelin's Governor.sol and AccessManager contracts, in addition to Haberdasher Labs Hats protocol.
+/// @dev The protocol mirrors Governor.sol and AccessManager as closely as possible. It will, eventually, also be compatible with the Hats protocol. 
 ///
-/// @dev Inoriginally, Governor.sol is abstract and needs modules to be added to function.
-/// In contrast, SeparatedPowers is not set as abstract and is self-contained.
-/// Any additional functionality is added through laws.
-/// Although the protocol does allow functions to be updated in inhereted contracts, this should be avoided if possible.
+/// Note several key differences from openzeppelin's {Governor.sol}.  
+/// 1 - Any DAO action needs to be encoded in role restricted external contracts, or laws, that follow the {ILaw} interface.
+/// 2 - Proposing, voting, cancelling and executing actions are role restricted along the target law that is called.
+/// 3 - All DAO actions need to run through the governance protocol. Calls to laws that do not need a proposal vote to be executed, still need to be executed through the {execute} function of the core protocol.
+/// 4 - The core protocol uses a non-weighted voting mechanism: one account has one vote.
+/// 5 - The core protocol is minimalistic. Any complexity (timelock, delayed execution, guardian roles, weighted votes, staking, etc.) has to be integrated through laws.
 ///
-/// The protocol is meant to be inherited by a contract that implements a DAO. See for example ./implementations.
-///
-/// Other differences:
-/// - No ERC165 in the core protocol, this can change later. Laws do support ERC165 interfaces.
-/// - The use of {clock} is removed. Only blocknumbers are used at the moment, no timestamps. This also applies to laws.
+/// For example implementations of DAOs, see the implementations/daos folder.
+/// 
+/// Note This protocol is a work in progress. A number of features are planned to be added in the future.
+/// - Support for {clock} for timestamping of proposals.
+/// - Integration of, or support for, the Hats Protocol.
+/// - Testing and example implementations are still incomplete. 
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 

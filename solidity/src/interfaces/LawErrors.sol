@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-/// @notice Errors used in the SeparatedPowers protocol.
-/// Code derived from OpenZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
+/// @notice Errors used in {Law.sol}.
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 

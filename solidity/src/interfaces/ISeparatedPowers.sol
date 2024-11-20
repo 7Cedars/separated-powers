@@ -3,8 +3,6 @@
 /// @notice Interface for the SeparatedPowers protocol.
 /// Code derived from OpenZeppelin's Governor.sol contract.
 ///
-/// @dev the interface also includes type declarations, but errors and events are placed in {SeparatedPowers}.
-///
 /// @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 

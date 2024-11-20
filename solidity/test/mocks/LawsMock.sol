@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /// @notice Mock law contracts for testing.
-/// @dev Everytime inherits the {PresetAction} contract, but adds another modifier.
+/// @dev Each law inherits the same {PresetAction} contract, but adds another modifier at {executeLaw} function.
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 

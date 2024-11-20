@@ -1,33 +1,27 @@
 // SPDX-License-Identifier: MIT
 
+/// @title Law.sol v.0.2
 /// @notice Base implementation of a Law in the SeparatedPowers protocol. Meant to be inherited by law implementations.
-/// See ./laws/Readme.md for more details.
 ///
-/// @dev Law contracts only encode the base logic of the law:
-/// - how an input is transformed into an output.
-/// - under what conditions the law can be executed.
+/// @dev Laws are role restricted contracts that are executed by the core SeparatedPowers protocol. The provide the following functionality:
+/// 1 - Role restricting DAO actions
+/// 2 - Transforming a {lawCalldata) input into an output of targets[], values[], calldatas[] to be executed by the core protocol.
+/// 3 - Adding conditions to execution of the law, such as a proposal vote, a completed parent law or a delay. Any logic can be added.  
+/// 
+/// A number of law settings are set through the {setLaw} function in the core protocol:
+/// - what role restriction applies to the law. 
+/// - quorum needed to execute the law. (optional)
+/// - vote threshold. (optional)
+/// - voting period. (optional)
 ///
-/// They take an input from the {SeparatedPowers::execute} in the form of calldata.
-/// They return an output to the same {SeparatedPowers::execute} function in the form of targets[], values[], calldatas[].
+/// {Law.sol} provides five modifiers that law implementations can use.
+/// - {needsProposalVote}: requires a proposal vote to be successful before the law can be executed.
+/// - {needsParentCompleted}: requires a parent law to be completed before the law can be executed. It can be used to create a balance of power between two roles. 
+/// - {parentCanBlock}: requires a parent law to not be completed before the law can be executed. It can be used to give a role an effective veto to a governance process.
+/// - {delayProposalExecution}: requires a delay to pass before the law can be executed. Can be used to create cool off periods.  
+/// - {limitExecutions}: allows a law to only execute a number of times or requires a delay between executions.
+/// If needed, more modifiers can be added. 
 ///
-/// There are four modifiers for laws to use.
-/// - {needsProposalVote}: sets law to need a proposal vote to be executed.
-/// - {needsParentCompleted}: checks if a parent law has been completed.
-/// - {delayProposalExecution}: sets a deadline for when the law can be executed.
-/// - {limitExecutions}: limits the number of times the law can be executed.
-/// If needed, more modifiers can be added.
-///
-/// Laws do NOT revert. They always return data. There are some standards for laws to communicate to the protocol.
-/// - targets[0] == address(0): general error message. Checks did not pass.
-/// - targets[0] == address(1): the protocol should not take any further executive action.
-///
-/// Configuration of the law is handled in the core SeparatedPowers contract.
-/// - what role restriction applies to the law
-/// - quorum (in case law is restricted by the needsProposalVote modifier)
-/// - vote threshold
-/// - voting period
-///
-
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
