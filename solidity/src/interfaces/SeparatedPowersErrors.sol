@@ -36,13 +36,13 @@ interface SeparatedPowersErrors {
     error SeparatedPowers__LawDidNotPassChecks();
 
     /// @notice Emitted when a proposal id is invalid.
-    error SeparatedPowers__InvalidExecutiveActionId();
+    error SeparatedPowers__InvalidProposalId();
 
     /// @notice Emitted when a proposal is already completed.
-    error SeparatedPowers__ExecutiveActionAlreadyCompleted();
+    error SeparatedPowers__ProposalAlreadyCompleted();
 
     /// @notice Emitted when a proposal is has been cancelled.
-    error SeparatedPowers__ExecutiveActionCancelled();
+    error SeparatedPowers__ProposalCancelled();
 
     /// @notice Emitted when cancelling a proposal that does not reference an active law.
     error SeparatedPowers__CancelCallNotFromActiveLaw();

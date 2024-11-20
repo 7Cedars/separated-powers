@@ -114,11 +114,11 @@ contract ProposeTest is TestSetupSeparatedPowers {
         // check if charlotte has correct role
         assertNotEq(daoMock.hasRoleSince(charlotte, allowedRoles[lawNumber]), 0);
 
-        uint256 actionId = hashExecutiveAction(targetLaw, lawCalldata, keccak256(bytes(description)));
+        uint256 actionId = hashProposal(targetLaw, lawCalldata, keccak256(bytes(description)));
         uint32 duration = votingPeriods[4];
 
         vm.expectEmit(true, false, false, false);
-        emit ExecutiveActionCreated(
+        emit ProposalCreated(
             actionId, charlotte, targetLaw, "", lawCalldata, block.number, block.timestamp + duration, description
         );
         vm.prank(charlotte);
@@ -127,7 +127,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
 }
 
 contract CancelTest is TestSetupSeparatedPowers {
-    function testCancellingExecutiveActionsEmitsCorrectEvent() public {
+    function testCancellingProposalsEmitsCorrectEvent() public {
         // prep: create a proposal
         address targetLaw = laws[4];
         string memory description = "Creating a proposal";
@@ -137,12 +137,12 @@ contract CancelTest is TestSetupSeparatedPowers {
 
         // act: cancel the proposal
         vm.expectEmit(true, false, false, false);
-        emit ExecutiveActionCancelled(actionId);
+        emit ProposalCancelled(actionId);
         vm.prank(charlotte);
         daoMock.cancel(targetLaw, lawCalldata, keccak256(bytes(description)));
     }
 
-    function testCancellingExecutiveActionsSetsStateToCancelled() public {
+    function testCancellingProposalsSetsStateToCancelled() public {
         // prep: create a proposal
         address targetLaw = laws[4];
         string memory description = "Creating a proposal";
@@ -173,7 +173,7 @@ contract CancelTest is TestSetupSeparatedPowers {
         daoMock.cancel(targetLaw, lawCalldata, keccak256(bytes(description)));
     }
 
-    function testCancelledExecutiveActionsCannotBeExecuted() public {
+    function testCancelledProposalsCannotBeExecuted() public {
         // prep: create a proposal
         address targetLaw = laws[4];
         string memory description = "Creating a proposal";
@@ -211,7 +211,7 @@ contract VoteTest is TestSetupSeparatedPowers {
         daoMock.castVote(actionId, FOR);
     }
 
-    function testExecutiveActionDefeatedIfQuorumNotReachedInTime() public {
+    function testProposalDefeatedIfQuorumNotReachedInTime() public {
         // prep: create a proposal
         uint32 lawNumber = 4;
         string memory description = "Creating a proposal";
@@ -227,7 +227,7 @@ contract VoteTest is TestSetupSeparatedPowers {
         assertEq(uint8(proposalState), uint8(ActionState.Defeated));
     }
 
-    function testVotingIsNotPossibleForDefeatedExecutiveActions() public {
+    function testVotingIsNotPossibleForDefeatedProposals() public {
         // prep: create a proposal
         uint32 lawNumber = 4;
         string memory description = "Creating a proposal";
@@ -244,7 +244,7 @@ contract VoteTest is TestSetupSeparatedPowers {
         daoMock.castVote(actionId, FOR);
     }
 
-    function testExecutiveActionSucceededIfQuorumReachedInTime() public {
+    function testProposalSucceededIfQuorumReachedInTime() public {
         // prep: create a proposal
         uint32 lawNumber = 4;
         string memory description = "Creating a proposal";
@@ -292,7 +292,7 @@ contract VoteTest is TestSetupSeparatedPowers {
         assertEq(uint8(proposalState), uint8(ActionState.Succeeded));
     }
 
-    function testExecutiveActionDefeatedIfQuorumReachedButNotEnoughForVotes() public {
+    function testProposalDefeatedIfQuorumReachedButNotEnoughForVotes() public {
         // prep: create a proposal
         uint32 lawNumber = 4;
         string memory description = "Creating a proposal";
@@ -472,7 +472,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
 
         // assert
-        uint256 actionId = hashExecutiveAction(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        uint256 actionId = hashProposal(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
         ActionState proposalState = daoMock.state(actionId);
         assertEq(uint8(proposalState), uint8(ActionState.Completed));
     }
@@ -494,7 +494,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
 
         // act & assert
         vm.expectEmit(true, false, false, false);
-        emit ExecutiveActionExecuted(tar, val, cal);
+        emit ProposalExecuted(tar, val, cal);
         vm.prank(mockAddress);
         daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
     }
@@ -525,7 +525,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
 
         // act: try to execute action again.
-        vm.expectRevert(SeparatedPowers__ExecutiveActionAlreadyCompleted.selector);
+        vm.expectRevert(SeparatedPowers__ProposalAlreadyCompleted.selector);
         vm.prank(mockAddress);
         daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
     }
@@ -602,7 +602,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         assertEq(uint8(proposalState), uint8(ActionState.Cancelled));
 
         // act & assert: try to execute proposal.
-        vm.expectRevert(SeparatedPowers__ExecutiveActionCancelled.selector);
+        vm.expectRevert(SeparatedPowers__ProposalCancelled.selector);
         vm.prank(charlotte);
         daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
     }

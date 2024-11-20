@@ -276,7 +276,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "function",
-    "name": "hashExecutiveAction",
+    "name": "hashProposal",
     "inputs": [
       { "name": "targetLaw", "type": "address", "internalType": "address" },
       { "name": "lawCalldata", "type": "bytes", "internalType": "bytes" },
@@ -539,7 +539,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "event",
-    "name": "ExecutiveActionCancelled",
+    "name": "ProposalCancelled",
     "inputs": [
       {
         "name": "proposalId",
@@ -552,7 +552,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "event",
-    "name": "ExecutiveActionCompleted",
+    "name": "ProposalCompleted",
     "inputs": [
       {
         "name": "proposalId",
@@ -565,7 +565,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "event",
-    "name": "ExecutiveActionCreated",
+    "name": "ProposalCreated",
     "inputs": [
       {
         "name": "proposalId",
@@ -738,7 +738,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__InvalidExecutiveActionId",
+    "name": "SeparatedPowers__InvalidProposalId",
     "inputs": []
   },
   {
@@ -760,17 +760,17 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__ExecutiveActionAlreadyCompleted",
+    "name": "SeparatedPowers__ProposalAlreadyCompleted",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__ExecutiveActionCancelled",
+    "name": "SeparatedPowers__ProposalCancelled",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__ExecutiveActionNotActive",
+    "name": "SeparatedPowers__ProposalNotActive",
     "inputs": []
   },
   {
@@ -780,7 +780,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeperatedPowers__NonExistentExecutiveAction",
+    "name": "SeperatedPowers__NonExistentProposal",
     "inputs": [
       { "name": "proposalId", "type": "uint256", "internalType": "uint256" }
     ]

@@ -38,7 +38,7 @@ contract ReinstateMember is Law {
         val = new uint256[](2);
         cal = new bytes[](2);
 
-        uint256 proposalId = _hashExecutiveAction(originalRevokeLaw, lawCalldata, descriptionHash);
+        uint256 proposalId = _hashProposal(originalRevokeLaw, lawCalldata, descriptionHash);
         if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Completed) {
             cal[0] = abi.encode("parent proposal not completed".toShortString());
             return (tar, val, cal);

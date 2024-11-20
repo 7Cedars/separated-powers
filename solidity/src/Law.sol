@@ -59,7 +59,7 @@ contract Law is ERC165, ILaw {
     /// @param lawCalldata the calldata of the law
     /// @param descriptionHash the description hash of the law
     modifier needsProposalVote(bytes memory lawCalldata, bytes32 descriptionHash) {
-        uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
+        uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
         if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Succeeded) {
             revert Law__ProposalNotSucceeded();
         }
@@ -74,7 +74,7 @@ contract Law is ERC165, ILaw {
         if (parentLaw == address(0)) {
             revert Law__ParentLawNotSet();
         }
-        uint256 parentProposalId = _hashExecutiveAction(parentLaw, lawCalldata, descriptionHash);
+        uint256 parentProposalId = _hashProposal(parentLaw, lawCalldata, descriptionHash);
         if (
             SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
                 != SeparatedPowersTypes.ActionState.Completed
@@ -93,7 +93,7 @@ contract Law is ERC165, ILaw {
         if (parentLaw == address(0)) {
             revert Law__ParentLawNotSet();
         }
-        uint256 parentProposalId = _hashExecutiveAction(parentLaw, lawCalldata, descriptionHash);
+        uint256 parentProposalId = _hashProposal(parentLaw, lawCalldata, descriptionHash);
         if (
             SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
                 == SeparatedPowersTypes.ActionState.Completed
@@ -109,7 +109,7 @@ contract Law is ERC165, ILaw {
     /// @param lawCalldata the calldata of the law
     /// @param descriptionHash the description hash of the law
     modifier delayProposalExecution(uint256 blocksDelay, bytes memory lawCalldata, bytes32 descriptionHash) {
-        uint256 proposalId = _hashExecutiveAction(address(this), lawCalldata, descriptionHash);
+        uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
         uint256 currentBlock = block.number;
         uint256 deadline = SeparatedPowers(payable(separatedPowers)).proposalDeadline(proposalId);
 
@@ -170,7 +170,7 @@ contract Law is ERC165, ILaw {
     }
 
     /// @notice an internal helper function for hashing proposals.
-    function _hashExecutiveAction(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+    function _hashProposal(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         internal
         pure
         returns (uint256)

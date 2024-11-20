@@ -30,7 +30,7 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
-contract Randomly is Law {
+contract RandomlySelect is Law {
     using ShortStrings for *;
 
     error RandomlySelect__NomineeAlreadyNominated();
@@ -66,7 +66,7 @@ contract Randomly is Law {
     {
         // decode the calldata.
         (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
-        uint256 actionId = _hashExecutiveAction(address(this), lawCalldata, keccak256(bytes(description)));
+        uint256 actionId = _hashProposal(address(this), lawCalldata, keccak256(bytes(description)));
         address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);
 
         // nominate if nominateMe == true

@@ -78,7 +78,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @param constituentRoles : the constituent roles of the roles.
     /// @param constituentAccounts : the constituent accounts of the roles.
     ///
-    /// emits a {ExecutiveActionCreated} event.
+    /// emits a {ProposalCreated} event.
     function constitute(
         address[] memory laws,
         uint32[] memory allowedRoles,
@@ -185,7 +185,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     //////////////////////////////////////////////////////////////
     //                      HELPER FUNCTIONS                    //
     //////////////////////////////////////////////////////////////
-    /// @dev Helper function to create a ExecutiveActionId on the basis of targetLaw, lawCalldata and descriptionHash.
+    /// @dev Helper function to create a ProposalId on the basis of targetLaw, lawCalldata and descriptionHash.
     ///
     /// @param targetLaw : the address of the law to be executed. Can only be one address.
     /// @param lawCalldata : the calldata to be passed to the law
@@ -196,7 +196,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// This callData can have any kind of data.
     ///
     /// The call that is executed at the Law has the traditional layout of targets[], values[], calldatas[].
-    function hashExecutiveAction(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+    function hashProposal(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         returns (uint256);
 }

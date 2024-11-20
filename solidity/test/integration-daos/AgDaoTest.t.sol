@@ -26,7 +26,7 @@ pragma solidity 0.8.26;
 // import {Whale_revokeMember} from "../src/implementation/DAOs/laws/Whale_revokeMember.sol";
 
 //   /* chain propsals */
-//   function testSuccessfulChainOfExecutiveActionsLeadsToSuccessfulExecution() public {
+//   function testSuccessfulChainOfProposalsLeadsToSuccessfulExecution() public {
 //     /* PROPOSAL LINK 1: a whale proposes a law. */
 //     // proposing...
 //     address newLaw = address(new Public_assignRole(payable(address(daoMock))));
@@ -119,7 +119,7 @@ pragma solidity 0.8.26;
 //     // executing does not work.
 //     vm.prank(david);
 //     vm.expectRevert(abi.encodeWithSelector(
-//       Whale_proposeLaw.Whale_proposeLaw__ExecutiveActionVoteNotSucceeded.selector, actionIdOne
+//       Whale_proposeLaw.Whale_proposeLaw__ProposalVoteNotSucceeded.selector, actionIdOne
 //     ));
 //     daoMock.execute(laws[4], lawCalldata, keccak256(bytes(description)));
 
@@ -149,7 +149,7 @@ pragma solidity 0.8.26;
 //     // executing...
 //     vm.prank(bob);
 //     vm.expectRevert(abi.encodeWithSelector(
-//       Senior_acceptProposedLaw.Senior_acceptProposedLaw__ParentExecutiveActionNotCompleted.selector, actionIdOne
+//       Senior_acceptProposedLaw.Senior_acceptProposedLaw__ParentProposalNotCompleted.selector, actionIdOne
 //     ));
 //     daoMock.execute(laws[5], lawCalldata, keccak256(bytes(description)));
 //   }
@@ -202,7 +202,7 @@ pragma solidity 0.8.26;
 //     // executing...
 //     vm.prank(bob);
 //     vm.expectRevert(abi.encodeWithSelector(
-//       Senior_acceptProposedLaw.Senior_acceptProposedLaw__ExecutiveActionNotSucceeded.selector, actionIdTwo
+//       Senior_acceptProposedLaw.Senior_acceptProposedLaw__ProposalNotSucceeded.selector, actionIdTwo
 //     ));
 //     daoMock.execute(laws[5], lawCalldata, keccak256(bytes(description)));
 

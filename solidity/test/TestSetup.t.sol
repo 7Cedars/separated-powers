@@ -80,7 +80,7 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
 }
 
 abstract contract TestHelpers {
-    function hashExecutiveAction(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+    function hashProposal(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         pure
         virtual
@@ -205,6 +205,71 @@ abstract contract TestSetupLaw is Test, TestVariables, TestHelpers {
         // get constitution and founders lists.
         (laws, allowedRoles, quorums, succeedAts, votingPeriods) =
             constitutionsMock.initiateThird(payable(address(daoMock)), payable(address((erc1155Mock))));
+
+        (constituentRoles, constituentAccounts) = foundersMock.get(payable(address(daoMock)), users);
+
+        // constitute daoMock.
+        daoMock.constitute(
+            laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts
+        );
+
+        daoNames.push("DaoMock");
+    }
+}
+
+
+abstract contract TestSetupImplementations is Test, TestVariables, TestHelpers {
+    function setUp() public virtual {
+        // the only law specific event that is emitted.
+        vm.roll(10);
+        setUpVariables();
+    }
+
+    // note that this setup does not scale very well re the number of daos.
+    function setUpVariables() public virtual {
+        // votes types
+        AGAINST = 0;
+        FOR = 1;
+        ABSTAIN = 2;
+
+        // roles
+        ADMIN_ROLE = 0;
+        PUBLIC_ROLE = type(uint32).max;
+        ROLE_ONE = 1;
+        ROLE_TWO = 2;
+        ROLE_THREE = 3;
+
+        // users
+        alice = makeAddr("alice");
+        bob = makeAddr("bob");
+        charlotte = makeAddr("charlotte");
+        david = makeAddr("david");
+        eve = makeAddr("eve");
+        frank = makeAddr("frank");
+        gary = makeAddr("gary");
+        helen = makeAddr("helen");
+
+        // assign funds
+        vm.deal(alice, 10 ether);
+        vm.deal(bob, 10 ether);
+        vm.deal(charlotte, 10 ether);
+        vm.deal(david, 10 ether);
+        vm.deal(eve, 10 ether);
+        vm.deal(frank, 10 ether);
+        vm.deal(gary, 10 ether);
+        vm.deal(helen, 10 ether);
+
+        users = [alice, bob, charlotte, david, eve, frank, gary, helen];
+
+        // deploy mocks
+        erc1155Mock = new Erc1155Mock();
+        daoMock = new DaoMock();
+        constitutionsMock = new ConstitutionsMock();
+        foundersMock = new FoundersMock();
+
+        // get constitution and founders lists.
+        (laws, allowedRoles, quorums, succeedAts, votingPeriods) =
+            constitutionsMock.initiateFourth(payable(address(daoMock)), payable(address((erc1155Mock))));
 
         (constituentRoles, constituentAccounts) = foundersMock.get(payable(address(daoMock)), users);
 

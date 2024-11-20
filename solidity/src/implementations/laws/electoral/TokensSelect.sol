@@ -66,7 +66,7 @@ contract TokensSelect is Law {
     {
         // decode the calldata.
         (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
-        uint256 actionId = _hashExecutiveAction(address(this), lawCalldata, keccak256(bytes(description)));
+        uint256 actionId = _hashProposal(address(this), lawCalldata, keccak256(bytes(description)));
         address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);
 
         // nominate if nominateMe == true

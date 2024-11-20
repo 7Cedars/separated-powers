@@ -24,7 +24,7 @@ interface SeparatedPowersEvents {
     /// @param voteStart the start of the voting period
     /// @param voteEnd the end of the voting period
     /// @param description the description of the proposal
-    event ExecutiveActionCreated(
+    event ProposalCreated(
         uint256 proposalId,
         address initiator,
         address targetLaw,
@@ -40,17 +40,17 @@ interface SeparatedPowersEvents {
     /// @param targetLaw the address of the target law
     /// @param lawCalldata the calldata of the law
     /// @param descriptionHash the description hash of the law
-    event ExecutiveActionCompleted(address initiator, address targetLaw, bytes lawCalldata, bytes32 descriptionHash);
+    event ProposalCompleted(address initiator, address targetLaw, bytes lawCalldata, bytes32 descriptionHash);
 
     /// @notice Emitted when a proposal for an executive action is cancelled.
     /// @param proposalId the id of the proposal
-    event ExecutiveActionCancelled(uint256 indexed proposalId);
+    event ProposalCancelled(uint256 indexed proposalId);
 
     // @notice Emitted when an executive action has been executed.
     /// @param targets the targets of the action
     /// @param values the values of the action
     /// @param calldatas the calldatas of the action
-    event ExecutiveActionExecuted(address[] targets, uint256[] values, bytes[] calldatas);
+    event ProposalExecuted(address[] targets, uint256[] values, bytes[] calldatas);
 
     /// @notice Emitted when a vote is cast.
     /// @param account the address of the account that cast the vote
