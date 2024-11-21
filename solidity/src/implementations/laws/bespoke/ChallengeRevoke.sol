@@ -22,6 +22,7 @@ contract ChallengeRevoke is Law {
         Law(name_, description_, separatedPowers_)
     {
         parentLaw = parentLaw_;
+        params = [dataType("address")];
     }
 
     function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)

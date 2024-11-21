@@ -18,6 +18,7 @@ contract AdoptValue is Law {
         Law(name_, description_, separatedPowers_)
     {
         parentLaw = parentLaw_;
+        params = [dataType("bytes32")];
     }
 
     function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)

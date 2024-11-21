@@ -20,12 +20,6 @@ import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
 import { FoundersMock } from "./mocks/FoundersMock.sol";
 import { Erc1155Mock } from "./mocks/Erc1155Mock.sol";
 
-// laws
-import { VoteOnProposedAction } from "../src/implementations/laws/bespoke/VoteOnProposedAction.sol";
-import { TokensSelect } from "../src/implementations/laws/electoral/TokensSelect.sol";
-import { DirectSelect } from "../src/implementations/laws/electoral/DirectSelect.sol";
-import { ProposalOnly } from "../src/implementations/laws/executive/ProposalOnly.sol";
-
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
     // the only event in the Law contract
     event Law__Initialized(address law);
@@ -45,12 +39,6 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     uint32[] votingPeriods;
     uint32[] constituentRoles;
     address[] constituentAccounts;
-
-    // laws
-    VoteOnProposedAction voteOnProposedAction;
-    DirectSelect directSelect;
-    TokensSelect tokensSelect;
-    ProposalOnly proposalOnly;
 
     // vote options
     uint8 AGAINST;

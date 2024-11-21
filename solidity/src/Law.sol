@@ -22,6 +22,10 @@
 /// - {limitExecutions}: allows a law to only execute a number of times or requires a delay between executions.
 /// If needed, more modifiers can be added. 
 ///
+/// Note This protocol is a work in progress. A number of features are planned to be added to this contract in the future.
+/// - Add an enum for data types. 
+/// - Add an array with data types at each contract, so that front ends know what data types are requested by the law. 
+///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
@@ -39,11 +43,12 @@ contract Law is ERC165, ILaw {
     //                 variables                    //
     //////////////////////////////////////////////////
     address public parentLaw; // optional slot to save a parentLaw.
-    uint48[] public executions = [0]; // optional log of block numbers at which a law was executed.
+    uint48[] public executions = [0]; // optional log of block numbers at which the law was executed.
 
     ShortString public immutable name; // name of the law
     address public separatedPowers; // the address of the core governance protocol
     string public description; // description of the law
+    bytes4[] public params; // hashes of data types needed for the lawCalldata. Saved as bytes4, encoded through the {DataType} function 
 
     //////////////////////////////////////////////////
     //                 MODIFIERS                    //
@@ -170,5 +175,14 @@ contract Law is ERC165, ILaw {
         returns (uint256)
     {
         return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
+    }
+
+    /// @notice an internal helper function for hashing data types
+    function dataType(string memory dataType)
+        internal
+        pure
+        returns (bytes4)
+    {
+        return bytes4(keccak256(bytes(dataType)));
     }
 }

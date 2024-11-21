@@ -20,7 +20,8 @@ contract RevokeRole is Law {
         Law(name_, description_, separatedPowers_)
     {
         _roleId = roleId_;
-    }
+        params = [dataType("address")];
+    } 
 
     function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
         public

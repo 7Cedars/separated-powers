@@ -23,7 +23,7 @@ contract ProposalOnlyWithVote is Law {
     /// @param separatedPowers_ the address of the core governance protocol
     constructor(string memory name_, string memory description_, address separatedPowers_)
         Law(name_, description_, separatedPowers_)
-    { }
+    {  }
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law

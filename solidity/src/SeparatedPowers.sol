@@ -18,6 +18,7 @@
 /// 
 /// Note This protocol is a work in progress. A number of features are planned to be added in the future.
 /// - Support for {clock} for timestamping of proposals.
+/// - Full compatibility with {Governor.sol} will be implemented, so the protocol can be used in combination websites such as Tally.xyz.  
 /// - Integration of, or support for, the Hats Protocol.
 /// - Testing and example implementations are still incomplete. 
 ///

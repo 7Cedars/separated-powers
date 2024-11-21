@@ -22,7 +22,7 @@ contract ReinstateMember is Law {
     constructor(string memory name_, string memory description_, address separatedPowers_, address parentLaw_)
         Law(name_, description_, separatedPowers_)
     {
-        parentLaw = parentLaw_;
+        parentLaw = parentLaw_; 
     }
 
     function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)

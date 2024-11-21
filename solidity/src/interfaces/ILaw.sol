@@ -12,6 +12,8 @@ pragma solidity 0.8.26;
 interface ILaw is IERC165, LawErrors {
     // @notice emitted when the law is initialized
     event Law__Initialized(address law);
+    
+    // £todo add enum here for data types
 
     /// @notice function to execute a law.
     /// @param initiator the address of the account that proposed execution of the law.

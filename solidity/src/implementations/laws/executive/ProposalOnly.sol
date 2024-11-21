@@ -23,7 +23,7 @@ contract ProposalOnly is Law {
     /// @param separatedPowers_ the address of the core governance protocol
     constructor(string memory name_, string memory description_, address separatedPowers_)
         Law(name_, description_, separatedPowers_)
-    { }
+    {   }
 
     /// @notice Execute the open action.
     function executeLaw(address, /*initiator*/ bytes memory, /*lawCalldata*/ bytes32 /*descriptionHash*/ )

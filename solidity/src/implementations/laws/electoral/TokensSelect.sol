@@ -57,6 +57,7 @@ contract TokensSelect is Law {
         ERC_1155_TOKEN = erc1155Token_;
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
+        params = [dataType("bool"), dataType("bool")]; 
     }
 
     function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 /* descriptionHash */ )

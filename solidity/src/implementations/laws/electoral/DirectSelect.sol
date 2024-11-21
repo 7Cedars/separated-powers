@@ -27,7 +27,7 @@ contract DirectSelect is Law {
     using ShortStrings for *;
 
     error DirectSelect__AccountDoesNotHaveRole();
-    error DirectSelect__AccountAlreaydHasRole();
+    error DirectSelect__AccountAlreadyHasRole();
 
     uint32 private immutable ROLE_ID;
 
@@ -35,6 +35,7 @@ contract DirectSelect is Law {
         Law(name_, description_, separatedPowers_)
     {
         ROLE_ID = roleId_;
+        params = [dataType("bool")]; 
     }
 
     function executeLaw(address initiator, bytes memory lawCalldata, bytes32 /* descriptionHash */ )
@@ -59,21 +60,12 @@ contract DirectSelect is Law {
             cal[0] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, initiator, false); // selector = revokeRole
             return (tar, val, cal);
         } else {
-            console.log("SETTING ROLE TRIGGERED");
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) != 0) {
-                revert DirectSelect__AccountAlreaydHasRole();
+                revert DirectSelect__AccountAlreadyHasRole();
             }
-
-            console.log("WAYPOINT 1");
             tar[0] = separatedPowers;
             val[0] = 0;
             cal[0] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, initiator, true); // selector = assignRole
-
-            console.log("WAYPOINT 2");
-            console.log("initiator: ", initiator);
-            console.log("tar: ", tar[0]);
-            console.log("val: ", val[0]);
-            console.logBytes(cal[0]);
             return (tar, val, cal);
         }
     }

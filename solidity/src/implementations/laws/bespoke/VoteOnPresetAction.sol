@@ -36,6 +36,7 @@ contract VoteOnPresetAction is Law {
         _targets = targets_;
         _values = values_;
         _calldatas = calldatas_;
+        params = [dataType("bool")];
     }
 
     /// @notice Execute the open action.

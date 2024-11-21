@@ -385,7 +385,7 @@ contract ConstitutionsMock {
                 "Randomly select role", // max 31 chars
                 "Randomly select a role.",
                 dao_,
-                5, // max role holders 
+                3, // max role holders 
                 DaoMock(dao_).ROLE_THREE() // role id. 
             )
         );

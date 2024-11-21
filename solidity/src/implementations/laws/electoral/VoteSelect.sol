@@ -30,6 +30,7 @@ contract VoteSelect is Law {
         Law(name_, description_, separatedPowers_)
     {
         ROLE_ID = roleId_;
+        params = [dataType("bool"), dataType("address")]; 
     }
 
     function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)

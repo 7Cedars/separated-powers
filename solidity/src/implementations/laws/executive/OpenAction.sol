@@ -23,7 +23,9 @@ contract OpenAction is Law {
     /// @param separatedPowers_ the address of the core governance protocol
     constructor(string memory name_, string memory description_, address separatedPowers_)
         Law(name_, description_, separatedPowers_)
-    { }
+    { 
+        params = [dataType("address[]"), dataType("uint256[]"), dataType("bytes[]")]; 
+    }
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
@@ -36,8 +38,5 @@ contract OpenAction is Law {
         // note: no check on decoded call data. If needed, this can be added.
         (targets, values, calldatas) = abi.decode(lawCalldata, (address[], uint256[], bytes[]));
 
-        // send calldata straight to the SeparatedPowers protocol.
-        executions.push(uint48(block.number));
-        return (targets, values, calldatas);
     }
 }

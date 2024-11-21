@@ -36,6 +36,7 @@ contract PresetAction is Law {
         _targets = targets_;
         _values = values_;
         _calldatas = calldatas_;
+        params = [dataType("bool")];
 
         emit PresetAction__Initialized(_targets, _values, _calldatas);
     }

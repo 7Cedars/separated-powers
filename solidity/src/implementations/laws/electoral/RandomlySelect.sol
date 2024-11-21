@@ -34,6 +34,7 @@ contract RandomlySelect is Law {
     using ShortStrings for *;
 
     error RandomlySelect__NomineeAlreadyNominated();
+    error RandomlySelect__NomineeNotNominated();
 
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
@@ -46,7 +47,6 @@ contract RandomlySelect is Law {
 
     event Randomly__NominationReceived(address indexed nominee);
     event Randomly__NominationRevoked(address indexed nominee);
-    event Randomly__RolesAssigned(uint32 indexed roleId, address indexed roleHolder);
 
     constructor(
         string memory name_,
@@ -57,21 +57,20 @@ contract RandomlySelect is Law {
     ) Law(name_, description_, separatedPowers_) {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
+        params = [dataType("bool"), dataType("bool")]; 
     }
 
-    function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // decode the calldata.
         (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
-        uint256 actionId = _hashProposal(address(this), lawCalldata, keccak256(bytes(description)));
-        address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);
 
         // nominate if nominateMe == true
         // elected accounts are stored in a mapping and have to be accepted.
-        if (nominateMe) {
+        if (nominateMe && !assignRoles) {
             if (_nominees[initiator] != 0) {
                 revert RandomlySelect__NomineeAlreadyNominated();
             }
@@ -82,8 +81,12 @@ contract RandomlySelect is Law {
             emit Randomly__NominationReceived(initiator);
         }
 
-        // revoke nomination if executionar is nominated and nominateMe == false
-        if (!nominateMe && _nominees[initiator] != 0) {
+        // revoke nomination if initiator is nominated and nominateMe == false
+        if (!nominateMe && !assignRoles) {
+            if (_nominees[initiator] == 0) {
+                revert RandomlySelect__NomineeNotNominated();
+            }
+            
             _nominees[initiator] = 0;
             for (uint256 i; i < _nomineesSorted.length; i++) {
                 if (_nomineesSorted[i] == initiator) {
@@ -97,39 +100,44 @@ contract RandomlySelect is Law {
         }
 
         // elects roles if assignRoles == true
+        // note: nomination and assigning roles cannot happen in the same call. -- £todo: create to separate laws? 
         if (assignRoles) {
-            for (uint256 i = 0; i < _nomineesSorted.length; i++) {
-                // £todo here have to revoke roles first.
+            // setting up array for revoking & assigning roles. 
+            uint256 numberNominees = _nomineesSorted.length;
+            uint256 numberElected = _electedSorted.length;
+            uint256 arrayLength = numberNominees < MAX_ROLE_HOLDERS ? 
+                numberElected + numberNominees 
+                : 
+                numberElected + MAX_ROLE_HOLDERS;
+
+            address[] memory tar = new address[](arrayLength);
+            uint256[] memory val = new uint256[](arrayLength);
+            bytes[] memory cal = new bytes[](arrayLength);
+            for (uint256 i; i < arrayLength; i++) { tar[i] = separatedPowers; } 
+
+            // calls to revoke roles & delete array with elected accounts. 
+            for (uint256 i = 0; i < numberElected; i++) {
+                cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], false);
+                _elected[_nomineesSorted[i]] = uint48(0);
+                _electedSorted.pop();
             }
 
-            uint256 numberNominees = _nomineesSorted.length;
-
-            if (numberNominees < MAX_ROLE_HOLDERS) {
-                address[] memory tar = new address[](numberNominees);
-                uint256[] memory val = new uint256[](numberNominees);
-                bytes[] memory cal = new bytes[](numberNominees);
-
+            // calls to add nominees if fewer than MAX_ROLE_HOLDERS
+            if (numberNominees <= MAX_ROLE_HOLDERS) {
                 for (uint256 i; i < numberNominees; i++) {
-                    tar[i] = separatedPowers;
-                    val[i] = 0;
-                    cal[i] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]);
+                    cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true);
                 }
                 return (tar, val, cal);
             } else {
-                address[] memory tar = new address[](MAX_ROLE_HOLDERS);
-                uint256[] memory val = new uint256[](MAX_ROLE_HOLDERS);
-                bytes[] memory cal = new bytes[](MAX_ROLE_HOLDERS);
-
+                // assign roles randomly from among nominees.  
                 uint256 index;
                 while (index < MAX_ROLE_HOLDERS) {
-                    // computionally expensive, and pseudo random. But easy to understand as example.
+                    // computationally expensive, and pseudo random. But easy to understand as example.
                     // £todo, mechanism here should be improved.
                     for (uint256 i; i < numberNominees; i++) {
                         uint256 psuedoRandomValue =
                             uint256(keccak256(abi.encodePacked(block.number, descriptionHash, i)));
                         if (psuedoRandomValue % numberNominees == 0 && _elected[_nomineesSorted[i]] == 0) {
-                            tar[index] = separatedPowers;
-                            val[index] = 0;
                             cal[index] = abi.encodeWithSelector(0x446b340f, ROLE_ID, _nomineesSorted[i]); // selector probably wrong. check later.
                             _elected[_nomineesSorted[i]] = uint48(block.timestamp);
                             _electedSorted.push(_nomineesSorted[i]);
@@ -137,7 +145,6 @@ contract RandomlySelect is Law {
                         }
                     }
                 }
-                return (tar, val, cal);
             }
         }
     }

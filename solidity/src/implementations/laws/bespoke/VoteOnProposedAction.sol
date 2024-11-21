@@ -40,8 +40,5 @@ contract VoteOnProposedAction is Law {
         // note: no check on decoded call data. If needed, this can be added.
         (targets, values, calldatas) = abi.decode(lawCalldata, (address[], uint256[], bytes[]));
 
-        // send calldata straight to the SeparatedPowers protocol.
-        executions.push(uint48(block.number));
-        return (targets, values, calldatas);
     }
 }
