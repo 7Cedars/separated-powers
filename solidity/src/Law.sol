@@ -1,129 +1,174 @@
 // SPDX-License-Identifier: MIT
+
+/// @title Law.sol v.0.2
+/// @notice Base implementation of a Law in the SeparatedPowers protocol. Meant to be inherited by law implementations.
+///
+/// @dev Laws are role restricted contracts that are executed by the core SeparatedPowers protocol. The provide the following functionality:
+/// 1 - Role restricting DAO actions
+/// 2 - Transforming a {lawCalldata) input into an output of targets[], values[], calldatas[] to be executed by the core protocol.
+/// 3 - Adding conditions to execution of the law, such as a proposal vote, a completed parent law or a delay. Any logic can be added.  
+/// 
+/// A number of law settings are set through the {setLaw} function in the core protocol:
+/// - what role restriction applies to the law. 
+/// - quorum needed to execute the law. (optional)
+/// - vote threshold. (optional)
+/// - voting period. (optional)
+///
+/// {Law.sol} provides five modifiers that law implementations can use.
+/// - {needsProposalVote}: requires a proposal vote to be successful before the law can be executed.
+/// - {needsParentCompleted}: requires a parent law to be completed before the law can be executed. It can be used to create a balance of power between two roles. 
+/// - {parentCanBlock}: requires a parent law to not be completed before the law can be executed. It can be used to give a role an effective veto to a governance process.
+/// - {delayProposalExecution}: requires a delay to pass before the law can be executed. Can be used to create cool off periods.  
+/// - {limitExecutions}: allows a law to only execute a number of times or requires a delay between executions.
+/// If needed, more modifiers can be added. 
+///
+/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
-import "../lib/openzeppelin-contracts/contracts/utils/ShortStrings.sol";
-import {SeparatedPowers} from "./SeparatedPowers.sol";
-import {ISeparatedPowers} from "./interfaces/ISeparatedPowers.sol";
-import {ILaw} from "./interfaces/ILaw.sol"; 
-import {EIP712} from "../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
-import {ERC165} from "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
-import {IERC165} from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
+import { SeparatedPowers } from "./SeparatedPowers.sol";
+import { SeparatedPowersTypes } from "./interfaces/SeparatedPowersTypes.sol";
+import { ILaw } from "./interfaces/ILaw.sol";
+import { ERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
+import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
+import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
-/**
- * @notice Base implementation of a Law in the SeparatedPowers protocol. It is meant to be inherited by law implementations. 
- *
- * @dev A law has the following characteristics: 
- * - It is only accesible to one roleId. 
- * - It gives accounts who hold this roleId the privilege to call external contracts.
- * - It constrains these privileges with specific conditions, for instance a proposal to a specific other law needs to have passed.
- * 
- * note NB! If a law is linked to a parent law, the description needs to be the same as the description of the parent law. 
- * 
- * @dev See the natspecs at the constructor function for the specifics of what can be (optionally) defined at construction time. 
- *
- * @author 7Cedars, Oct 2024 RnDAO CollabTech Hackathon
- *  
- */
-contract Law is IERC165, ERC165, EIP712, ILaw {
-  using ShortStrings for *;
+contract Law is ERC165, ILaw {
+    using ShortStrings for *;
 
-  error Law__AccessNotAuthorized(address caller);  
-  error Law__CallNotImplemented(); 
-  error Law__InvalidLengths(uint256 lengthTargets, uint256 lengthCalldatas); 
-  error Law__TargetLawNotPassed(address targetLaw);
-  error Law__InvalidProposalId(uint256 proposalId);  
-  error Law__ProposalAlreadyExecuted(uint256 proposalId);
-  error Law__ProposalCancelled(uint256 proposalId);
+    //////////////////////////////////////////////////
+    //                 variables                    //
+    //////////////////////////////////////////////////
+    address public parentLaw; // optional slot to save a parentLaw.
+    uint48[] public executions = [0]; // optional log of block numbers at which a law was executed.
 
-  string private _nameFallback;
+    ShortString public immutable name; // name of the law
+    address public separatedPowers; // the address of the core governance protocol
+    string public description; // description of the law
 
-  ShortString public immutable name;
-  uint64 public immutable accessRole; // note: only allows single roleId. 
-  uint8 public immutable quorum; // in percent.  
-  uint8 public immutable succeedAt; // in percent.  
-  uint32 public immutable votingPeriod;  // voting period in blocks. The contract does not use clock(), for now.  
-  address payable public immutable daoCore; // address to related separatedPower contract. Laws cannot be shared between them. They have to be re-initialised through a constructor function.  
-  address public parentLaw; // address to law that need to pass before this law can pass. 
-  string public description; // note: any length. 
-  string constant version = "1";  
+    //////////////////////////////////////////////////
+    //                 MODIFIERS                    //
+    //////////////////////////////////////////////////
+    /// @notice makes law conditional on a proposal succeeding.
+    ///
+    /// @param lawCalldata the calldata of the law
+    /// @param descriptionHash the description hash of the law
+    modifier needsProposalVote(bytes memory lawCalldata, bytes32 descriptionHash) {
+        uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
+        if (SeparatedPowers(payable(separatedPowers)).state(proposalId) != SeparatedPowersTypes.ActionState.Succeeded) {
+            revert Law__ProposalNotSucceeded();
+        }
+        _;
+    }
 
-  /**
-  * @dev Constructor function for Law contract. 
-  * 
-  * @param name_ Name of the law. Cannot be longer than 31 characters. 
-  * @param description_ Description of the law. Any length.  
-  * @param accessRole_ The uint64 identifier of the roleId that has access to this law. 
-  * @param daoCore_ The address of the SeparatedPowers contract that will call this Law and that it will call the function execute at. 
-  * @param quorum_ quorum of votes needed to pass a vote (as percentage of accounts holding roleId). If set to 0, law can be executed without vote. 
-  * @param succeedAt_  support votes needed to pass execution of law (as percentage of accounts holding roleId). If quorum_ is set to 0, this value is meaningless.   
-  * @param votingPeriod_  number of blocks that the vote is open for, from the moment that the proposal is created. If quorum_ is set to 0, this value is meaningless. 
-  * @param parentLaw_ The address of the Law that is checked before the execution of the Law.
-  *  
-  */
-  constructor(
-    string memory name_, 
-    string memory description_, 
-    uint64 accessRole_, 
-    address payable daoCore_,
-    uint8 quorum_ , 
-    uint8 succeedAt_ ,  
-    uint32 votingPeriod_ ,
-    address parentLaw_
-    ) EIP712(name_, version) {
-      name = name_.toShortString();
-      description = description_; 
-      accessRole = accessRole_; 
-      daoCore = daoCore_;
-      parentLaw = parentLaw_; 
-      quorum = quorum_;
-      succeedAt = succeedAt_; 
-      votingPeriod = votingPeriod_;
-  }
-
-  /**
-   * @dev See {ILaw-executeLaw}.
-   * 
-   * @dev this function needs to be overwritten with the custom logic of the law. 
-   * 
-   */
-  function executeLaw(
-    address /* executioner */,
-    bytes memory /* lawCalldata */,  
-    bytes32 /* descriptionHash */ 
-    ) external virtual returns (        
-        address[] memory /* targets */ ,
-        uint256[] memory /* values */,
-        bytes[] memory /* calldatas */
+    /// @notice makes law conditional on a parent law being completed.
+    ///
+    /// @param lawCalldata the calldata of the law
+    /// @param descriptionHash the description hash of the law
+    modifier needsParentCompleted(bytes memory lawCalldata, bytes32 descriptionHash) {
+        if (parentLaw == address(0)) {
+            revert Law__ParentLawNotSet();
+        }
+        uint256 parentProposalId = _hashProposal(parentLaw, lawCalldata, descriptionHash);
+        if (
+            SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
+                != SeparatedPowersTypes.ActionState.Completed
         ) {
+            revert Law__ParentNotCompleted();
+        }
+        _;
+    }
 
-      // The following needs to be included in any law implementation of a law: 
-      // check is caller the protocol? 
-      // if (msg.sender != daoCore) { 
-      //   revert Law__AccessNotAuthorized(msg.sender);  
-      // }
+    /// @notice makes law conditional on a parent law NOT being completed.
+    /// @dev this means a roleId can be given an effective veto to a legal process. If the RoleId does nothing, the law will pass. If they actively oppose, it will fail.
+    ///
+    /// @param lawCalldata the calldata of the law
+    /// @param descriptionHash the description hash of the law
+    modifier parentCanBlock(bytes memory lawCalldata, bytes32 descriptionHash) {
+        if (parentLaw == address(0)) {
+            revert Law__ParentLawNotSet();
+        }
+        uint256 parentProposalId = _hashProposal(parentLaw, lawCalldata, descriptionHash);
+        if (
+            SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
+                == SeparatedPowersTypes.ActionState.Completed
+        ) {
+            revert Law__ParentBlocksCompletion();
+        }
+        _;
+    }
 
-  }
+    /// @notice sets a deadline for when the law can be executed.
+    ///
+    /// @param blocksDelay the number of blocks until the law can be executed
+    /// @param lawCalldata the calldata of the law
+    /// @param descriptionHash the description hash of the law
+    modifier delayProposalExecution(uint256 blocksDelay, bytes memory lawCalldata, bytes32 descriptionHash) {
+        uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
+        uint256 currentBlock = block.number;
+        uint256 deadline = SeparatedPowers(payable(separatedPowers)).proposalDeadline(proposalId);
 
-  /**
-   * @dev See {IERC165-supportsInterface}.
-   */
-  function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
-     return interfaceId == type(ILaw).interfaceId || super.supportsInterface(interfaceId);
-  }
+        if (deadline == 0) {
+            revert Law__NoDeadlineSet();
+        }
+        if (deadline + blocksDelay > currentBlock) {
+            revert Law__DeadlineNotPassed();
+        }
+        _;
+    }
 
-  /**
-    * @dev see {ISeperatedPowers.hashProposal} 
-    * A helper function for hashing proposals. 
-    * Often needed to implement custom law logics. 
-    */
-  function hashProposal(
-      address targetLaw, 
-      bytes memory lawCalldata,
-      bytes32 descriptionHash
-  ) internal pure virtual returns (uint256) {
-      return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
-  }
+    /// @notice limits the number of times the law can be executed.
+    ///
+    /// @param maxExecution the maximum number of times the law can be executed
+    /// @param gapExecutions the minimum number of blocks between executions
+    modifier limitExecutions(uint256 maxExecution, uint256 gapExecutions) {
+        uint256 numberOfExecutions = executions.length - 1;
+
+        if (numberOfExecutions >= maxExecution) {
+            revert Law__ExecutionLimitReached();
+        }
+        if (block.number - executions[numberOfExecutions] < gapExecutions) {
+            revert Law__ExecutionGapTooSmall();
+        }
+
+        executions.push(uint48(block.number));
+        _;
+    }
+
+    //////////////////////////////////////////////////
+    //                 FUNCTIONS                    //
+    //////////////////////////////////////////////////
+    /// @dev Constructor function for Law contract.
+    constructor(string memory name_, string memory description_, address separatedPowers_) {
+        separatedPowers = separatedPowers_;
+        name = name_.toShortString();
+        description = description_;
+
+        emit Law__Initialized(address(this));
+    }
+
+    /// @inheritdoc ILaw
+    function executeLaw(address, /* initiator */ bytes memory, /* lawCalldata */ bytes32 /* descriptionHash */ )
+        public
+        virtual
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+    {
+        address[] memory tar = new address[](1);
+        uint256[] memory val = new uint256[](1);
+        bytes[] memory cal = new bytes[](1);
+        return (tar, val, cal);
+    }
+
+    /// @notice implements ERC165
+    function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
+        return interfaceId == type(ILaw).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /// @notice an internal helper function for hashing proposals.
+    function _hashProposal(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
+        internal
+        pure
+        returns (uint256)
+    {
+        return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
+    }
 }
-
-
-

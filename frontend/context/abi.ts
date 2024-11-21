@@ -436,7 +436,7 @@ export const agDaoAbi =  [
       {
         "name": "",
         "type": "uint8",
-        "internalType": "enum ISeparatedPowers.ProposalState"
+        "internalType": "enum ISeparatedPowers.ActionState"
       }
     ],
     "stateMutability": "view"
@@ -574,7 +574,7 @@ export const agDaoAbi =  [
         "internalType": "uint256"
       },
       {
-        "name": "proposer",
+        "name": "initiator",
         "type": "address",
         "indexed": false,
         "internalType": "address"
@@ -743,7 +743,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__NoAccessToTargetLaw",
+    "name": "SeparatedPowers__AccessDenied",
     "inputs": []
   },
   {
@@ -775,7 +775,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__UnexpectedProposalState",
+    "name": "SeparatedPowers__UnexpectedActionState",
     "inputs": []
   },
   {
