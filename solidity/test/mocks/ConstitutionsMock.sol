@@ -6,6 +6,7 @@ import { Law } from "../../src/Law.sol";
 import { TokensSelect } from "../../src/implementations/laws/electoral/TokensSelect.sol";
 import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.sol";
 import { DirectSelect } from "../../src/implementations/laws/electoral/DirectSelect.sol";
+import { DelegateSelect } from "../../src/implementations/laws/electoral/DelegateSelect.sol";
 import { VoteSelect } from "../../src/implementations/laws/electoral/VoteSelect.sol";
 import { RandomlySelect } from "../../src/implementations/laws/electoral/RandomlySelect.sol";
 import { ProposalOnly } from "../../src/implementations/laws/executive/ProposalOnly.sol";
@@ -260,7 +261,7 @@ contract ConstitutionsMock {
     //////////////////////////////////////////////////////////////
     //                  FOURTH CONSTITUTION                     //
     //////////////////////////////////////////////////////////////
-    function initiateFourth(address payable dao_, address payable mock1155_)
+    function initiateFourth(address payable dao_, address payable mock1155_, address payable mock20_)
         external
         returns (
             address[] memory laws,
@@ -270,7 +271,7 @@ contract ConstitutionsMock {
             uint32[] memory votingPeriods
         )
     {
-        numberOfLaws = 11;
+        numberOfLaws = 13;
         laws = new address[](numberOfLaws);
         allowedRoles = new uint32[](numberOfLaws);
         quorums = new uint8[](numberOfLaws);
@@ -397,13 +398,23 @@ contract ConstitutionsMock {
                 "ROLE_ONE holders have the power to execute any internal or external action.",
                 dao_,
                 mock1155_,
-                5, // max role holders 
+                3, // max role holders 
                 DaoMock(dao_).ROLE_THREE() // role id. 
             )
         );
         allowedRoles[9] = DaoMock(dao_).ROLE_ONE();
 
+        // executive laws //
         laws[10] = address(
+            new OpenAction(
+                "Open Action", // max 31 chars
+                "Execute an action, any action.",
+                dao_
+            )
+        );
+        allowedRoles[10] = DaoMock(dao_).ROLE_ONE();
+
+        laws[11] = address(
             new VoteSelect(
                 "Vote Select", // max 31 chars
                 "Vote on selecting a role.",
@@ -417,17 +428,19 @@ contract ConstitutionsMock {
         votingPeriods[10] = 1200;
 
 
-        // executive laws //
-        laws[10] = address(
-            new OpenAction(
-                "Open Action", // max 31 chars
-                "Execute an action, any action.",
-                dao_
+        laws[12] = address(
+            new DelegateSelect(
+                "Delegate Select", // max 31 chars
+                "Select a role by delegated votes.",
+                dao_,
+                mock20_,
+                3, // max role holders 
+                DaoMock(dao_).ROLE_THREE() // role id. 
             )
         );
-        allowedRoles[10] = DaoMock(dao_).ROLE_ONE();
+        allowedRoles[12] = DaoMock(dao_).ROLE_ONE();
 
-        // PresetAction and ProposalOnly are sufficiently tested.
+        // PresetAction sufficiently tested.
 
     }
 }

@@ -19,6 +19,7 @@ import { DaoMock } from "./mocks/DaoMock.sol";
 import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
 import { FoundersMock } from "./mocks/FoundersMock.sol";
 import { Erc1155Mock } from "./mocks/Erc1155Mock.sol";
+import { Erc20VotesMock } from "./mocks/Erc20VotesMock.sol";
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
     // the only event in the Law contract
@@ -30,8 +31,9 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     ConstitutionsMock constitutionsMock;
     FoundersMock foundersMock;
     Erc1155Mock erc1155Mock;
+    Erc20VotesMock erc20VotesMock;
 
-    // constitutute dao
+    // constitute dao
     address[] laws;
     uint32[] allowedRoles;
     uint8[] quorums;
@@ -122,6 +124,7 @@ abstract contract TestSetupSeparatedPowers is Test, TestVariables, TestHelpers {
 
         // deploy mocks
         erc1155Mock = new Erc1155Mock();
+        erc20VotesMock = new Erc20VotesMock();
         daoMock = new DaoMock();
         constitutionsMock = new ConstitutionsMock();
         foundersMock = new FoundersMock();
@@ -186,6 +189,7 @@ abstract contract TestSetupLaw is Test, TestVariables, TestHelpers {
 
         // deploy mocks
         erc1155Mock = new Erc1155Mock();
+        erc20VotesMock = new Erc20VotesMock();
         daoMock = new DaoMock();
         constitutionsMock = new ConstitutionsMock();
         foundersMock = new FoundersMock();
@@ -227,6 +231,13 @@ abstract contract TestSetupImplementations is Test, TestVariables, TestHelpers {
         ROLE_TWO = 2;
         ROLE_THREE = 3;
 
+        // deploy mocks
+        erc1155Mock = new Erc1155Mock();
+        erc20VotesMock = new Erc20VotesMock();
+        daoMock = new DaoMock();
+        constitutionsMock = new ConstitutionsMock();
+        foundersMock = new FoundersMock();
+
         // users
         alice = makeAddr("alice");
         bob = makeAddr("bob");
@@ -246,18 +257,25 @@ abstract contract TestSetupImplementations is Test, TestVariables, TestHelpers {
         vm.deal(frank, 10 ether);
         vm.deal(gary, 10 ether);
         vm.deal(helen, 10 ether);
-
+        
         users = [alice, bob, charlotte, david, eve, frank, gary, helen];
 
-        // deploy mocks
-        erc1155Mock = new Erc1155Mock();
-        daoMock = new DaoMock();
-        constitutionsMock = new ConstitutionsMock();
-        foundersMock = new FoundersMock();
-
+        // assign tokens to users. Increasing amount coins as we go down the list. 
+        for (uint256 i; i < users.length; i++) {
+            vm.startPrank(users[i]);
+            erc1155Mock.mintCoins((i + 1) * 100);
+            erc20VotesMock.mintVotes((i + 1) * 100);
+            erc20VotesMock.delegate(users[i]); // users delegate votes to themselves. 
+            vm.stopPrank();
+        }
+        
         // get constitution and founders lists.
         (laws, allowedRoles, quorums, succeedAts, votingPeriods) =
-            constitutionsMock.initiateFourth(payable(address(daoMock)), payable(address((erc1155Mock))));
+            constitutionsMock.initiateFourth(
+                payable(address(daoMock)), 
+                payable(address((erc1155Mock))),
+                payable(address((erc20VotesMock)))
+                );
 
         (constituentRoles, constituentAccounts) = foundersMock.get(payable(address(daoMock)), users);
 

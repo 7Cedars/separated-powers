@@ -17,10 +17,11 @@
 /// For example implementations of DAOs, see the implementations/daos folder.
 /// 
 /// Note This protocol is a work in progress. A number of features are planned to be added in the future.
-/// - Support for {clock} for timestamping of proposals.
+/// - Support for {clock} for timestamping governance processes.
 /// - Full compatibility with {Governor.sol} will be implemented, so the protocol can be used in combination websites such as Tally.xyz.  
 /// - Integration of, or support for, the Hats Protocol.
-/// - Testing and example implementations are still incomplete. 
+/// - Native support for multi-chain governance. 
+/// - Testing and example implementations. 
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 
