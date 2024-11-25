@@ -238,7 +238,7 @@ contract ConstitutionsMock {
             ILaw.LawConfig[] memory lawsConfig
         )
     {
-        numberOfLaws = 7;
+        numberOfLaws = 8;
         laws = new address[](numberOfLaws);
         allowedRoles = new uint32[](numberOfLaws);
         lawsConfig = new ILaw.LawConfig[](numberOfLaws);
@@ -333,6 +333,15 @@ contract ConstitutionsMock {
             )
         );
         allowedRoles[6] = DaoMock(dao_).ROLE_ONE();
+
+         laws[7] = address(
+            new ProposalOnly(
+                "Proposal Only", // max 31 chars
+                "Proposal Only without vote or other checks.",
+                dao_
+            )
+        );
+        allowedRoles[7] = DaoMock(dao_).ROLE_ONE();0;
 
         // PresetAction sufficiently tested.
 

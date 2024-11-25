@@ -36,7 +36,10 @@ contract ProposalOnly is Law {
             super.executeLaw(address(0), lawCalldata, descriptionHash); 
 
             // at execution, send empty calldata to protocol. -- nothing gets done.
+            tar = new address[](1);
+            val = new uint256[](1);
+            cal = new bytes[](1);
+            
             tar[0] = address(1); // targets[0] = address(1) is a signal to the protocol that it should not try and execute anything. 
-            return (tar, val, cal);
         }
 }

@@ -55,6 +55,10 @@ contract BespokeAction is Law {
     {
         // do necessary checks. 
         super.executeLaw(address(0), lawCalldata, descriptionHash);
+
+        targets = new address[](1);
+        values = new uint256[](1);
+        calldatas = new bytes[](1);
         
         // send the calldata to the target function
         targets[0] = _targetContract;
