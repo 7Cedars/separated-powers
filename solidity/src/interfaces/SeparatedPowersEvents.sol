@@ -68,16 +68,10 @@ interface SeparatedPowersEvents {
     /// @param law the address of the law
     /// @param allowedRole the role that has access to the law
     /// @param existingLaw whether the law is new or existing (if it is existing, its configuration is updated)
-    /// @param quorum the quorum needed for a vote to succeed
-    /// @param succeedAt the vote threshold: percentage of 'For' votes needed for a vote to succeed
-    /// @param votingPeriod the period voting is open
     event LawSet(
         address indexed law,
         uint32 indexed allowedRole,
-        bool indexed existingLaw,
-        uint8 quorum,
-        uint8 succeedAt,
-        uint32 votingPeriod
+        bool indexed existingLaw
     );
 
     /// @notice Emitted when a law is revoked.

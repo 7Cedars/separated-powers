@@ -3,6 +3,8 @@ pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
 import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
+import { Law } from "../../src/Law.sol";
+import { ILaw } from "../../src/interfaces/ILaw.sol";
 import { TestSetupSeparatedPowers } from "../TestSetup.t.sol";
 import { DaoMock } from "../mocks/DaoMock.sol";
 import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.sol";
@@ -115,7 +117,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
         assertNotEq(daoMock.hasRoleSince(charlotte, allowedRoles[lawNumber]), 0);
 
         uint256 actionId = hashProposal(targetLaw, lawCalldata, keccak256(bytes(description)));
-        uint32 duration = votingPeriods[4];
+        ( , , uint32 duration, , , , ) = Law(laws[lawNumber]).config();
 
         vm.expectEmit(true, false, false, false);
         emit ProposalCreated(
@@ -613,12 +615,22 @@ contract ExecuteTest is TestSetupSeparatedPowers {
 //////////////////////////////////////////////////////////////
 contract ConstituteTest is TestSetupSeparatedPowers {
     function testConstituteSetsLawsToActive() public {
-        vm.startPrank(alice);
+        vm.prank(alice);
         DaoMock daoMockTest = new DaoMock();
+
+        ILaw.LawConfig[] memory lawsConfig;
+        (
+            laws, allowedRoles, lawsConfig
+            ) = constitutionsMock.initiateFirst(
+                payable(address(daoMockTest)), 
+                payable(address((erc1155Mock)))
+                );
+
+        vm.prank(alice);
         daoMockTest.constitute(
-            laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts
+            laws, allowedRoles, lawsConfig,
+            constituentRoles, constituentAccounts
         );
-        vm.stopPrank();
 
         for (uint32 i = 0; i < laws.length; i++) {
             bool active = daoMockTest.getActiveLaw(laws[i]);
@@ -627,17 +639,28 @@ contract ConstituteTest is TestSetupSeparatedPowers {
     }
 
     function testConstituteRevertsOnSecondCall() public {
-        vm.startPrank(alice);
+        vm.prank(alice);
         DaoMock daoMockTest = new DaoMock();
+
+        ILaw.LawConfig[] memory lawsConfig;
+        (
+            laws, allowedRoles, lawsConfig
+            ) = constitutionsMock.initiateFirst(
+                payable(address(daoMockTest)), 
+                payable(address((erc1155Mock)))
+                );
+
+        vm.prank(alice);
         daoMockTest.constitute(
-            laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts
+            laws, allowedRoles, lawsConfig,
+            constituentRoles, constituentAccounts
         );
-        vm.stopPrank();
 
         vm.expectRevert(SeparatedPowers__ConstitutionAlreadyExecuted.selector);
         vm.prank(alice);
         daoMockTest.constitute(
-            laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts
+            laws, allowedRoles, lawsConfig,
+            constituentRoles, constituentAccounts
         );
     }
 
@@ -645,24 +668,43 @@ contract ConstituteTest is TestSetupSeparatedPowers {
         vm.prank(alice);
         DaoMock daoMockTest = new DaoMock();
 
+        ILaw.LawConfig[] memory lawsConfig;
+        (
+            laws, allowedRoles, lawsConfig
+            ) = constitutionsMock.initiateFirst(
+                payable(address(daoMockTest)), 
+                payable(address((erc1155Mock)))
+                );
+
         vm.expectRevert(SeparatedPowers__AccessDenied.selector);
         vm.prank(bob);
         daoMockTest.constitute(
-            laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts
+            laws, allowedRoles, lawsConfig,
+            constituentRoles, constituentAccounts
         );
     }
 
     function testConstituteRevertsIfArraysLengthDiffers() public {
         // prep
-        allowedRoles = new uint32[](laws.length + 1);
         vm.prank(alice);
         DaoMock daoMockTest = new DaoMock();
+        
+        ILaw.LawConfig[] memory lawsConfig;
+        (
+            laws, allowedRoles, lawsConfig
+            ) = constitutionsMock.initiateFirst(
+                payable(address(daoMockTest)), 
+                payable(address((erc1155Mock)))
+                );
+        lawsConfig = new ILaw.LawConfig[](0);
+
 
         // act & assert
         vm.expectRevert(SeparatedPowers__InvalidArrayLengths.selector);
         vm.prank(alice);
         daoMockTest.constitute(
-            laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts
+            laws, allowedRoles, lawsConfig, 
+            constituentRoles, constituentAccounts
         );
     }
 }
@@ -672,14 +714,16 @@ contract SetLawTest is
 {
     function testSetLawSetsNewLaw() public {
         address newLaw = address(new OpenAction("test law", "This is a test Law", address(daoMock)));
+        ILaw.LawConfig memory lawConfig; 
+        lawConfig.quorum = 10;
+        lawConfig.succeedAt = 30;
+        lawConfig.votingPeriod = 1200;
 
         vm.prank(address(daoMock));
         daoMock.setLaw(
             newLaw, // = address law
             ROLE_ONE, // == allowedRoleId
-            10, // = quorum
-            30, // = succeedAt
-            1200 // = votingPeriod
+            lawConfig 
         );
 
         assertTrue(daoMock.getActiveLaw(newLaw));
@@ -687,75 +731,85 @@ contract SetLawTest is
 
     function testSetLawEmitsEvent() public {
         address newLaw = address(new OpenAction("test law", "This is a test Law", address(daoMock)));
+        ILaw.LawConfig memory lawConfig; 
+        lawConfig.quorum = 10;
+        lawConfig.succeedAt = 30;
+        lawConfig.votingPeriod = 1200;
 
         vm.expectEmit(true, false, false, false);
-        emit LawSet(newLaw, 0, true, 0, 0, 0);
+        emit LawSet(newLaw, 0, true);
         vm.prank(address(daoMock));
         daoMock.setLaw(
             newLaw, // = address law
             ROLE_ONE, // == allowedRoleId
-            10, // = quorum
-            30, // = succeedAt
-            1200 // = votingPeriod
+            lawConfig
         );
     }
 
     function testSetLawRevertsIfNotCalledFromSeparatedPowers() public {
         address newLaw = address(new OpenAction("test law", "This is a test Law", address(daoMock)));
+        ILaw.LawConfig memory lawConfig; 
+        lawConfig.quorum = 10;
+        lawConfig.succeedAt = 30;
+        lawConfig.votingPeriod = 1200;
 
         vm.expectRevert(SeparatedPowers__OnlySeparatedPowers.selector);
         vm.prank(alice);
         daoMock.setLaw(
             newLaw, // = address law
             ROLE_ONE, // == allowedRoleId
-            10, // = quorum
-            30, // = succeedAt
-            1200 // = votingPeriod
+            lawConfig
         );
     }
 
     function testSetLawRevertsIfAddressNotALaw() public {
         address newNotALaw = address(3333);
+        ILaw.LawConfig memory lawConfig; 
+        lawConfig.quorum = 10;
+        lawConfig.succeedAt = 30;
+        lawConfig.votingPeriod = 1200;
 
         vm.expectRevert(SeparatedPowers__IncorrectInterface.selector);
         vm.prank(address(daoMock));
         daoMock.setLaw(
             newNotALaw, // = address law
             ROLE_ONE, // == allowedRoleId
-            10, // = quorum
-            30, // = succeedAt
-            1200 // = votingPeriod
+            lawConfig
         );
     }
 
     function testSetExtistingLawChangesConfiguration() public {
         // prep
         uint32 lawNumber = 4;
-        uint32 roleBefore = allowedRoles[lawNumber];
-        uint8 quorumBefore = quorums[lawNumber];
-        uint8 succeedAtBefore = succeedAts[lawNumber];
-        uint32 votingPeriodBefore = votingPeriods[lawNumber];
+       
+
+
+        uint32 roleBefore = Law(laws[lawNumber]).allowedRole(); 
+        (uint8 quorumBefore, uint8 succeedAtBefore, uint32 votingPeriodBefore, , , ,) = Law(laws[lawNumber]).config(); 
 
         uint32 roleAfter = PUBLIC_ROLE;
         uint8 quorumAfter = quorumBefore + 1;
         uint8 succeedAtAfter = succeedAtBefore + 1;
         uint32 votingPeriodAfter = votingPeriodBefore + 1;
 
+        ILaw.LawConfig memory lawConfig; 
+        lawConfig.quorum = quorumAfter;
+        lawConfig.succeedAt = succeedAtAfter;
+        lawConfig.votingPeriod = votingPeriodAfter;
+
         // act & assert
         vm.expectEmit(true, false, false, false);
         emit LawSet(
             laws[lawNumber],
             roleAfter,
-            true, // exists
-            quorumAfter,
-            succeedAtAfter,
-            votingPeriodAfter
+            true
         );
         vm.prank(address(daoMock)); // = admin role
-        daoMock.setLaw(laws[lawNumber], roleAfter, quorumAfter, succeedAtAfter, votingPeriodAfter);
+        daoMock.setLaw(laws[lawNumber], roleAfter, lawConfig);
 
         // assert
-        (, uint32 allowedRole,, uint8 quorum, uint8 succeedAt, uint32 votingPeriod) = daoMock.laws(laws[lawNumber]);
+        (uint8 quorum, uint8 succeedAt, uint32 votingPeriod, , , ,) = Law(laws[lawNumber]).config(); 
+        uint32 allowedRole = Law(laws[lawNumber]).allowedRole(); 
         assertEq(allowedRole, PUBLIC_ROLE);
         assertEq(quorum, quorumAfter);
         assertEq(succeedAt, succeedAtAfter);

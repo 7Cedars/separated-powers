@@ -3,27 +3,17 @@ pragma solidity 0.8.26;
 
 import { DaoMock } from "./DaoMock.sol";
 import { Law } from "../../src/Law.sol";
+import { ILaw } from "../../src/interfaces/ILaw.sol";
+// electoral laws
 import { TokensSelect } from "../../src/implementations/laws/electoral/TokensSelect.sol";
-import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.sol";
 import { DirectSelect } from "../../src/implementations/laws/electoral/DirectSelect.sol";
 import { DelegateSelect } from "../../src/implementations/laws/electoral/DelegateSelect.sol";
-import { VoteSelect } from "../../src/implementations/laws/electoral/VoteSelect.sol";
 import { RandomlySelect } from "../../src/implementations/laws/electoral/RandomlySelect.sol";
+// executive laws. 
 import { ProposalOnly } from "../../src/implementations/laws/executive/ProposalOnly.sol";
-import { ProposalOnlyWithVote } from "../../src/implementations/laws/bespoke/ProposalOnlyWithVote.sol";
-import { VoteOnProposedAction } from "../../src/implementations/laws/bespoke/VoteOnProposedAction.sol";
-import { AdoptValue } from "../../src/implementations/laws/bespoke/AdoptValue.sol";
-import { ChallengeRevoke } from "../../src/implementations/laws/bespoke/ChallengeRevoke.sol";
-import { ReinstateMember } from "../../src/implementations/laws/bespoke/ReinstateMember.sol";
-import { RevokeRole } from "../../src/implementations/laws/bespoke/RevokeRole.sol";
-import { VoteOnPresetAction } from "../../src/implementations/laws/bespoke/VoteOnPresetAction.sol";
-import {
-    NeedsProposalVote,
-    NeedsParentCompleted,
-    ParentCanBlock,
-    DelayProposalExecution,
-    LimitExecutions
-} from "./LawsMock.sol";
+import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.sol";
+import { PresetAction } from "../../src/implementations/laws/executive/PresetAction.sol";
+import { BespokeAction } from "../../src/implementations/laws/executive/BespokeAction.sol";
 
 contract ConstitutionsMock {
     uint32 public numberOfLaws;
@@ -36,17 +26,13 @@ contract ConstitutionsMock {
         returns (
             address[] memory laws,
             uint32[] memory allowedRoles,
-            uint8[] memory quorums,
-            uint8[] memory succeedAts,
-            uint32[] memory votingPeriods
+            ILaw.LawConfig[] memory lawsConfig
         )
     {
         numberOfLaws = 5;
         laws = new address[](numberOfLaws);
         allowedRoles = new uint32[](numberOfLaws);
-        quorums = new uint8[](numberOfLaws);
-        succeedAts = new uint8[](numberOfLaws);
-        votingPeriods = new uint32[](numberOfLaws);
+        lawsConfig = new ILaw.LawConfig[](numberOfLaws);
 
         // dummy data
         address[] memory targets = new address[](1);
@@ -92,20 +78,20 @@ contract ConstitutionsMock {
         allowedRoles[2] = DaoMock(dao_).ROLE_THREE();
 
         laws[3] = address(
-            new VoteOnProposedAction(
+            new OpenAction(
                 "ROLE_TWO accepts proposal", // max 31 chars
                 "ROLE_TWO holders can vote on and accept proposal proposed by ROLE_THREE.",
-                dao_,
-                laws[2]
+                dao_
             )
         );
         allowedRoles[3] = DaoMock(dao_).ROLE_TWO();
-        quorums[3] = 20; // = 30% quorum needed
-        succeedAts[3] = 66; // = 51% simple majority needed for assigning and revoking members.
-        votingPeriods[3] = 1200; // = number of blocks
+        lawsConfig[3].quorum = 20;
+        lawsConfig[3].succeedAt = 66;
+        lawsConfig[3].votingPeriod = 1200;
+        lawsConfig[3].needCompleted = laws[2];
 
         laws[4] = address(
-            new VoteOnPresetAction(
+            new PresetAction(
                 "ROLE_ONE votes on preset action", // max 31 chars
                 "ROLE_ONE can vote on executing preset actions",
                 dao_,
@@ -115,11 +101,9 @@ contract ConstitutionsMock {
             )
         );
         allowedRoles[4] = DaoMock(dao_).ROLE_ONE();
-        quorums[4] = 20; // = 30% quorum needed
-        succeedAts[4] = 66; // = 51% simple majority needed for assigning and revoking members.
-        votingPeriods[4] = 1200; // = number of blocks
-
-        return (laws, allowedRoles, quorums, succeedAts, votingPeriods);
+        lawsConfig[4].quorum = 20;
+        lawsConfig[4].succeedAt = 66;
+        lawsConfig[4].votingPeriod = 1200;
     }
 
     //////////////////////////////////////////////////////////////
@@ -130,17 +114,13 @@ contract ConstitutionsMock {
         returns (
             address[] memory laws,
             uint32[] memory allowedRoles,
-            uint8[] memory quorums,
-            uint8[] memory succeedAts,
-            uint32[] memory votingPeriods
+            ILaw.LawConfig[] memory lawsConfig
         )
     {
         numberOfLaws = 1;
         laws = new address[](numberOfLaws);
         allowedRoles = new uint32[](numberOfLaws);
-        quorums = new uint8[](numberOfLaws);
-        succeedAts = new uint8[](numberOfLaws);
-        votingPeriods = new uint32[](numberOfLaws);
+        ILaw.LawConfig[] memory lawsConfig = new ILaw.LawConfig[](numberOfLaws);
 
         laws[0] = address(
             new OpenAction(
@@ -160,17 +140,13 @@ contract ConstitutionsMock {
         returns (
             address[] memory laws,
             uint32[] memory allowedRoles,
-            uint8[] memory quorums,
-            uint8[] memory succeedAts,
-            uint32[] memory votingPeriods
+            ILaw.LawConfig[] memory lawsConfig
         )
     {
         numberOfLaws = 5;
         laws = new address[](numberOfLaws);
         allowedRoles = new uint32[](numberOfLaws);
-        quorums = new uint8[](numberOfLaws);
-        succeedAts = new uint8[](numberOfLaws);
-        votingPeriods = new uint32[](numberOfLaws);
+        lawsConfig = new ILaw.LawConfig[](numberOfLaws);
 
         // dummy call: mint coins at mock1155 contract.
         address[] memory targets = new address[](1);
@@ -181,7 +157,7 @@ contract ConstitutionsMock {
         calldatas[0] = abi.encodeWithSignature("mintCoins(uint256)", 123);
 
         laws[0] = address(
-            new NeedsProposalVote(
+            new PresetAction(
                 "Needs Proposal Vote", // max 31 chars
                 "Needs Proposal Vote to pass",
                 dao_,
@@ -191,72 +167,65 @@ contract ConstitutionsMock {
             )
         );
         allowedRoles[0] = DaoMock(dao_).ROLE_ONE();
-        quorums[0] = 20;
-        succeedAts[0] = 66;
-        votingPeriods[0] = 1200;
+        lawsConfig[0].quorum = 20;
+        lawsConfig[0].succeedAt = 66;
+        lawsConfig[0].votingPeriod = 1200;
 
         laws[1] = address(
-            new NeedsParentCompleted(
+            new PresetAction(
                 "Needs Parent Completed", // max 31 chars
                 "Needs Parent Completed to pass",
                 dao_,
                 targets,
                 values,
-                calldatas,
-                laws[0]
+                calldatas
             )
         );
         allowedRoles[1] = DaoMock(dao_).ROLE_ONE();
+        lawsConfig[1].needCompleted = laws[0];
 
         laws[2] = address(
-            new ParentCanBlock(
+            new PresetAction(
                 "Parent Can Block", // max 31 chars
                 "Parent can block a law, making it impossible to pass",
                 dao_,
                 targets,
                 values,
-                calldatas,
-                laws[0]
+                calldatas
             )
         );
         allowedRoles[2] = DaoMock(dao_).ROLE_ONE();
+        lawsConfig[2].needNotCompleted = laws[0];
 
         laws[3] = address(
-            new DelayProposalExecution(
+            new PresetAction(
                 "Delay Execution", // max 31 chars
                 "Delay execution of a law, by a preset number of blocks. ",
                 dao_,
                 targets,
                 values,
-                calldatas,
-                5000 // = delay in blocks
+                calldatas
             )
         );
         allowedRoles[3] = DaoMock(dao_).ROLE_ONE();
-        quorums[3] = 20;
-        succeedAts[3] = 66;
-        votingPeriods[3] = 1200;
+        lawsConfig[3].quorum = 20;
+        lawsConfig[3].succeedAt = 66;
+        lawsConfig[3].votingPeriod = 1200;
+        lawsConfig[3].delayExecution = 5000;
 
         laws[4] = address(
-            new LimitExecutions(
-                "Limit Executions", // max 31 chars
-                "Limit the number of executions of a law, either as absolute number or relative to previous execution.",
+            new PresetAction(
+                "Throttle Executions", // max 31 chars
+                "Throttle the number of executions of a by setting minimum time that should have passed since last execution.",
                 dao_,
                 targets,
                 values,
-                calldatas,
-                10, // = absolute number of executions
-                10 // = relative number of executions
+                calldatas
             )
         );
         allowedRoles[4] = DaoMock(dao_).ROLE_ONE();
-
-        //////////////////////////////////////////////////////////////
-        //                  RETURN CONSTITUTION                     //
-        //////////////////////////////////////////////////////////////
-        return (laws, allowedRoles, quorums, succeedAts, votingPeriods);
+        lawsConfig[4].throttleExecution = 10; 
     }
-
 
     //////////////////////////////////////////////////////////////
     //                  FOURTH CONSTITUTION                     //
@@ -266,18 +235,15 @@ contract ConstitutionsMock {
         returns (
             address[] memory laws,
             uint32[] memory allowedRoles,
-            uint8[] memory quorums,
-            uint8[] memory succeedAts,
-            uint32[] memory votingPeriods
+            ILaw.LawConfig[] memory lawsConfig
         )
     {
-        numberOfLaws = 13;
+        numberOfLaws = 7;
         laws = new address[](numberOfLaws);
         allowedRoles = new uint32[](numberOfLaws);
-        quorums = new uint8[](numberOfLaws);
-        succeedAts = new uint8[](numberOfLaws);
-        votingPeriods = new uint32[](numberOfLaws);
+        lawsConfig = new ILaw.LawConfig[](numberOfLaws);
 
+        // dummy call: mint coins at mock1155 contract.
         address[] memory targets = new address[](1);
         uint256[] memory values = new uint256[](1);
         bytes[] memory calldatas = new bytes[](1);
@@ -285,93 +251,45 @@ contract ConstitutionsMock {
         values[0] = 0;
         calldatas[0] = abi.encodeWithSignature("mintCoins(uint256)", 123);
 
-        // bespoke laws // 
+        // executive laws 
         laws[0] = address(
-            new ProposalOnlyWithVote(
+            new ProposalOnly(
                 "Proposal Only With Vote", // max 31 chars
                 "Proposal Only With Vote to pass.",
                 dao_
             )
         );
         allowedRoles[0] = DaoMock(dao_).ROLE_ONE();
-        quorums[0] = 20;
-        succeedAts[0] = 66;
-        votingPeriods[0] = 1200;
+        lawsConfig[0].quorum = 20; 
+        lawsConfig[0].succeedAt = 66;
+        lawsConfig[0].votingPeriod = 1200;
 
         laws[1] = address(
-            new AdoptValue(
-                "Adopt Value", // max 31 chars
-                "Adopt a value.",
-                dao_, 
-                laws[1] // NEEDS Parent law
+            new OpenAction(
+                "Open Action", // max 31 chars
+                "Execute an action, any action.",
+                dao_
             )
         );
         allowedRoles[1] = DaoMock(dao_).ROLE_ONE();
-
+        
+        // need to setup a memory array of bytes4 for setting bespoke params 
+        bytes4[] memory bespokeParams = new bytes4[](1);
+        bespokeParams[0] = bytes4(keccak256("uint256"));
         laws[2] = address(
-            new ChallengeRevoke(
-                "Challenge revoke role", // max 31 chars
-                "Challenge revoke role.",
+            new BespokeAction(
+                "Bespoke Action", // max 31 chars
+                "Execute any action, but confined by a contract and function selector.",
                 dao_, 
-                laws[2] // NEEDS Parent law
+                mock1155_, // target contract that can be called. 
+                bytes4(keccak256("mintCoins(uint256)")), // the function selector that can be called.
+                bespokeParams
             )
         );
         allowedRoles[2] = DaoMock(dao_).ROLE_ONE();
 
-        laws[3] = address(
-            new ReinstateMember(
-                "Reinstate member", // max 31 chars
-                "Reinstate member.",
-                dao_, 
-                laws[3] // NEEDS Parent law
-            )
-        );
-        allowedRoles[3] = DaoMock(dao_).ROLE_ONE();
-        quorums[3] = 20;
-        succeedAts[3] = 66;
-        votingPeriods[3] = 1200;
-
-        laws[4] = address(
-            new RevokeRole(
-                "Revoke role", // max 31 chars
-                "Revoke a role.",
-                dao_, 
-                DaoMock(dao_).ROLE_ONE()
-            )
-        );
-        allowedRoles[4] = DaoMock(dao_).ROLE_TWO();
-
-        laws[5] = address(
-            new VoteOnPresetAction(
-                "Vote on preset action", // max 31 chars
-                "Vote on executing preset actions.",
-                dao_, 
-                targets,
-                values, 
-                calldatas
-            )
-        );
-        allowedRoles[5] = DaoMock(dao_).ROLE_ONE();
-        quorums[5] = 20;
-        succeedAts[5] = 66;
-        votingPeriods[5] = 1200;
-
-        laws[6] = address(
-            new VoteOnProposedAction(
-                "Vote on proposed action", // max 31 chars
-                "Vote on executing proposed actions.",
-                dao_,
-                laws[0]
-            )
-        );
-        allowedRoles[6] = DaoMock(dao_).ROLE_ONE();
-        quorums[6] = 20;
-        succeedAts[6] = 66;
-        votingPeriods[6] = 1200;
-
-
         // electoral laws // 
-        laws[7] = address(
+        laws[3] = address(
             new DirectSelect(
                 "Direct select role", // max 31 chars
                 "Directly select a role.",
@@ -379,9 +297,9 @@ contract ConstitutionsMock {
                 DaoMock(dao_).ROLE_THREE() 
             )
         );
-        allowedRoles[7] = DaoMock(dao_).ROLE_ONE();
+        allowedRoles[3] = DaoMock(dao_).ROLE_ONE();
 
-        laws[8] = address(
+        laws[4] = address(
             new RandomlySelect(
                 "Randomly select role", // max 31 chars
                 "Randomly select a role.",
@@ -390,9 +308,9 @@ contract ConstitutionsMock {
                 DaoMock(dao_).ROLE_THREE() // role id. 
             )
         );
-        allowedRoles[8] = DaoMock(dao_).ROLE_ONE();
+        allowedRoles[4] = DaoMock(dao_).ROLE_ONE();
 
-        laws[9] = address(
+        laws[5] = address(
             new TokensSelect(
                 "ROLE_ONE can do anything", // max 31 chars
                 "ROLE_ONE holders have the power to execute any internal or external action.",
@@ -402,33 +320,9 @@ contract ConstitutionsMock {
                 DaoMock(dao_).ROLE_THREE() // role id. 
             )
         );
-        allowedRoles[9] = DaoMock(dao_).ROLE_ONE();
+        allowedRoles[5] = DaoMock(dao_).ROLE_ONE();
 
-        // executive laws //
-        laws[10] = address(
-            new OpenAction(
-                "Open Action", // max 31 chars
-                "Execute an action, any action.",
-                dao_
-            )
-        );
-        allowedRoles[10] = DaoMock(dao_).ROLE_ONE();
-
-        laws[11] = address(
-            new VoteSelect(
-                "Vote Select", // max 31 chars
-                "Vote on selecting a role.",
-                dao_,
-                DaoMock(dao_).ROLE_THREE() // role id. 
-            )
-        );
-        allowedRoles[10] = DaoMock(dao_).ROLE_ONE();
-        quorums[10] = 20;
-        succeedAts[10] = 66;
-        votingPeriods[10] = 1200;
-
-
-        laws[12] = address(
+        laws[6] = address(
             new DelegateSelect(
                 "Delegate Select", // max 31 chars
                 "Select a role by delegated votes.",
@@ -438,7 +332,7 @@ contract ConstitutionsMock {
                 DaoMock(dao_).ROLE_THREE() // role id. 
             )
         );
-        allowedRoles[12] = DaoMock(dao_).ROLE_ONE();
+        allowedRoles[6] = DaoMock(dao_).ROLE_ONE();
 
         // PresetAction sufficiently tested.
 

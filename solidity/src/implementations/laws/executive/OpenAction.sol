@@ -29,11 +29,14 @@ contract OpenAction is Law {
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
-    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 /*descriptionHash*/ )
+    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
+        // do necessary checks. 
+        super.executeLaw(address(0), lawCalldata, descriptionHash); 
+
         // decode the calldata.
         // note: no check on decoded call data. If needed, this can be added.
         (targets, values, calldatas) = abi.decode(lawCalldata, (address[], uint256[], bytes[]));

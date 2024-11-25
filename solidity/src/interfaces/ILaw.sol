@@ -10,10 +10,21 @@ import { LawErrors } from "./LawErrors.sol";
 pragma solidity 0.8.26;
 
 interface ILaw is IERC165, LawErrors {
+    error Law__OnlySeparatedPowers();
+    
+    // £todo not yet optimised for memory slots.  
+    struct LawConfig {
+        uint8 quorum;
+        uint8 succeedAt;
+        uint32 votingPeriod;
+        address needCompleted;
+        address needNotCompleted;
+        uint48 delayExecution;
+        uint48 throttleExecution;
+    }
+
     // @notice emitted when the law is initialized
     event Law__Initialized(address law);
-    
-    // £todo add enum here for data types
 
     /// @notice function to execute a law.
     /// @param initiator the address of the account that proposed execution of the law.
@@ -25,4 +36,9 @@ interface ILaw is IERC165, LawErrors {
     function executeLaw(address initiator, bytes memory lawCallData, bytes32 descriptionHash)
         external
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
+
+    function setLawConfig(
+        uint32 allowedRole_,
+        LawConfig memory config_
+        ) external;
 }

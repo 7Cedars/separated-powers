@@ -9,6 +9,7 @@ pragma solidity 0.8.26;
 import { SeparatedPowersErrors } from "./SeparatedPowersErrors.sol";
 import { SeparatedPowersEvents } from "./SeparatedPowersEvents.sol";
 import { SeparatedPowersTypes } from "./SeparatedPowersTypes.sol";
+import { ILaw } from "./ILaw.sol";
 
 interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, SeparatedPowersTypes {
     //////////////////////////////////////////////////////////////
@@ -70,19 +71,13 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     ///
     /// @param laws : the addresses of the laws to be activated.
     /// @param allowedRoles : the allowed roles of the laws.
-    /// @param quorums : the quorums of the laws.
-    /// @param succeedAts : the succeedAts of the laws.
-    /// @param votingPeriods : the votingPeriods of the laws.
-    /// @param constituentRoles : the constituent roles of the roles.
-    /// @param constituentAccounts : the constituent accounts of the roles.
+    /// @param lawConfigs : the configuration of the laws.
     ///
     /// emits a {ProposalCreated} event.
     function constitute(
         address[] memory laws,
         uint32[] memory allowedRoles,
-        uint8[] memory quorums,
-        uint8[] memory succeedAts,
-        uint32[] memory votingPeriods,
+        ILaw.LawConfig[] memory lawConfigs,
         // roles data
         uint32[] memory constituentRoles,
         address[] memory constituentAccounts
@@ -93,12 +88,14 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @dev
     /// @param law address of the law.
     /// @param allowedRole : the allowed role of the law.
-    /// @param quorum : the quorum of the law.
-    /// @param succeedAt : the succeedAt of the law.
-    /// @param votingPeriod : the votingPeriod of the law.
+    /// @param lawConfig : the configuration of the law.
     ///
     /// @dev this function can only be called from the execute function of SeperatedPowers.sol.
-    function setLaw(address law, uint32 allowedRole, uint8 quorum, uint8 succeedAt, uint32 votingPeriod) external;
+    function setLaw(
+        address law, 
+        uint32 allowedRole, 
+        ILaw.LawConfig memory lawConfig
+        ) external;
 
     /// @notice set a law to active or inactive.
     ///

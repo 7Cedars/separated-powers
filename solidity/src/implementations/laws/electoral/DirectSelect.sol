@@ -38,11 +38,14 @@ contract DirectSelect is Law {
         params = [dataType("bool")]; 
     }
 
-    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
+        // step 0: do necessary optional checks. 
+        super.executeLaw(address(0), lawCalldata, descriptionHash);
+
         // step 1: decode the calldata.
         (bool revoke) = abi.decode(lawCalldata, (bool));
 

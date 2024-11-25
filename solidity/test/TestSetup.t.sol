@@ -36,9 +36,7 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     // constitute dao
     address[] laws;
     uint32[] allowedRoles;
-    uint8[] quorums;
-    uint8[] succeedAts;
-    uint32[] votingPeriods;
+    // ILaw.LawConfig[] lawsConfig;
     uint32[] constituentRoles;
     address[] constituentAccounts;
 
@@ -130,19 +128,27 @@ abstract contract TestSetupSeparatedPowers is Test, TestVariables, TestHelpers {
         foundersMock = new FoundersMock();
 
         // get constitution and founders lists.
-        (laws, allowedRoles, quorums, succeedAts, votingPeriods) =
-            constitutionsMock.initiateFirst(payable(address(daoMock)), payable(address((erc1155Mock))));
+        // note: copying structs from memory to storage is not yet supported in solidity. 
+        // Hence we need to create a memory variable to store lawsConfig, while laws and allowedRoles are stored in storage.
+        ILaw.LawConfig[] memory lawsConfig; 
+        (
+            laws, 
+            allowedRoles, 
+            lawsConfig
+            ) = constitutionsMock.initiateFirst(payable(address(daoMock)), payable(address((erc1155Mock))));
 
         (constituentRoles, constituentAccounts) = foundersMock.get(payable(address(daoMock)), users);
 
         // constitute daoMock.
         daoMock.constitute(
-            laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts
+            laws, allowedRoles, lawsConfig,
+            constituentRoles, constituentAccounts
         );
 
         daoNames.push("DaoMock");
     }
 }
+
 
 abstract contract TestSetupLaw is Test, TestVariables, TestHelpers {
     function setUp() public virtual {
@@ -195,14 +201,21 @@ abstract contract TestSetupLaw is Test, TestVariables, TestHelpers {
         foundersMock = new FoundersMock();
 
         // get constitution and founders lists.
-        (laws, allowedRoles, quorums, succeedAts, votingPeriods) =
-            constitutionsMock.initiateThird(payable(address(daoMock)), payable(address((erc1155Mock))));
+        // note: copying structs from memory to storage is not yet supported in solidity. 
+        // Hence we need to create a memory variable to store lawsConfig, while laws and allowedRoles are stored in storage.
+        ILaw.LawConfig[] memory lawsConfig;
+        (            
+            laws, 
+            allowedRoles, 
+            lawsConfig
+            ) = constitutionsMock.initiateThird(payable(address(daoMock)), payable(address((erc1155Mock))));
 
         (constituentRoles, constituentAccounts) = foundersMock.get(payable(address(daoMock)), users);
 
         // constitute daoMock.
         daoMock.constitute(
-            laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts
+            laws, allowedRoles, lawsConfig,
+            constituentRoles, constituentAccounts
         );
 
         daoNames.push("DaoMock");
@@ -270,18 +283,25 @@ abstract contract TestSetupImplementations is Test, TestVariables, TestHelpers {
         }
         
         // get constitution and founders lists.
-        (laws, allowedRoles, quorums, succeedAts, votingPeriods) =
-            constitutionsMock.initiateFourth(
+        // note: copying structs from memory to storage is not yet supported in solidity. 
+        // Hence we need to create a memory variable to store lawsConfig, while laws and allowedRoles are stored in storage.
+        ILaw.LawConfig[] memory lawsConfig;
+        (            
+            laws, 
+            allowedRoles, 
+            lawsConfig
+            ) = constitutionsMock.initiateFourth(
                 payable(address(daoMock)), 
                 payable(address((erc1155Mock))),
                 payable(address((erc20VotesMock)))
                 );
-
+        
         (constituentRoles, constituentAccounts) = foundersMock.get(payable(address(daoMock)), users);
 
         // constitute daoMock.
         daoMock.constitute(
-            laws, allowedRoles, quorums, succeedAts, votingPeriods, constituentRoles, constituentAccounts
+            laws, allowedRoles, lawsConfig,
+            constituentRoles, constituentAccounts
         );
 
         daoNames.push("DaoMock");

@@ -66,11 +66,15 @@ contract TokensSelect is Law {
         params = [dataType("bool"), dataType("bool")]; 
     }
 
-    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash )
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
         {
+
+        // do necessary optional checks. 
+        super.executeLaw(address(0), lawCalldata, descriptionHash);
+    
         // decode the calldata.
         (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
 

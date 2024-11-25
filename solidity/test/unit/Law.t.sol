@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
 import { TestSetupLaw } from "../TestSetup.t.sol";
 import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.sol";
+import { PresetAction } from "../../src/implementations/laws/executive/PresetAction.sol";
 import { Law } from "../../src/Law.sol";
-import { NeedsParentCompleted, ParentCanBlock, DelayProposalExecution } from "../mocks/LawsMock.sol";
+import { ILaw } from "../../src/interfaces/ILaw.sol";
 
 //////////////////////////////////////////////////
 //                  DEPLOY                      //
@@ -34,7 +35,7 @@ contract DeployTest is TestSetupLaw {
 }
 
 //////////////////////////////////////////////////
-//                 MODIFIERS                    //
+//                   CONFIG                     //
 //////////////////////////////////////////////////
 contract NeedsProposalVoteTest is TestSetupLaw {
     function testExecuteLawSucceedsWithSuccessfulVote() public {
@@ -162,39 +163,6 @@ contract NeedsParentCompletedTest is TestSetupLaw {
         vm.prank(alice);
         daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
     }
-
-    function testLawRevertsIfParentAddressZero() public {
-        // prep: create a mock data
-        address[] memory targets = new address[](1);
-        uint256[] memory values = new uint256[](1);
-        bytes[] memory calldatas = new bytes[](1);
-        targets[0] = address(erc1155Mock);
-        values[0] = 0;
-        calldatas[0] = abi.encodeWithSignature("mintCoins(uint256)", 123);
-
-        // prep: create a mock law
-        string memory description = "Executing a proposal vote";
-        bytes memory lawCalldata = abi.encode(true);
-        address mockLaw = address(
-            new NeedsParentCompleted(
-                "Needs Parent Completed", // max 31 chars
-                "Needs Parent Completed to pass",
-                address(daoMock),
-                targets,
-                values,
-                calldatas,
-                address(0) // address zero as parent Law
-            )
-        );
-        // set the law in mockDao
-        vm.prank(address(daoMock));
-        daoMock.setLaw(mockLaw, ROLE_ONE, 0, 0, 0);
-
-        // act & assert
-        vm.expectRevert(Law__ParentLawNotSet.selector);
-        vm.prank(alice);
-        daoMock.execute(mockLaw, lawCalldata, keccak256(bytes(description)));
-    }
 }
 
 contract ParentCanBlockTest is TestSetupLaw {
@@ -222,8 +190,8 @@ contract ParentCanBlockTest is TestSetupLaw {
         assertEq(uint8(proposalState), uint8(ActionState.Completed));
 
         // act & assert
-        vm.expectRevert(Law__ParentBlocksCompletion.selector);
         vm.prank(alice);
+        vm.expectRevert(Law__ParentBlocksCompletion.selector);
         daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
     }
 
@@ -257,39 +225,6 @@ contract ParentCanBlockTest is TestSetupLaw {
         // assert
         uint256 balanceAfter = erc1155Mock.balanceOf(address(daoMock), 0);
         assertEq(balanceBefore, balanceAfter - 123);
-    }
-
-    function testLawRevertsIfParentAddressZero() public {
-        // prep: create a mock data
-        address[] memory targets = new address[](1);
-        uint256[] memory values = new uint256[](1);
-        bytes[] memory calldatas = new bytes[](1);
-        targets[0] = address(erc1155Mock);
-        values[0] = 0;
-        calldatas[0] = abi.encodeWithSignature("mintCoins(uint256)", 123);
-
-        // prep: create a mock law
-        string memory description = "Executing a proposal vote";
-        bytes memory lawCalldata = abi.encode(true);
-        address mockLaw = address(
-            new ParentCanBlock(
-                "Needs Parent Completed", // max 31 chars
-                "Needs Parent Completed to pass",
-                address(daoMock),
-                targets,
-                values,
-                calldatas,
-                address(0) // address zero as parent Law
-            )
-        );
-        // set the law in mockDao
-        vm.prank(address(daoMock));
-        daoMock.setLaw(mockLaw, ROLE_ONE, 0, 0, 0);
-
-        // act & assert
-        vm.expectRevert(Law__ParentLawNotSet.selector);
-        vm.prank(alice);
-        daoMock.execute(mockLaw, lawCalldata, keccak256(bytes(description)));
     }
 }
 
@@ -340,39 +275,6 @@ contract DelayProposalExecutionTest is TestSetupLaw {
         vm.prank(alice);
         daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
     }
-
-    function testLawRevertsIfDelaySetToZero() public {
-        // prep: create a mock data
-        address[] memory targets = new address[](1);
-        uint256[] memory values = new uint256[](1);
-        bytes[] memory calldatas = new bytes[](1);
-        targets[0] = address(erc1155Mock);
-        values[0] = 0;
-        calldatas[0] = abi.encodeWithSignature("mintCoins(uint256)", 123);
-
-        // prep: create a mock law
-        string memory description = "Executing a proposal vote";
-        bytes memory lawCalldata = abi.encode(true);
-        address mockLaw = address(
-            new DelayProposalExecution(
-                "Needs Parent Completed", // max 31 chars
-                "Needs Parent Completed to pass",
-                address(daoMock),
-                targets,
-                values,
-                calldatas,
-                0 // delay set at 0.
-            )
-        );
-        // set the law in mockDao
-        vm.prank(address(daoMock));
-        daoMock.setLaw(mockLaw, ROLE_ONE, 20, 66, 1200);
-
-        // act & assert
-        vm.expectRevert(Law__NoDeadlineSet.selector);
-        vm.prank(alice);
-        daoMock.execute(mockLaw, lawCalldata, keccak256(bytes(description)));
-    }
 }
 
 contract LimitExecutionsTest is TestSetupLaw {
@@ -395,26 +297,6 @@ contract LimitExecutionsTest is TestSetupLaw {
         assertEq(balance, 123 * numberOfExecutions);
     }
 
-    function testExecuteRevertsAfterTooManyExecutions() public {
-        // prep: execute 10 times
-        uint32 lawNumber = 4;
-        uint256 numberOfExecutions = 10;
-        uint256 numberOfBlockBetweenExecutions = 15;
-        bytes memory lawCalldata = abi.encode(true);
-
-        for (uint256 i = 0; i < numberOfExecutions; i++) {
-            vm.roll(block.number + numberOfBlockBetweenExecutions);
-            vm.prank(alice);
-            daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(abi.encode(i))));
-        }
-
-        // act & assert
-        vm.expectRevert(Law__ExecutionLimitReached.selector);
-        vm.roll(block.number + numberOfBlockBetweenExecutions);
-        vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes("one execution too many")));
-    }
-
     function testExecuteRevertsIfGapTooSmall() public {
         // prep: execute 10 times
         uint32 lawNumber = 4;
@@ -434,20 +316,3 @@ contract LimitExecutionsTest is TestSetupLaw {
 //////////////////////////////////////////////////
 //                 FUNCTIONS                    //
 //////////////////////////////////////////////////
-contract ExecutionLawTest is TestSetupLaw {
-    function testBaseExecuteReturnsZeroArrays() public {
-        bytes memory lawCalldata = abi.encode(true);
-
-        Law law = new Law("mock law", "mock description", address(daoMock));
-
-        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
-            law.executeLaw(address(0), lawCalldata, keccak256(bytes("Mock execution description")));
-
-        assertEq(targets.length, 1);
-        assertEq(values.length, 1);
-        assertEq(calldatas.length, 1);
-
-        assertEq(targets[0], address(0));
-        assertEq(values[0], 0);
-    }
-}
