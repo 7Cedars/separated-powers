@@ -42,3 +42,5 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see das
 
 A live version can be seen on [vercel](https://separated-powers.vercel.app/).  
 
+Please note that the front end is in active development, and that it currently shows a 'Work in Progress' message. 
+

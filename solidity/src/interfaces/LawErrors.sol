@@ -7,6 +7,9 @@
 pragma solidity 0.8.26;
 
 interface LawErrors {
+    /// @notice Emitted when a law is called by a non-separatedPowers account.
+    error Law__OnlySeparatedPowers();
+
     /// @notice Emitted when a zero address is used.
     error Law__NoZeroAddress();
 

@@ -97,10 +97,9 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
         ILaw.LawConfig memory lawConfig
         ) external;
 
-    /// @notice set a law to active or inactive.
-    ///
-    /// @dev
-    /// @param law address of the law.
+    /// @notice set a law to inactive.
+    /// 
+    /// @param law address of the law to deactivate.
     ///
     /// @dev this function can only be called from the execute function of SeperatedPowers.sol.
     function revokeLaw(address law) external;

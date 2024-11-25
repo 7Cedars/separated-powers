@@ -8,23 +8,17 @@
 /// 2 - Transforming a {lawCalldata) input into an output of targets[], values[], calldatas[] to be executed by the core protocol.
 /// 3 - Adding conditions to execution of the law, such as a proposal vote, a completed parent law or a delay. Any logic can be added.  
 /// 
-/// A number of law settings are set through the {setLaw} function in the core protocol:
-/// - what role restriction applies to the law. 
-/// - quorum needed to execute the law. (optional)
-/// - vote threshold. (optional)
-/// - voting period. (optional)
-///
-/// {Law.sol} provides five modifiers that law implementations can use.
-/// - {needsProposalVote}: requires a proposal vote to be successful before the law can be executed.
-/// - {needsParentCompleted}: requires a parent law to be completed before the law can be executed. It can be used to create a balance of power between two roles. 
-/// - {parentCanBlock}: requires a parent law to not be completed before the law can be executed. It can be used to give a role an effective veto to a governance process.
-/// - {delayProposalExecution}: requires a delay to pass before the law can be executed. Can be used to create cool off periods.  
-/// - {limitExecutions}: allows a law to only execute a number of times or requires a delay between executions.
-/// If needed, more modifiers can be added. 
-///
-/// Note This protocol is a work in progress. A number of features are planned to be added to this contract in the future.
-/// - Add an enum for data types. 
-/// - Add an array with data types at each contract, so that front ends know what data types are requested by the law. 
+/// A number of law settings are set through the {setLawConfig} function:
+/// - a required role restriction. 
+/// - optional configurations of the law, such as
+///     - a vote quorum needed to execute the law.  
+///     - a vote threshold. 
+///     - a vote period. 
+///     - a parent law that needs to be completed before the law can be executed.
+///     - a parent law that needs to NOT be completed before the law can be executed.
+///     - a vote delay: an amount of time in blocks that needs to have passed since the proposal vote ended before the law can be executed. 
+///     - a minimum amount of blocks that need to have passed since the previous execution before the law can be executed again. 
+/// It is possible to add additional checks if needed. 
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
@@ -85,6 +79,15 @@ abstract contract Law is ERC165, ILaw {
         onlySeparatedPowers
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
+        _executeChecks(lawCalldata, descriptionHash);
+    }
+
+    /// @notice an internal function to check that the law is valid before execution. 
+    /// @dev Optional checks can be added by overriding this function.
+    /// 
+    /// @param lawCalldata the calldata for the law.
+    /// @param descriptionHash the hash of the description of the law.
+    function _executeChecks(bytes memory lawCalldata, bytes32 descriptionHash) internal virtual {
         /* Optional checks on law */ 
         // Optional check 1: make law conditional on a proposal succeeding.
         if (config.quorum != 0) { 
@@ -131,7 +134,7 @@ abstract contract Law is ERC165, ILaw {
                 revert Law__ExecutionGapTooSmall();
             }
             executions.push(uint48(block.number));
-        }       
+        }  
     }
 
     /////////////////////////////////////////////////
