@@ -36,13 +36,14 @@ contract PresetAction is Law {
         _targets = targets_;
         _values = values_;
         _calldatas = calldatas_;
+        params = [dataType("bool")];
 
         emit PresetAction__Initialized(_targets, _values, _calldatas);
     }
 
     /// @notice execute the law.
     /// @param lawCalldata the calldata of the law.
-    function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         virtual
         override
@@ -51,6 +52,9 @@ contract PresetAction is Law {
         // decode the calldata.
         // note: no check on decoded call data. If needed, this can be added through a bespoke modifier.
         (bool execute) = abi.decode(lawCalldata, (bool));
+
+        // do necessary checks. 
+        super.executeLaw(address(0), lawCalldata, descriptionHash); 
 
         // log execution block
         // and send calldata straight to the SeparatedPowers protocol.

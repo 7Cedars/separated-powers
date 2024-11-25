@@ -30,21 +30,27 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
+/// ONLY FOR TESTING PURPOSES 
+import "forge-std/Test.sol";
+
 contract TokensSelect is Law {
     using ShortStrings for *;
+
+    error TokensSelect__NomineeAlreadyNominated();
+    error TokensSelect__NomineeNotNominated();
 
     address private immutable ERC_1155_TOKEN;
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
 
     mapping(address => uint48) private _nominees;
-    mapping(address => uint48) private _elected;
-    uint48 private _lastElection;
     address[] private _nomineesSorted;
+    mapping(address => uint48) private _elected;
+    address[] private _electedSorted;
+    uint48 private _lastElection;
 
     event TokensSelect__NominationReceived(address indexed nominee);
     event TokensSelect__NominationRevoked(address indexed nominee);
-    event TokensSelect__RolesAssigned(uint32 indexed roleId, address indexed roleHolder);
 
     constructor(
         string memory name_,
@@ -57,27 +63,24 @@ contract TokensSelect is Law {
         ERC_1155_TOKEN = erc1155Token_;
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
+        params = [dataType("bool"), dataType("bool")]; 
     }
 
-    function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 /* descriptionHash */ )
+    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash )
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-    {
+        {
+
+        // do necessary optional checks. 
+        super.executeLaw(address(0), lawCalldata, descriptionHash);
+    
         // decode the calldata.
         (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
-        uint256 actionId = _hashProposal(address(this), lawCalldata, keccak256(bytes(description)));
-        address initiator = SeparatedPowers(payable(separatedPowers)).getInitiatorAction(actionId);
 
-        // nominate if nominateMe == true
-        // elected accounts are stored in a mapping and have to be accepted.
-        if (nominateMe) {
+        if (nominateMe && !assignRoles) {
             if (_nominees[initiator] != 0) {
-                address[] memory tar = new address[](1);
-                uint256[] memory val = new uint256[](1);
-                bytes[] memory cal = new bytes[](1);
-                cal[0] = abi.encode("Nominee already nominated".toShortString());
-                return (tar, val, cal);
+                revert TokensSelect__NomineeAlreadyNominated();
             }
             _nominees[initiator] = uint48(block.timestamp);
             _nomineesSorted.push(initiator);
@@ -85,8 +88,12 @@ contract TokensSelect is Law {
             emit TokensSelect__NominationReceived(initiator);
         }
 
-        // revoke nomination if executionar is nominated and nominateMe == false
-        if (!nominateMe && _nominees[initiator] != 0) {
+        // revoke nomination if executioner is nominated and nominateMe == false
+        if (!nominateMe && !assignRoles) {
+            if (_nominees[initiator] == 0) {
+                revert TokensSelect__NomineeNotNominated();
+            }
+
             _nominees[initiator] = 0;
             for (uint256 i; i < _nomineesSorted.length; i++) {
                 if (_nomineesSorted[i] == initiator) {
@@ -95,62 +102,62 @@ contract TokensSelect is Law {
                     break;
                 }
             }
-
             emit TokensSelect__NominationRevoked(initiator);
         }
 
         // elects roles if assignRoles == true
         if (assignRoles) {
-            // NB! £todo: revoke roles of previously selected nominees!
-
-            // create call data of lenght _elected + _nomineesSorted OR MAX_ROLE_HOLDERS.
-            // the populate: first with calls to revoke, then with calls to assign.
-            // it's not pretty. Are there more efficient ways?
-
+            // step 1: setting up array for revoking & assigning roles. 
             uint256 numberNominees = _nomineesSorted.length;
+            uint256 numberElected = _electedSorted.length;
+            uint256 arrayLength = numberNominees < MAX_ROLE_HOLDERS ? 
+                numberElected + numberNominees 
+                : 
+                numberElected + MAX_ROLE_HOLDERS;
 
+            address[] memory tar = new address[](arrayLength);
+            uint256[] memory val = new uint256[](arrayLength);
+            bytes[] memory cal = new bytes[](arrayLength);
+            for (uint256 i; i < arrayLength; i++) { tar[i] = separatedPowers; } 
+
+            // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts. 
+            for (uint256 i = 0; i < numberElected; i++) {
+                cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], false);
+                _elected[_nomineesSorted[i]] = uint48(0);
+                _electedSorted.pop();
+            }
+
+            // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
             if (numberNominees < MAX_ROLE_HOLDERS) {
-                address[] memory tar = new address[](numberNominees);
-                uint256[] memory val = new uint256[](numberNominees);
-                bytes[] memory cal = new bytes[](numberNominees);
-
-                for (uint256 i; i < numberNominees; i++) {
-                    tar[i] = separatedPowers;
-                    val[i] = 0;
-                    cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true);
+               for (uint256 i; i < numberNominees; i++) {
+                    cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true);
+                    _elected[_nomineesSorted[i]] = uint48(block.timestamp);
+                    _electedSorted.push(_nomineesSorted[i]);
                 }
                 return (tar, val, cal);
+            // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
             } else {
-                uint256[] memory _balances =
-                    ERC1155(ERC_1155_TOKEN).balanceOfBatch(_nomineesSorted, new uint256[](MAX_ROLE_HOLDERS));
-
-                address[] memory tar = new address[](MAX_ROLE_HOLDERS);
-                uint256[] memory val = new uint256[](MAX_ROLE_HOLDERS);
-                bytes[] memory cal = new bytes[](MAX_ROLE_HOLDERS);
-
-                // note how this mechanism works:
+                uint256[] memory _balances = ERC1155(ERC_1155_TOKEN).balanceOfBatch(_nomineesSorted, new uint256[](numberNominees));
+                // note how the following mechanism works:
                 // 1. we add 1 to each nominee's position, if we found a account that holds more tokens.
                 // 2. if the position is greater than MAX_ROLE_HOLDERS, we break. (it means there are more accounts that have more tokens than MAX_ROLE_HOLDERS)
-                // 3. if the position is less than MAX_ROLE_HOLDERS, we assign the roles. - because loop did not break.
-                for (uint256 i; i < _balances.length; i++) {
-                    uint256 position;
-                    uint256 index;
-                    for (uint256 j; j < _balances.length; j++) {
-                        if (_balances[i] < _balances[j]) {
-                            position++;
-                            if (position > MAX_ROLE_HOLDERS) {
-                                break;
-                            } else {
-                                tar[index] = separatedPowers;
-                                val[index] = 0;
-                                cal[index] = abi.encodeWithSelector(
-                                    SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true
-                                ); // selector probably wrong. check later.
-                                index++;
-
-                                emit TokensSelect__RolesAssigned(ROLE_ID, _nomineesSorted[i]);
-                            }
-                        }
+                // 3. if the position is less than MAX_ROLE_HOLDERS, we assign the roles.
+                uint256 index;
+                for (uint256 i; i < numberNominees; i++) {
+                    uint256 rank; 
+                    // 1: loop to assess ranking. 
+                    for (uint256 j; j < numberNominees; j++) {
+                        if (_balances[j] > _balances[i]) {
+                            rank++;
+                            if (rank > MAX_ROLE_HOLDERS) { break; } // 2: do not need to know rank beyond MAX_ROLE_HOLDERS threshold. 
+                        } 
+                    } 
+                    // 3: assigning role if rank is less than MAX_ROLE_HOLDERS.
+                    if (rank < MAX_ROLE_HOLDERS) {
+                        cal[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true); 
+                        _elected[_nomineesSorted[i]] = uint48(block.timestamp);
+                        _electedSorted.push(_nomineesSorted[i]);
+                        index++;
                     }
                 }
                 return (tar, val, cal);

@@ -10,6 +10,18 @@ import { LawErrors } from "./LawErrors.sol";
 pragma solidity 0.8.26;
 
 interface ILaw is IERC165, LawErrors {
+    
+    // £todo not yet optimised for memory slots.  
+    struct LawConfig {
+        uint8 quorum;
+        uint8 succeedAt;
+        uint32 votingPeriod;
+        address needCompleted;
+        address needNotCompleted;
+        uint48 delayExecution;
+        uint48 throttleExecution;
+    }
+
     // @notice emitted when the law is initialized
     event Law__Initialized(address law);
 
@@ -19,8 +31,16 @@ interface ILaw is IERC165, LawErrors {
     /// @param descriptionHash the descriptionHash of the proposal
     ///
     /// @dev the arrays of targets, values and calldatas must have the same length.
-    /// @dev Note that this function should be overridden (without a super call) to add logic of the law.
+    /// note that this function should be overridden (without a super call) to add logic of the law.
     function executeLaw(address initiator, bytes memory lawCallData, bytes32 descriptionHash)
         external
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
+
+    /// @notice sets the configuration of a law
+    /// @param allowedRole_ the role that is allowed to execute the law
+    /// @param config_ the configuration of the law
+    function setLawConfig(
+        uint32 allowedRole_,
+        LawConfig memory config_
+        ) external;
 }

@@ -2,7 +2,7 @@
 
 // note that natspecs are wip.
 
-/// @notice This contract assigns accounts to roles by the tokens that they hold.
+/// @notice This contract assigns accounts to roles by the tokens that have been delegated to them.
 /// - At construction time, the following is set:
 ///    - the amount of role holders {N}
 ///    - the roleId {R} to be assigned
@@ -27,18 +27,19 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";
-import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 /// ONLY FOR TESTING PURPOSES 
 import "forge-std/Test.sol";
 
-contract RandomlySelect is Law {
+contract DelegateSelect is Law {
     using ShortStrings for *;
 
-    error RandomlySelect__NomineeAlreadyNominated();
-    error RandomlySelect__NomineeNotNominated();
+    error DelegateSelect__NomineeAlreadyNominated();
+    error DelegateSelect__NomineeNotNominated();
 
+    address private immutable ERC_20_VOTE_TOKEN;
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
 
@@ -48,16 +49,18 @@ contract RandomlySelect is Law {
     address[] private _electedSorted;
     uint48 private _lastElection;
 
-    event Randomly__NominationReceived(address indexed nominee);
-    event Randomly__NominationRevoked(address indexed nominee);
+    event DelegateSelect__NominationReceived(address indexed nominee);
+    event DelegateSelect__NominationRevoked(address indexed nominee);
 
     constructor(
         string memory name_,
         string memory description_,
         address payable separatedPowers_,
+        address payable erc20Token_,
         uint256 maxRoleHolders_,
         uint32 roleId_
     ) Law(name_, description_, separatedPowers_) {
+        ERC_20_VOTE_TOKEN = erc20Token_; // £todo interface should be checked here. 
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         params = [dataType("bool"), dataType("bool")]; 
@@ -74,25 +77,23 @@ contract RandomlySelect is Law {
         // decode the calldata.
         (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
 
-        // nominate if nominateMe == true
-        // elected accounts are stored in a mapping and have to be accepted.
+        // nominating // 
         if (nominateMe && !assignRoles) {
             if (_nominees[initiator] != 0) {
-                revert RandomlySelect__NomineeAlreadyNominated();
+                revert DelegateSelect__NomineeAlreadyNominated();
             }
-
             _nominees[initiator] = uint48(block.timestamp);
             _nomineesSorted.push(initiator);
 
-            emit Randomly__NominationReceived(initiator);
+            emit DelegateSelect__NominationReceived(initiator);
         }
 
-        // revoke nomination if initiator is nominated and nominateMe == false
+        // revoke nomination // 
         if (!nominateMe && !assignRoles) {
             if (_nominees[initiator] == 0) {
-                revert RandomlySelect__NomineeNotNominated();
+                revert DelegateSelect__NomineeNotNominated();
             }
-            
+
             _nominees[initiator] = 0;
             for (uint256 i; i < _nomineesSorted.length; i++) {
                 if (_nomineesSorted[i] == initiator) {
@@ -101,14 +102,12 @@ contract RandomlySelect is Law {
                     break;
                 }
             }
-
-            emit Randomly__NominationRevoked(initiator);
+            emit DelegateSelect__NominationRevoked(initiator);
         }
 
-        // elects roles if assignRoles == true
-        // note: nomination and assigning roles cannot happen in the same call. -- £todo: create to separate laws? 
+        // electing roles // 
         if (assignRoles) {
-            // setting up array for revoking & assigning roles. 
+            // step 1: setting up array for revoking & assigning roles. 
             uint256 numberNominees = _nomineesSorted.length;
             uint256 numberElected = _electedSorted.length;
             uint256 arrayLength = numberNominees < MAX_ROLE_HOLDERS ? 
@@ -121,37 +120,55 @@ contract RandomlySelect is Law {
             bytes[] memory cal = new bytes[](arrayLength);
             for (uint256 i; i < arrayLength; i++) { tar[i] = separatedPowers; } 
 
-            // calls to revoke roles & delete array with elected accounts. 
+            // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts. 
             for (uint256 i = 0; i < numberElected; i++) {
                 cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], false);
                 _elected[_nomineesSorted[i]] = uint48(0);
                 _electedSorted.pop();
             }
 
-            // calls to add nominees if fewer than MAX_ROLE_HOLDERS
-            if (numberNominees <= MAX_ROLE_HOLDERS) {
-                for (uint256 i; i < numberNominees; i++) {
-                    cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true);
+            // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
+            if (numberNominees < MAX_ROLE_HOLDERS) {
+               for (uint256 i; i < numberNominees; i++) {
+                    cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true);
+                    _elected[_nomineesSorted[i]] = uint48(block.timestamp);
+                    _electedSorted.push(_nomineesSorted[i]);
                 }
                 return (tar, val, cal);
+            // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
             } else {
-                uint256 pseudoRandomValue = uint256(keccak256(abi.encodePacked(block.number, descriptionHash)));
-                console.log("pseudoRandomValue: ", pseudoRandomValue);
-                for (uint256 i; i < MAX_ROLE_HOLDERS; i++) {
-                    console.log("i: ", i);
-                    uint256 indexSelected = (pseudoRandomValue / 10 ** (i+1)) % (numberNominees - i); 
-                    console.log("indexSelected: ", indexSelected);
-                    address selectedNominee = _nomineesSorted[indexSelected];
-                    console.log("selectedNominee: ", selectedNominee);
-                        // creating call, assigning role, adding nominee to elected, and removing nominee from nominees list.
-                        cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, selectedNominee, true); // selector probably wrong. check later.
-                        _elected[selectedNominee] = uint48(block.timestamp);
-                        _electedSorted.push(selectedNominee);
-                        // note that we do not need to .pop the last item of the list, because it will never be accessed as the modulo decreases each run. 
-                        _nomineesSorted[indexSelected] = _nomineesSorted[numberNominees - (i + 1)];
+                // retrieve balances of delegated votes of nominees. 
+                uint256[] memory _votes = new uint256[](numberNominees);
+                for (uint256 i; i < numberNominees; i++) {
+                    _votes[i] = ERC20Votes(ERC_20_VOTE_TOKEN).getVotes(_nomineesSorted[i]);
+                }
+                // £todo: check what will happen if people have the same amount of delegated votes. 
+                // note how the following mechanism works:
+                // a. we add 1 to each nominee's position, if we found a account that holds more tokens.
+                // b. if the position is greater than MAX_ROLE_HOLDERS, we break. (it means there are more accounts that have more tokens than MAX_ROLE_HOLDERS)
+                // c. if the position is less than MAX_ROLE_HOLDERS, we assign the roles.
+                uint256 index;
+                for (uint256 i; i < numberNominees; i++) {
+                    uint256 rank; 
+                    // a: loop to assess ranking. 
+                    for (uint256 j; j < numberNominees; j++) {
+                        if (_votes[j] > _votes[i]) {
+                            rank++;
+                            if (rank > MAX_ROLE_HOLDERS) { break; } // b: do not need to know rank beyond MAX_ROLE_HOLDERS threshold. 
+                        } 
+                    } 
+                    // c: assigning role if rank is less than MAX_ROLE_HOLDERS.
+                    if (rank < MAX_ROLE_HOLDERS) {
+                        cal[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true); 
+                        _elected[_nomineesSorted[i]] = uint48(block.timestamp);
+                        _electedSorted.push(_nomineesSorted[i]);
+                        index++;
+                    }
                 }
                 return (tar, val, cal);
             }
         }
     }
 }
+
+

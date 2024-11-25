@@ -8,7 +8,7 @@
 
 <h2 align="center">Separated Powers </h2>
   <p align="center">
-    A protocol providing restricted governance processes for DAOs. 
+    A role restricted governance protocol for DAOs. 
     <br />
     <br />
     <!--NB: TO DO --> 
@@ -23,11 +23,38 @@
 </div>
 
 ## What's included
-- A fully functional proof-of-concept of the Separation of Governance protocol. 
-- Example laws, showcasing concrete possibilities for structuring DAO governance.
-- An example implementation of a DAO building on the Separation of Governance protocol: Aligned Grants DAO, or AgDao.   
+- A fully functional proof-of-concept of the Separated Powers governance protocol. 
+- Base electoral laws, that enable different ways to assign roles to accounts. 
+- Base executive laws, that enable different ways to role restrict and call external functions.
+- Example constitutions and founders documents needed to initialise DAOs.    
+- Example implementations of DAOs building on the Separated Powers protocol (still a work in progress).
+- Extensive unit, integration, fuzz and invariant tests (still a work in progress).
 
-### AgDao is deployed on the Arbitrum Sepolia testnet: 
+## How it works
+The protocol closely mirrors {Governor.sol} and includes code derived from {AccessManager.sol}. Its code layout is inspired by the Hats protocol.
+
+There are several key differences between {SeparatedPowers.sol} and openZeppelin's {Governor.sol}.  
+- Any DAO action needs to be encoded in role restricted external contracts, or laws, that follow the {ILaw.sol} interface.
+- Proposing, voting, cancelling and executing actions are role restricted along the target law that is called.
+- All DAO actions need to run through the governance protocol. Calls to laws that do not need a proposal vote to be executed, still need to be executed through {SeparatedPowers::execute}.
+- The core protocol uses a non-weighted voting mechanism: one account has one vote.
+- The core protocol is minimalistic. Any complexity (timelock, delayed execution, guardian roles, weighted votes, staking, etc.) has to be integrated through laws.
+
+Laws are role restricted contracts that provide the following functionalities:
+- Role restricting DAO actions
+- Transforming a lawCalldata input into an output of targets[], values[], calldatas[] to be executed by the SeparatedPowers protocol.
+- Adding conditions to the execution of the law. Any conditional logic can be added to a law. The standard implementation supports the following:   
+  - a vote quorum, threshold and period in case the law needs a proposal vote to pass before being executed.  
+  - a parent law that needs to be completed before the law can be executed.
+  - a parent law that needs to NOT be completed before the law can be executed.
+  - a vote delay: an amount of time in blocks that needs to have passed since the proposal vote ended before the law can be executed. 
+  - a minimum amount of blocks that need to have passed since the previous execution before the law can be executed again. 
+
+The combination of checks and execution logics allows for creating almost any type of governance infrastructure with a minimum number of laws. For example implementations of DAOs, see the implementations/daos folder.
+
+
+
+<!-- ### AgDao is deployed on the Arbitrum Sepolia testnet: 
 Contracts have not been verified, but can be interacted with through [our bespoke user interface](https://separated-powers.vercel.app/).   
 
 [AgDao](https://sepolia.arbiscan.io/address/0x001A6a16D2fc45248e00351314bCE898B7d8578f) - An example Dao implementation. This Dao aims to fund accounts that are aligned to its core values. <br>
@@ -45,7 +72,7 @@ Contracts have not been verified, but can be interacted with through [our bespok
 [Whale_acceptCoreValue](https://sepolia.arbiscan.io/address/0xBfa0747E3AC40c628352ff65a1254cC08f1957Aa) - Allows a whale to accept a proposed value as core requirement for funding accounts. <br> 
 [Whale_revokeMember](https://sepolia.arbiscan.io/address/0x71504Ced3199f8a0B32EaBf4C274D1ddD87Ecc4d) - Allows  whale to revoke and blacklist a member for funding non-aligned accounts. <br> 
 [Public_challengeRevoke](https://sepolia.arbiscan.io/address/0x0735199AeDba32A4E1BaF963A3C5C1D2930BdfFd)- Allows a revoked member to challenge the revoke decision. <br> 
-[Senior_reinstateMember](https://sepolia.arbiscan.io/address/0x57C9a89c8550fAf69Ab86a9A4e5c96BcBC270af9) - Allows seniors to accept a challenge and reinstate a member. <br> 
+[Senior_reinstateMember](https://sepolia.arbiscan.io/address/0x57C9a89c8550fAf69Ab86a9A4e5c96BcBC270af9) - Allows seniors to accept a challenge and reinstate a member. <br>  -->
 
 ## Directory Structure
 
@@ -55,52 +82,76 @@ Contracts have not been verified, but can be interacted with through [our bespok
 │    ├── forge-std                              # Forge  
 │    └── openZeppelin-contracts                 # openZeppelin contracts  
 |
-├── script                                      # Deployment scripts
-│    ├── ConstituteAgDao.s.sol                  #  
-│    └── DeployAgDao.s.sol                      # Deploys the AgDao example implementation of SeparatedPowers. Also deploys laws that make up AgDao's governance. 
+├── script                                      # Deployment scripts  
+│    └── DeployAlignedGrants.s.sol              # Deploys the AgDao example implementation of SeparatedPowers. Also deploys laws that make up AgDao's governance. 
 |
 ├── src                                         # Protocol resources
-│    ├── implementation                         # AgDao example resources.
-│    │    ├── laws                              # 
-│    │    │    ├── Admin_setLaw.sol             # See description of laws above. 
-│    │    │    ├── Member_assignRole.sol        # 
-│    │    │    ├── Member_challengeRevoke.sol   #  
-│    │    │    ├── Member_proposeCoreValue.sol  #  
-│    │    │    ├── Senior_acceptProposedLaw.sol #  
+│    ├── implementations                        # AgDao example resources.
+│    │    ├── daos                              # 
+│    │    │    ├── aligned-grants               # An example dao that revolves around setting and enforcing community values.  
+│    │    │    │    ├── aligned-grants.sol      # The core DAO contract.  
+│    │    │    │    ├── Constitution.sol        # The initial laws of the DAO.  
+│    │    │    │    └── Founders.sol            # The initial founders and their role assignments. 
+│    │    │    ├── arb-aips                     # An example DAO that is inspired by the constitution of Arbitrum DAO. 
+│    │    │    │    ├── aligned-grants.sol      # The core DAO contract.  
+│    │    │    │    ├── Constitution.sol        # The initial laws of the DAO.  
+│    │    │    │    └── Founders.sol            # The initial founders and their role assignments. 
+│    │    │    ├── core-dao                     # A minimalistic DAO that provides all core functionality for an initial DAO and that allows for future growth. 
+│    │    │    │    └── ...                     # 
+│    │    │    ├── opt-two-houses               # An example DAO inspired by the two houses governance process of the Optimism Collective.   
+│    │    │    │    └── ...                     #  
+│    │    │    ├── nouns-dao                    # An example DAO inspired by the NounsDAO governance structure.
+│    │    │    │    └── ...                     # 
 │    │    │    └── ...   
-│    │    ├── AgCoins.sol                       #  
-│    │    └── AgDao.sol                         # Deploys the AgDao example implementation of SeparatedPowers. Also deploys laws that make up AgDao's governance.  
+│    │    │     
+│    │    └── laws                              # 
+│    │         ├── electoral                    # See description of laws above. 
+│    │         │    ├── DelegateSelect.sol      # Assign nominated accounts to a roleId through delegated votes. Uses OpenZeppelin's ERC20Votes.sol 
+│    │         │    ├── DirectSelect.sol        # Assigns a single account to a roleId.  
+│    │         │    ├── RandomlySelect.sol      # Assigns nominated accounts randomly to a roleId.  
+│    │         │    └── TokensSelect.sol        # Assigns nominated accounts to a roleId on the amount of tokens held. 
+│    │         └── executive   
+│    │              ├── BespokeAction.sol       # Preset the contract and function that can be called, takes the (abi.encoded) input of the target function as its own input.  
+│    │              ├── OpenAction.sol          # Takes targets[], values[] and calldatas[] as input, and gives them as output. 
+│    │              ├── PresetAction.sol        # Gives a present targets[], values[] and calldatas[] as output, following a bool 'true' input. 
+│    │              └── ProposalOnly.sol        # Outputs an empty array, following any input. 
+│    │   
 │    ├── interfaces                             # Interfaces of the protocol. 
-│    │    ├── IAuthoritiesManager.sol           #  
-│    │    ├── ILaw.sol                          #  
-│    │    ├── ILawsManager.sol                  #  
-│    │    └── ISeparatedPowers.sol              # Deploys the AgDao example implementation of SeparatedPowers. Also deploys laws that make up AgDao's governance. 
-│    ├── AuthoritiesManager.sol                 # Manages roles and voting in the protocol.  
-│    ├── Law.sol                                # Base implementation of a Law. Needs to be inherited by law implementations. 
-│    ├── LawsManager.sol                        # Manages the activation (whitelisting) and deactivation of laws. 
-│    └── SeparatedPowers.sol                    # The core protocol. Inherits LawsManager.sol and AuthoritiesManager.sol
+│    │    ├── ILaw.sol                          # Interface for Law.sol.  Includes detailed description of functions. 
+│    │    ├── ISeparatedPowers.sol              # Interface for SeparatedPowers.sol. Includes detailed description of functions. 
+│    │    ├── LawErrors.sol                     # Law.sol errors. 
+│    │    ├── SeparatedPowersErrors.sol         # SeparatedPowers errors.   
+│    │    ├── SeparatedPowersEvents.sol         # SeparatedPowers events.   
+│    │    └── SeparatedPowersTypes.sol          # SeparatedPowers data Types. 
+│    │     
+│    ├── Law.sol                                # The core Law (abstract) contract. It needs to be inherited by law implementations to function. 
+│    └── SeparatedPowers.sol                    # The core protocol. It needs to be inherited by DAO implementations. 
 |
 ├── test                                        # Tests 
-│    ├── fuzz/implementation                    # Fuzz tests on example implementation
+│    ├── fuzz                                   # Fuzz tests on example implementation (wip) 
 │    │    └── SettingLaw_fuzz.t.t.sol           # 
-│    └── unit                                   # Unit tests
-│         ├── implementation                    # Tests on example implementation 
-|         │      ├── AgDaoTest.t.sol            #
-|         │      ├── DeployAgDaoTest.t.sol      #         
-|         │      └── Whale_assignRoleTest.t.sol #  
-|         ├── AuthoritiesManagerTest.t.sol      # Tests of core protocol. 
-│         ├── LawTest.t.sol                     #
-│         ├── LawsManagerTest.t.sol             # 
-│         └── SeparatedPowersTest.t.sol         #         
-|        
+│    ├── integration-dao                        # Integration tests. 
+│    │    ├── AlignedGrants.t.sol               # Integration tests using the AlignedGrants DAO example. 
+|    │    ├── ArbAips.t.sol                     # Integration tests using the Arbitrum AIPs example. 
+│    │    └── ...                               # 
+│    ├── mocks                                  # Mocks. 
+│    │    ├── ConstitutionMock.sol              # A mock constitution to initiate laws in a new DAO. 
+|    │    ├── DaoMock.sol                       # A mock DAO to be used in testing. 
+|    │    ├── FoundersMock.sol                  # A mock founders document to be used in initiating a DAO.
+│    │    └── ...                               # 
+│    ├── unit                                   # Unit tests.  
+│    │    ├── AlignedGrants.t.sol               # Integration tests using the AlignedGrants DAO example. 
+|    │    ├── ArbAips.t.sol                     # Integration tests using the Arbitrum AIPs example. 
+│    │    └── ...                               # 
+│    └── TestSetup.t.sol                        # Dynamic setup of the various tests environments. 
+│ 
 ├── .env.example                   
 ├── foundry.toml                   
 ├── LICENSE                                     # MIT license 
 ├── README.md                                   # This file
-├── Makefile.md                         # Commands to deploy contracts on mainnet sepolia and optimism sepolia.  
+├── Makefile.md                                 # Commands to deploy contracts on mainnet sepolia and optimism sepolia.  
 ├── remappings.txt
 └── ...
-
 
 ```
 
@@ -134,7 +185,10 @@ make
 ```sh
 forge test 
 ```
-     
+
+## Acknowledgements 
+Code is derived from OpenZeppelin's Governor.sol and AccessManager contracts, in addition to Haberdasher Labs Hats protocol.
+
 
 
 

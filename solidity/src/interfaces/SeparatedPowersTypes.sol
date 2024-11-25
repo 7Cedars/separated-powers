@@ -48,18 +48,6 @@ interface SeparatedPowersTypes {
         Abstain
     }
 
-    /// @notice struct to keep track of settings for a law.
-    struct LawConfig {
-        // 1 memory slot
-        address lawAddress; // address of the law
-        uint32 allowedRole; // role restriction of law
-        bool active; // Is the law active? Initiates as false.
-        // note: following 3 items are only used when law needs a proposal vote to be executed.
-        uint8 quorum; // quorum needed for a vote to succeed.
-        uint8 succeedAt; // vote threshold: percentage of 'For' votes needed for a vote to succeed.
-        uint32 votingPeriod; // period voting is open.
-    }
-
     /// @notice struct keeping track of
     /// - an account's access to roleId
     /// - the total amount of members of role (this enables role based voting).

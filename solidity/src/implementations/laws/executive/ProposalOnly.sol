@@ -23,22 +23,23 @@ contract ProposalOnly is Law {
     /// @param separatedPowers_ the address of the core governance protocol
     constructor(string memory name_, string memory description_, address separatedPowers_)
         Law(name_, description_, separatedPowers_)
-    { }
+    {   }
 
     /// @notice Execute the open action.
-    function executeLaw(address, /*initiator*/ bytes memory, /*lawCalldata*/ bytes32 /*descriptionHash*/ )
+    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
-        returns (
-            // needVote() //  needs vote to pass
-            // needsParentCompleted() // needs parent Law to be completed.
-            address[] memory tar,
-            uint256[] memory val,
-            bytes[] memory cal
-        )
-    {
-        // at execution, send empty calldata to protocol. -- nothing gets done.
-        tar[0] = address(1); // protocol should not revert.
-        return (tar, val, cal);
-    }
+        // return an empty array.
+        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
+        {
+            // execute all necessary checks. 
+            super.executeLaw(address(0), lawCalldata, descriptionHash); 
+
+            // at execution, send empty calldata to protocol. -- nothing gets done.
+            tar = new address[](1);
+            val = new uint256[](1);
+            cal = new bytes[](1);
+            
+            tar[0] = address(1); // targets[0] = address(1) is a signal to the protocol that it should not try and execute anything. 
+        }
 }

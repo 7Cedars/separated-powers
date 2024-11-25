@@ -15,7 +15,7 @@
 <h3 align="center">Separated Powers: Introducing separation of powers to DAO Governance </h3>
 
   <p align="center">
-    A protocol providing restricted governance processes for DAOs.
+    A role restricted governance protocol for DAOs.
     <br />
     <br />
     <!--NB: TO DO --> 
@@ -26,10 +26,7 @@
 </div>
 
 <div align="center">
-For the judges of the RnDAO CollabTech 2024 Hackathon  
-    <br />
-    <a href="https://www.tella.tv/video/centralized-governance-dilemma-ew5k"><b> Watch our project pitch here </b> </a>
-    <br />
+  For a high level explanation of the protocol, <a href="https://www.tella.tv/video/centralized-governance-dilemma-ew5k"><b> watch the project pitch here.</b> </a>
 </div>
 
 <!-- TABLE OF CONTENTS --> 
@@ -54,24 +51,25 @@ For the judges of the RnDAO CollabTech 2024 Hackathon
 
 <!-- ABOUT THE PROJECT -->
 ## About
-Separated Powers restricts governance processes along access roles. 
+Separated Powers restricts governance processes along access roles. It improves decentralisation, efficiency and security of DAO governance.  
 
-### The problem 
-The centralisation of power in DAO governance. 
-- Voting power tends to be centralised around a small group of users with a large amount of (governance) tokens. 
-- Voter disengagement among DAO members that do not own large amounts of governance tokens.
-- A tendency to centralise governance around a small number of vetted member in order to secure governance against hostile takeovers.
+### Decentralisation  
+Problem: voting power tends to be centralised around a small group of users with a large amount of governance tokens. 
+ 
+Solution: Separated Powers enables DAOs to divide their community in groups (such as builders, token holders, users) and give each groups different, restricted, governance powers. Using roles to separate powers in governance is a tried and true approach to safeguarding decentralisation of (social, political and economic) assets in light of their tendency to centralise around informal elites.
 
-DAOs control crypto that is worth billions of dollars. Still, the amount is tiny when compared to national economies or companies such as Apple. Blockchains will only reach their full potential if they are truly decentralised, give ownership to all their users and provide a safe environment for day-to-day use.  
+### Efficiency
+Problem: token holders tend to be asked to vote on each and every proposal. 
 
-### The solution
-To foster decentralised DAO governance, separated Powers restricts governance processes along access roles. This enables: 
-- defining multiple groups within blockchain communities. 
-- assigning them restricted powers. 
-- balancing and checking powers between groups. 
-- creating bespoke incentives for engagement in DAO governance. 
+Solution: Separated Powers creates a governance process where DAO members only need to vote on proposals that concern their roles. Role specification is a battle tested approach to enable the seamless scaling of small DAOs into larger ones.  
 
-Using roles to separate powers in governance is a tried and true approach to safeguarding decentralisation of (social, political and economic) assets in light of their tendency to centralise around informal elites.
+### Security
+Problem: Token based voting is susceptible to hostile governance take overs using, for instance, flash loans.   
+
+Solution: Separated Powers allows for the creation of checks and balances between roleIds. The more checks and balances a DAO implements in its governance structure, the better it will be protected against hostile governance take overs. 
+
+### Multipliers 
+Above all else, Separated Powers creates multipliers between decentralisation, efficiency and security. In Separated Powers, increased decentralisation leads to more efficiency and more security. A focus on security will also increase decentralisation of DAO governance. etc.    
 
 ### How it works 
 To introduce role restrictions to governance processes, the Separated Powers protocol forces all governance actions to refer to whitelisted and role restricted external contracts. 
