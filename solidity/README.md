@@ -26,7 +26,7 @@
 - A fully functional proof-of-concept of the Separated Powers governance protocol. 
 - Base electoral laws, that enable different ways to assign roles to accounts. 
 - Base executive laws, that enable different ways to role restrict and call external functions.
-- Example constitutions and founders documents needed to initialise DAOs.    
+- Example constitutions and founders documents needed to initialise DAOs  (still a work in progress).
 - Example implementations of DAOs building on the Separated Powers protocol (still a work in progress).
 - Extensive unit, integration, fuzz and invariant tests (still a work in progress).
 
@@ -43,7 +43,7 @@ There are several key differences between {SeparatedPowers.sol} and openZeppelin
 Laws are role restricted contracts that provide the following functionalities:
 - Role restricting DAO actions
 - Transforming a lawCalldata input into an output of targets[], values[], calldatas[] to be executed by the SeparatedPowers protocol.
-- Adding conditions to the execution of the law. Any conditional logic can be added to a law. The standard implementation supports the following:   
+- Adding conditions to the execution of the law. Any conditional logic can be added to a law, but the standard implementation supports the following:   
   - a vote quorum, threshold and period in case the law needs a proposal vote to pass before being executed.  
   - a parent law that needs to be completed before the law can be executed.
   - a parent law that needs to NOT be completed before the law can be executed.
