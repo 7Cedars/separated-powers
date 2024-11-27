@@ -59,6 +59,7 @@ contract ConstitutionsMock {
                 "ROLE_ONE holders can call (and pay for) a whale election at any time. They can also nominate themselves.",
                 dao_,
                 mock1155_,
+                address(0), 
                 15,
                 DaoMock(dao_).ROLE_TWO()
             )
@@ -68,11 +69,13 @@ contract ConstitutionsMock {
 
         // Note this proposalOnly law has no internal data, as such it cannot actually do anyting.
         // This law is only for example and testing purposes.
+        bytes4[] memory params = new bytes4[](0);
         laws[2] = address(
             new ProposalOnly(
                 "ROLE_THREE makes proposals", // max 31 chars
                 "ROLE_THREE holders can make any proposal, without vote.",
-                dao_
+                dao_, 
+                params
             )
         );
         allowedRoles[2] = DaoMock(dao_).ROLE_THREE();
@@ -251,12 +254,16 @@ contract ConstitutionsMock {
         values[0] = 0;
         calldatas[0] = abi.encodeWithSignature("mintCoins(uint256)", 123);
 
+        // dummy params
+        bytes4[] memory params = new bytes4[](1);
+
         // executive laws 
         laws[0] = address(
             new ProposalOnly(
                 "Proposal Only With Vote", // max 31 chars
                 "Proposal Only With Vote to pass.",
-                dao_
+                dao_,
+                params
             )
         );
         allowedRoles[0] = DaoMock(dao_).ROLE_ONE();
@@ -304,6 +311,7 @@ contract ConstitutionsMock {
                 "Randomly select role", // max 31 chars
                 "Randomly select a role.",
                 dao_,
+                address(0), 
                 3, // max role holders 
                 DaoMock(dao_).ROLE_THREE() // role id. 
             )
@@ -316,6 +324,7 @@ contract ConstitutionsMock {
                 "ROLE_ONE holders have the power to execute any internal or external action.",
                 dao_,
                 mock1155_,
+                address(0), 
                 3, // max role holders 
                 DaoMock(dao_).ROLE_THREE() // role id. 
             )
@@ -328,6 +337,7 @@ contract ConstitutionsMock {
                 "Select a role by delegated votes.",
                 dao_,
                 mock20_,
+                address(0), // NominateMe contract. 
                 3, // max role holders 
                 DaoMock(dao_).ROLE_THREE() // role id. 
             )
@@ -338,7 +348,8 @@ contract ConstitutionsMock {
             new ProposalOnly(
                 "Proposal Only", // max 31 chars
                 "Proposal Only without vote or other checks.",
-                dao_
+                dao_,
+                params
             )
         );
         allowedRoles[7] = DaoMock(dao_).ROLE_ONE();0;

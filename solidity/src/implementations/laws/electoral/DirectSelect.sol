@@ -31,11 +31,14 @@ contract DirectSelect is Law {
 
     uint32 private immutable ROLE_ID;
 
-    constructor(string memory name_, string memory description_, address separatedPowers_, uint32 roleId_)
-        Law(name_, description_, separatedPowers_)
-    {
-        ROLE_ID = roleId_;
-        params = [dataType("bool")]; 
+    constructor(
+        string memory name_, 
+        string memory description_, 
+        address separatedPowers_, 
+        uint32 roleId_
+        ) Law(name_, description_, separatedPowers_) {
+            ROLE_ID = roleId_;
+            params = [dataType("bool")]; 
     }
 
     function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)

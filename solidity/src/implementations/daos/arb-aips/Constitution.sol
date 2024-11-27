@@ -12,7 +12,6 @@ import { ProposalOnly } from "../../laws/executive/ProposalOnly.sol";
 import { BespokeAction } from "../../laws/executive/BespokeAction.sol";
 
 // dao and its bespoke laws
-import { AlignedGrants } from "./AlignedGrants.sol";
 
 contract Constitution {
     uint32 constant NUMBER_OF_LAWS = 0;

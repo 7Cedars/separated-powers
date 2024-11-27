@@ -21,14 +21,23 @@ contract ProposalOnly is Law {
     /// @param name_ name of the law
     /// @param description_ description of the law
     /// @param separatedPowers_ the address of the core governance protocol
-    constructor(string memory name_, string memory description_, address separatedPowers_)
+    /// @param params_ the parameters of the function
+    constructor(
+        string memory name_, 
+        string memory description_, 
+        address separatedPowers_,
+        bytes4[] memory params_
+        )
         Law(name_, description_, separatedPowers_)
-    {   }
+    {  
+        params = params_;
+     }
 
     /// @notice Execute the open action.
     function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
+        virtual
         // return an empty array.
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
         {
