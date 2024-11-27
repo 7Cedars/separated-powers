@@ -63,7 +63,7 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                     onChange={(e) => setNewValue(e.target.value)}
                     placeholder="Enter the new value to be accepted (max length 30 characters)."
                     maxLength={30}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <input
                     type="text"
@@ -71,7 +71,7 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                     onChange={(e) => setDescriptionA(e.target.value)}
                     placeholder="Enter the original description of the proposal to add a new core value." 
                     maxLength={35}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <div className="flex flex-row justify-start mt-6">
                     <button
@@ -101,7 +101,7 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                     onChange={(e) => setAddressLaw(e.target.value as `0x${string}`)}
                     placeholder="Enter the address of the law to be (de-)activated."
                     maxLength={100}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <input
                     type="text"
@@ -109,7 +109,7 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                     onChange={(e) => setDescriptionB(e.target.value)}
                     placeholder="Enter supporting statement." 
                     maxLength={35}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <div className="flex flex-row justify-center mb-4">
                     <button
@@ -150,7 +150,7 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                     onChange={(e) => setMemberToRevoke(e.target.value as `0x${string}`)}
                     placeholder="Enter address of the account to be revoked."
                     maxLength={100}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <input
                     type="text"
@@ -158,7 +158,7 @@ const WhaleActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                     onChange={(e) => setDescriptionC(e.target.value)}
                     placeholder="Enter supporting statement." 
                     maxLength={35}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <div className="flex flex-row justify-start mt-6">
                     <button

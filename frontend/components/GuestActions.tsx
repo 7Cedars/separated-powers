@@ -86,7 +86,7 @@ const GuestActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                     onChange={(e) => setRevokeId(e.target.value)}
                     placeholder="Enter proposal ID through which whales revoked your member role."
                     maxLength={100}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <input
                     type="text"
@@ -94,7 +94,7 @@ const GuestActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userActi
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Enter supporting statement." 
                     maxLength={35}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <div className="flex flex-row justify-start mt-6">
                     <button
