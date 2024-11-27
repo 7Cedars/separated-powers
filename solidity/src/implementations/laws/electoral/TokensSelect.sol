@@ -122,7 +122,7 @@ contract TokensSelect is Law {
 
             // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts. 
             for (uint256 i = 0; i < numberElected; i++) {
-                cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], false);
+                cal[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _nomineesSorted[i]);
                 _elected[_nomineesSorted[i]] = uint48(0);
                 _electedSorted.pop();
             }
@@ -130,7 +130,7 @@ contract TokensSelect is Law {
             // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
             if (numberNominees < MAX_ROLE_HOLDERS) {
                for (uint256 i; i < numberNominees; i++) {
-                    cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true);
+                    cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]);
                     _elected[_nomineesSorted[i]] = uint48(block.timestamp);
                     _electedSorted.push(_nomineesSorted[i]);
                 }
@@ -154,7 +154,7 @@ contract TokensSelect is Law {
                     } 
                     // 3: assigning role if rank is less than MAX_ROLE_HOLDERS.
                     if (rank < MAX_ROLE_HOLDERS) {
-                        cal[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true); 
+                        cal[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]); 
                         _elected[_nomineesSorted[i]] = uint48(block.timestamp);
                         _electedSorted.push(_nomineesSorted[i]);
                         index++;
