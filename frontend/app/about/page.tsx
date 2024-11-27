@@ -25,7 +25,7 @@ export default function Page() {
                             <li>Whales can revoke and blacklist member roles of accounts that fund non-aligned addresses.</li>
                             <li>Members can challenge a decision to revoke their membership.</li>
                             <li>Seniors can uphold a challenge and reinstate a member.</li>
-                            <li>Whales can propose new laws, senior can accept them, and the admin implements them.</li>
+                            <li>Whales can propose new laws, senior can accept them, and the admin implements them .</li>
                         </ul>
 
                         <h2 className="font-bold my-4"> See the actions tab in the dashboard for concrete implementation of protocol laws. </h2>
