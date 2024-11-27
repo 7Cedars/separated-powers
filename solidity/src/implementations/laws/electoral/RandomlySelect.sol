@@ -123,7 +123,7 @@ contract RandomlySelect is Law {
 
             // calls to revoke roles & delete array with elected accounts. 
             for (uint256 i = 0; i < numberElected; i++) {
-                cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], false);
+                cal[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _nomineesSorted[i]);
                 _elected[_nomineesSorted[i]] = uint48(0);
                 _electedSorted.pop();
             }
@@ -131,7 +131,7 @@ contract RandomlySelect is Law {
             // calls to add nominees if fewer than MAX_ROLE_HOLDERS
             if (numberNominees <= MAX_ROLE_HOLDERS) {
                 for (uint256 i; i < numberNominees; i++) {
-                    cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true);
+                    cal[i] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]);
                 }
                 return (tar, val, cal);
             } else {
@@ -144,7 +144,7 @@ contract RandomlySelect is Law {
                     address selectedNominee = _nomineesSorted[indexSelected];
                     console.log("selectedNominee: ", selectedNominee);
                         // creating call, assigning role, adding nominee to elected, and removing nominee from nominees list.
-                        cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, selectedNominee, true); // selector probably wrong. check later.
+                        cal[i] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, selectedNominee); // selector probably wrong. check later.
                         _elected[selectedNominee] = uint48(block.timestamp);
                         _electedSorted.push(selectedNominee);
                         // note that we do not need to .pop the last item of the list, because it will never be accessed as the modulo decreases each run. 

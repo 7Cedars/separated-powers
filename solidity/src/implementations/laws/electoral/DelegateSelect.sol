@@ -70,101 +70,101 @@ contract DelegateSelect is Law {
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-    {
-        // do necessary optional checks. 
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
+        {
+            // do necessary checks. 
+            super.executeLaw(address(0), lawCalldata, descriptionHash);
 
-        // decode the calldata.
-        (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
+            // decode the calldata.
+            (bool nominateMe, bool assignRoles) = abi.decode(lawCalldata, (bool, bool));
 
-        // nominating // 
-        if (nominateMe && !assignRoles) {
-            if (_nominees[initiator] != 0) {
-                revert DelegateSelect__NomineeAlreadyNominated();
-            }
-            _nominees[initiator] = uint48(block.timestamp);
-            _nomineesSorted.push(initiator);
-
-            emit DelegateSelect__NominationReceived(initiator);
-        }
-
-        // revoke nomination // 
-        if (!nominateMe && !assignRoles) {
-            if (_nominees[initiator] == 0) {
-                revert DelegateSelect__NomineeNotNominated();
-            }
-
-            _nominees[initiator] = 0;
-            for (uint256 i; i < _nomineesSorted.length; i++) {
-                if (_nomineesSorted[i] == initiator) {
-                    _nomineesSorted[i] = _nomineesSorted[_nomineesSorted.length - 1];
-                    _nomineesSorted.pop();
-                    break;
+            // nominating // 
+            if (nominateMe && !assignRoles) {
+                if (_nominees[initiator] != 0) {
+                    revert DelegateSelect__NomineeAlreadyNominated();
                 }
-            }
-            emit DelegateSelect__NominationRevoked(initiator);
-        }
+                _nominees[initiator] = uint48(block.timestamp);
+                _nomineesSorted.push(initiator);
 
-        // electing roles // 
-        if (assignRoles) {
-            // step 1: setting up array for revoking & assigning roles. 
-            uint256 numberNominees = _nomineesSorted.length;
-            uint256 numberElected = _electedSorted.length;
-            uint256 arrayLength = numberNominees < MAX_ROLE_HOLDERS ? 
-                numberElected + numberNominees 
-                : 
-                numberElected + MAX_ROLE_HOLDERS;
-
-            address[] memory tar = new address[](arrayLength);
-            uint256[] memory val = new uint256[](arrayLength);
-            bytes[] memory cal = new bytes[](arrayLength);
-            for (uint256 i; i < arrayLength; i++) { tar[i] = separatedPowers; } 
-
-            // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts. 
-            for (uint256 i = 0; i < numberElected; i++) {
-                cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], false);
-                _elected[_nomineesSorted[i]] = uint48(0);
-                _electedSorted.pop();
+                emit DelegateSelect__NominationReceived(initiator);
             }
 
-            // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
-            if (numberNominees < MAX_ROLE_HOLDERS) {
-               for (uint256 i; i < numberNominees; i++) {
-                    cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true);
-                    _elected[_nomineesSorted[i]] = uint48(block.timestamp);
-                    _electedSorted.push(_nomineesSorted[i]);
+            // revoke nomination // 
+            if (!nominateMe && !assignRoles) {
+                if (_nominees[initiator] == 0) {
+                    revert DelegateSelect__NomineeNotNominated();
                 }
-                return (tar, val, cal);
-            // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
-            } else {
-                // retrieve balances of delegated votes of nominees. 
-                uint256[] memory _votes = new uint256[](numberNominees);
-                for (uint256 i; i < numberNominees; i++) {
-                    _votes[i] = ERC20Votes(ERC_20_VOTE_TOKEN).getVotes(_nomineesSorted[i]);
-                }
-                // £todo: check what will happen if people have the same amount of delegated votes. 
-                // note how the following mechanism works:
-                // a. we add 1 to each nominee's position, if we found a account that holds more tokens.
-                // b. if the position is greater than MAX_ROLE_HOLDERS, we break. (it means there are more accounts that have more tokens than MAX_ROLE_HOLDERS)
-                // c. if the position is less than MAX_ROLE_HOLDERS, we assign the roles.
-                uint256 index;
-                for (uint256 i; i < numberNominees; i++) {
-                    uint256 rank; 
-                    // a: loop to assess ranking. 
-                    for (uint256 j; j < numberNominees; j++) {
-                        if (_votes[j] > _votes[i]) {
-                            rank++;
-                            if (rank > MAX_ROLE_HOLDERS) { break; } // b: do not need to know rank beyond MAX_ROLE_HOLDERS threshold. 
-                        } 
-                    } 
-                    // c: assigning role if rank is less than MAX_ROLE_HOLDERS.
-                    if (rank < MAX_ROLE_HOLDERS) {
-                        cal[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true); 
-                        _elected[_nomineesSorted[i]] = uint48(block.timestamp);
-                        _electedSorted.push(_nomineesSorted[i]);
-                        index++;
+
+                _nominees[initiator] = 0;
+                for (uint256 i; i < _nomineesSorted.length; i++) {
+                    if (_nomineesSorted[i] == initiator) {
+                        _nomineesSorted[i] = _nomineesSorted[_nomineesSorted.length - 1];
+                        _nomineesSorted.pop();
+                        break;
                     }
                 }
+                emit DelegateSelect__NominationRevoked(initiator);
+            }
+
+            // electing roles // 
+            if (assignRoles) {
+                // step 1: setting up array for revoking & assigning roles. 
+                uint256 numberNominees = _nomineesSorted.length;
+                uint256 numberElected = _electedSorted.length;
+                uint256 arrayLength = numberNominees < MAX_ROLE_HOLDERS ? 
+                    numberElected + numberNominees 
+                    : 
+                    numberElected + MAX_ROLE_HOLDERS;
+
+                address[] memory tar = new address[](arrayLength);
+                uint256[] memory val = new uint256[](arrayLength);
+                bytes[] memory cal = new bytes[](arrayLength);
+                for (uint256 i; i < arrayLength; i++) { tar[i] = separatedPowers; } 
+
+                // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts. 
+                for (uint256 i = 0; i < numberElected; i++) {
+                    cal[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _nomineesSorted[i]);
+                    _elected[_nomineesSorted[i]] = uint48(0);
+                    _electedSorted.pop();
+                }
+
+                // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
+                if (numberNominees < MAX_ROLE_HOLDERS) {
+                for (uint256 i; i < numberNominees; i++) {
+                        cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]);
+                        _elected[_nomineesSorted[i]] = uint48(block.timestamp);
+                        _electedSorted.push(_nomineesSorted[i]);
+                    }
+                    return (tar, val, cal);
+                // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
+                } else {
+                    // retrieve balances of delegated votes of nominees. 
+                    uint256[] memory _votes = new uint256[](numberNominees);
+                    for (uint256 i; i < numberNominees; i++) {
+                        _votes[i] = ERC20Votes(ERC_20_VOTE_TOKEN).getVotes(_nomineesSorted[i]);
+                    }
+                    // £todo: check what will happen if people have the same amount of delegated votes. 
+                    // note how the following mechanism works:
+                    // a. we add 1 to each nominee's position, if we found a account that holds more tokens.
+                    // b. if the position is greater than MAX_ROLE_HOLDERS, we break. (it means there are more accounts that have more tokens than MAX_ROLE_HOLDERS)
+                    // c. if the position is less than MAX_ROLE_HOLDERS, we assign the roles.
+                    uint256 index;
+                    for (uint256 i; i < numberNominees; i++) {
+                        uint256 rank; 
+                        // a: loop to assess ranking. 
+                        for (uint256 j; j < numberNominees; j++) {
+                            if (_votes[j] > _votes[i]) {
+                                rank++;
+                                if (rank > MAX_ROLE_HOLDERS) { break; } // b: do not need to know rank beyond MAX_ROLE_HOLDERS threshold. 
+                            } 
+                        } 
+                        // c: assigning role if rank is less than MAX_ROLE_HOLDERS.
+                        if (rank < MAX_ROLE_HOLDERS) {
+                            cal[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]); 
+                            _elected[_nomineesSorted[i]] = uint48(block.timestamp);
+                            _electedSorted.push(_nomineesSorted[i]);
+                            index++;
+                        }
+                    }
                 return (tar, val, cal);
             }
         }

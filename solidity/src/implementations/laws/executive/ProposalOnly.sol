@@ -17,13 +17,24 @@ pragma solidity 0.8.26;
 import { Law } from "../../../Law.sol";
 
 contract ProposalOnly is Law {
+    /// emitted when the law is initialised.
+    event ProposalOnly__Initialized(bytes4[] params);
+
     /// @notice Constructor function for Open contract.
     /// @param name_ name of the law
     /// @param description_ description of the law
     /// @param separatedPowers_ the address of the core governance protocol
-    constructor(string memory name_, string memory description_, address separatedPowers_)
+    constructor(
+        string memory name_, 
+        string memory description_, 
+        address separatedPowers_, 
+        bytes4[] memory params_
+        )
         Law(name_, description_, separatedPowers_)
-    {   }
+    { 
+        params = params_; 
+        emit ProposalOnly__Initialized(params_);
+     }
 
     /// @notice Execute the open action.
     function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
