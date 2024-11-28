@@ -63,7 +63,7 @@ contract DirectSelect is Law {
             }
             tar[0] = separatedPowers;
             val[0] = 0;
-            cal[0] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, initiator, false); // selector = revokeRole
+            cal[0] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, initiator); // selector = revokeRole
             return (tar, val, cal);
         } else {
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) != 0) {
@@ -71,7 +71,7 @@ contract DirectSelect is Law {
             }
             tar[0] = separatedPowers;
             val[0] = 0;
-            cal[0] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, initiator, true); // selector = assignRole
+            cal[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, initiator); // selector = assignRole
             return (tar, val, cal);
         }
     }

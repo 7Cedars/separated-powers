@@ -381,8 +381,13 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function setRole(uint32 roleId, address account, bool access) public virtual onlySeparatedPowers {
-        _setRole(roleId, account, access);
+    function assignRole(uint32 roleId, address account) public virtual onlySeparatedPowers {
+        _setRole(roleId, account, true);
+    }
+
+    /// @inheritdoc ISeparatedPowers
+    function revokeRole(uint32 roleId, address account) public virtual onlySeparatedPowers {
+        _setRole(roleId, account, false);
     }
 
     /// @notice Internal version of {setRole} without access control.

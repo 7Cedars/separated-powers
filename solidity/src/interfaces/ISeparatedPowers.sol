@@ -104,13 +104,21 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @dev this function can only be called from the execute function of SeperatedPowers.sol.
     function revokeLaw(address law) external;
 
-    /// @notice set role access.
+    /// @notice assigns account to role
     ///
     /// @param roleId role identifier
     /// @param account account address
     ///
     /// @dev this function can only be called from within {SeperatedPowers}.
-    function setRole(uint32 roleId, address account, bool access) external;
+    function assignRole(uint32 roleId, address account) external;
+
+    /// @notice revokes role access.
+    ///
+    /// @param roleId role identifier
+    /// @param account account address
+    ///
+    /// @dev this function can only be called from within {SeperatedPowers}.
+    function revokeRole(uint32 roleId, address account) external;
 
     //////////////////////////////////////////////////////////////
     //                      VIEW FUNCTIONS                      //

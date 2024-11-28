@@ -8,9 +8,11 @@ import { Law } from "../../../Law.sol";
 import { ILaw } from "../../../interfaces/ILaw.sol";
 import { TokensSelect } from "../../laws/electoral/TokensSelect.sol";
 import { DirectSelect } from "../../laws/electoral/DirectSelect.sol";
+import "lib/openzeppelin-contracts/contracts/utils/ShortStrings.sol";
 
 // executive laws
 import { ProposalOnly } from "../../laws/executive/ProposalOnly.sol";
+import { PresetAction } from "../../laws/executive/ProposalOnly.sol";
 import { BespokeAction } from "../../laws/executive/BespokeAction.sol";
 import { RevokeRole } from "./RevokeRole.sol";
 import { ReinstateRole } from "./ReinstateRole.sol";
