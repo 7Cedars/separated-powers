@@ -38,7 +38,7 @@ const AdminActions:  React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     onChange={(e) => setAddressLaw(e.target.value as `0x${string}`)}
                     placeholder="Enter the address of the law."
                     maxLength={100}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900 text-slate-900"
                 />
                 <input
                     type="text"
@@ -46,7 +46,7 @@ const AdminActions:  React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     onChange={(e) => setDescriptionHash(e.target.value as `0x${string}`)}
                     placeholder="Enter the description hash of the proposal." 
                     maxLength={35}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <div className="flex flex-row justify-center mb-4">
                     <button

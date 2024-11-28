@@ -76,7 +76,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     onChange={(e) => setAddressLaw(e.target.value as `0x${string}`)}
                     placeholder="Enter the address of the law."
                     maxLength={100}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <input
                     type="text"
@@ -84,7 +84,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     onChange={(e) => setDescriptionA(e.target.value)}
                     placeholder="Enter the original description of the proposal to add a new law." 
                     maxLength={35}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <div className="flex flex-row justify-center mb-4">
                     <button
@@ -125,7 +125,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     onChange={(e) => setSeniorAssign (e.target.value as `0x${string}`)}
                     placeholder="Enter the address of the account to be assign a senior role."
                     maxLength={100}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <input
                     type="text"
@@ -133,7 +133,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     onChange={(e) => setDescriptionB(e.target.value)}
                     placeholder="Enter supporting statement." 
                     maxLength={35}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <div className="flex flex-row justify-start mt-6">
                     <button
@@ -163,7 +163,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     onChange={(e) => setRevokeId(e.target.value)}
                     placeholder="Enter proposal ID through which whales revoked he member."
                     maxLength={100}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <input
                     type="text"
@@ -171,7 +171,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     onChange={(e) => setDescriptionC(e.target.value)}
                     placeholder="Enter the exact supporting statement from the member challenge." 
                     maxLength={35}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <div className="flex flex-row justify-start mt-6">
                     <button
@@ -202,7 +202,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     onChange={(e) => setSeniorRevoke(e.target.value as `0x${string}`)}
                     placeholder="Enter the address of the account to be revoked a senior role."
                     maxLength={100}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <input
                     type="text"
@@ -210,7 +210,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                     onChange={(e) => setDescriptionD(e.target.value)}
                     placeholder="Enter supporting statement." 
                     maxLength={35}
-                    className="border border-white rounded-lg p-2 mb-4 w-full"
+                    className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                 />
                 <div className="flex flex-row justify-start mt-6">
                     <button
