@@ -1,4 +1,16 @@
 // SPDX-License-Identifier: MIT
+/// @notice Example DAO contract that was used as a PoC in the RnDAO CollabTech Hackathon.
+/// 
+/// Note It is a DAO that revolves around community values. Members receive tokens, that they can give to 'aligned' accounts. 
+/// £todo: copy this text from front end. 
+/// If Whales think a they are seen to have given tokens to non-aligned grants, their membership is revoked.   
+/// Members can challenge a revoke and be reinstated by seniors. 
+/// 
+/// See {Constitution.sol} for details about the roles and laws that make up this DAO. 
+///
+/// Note. IMPORTANT: This is a work in progress. Do not use in production. It does not come with any guarantees, warranties of any kind. 
+/// 
+/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";

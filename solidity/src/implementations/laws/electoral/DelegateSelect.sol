@@ -71,37 +71,42 @@ contract DelegateSelect is Law {
         super.executeLaw(address(0), lawCalldata, descriptionHash);
 
         // step 1: setting up array for revoking & assigning roles. 
+        console.log("waypoint 1"); 
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
         uint256 numberElected = _electedSorted.length;
         uint256 arrayLength = numberNominees < MAX_ROLE_HOLDERS ? 
             numberElected + numberNominees 
             : 
-            numberElected + MAX_ROLE_HOLDERS;
+            numberElected + MAX_ROLE_HOLDERS; 
 
-        address[] memory tar = new address[](arrayLength);
-        uint256[] memory val = new uint256[](arrayLength);
-        bytes[] memory cal = new bytes[](arrayLength);
-        for (uint256 i; i < arrayLength; i++) { tar[i] = separatedPowers; } 
+        targets = new address[](arrayLength);
+        values = new uint256[](arrayLength);
+        calldatas = new bytes[](arrayLength);
+        
+        console.log("waypoint 2"); 
+        for (uint256 i; i < arrayLength; i++) { targets[i] = separatedPowers; } 
 
+        console.log("waypoint 3"); 
         // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts. 
         for (uint256 i; i < numberElected; i++) {
             uint256 index = (numberElected - i) - 1; // we work backwards through the list. 
-            cal[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
+            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
             _elected[_electedSorted[index]] = uint48(0);
             _electedSorted.pop();
         }
-
+        
+        console.log("waypoint 4"); 
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
                 address accountElect = NominateMe(NOMINEES).nomineesSorted(i);   
-                cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
+                calldatas[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
                 _elected[accountElect] = uint48(block.timestamp);
                 _electedSorted.push(accountElect);
             }
-            return (tar, val, cal);
         // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
         } else {
+            console.log("waypoint 5"); 
             // retrieve balances of delegated votes of nominees. 
             uint256[] memory _votes = new uint256[](numberNominees);
             address[] memory _nominees = new address[](numberNominees);
@@ -115,6 +120,7 @@ contract DelegateSelect is Law {
             // b. if the position is greater than MAX_ROLE_HOLDERS, we break. (it means there are more accounts that have more tokens than MAX_ROLE_HOLDERS)
             // c. if the position is less than MAX_ROLE_HOLDERS, we assign the roles.
             uint256 index;
+            console.log("waypoint 6"); 
             for (uint256 i; i < numberNominees; i++) {
                 uint256 rank; 
                 // a: loop to assess ranking. 
@@ -124,15 +130,15 @@ contract DelegateSelect is Law {
                         if (rank > MAX_ROLE_HOLDERS) { break; } // b: do not need to know rank beyond MAX_ROLE_HOLDERS threshold. 
                     } 
                 } 
+                console.log("waypoint 7"); 
                 // c: assigning role if rank is less than MAX_ROLE_HOLDERS.
                 if (rank < MAX_ROLE_HOLDERS) {
-                    cal[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nominees[i]); 
+                    calldatas[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nominees[i]); 
                     _elected[_nominees[i]] = uint48(block.timestamp);
                     _electedSorted.push(_nominees[i]);
                     index++;
                 }
             }
-            return (tar, val, cal);
         }
     }
 }

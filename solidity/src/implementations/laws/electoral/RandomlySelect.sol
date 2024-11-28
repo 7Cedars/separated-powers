@@ -74,16 +74,16 @@ contract RandomlySelect is Law {
             numberElected + numberNominees 
             : 
             numberElected + MAX_ROLE_HOLDERS;
-
-        address[] memory tar = new address[](arrayLength);
-        uint256[] memory val = new uint256[](arrayLength);
-        bytes[] memory cal = new bytes[](arrayLength);
-        for (uint256 i; i < arrayLength; i++) { tar[i] = separatedPowers; } 
+        
+        targets = new address[](arrayLength);
+        values = new uint256[](arrayLength);
+        calldatas = new bytes[](arrayLength);
+        for (uint256 i; i < arrayLength; i++) { targets[i] = separatedPowers; } 
 
         // calls to revoke roles & delete array with elected accounts. 
         for (uint256 i; i < numberElected; i++) {
             uint256 index = (numberElected - i) - 1; // we work backwards through the list. 
-            cal[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
+            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
             _elected[_electedSorted[index]] = uint48(0);
             _electedSorted.pop();
         }
@@ -92,11 +92,10 @@ contract RandomlySelect is Law {
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
                 address accountElect = NominateMe(NOMINEES).nomineesSorted(i);   
-                cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
+                calldatas[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
                 _elected[accountElect] = uint48(block.timestamp);
                 _electedSorted.push(accountElect);
             }
-            return (tar, val, cal);
         } else {
             uint256 pseudoRandomValue = uint256(keccak256(abi.encodePacked(block.number, descriptionHash)));
             // note: this is very inefficient, but I cannot add a getter function in NominateMe - so have to retrieve addresses one by one.. 
@@ -108,13 +107,12 @@ contract RandomlySelect is Law {
                 uint256 indexSelected = (pseudoRandomValue / 10 ** (i+1)) % (numberNominees - i); 
                 address selectedNominee = _nomineesSorted[indexSelected];
                     // creating call, assigning role, adding nominee to elected, and removing nominee from nominees list.
-                    cal[i] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, selectedNominee); // selector probably wrong. check later.
+                    calldatas[i] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, selectedNominee); // selector probably wrong. check later.
                     _elected[selectedNominee] = uint48(block.timestamp);
                     _electedSorted.push(selectedNominee);
                     // note that we do not need to .pop the last item of the list, because it will never be accessed as the modulo decreases each run. 
                     _nomineesSorted[indexSelected] = _nomineesSorted[numberNominees - (i + 1)];
             }
-            return (tar, val, cal);
         }
     }
 }

@@ -53,26 +53,21 @@ contract DirectSelect is Law {
         (bool revoke) = abi.decode(lawCalldata, (bool));
 
         // step 2: create & send return calldata conditional if it is an assign or revoke action.
-        address[] memory tar = new address[](1);
-        uint256[] memory val = new uint256[](1);
-        bytes[] memory cal = new bytes[](1);
+        targets = new address[](1);
+        values = new uint256[](1);
+        calldatas = new bytes[](1);
 
+        targets[0] = separatedPowers;
         if (revoke) {
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) == 0) {
                 revert DirectSelect__AccountDoesNotHaveRole();
             }
-            tar[0] = separatedPowers;
-            val[0] = 0;
-            cal[0] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, initiator); // selector = revokeRole
-            return (tar, val, cal);
+            calldatas[0] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, initiator); // selector = revokeRole
         } else {
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) != 0) {
                 revert DirectSelect__AccountAlreadyHasRole();
             }
-            tar[0] = separatedPowers;
-            val[0] = 0;
-            cal[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, initiator); // selector = assignRole
-            return (tar, val, cal);
+            calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, initiator); // selector = assignRole
         }
     }
 }
