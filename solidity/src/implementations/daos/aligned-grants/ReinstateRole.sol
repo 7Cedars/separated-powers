@@ -47,10 +47,10 @@ contract ReinstateRole is Law {
 
         // send data to reinstate account to the member role and deblacklist..
         tar[0] = separatedPowers;
-        cal[0] = abi.encodeWithSignature("setRole(uint32,address,bool)" , _roleId, revokedAccount, true);
+        cal[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, _roleId, revokedAccount);
 
         tar[1] = separatedPowers;
-        cal[1] = abi.encodeWithSignature("setBlacklistAccount(address,bool)", revokedAccount, false);
+        cal[1] = abi.encodeWithSelector(AlignedGrants.setBlacklistAccount.selector, revokedAccount, false);
         return (tar, val, cal);
     }
 }

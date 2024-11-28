@@ -27,7 +27,6 @@ contract RevokeRole is Law {
     function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
-        needsProposalVote(lawCalldata, descriptionHash)
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
     {
         // do necessary optional checks. 
@@ -42,10 +41,10 @@ contract RevokeRole is Law {
 
         // revoke member role and blacklist account
         tar[0] = separatedPowers;
-        cal[0] = abi.encodeWithSignature(SeparatedPowers.revokeRole.selector, _roleId, accountToBeRevoked);
+        cal[0] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, _roleId, accountToBeRevoked);
 
         tar[1] = separatedPowers;
-        cal[1] = abi.encodeWithSignature(AlignedGrants.setBlacklisted.selector, accountToBeRevoked, true);
+        cal[1] = abi.encodeWithSelector(AlignedGrants.setBlacklistAccount.selector, accountToBeRevoked, true);
         return (tar, val, cal);
     }
 }

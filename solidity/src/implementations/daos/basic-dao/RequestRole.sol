@@ -9,7 +9,7 @@ import { DirectSelect } from "../../laws/electoral/DirectSelect.sol";
 import { ProposalOnly } from "../../laws/executive/ProposalOnly.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
-contract RequestMemberRole is ProposalOnly {
+contract RequestRole is ProposalOnly {
     using ShortStrings for *;
 
     error DirectSelect__IncorrectParameters();
@@ -35,14 +35,12 @@ contract RequestMemberRole is ProposalOnly {
     {
         // step 0: check if initiator is the account holder. 
         ( uint32 roleId,
-          address requestedMemberAccount,
-          bool access
-          ) = abi.decode(lawCalldata, (uint32, address, bool));
+          address requestedMemberAccount
+          ) = abi.decode(lawCalldata, (uint32, address));
 
         if (
           initiator != requestedMemberAccount || 
-          roleId != _roleId || 
-          !access
+          roleId != _roleId 
           ) {
           revert DirectSelect__IncorrectParameters();
         }

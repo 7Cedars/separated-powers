@@ -13,7 +13,7 @@ import { DelegateSelect } from "../../laws/electoral/DelegateSelect.sol";
 // executive laws
 import { ProposalOnly } from "../../laws/executive/ProposalOnly.sol";
 import { BespokeAction } from "../../laws/executive/BespokeAction.sol";
-import { RequestMemberRole } from "./RequestMemberRole.sol";
+import { RequestRole } from "./RequestRole.sol";
 
 // dao and its bespoke laws
 import { BasicDao } from "./BasicDao.sol";
@@ -41,11 +41,10 @@ contract Constitution {
     bytes4[] memory paramsAddMember = new bytes4[](3);
     paramsAddMember[0] = bytes4(keccak256("uint32")); // roleId
     paramsAddMember[1] = bytes4(keccak256("address")); // account
-    paramsAddMember[2] = bytes4(keccak256("bool")); // access 
 
     // Note this law constrains input parameters. Hence laws[1] and laws[2] do not need to do this. 
     laws[0] = address(
-        new RequestMemberRole(
+        new RequestRole(
             "Request to become member", // max 31 chars
             "Anyone can request a member role.",
             dao_,
@@ -71,7 +70,7 @@ contract Constitution {
             "Members can accept a request to become a member. Law is subject to vote, and can be vetoed by Senior",
             dao_, // separated powers
             dao_, // target contract
-            SeparatedPowers.setRole.selector, // function selector
+            SeparatedPowers.assignRole.selector, // function selector
             paramsAddMember
         )
     );

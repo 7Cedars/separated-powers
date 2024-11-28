@@ -81,9 +81,10 @@ contract RandomlySelect is Law {
         for (uint256 i; i < arrayLength; i++) { tar[i] = separatedPowers; } 
 
         // calls to revoke roles & delete array with elected accounts. 
-        for (uint256 i = 0; i < numberElected; i++) {
-            cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _electedSorted[i], false);
-            _elected[_electedSorted[i]] = uint48(0);
+        for (uint256 i; i < numberElected; i++) {
+            uint256 index = (numberElected - i) - 1; // we work backwards through the list. 
+            cal[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
+            _elected[_electedSorted[index]] = uint48(0);
             _electedSorted.pop();
         }
 
@@ -91,7 +92,7 @@ contract RandomlySelect is Law {
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
                 address accountElect = NominateMe(NOMINEES).nomineesSorted(i);   
-                cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, accountElect, true);
+                cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
                 _elected[accountElect] = uint48(block.timestamp);
                 _electedSorted.push(accountElect);
             }
@@ -107,7 +108,7 @@ contract RandomlySelect is Law {
                 uint256 indexSelected = (pseudoRandomValue / 10 ** (i+1)) % (numberNominees - i); 
                 address selectedNominee = _nomineesSorted[indexSelected];
                     // creating call, assigning role, adding nominee to elected, and removing nominee from nominees list.
-                    cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, selectedNominee, true); // selector probably wrong. check later.
+                    cal[i] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, selectedNominee); // selector probably wrong. check later.
                     _elected[selectedNominee] = uint48(block.timestamp);
                     _electedSorted.push(selectedNominee);
                     // note that we do not need to .pop the last item of the list, because it will never be accessed as the modulo decreases each run. 

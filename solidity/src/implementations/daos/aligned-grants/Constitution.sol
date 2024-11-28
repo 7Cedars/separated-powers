@@ -6,13 +6,13 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 // electoral laws
 import { Law } from "../../../Law.sol";
 import { ILaw } from "../../../interfaces/ILaw.sol";
+import { NominateMe } from "../../laws/electoral/NominateMe.sol";
 import { TokensSelect } from "../../laws/electoral/TokensSelect.sol";
 import { DirectSelect } from "../../laws/electoral/DirectSelect.sol";
 import "lib/openzeppelin-contracts/contracts/utils/ShortStrings.sol";
 
 // executive laws
 import { ProposalOnly } from "../../laws/executive/ProposalOnly.sol";
-import { PresetAction } from "../../laws/executive/ProposalOnly.sol";
 import { BespokeAction } from "../../laws/executive/BespokeAction.sol";
 import { RevokeRole } from "./RevokeRole.sol";
 import { ReinstateRole } from "./ReinstateRole.sol";
@@ -50,17 +50,26 @@ contract Constitution {
     allowedRoles[0] = type(uint32).max;
 
     laws[1] = address(
+        new NominateMe(
+            "Nominees for WHALE_ROLE", // max 31 chars
+            "Anyone can nominate themselves for a role WHALE_ROLE",
+            dao_
+        )
+    );
+    allowedRoles[1] = type(uint32).max;
+
+    laws[2] = address(
         new TokensSelect(
             "Members select WHALE_ROLE", // max 31 chars
-            "Members can call (and pay for) a whale election at any time. They can also nominate themselves. The nominated accounts with most tokens will be assigned the WHALE_ROLE.  No vote needed",
+            "Members can call (and pay for) a whale election at any time. The nominated accounts with most tokens will be assigned the role.",
             dao_,
             mock1155_,
-            address(0), 
+            laws[1], 
             15,
             AlignedGrants(dao_).WHALE_ROLE() // 2 // AlignedGrants.WHALE_ROLE()
         )
     );
-    allowedRoles[1] = AlignedGrants(dao_).MEMBER_ROLE(); // 3; // AlignedGrants.MEMBER_ROLE();
+    allowedRoles[2] = AlignedGrants(dao_).MEMBER_ROLE(); // 3; // AlignedGrants.MEMBER_ROLE();
 
     // laws[2] = DirectSelect(
     //     new VoteSelect(

@@ -135,7 +135,7 @@ abstract contract TestSetupSeparatedPowers is Test, TestVariables, TestHelpers {
             laws, 
             allowedRoles, 
             lawsConfig
-            ) = constitutionsMock.initiateFirst(payable(address(daoMock)), payable(address((erc1155Mock))));
+            ) = constitutionsMock.initiateSeparatedPowersConstitution(payable(address(daoMock)), payable(address((erc1155Mock))));
 
         (constituentRoles, constituentAccounts) = foundersMock.get(payable(address(daoMock)), users);
 
@@ -208,7 +208,7 @@ abstract contract TestSetupLaw is Test, TestVariables, TestHelpers {
             laws, 
             allowedRoles, 
             lawsConfig
-            ) = constitutionsMock.initiateThird(payable(address(daoMock)), payable(address((erc1155Mock))));
+            ) = constitutionsMock.initiateLawTestConstitution(payable(address(daoMock)), payable(address((erc1155Mock))));
 
         (constituentRoles, constituentAccounts) = foundersMock.get(payable(address(daoMock)), users);
 
@@ -290,7 +290,7 @@ abstract contract TestSetupImplementations is Test, TestVariables, TestHelpers {
             laws, 
             allowedRoles, 
             lawsConfig
-            ) = constitutionsMock.initiateFourth(
+            ) = constitutionsMock.initiateImplementationConstitution(
                 payable(address(daoMock)), 
                 payable(address((erc1155Mock))),
                 payable(address((erc20VotesMock)))

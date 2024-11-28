@@ -492,7 +492,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         bytes[] memory cal = new bytes[](1);
         tar[0] = address(daoMock);
         val[0] = 0;
-        cal[0] = abi.encodeWithSelector(daoMock.setRole.selector, ROLE_ONE, mockAddress, true); // selector = assignRole
+        cal[0] = abi.encodeWithSelector(daoMock.assignRole.selector, ROLE_ONE, mockAddress); // selector = assignRole
 
         // act & assert
         vm.expectEmit(true, false, false, false);
@@ -621,7 +621,7 @@ contract ConstituteTest is TestSetupSeparatedPowers {
         ILaw.LawConfig[] memory lawsConfig;
         (
             laws, allowedRoles, lawsConfig
-            ) = constitutionsMock.initiateFirst(
+            ) = constitutionsMock.initiateSeparatedPowersConstitution(
                 payable(address(daoMockTest)), 
                 payable(address((erc1155Mock)))
                 );
@@ -645,7 +645,7 @@ contract ConstituteTest is TestSetupSeparatedPowers {
         ILaw.LawConfig[] memory lawsConfig;
         (
             laws, allowedRoles, lawsConfig
-            ) = constitutionsMock.initiateFirst(
+            ) = constitutionsMock.initiateSeparatedPowersConstitution(
                 payable(address(daoMockTest)), 
                 payable(address((erc1155Mock)))
                 );
@@ -671,7 +671,7 @@ contract ConstituteTest is TestSetupSeparatedPowers {
         ILaw.LawConfig[] memory lawsConfig;
         (
             laws, allowedRoles, lawsConfig
-            ) = constitutionsMock.initiateFirst(
+            ) = constitutionsMock.initiateSeparatedPowersConstitution(
                 payable(address(daoMockTest)), 
                 payable(address((erc1155Mock)))
                 );
@@ -692,7 +692,7 @@ contract ConstituteTest is TestSetupSeparatedPowers {
         ILaw.LawConfig[] memory lawsConfig;
         (
             laws, allowedRoles, lawsConfig
-            ) = constitutionsMock.initiateFirst(
+            ) = constitutionsMock.initiateSeparatedPowersConstitution(
                 payable(address(daoMockTest)), 
                 payable(address((erc1155Mock)))
                 );
@@ -824,7 +824,7 @@ contract SetRoleTest is TestSetupSeparatedPowers {
 
         // act
         vm.prank(address(daoMock));
-        daoMock.setRole(ROLE_THREE, bob, true);
+        daoMock.assignRole(ROLE_THREE, bob);
 
         // assert: bob now holds ROLE_THREE
         assertNotEq(daoMock.hasRoleSince(bob, ROLE_THREE), 0);
@@ -833,7 +833,7 @@ contract SetRoleTest is TestSetupSeparatedPowers {
     function testSetRoleRevertsWhenCalledFromOutsidePropotocol() public {
         vm.prank(alice);
         vm.expectRevert(SeparatedPowers__OnlySeparatedPowers.selector);
-        daoMock.setRole(ROLE_THREE, bob, true);
+        daoMock.assignRole(ROLE_THREE, bob);
     }
 
     function testSetRoleRevertsIfAccountAlreadyHasRole() public {
@@ -842,7 +842,7 @@ contract SetRoleTest is TestSetupSeparatedPowers {
 
         vm.prank(address(daoMock));
         vm.expectRevert(SeparatedPowers__RoleAccessNotChanged.selector);
-        daoMock.setRole(ROLE_ONE, bob, true);
+        daoMock.assignRole(ROLE_ONE, bob);
     }
 
     function testAddingRoleAddsOneToAmountMembers() public {
@@ -852,7 +852,7 @@ contract SetRoleTest is TestSetupSeparatedPowers {
 
         // act
         vm.prank(address(daoMock));
-        daoMock.setRole(ROLE_THREE, bob, true);
+        daoMock.assignRole(ROLE_THREE, bob);
 
         // assert
         uint256 amountMembersAfter = daoMock.getAmountRoleHolders(ROLE_THREE);
@@ -867,7 +867,7 @@ contract SetRoleTest is TestSetupSeparatedPowers {
 
         // act
         vm.prank(address(daoMock));
-        daoMock.setRole(ROLE_ONE, bob, false);
+        daoMock.revokeRole(ROLE_ONE, bob);
 
         // assert
         uint256 amountMembersAfter = daoMock.getAmountRoleHolders(ROLE_ONE);
@@ -880,6 +880,6 @@ contract SetRoleTest is TestSetupSeparatedPowers {
         vm.expectEmit(true, false, false, false);
         emit RoleSet(ROLE_THREE, bob);
         vm.prank(address(daoMock));
-        daoMock.setRole(ROLE_THREE, bob, true);
+        daoMock.assignRole(ROLE_THREE, bob);
     }
 }

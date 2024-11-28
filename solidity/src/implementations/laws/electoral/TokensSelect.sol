@@ -21,7 +21,7 @@
 /// - has two internal mechanisms: nominate or elect. Which one is run depends on calldata input.
 /// - doess not have to role restricted.
 /// - translates a simple token based voting system to separated powers.
-/// - Note this logic can also be applied with a delegation logic added. Not only taking simple token holdings into account, but also delegated tokens.
+/// - Note this logic can also be applied with a delegation logic added. Not only taking simple token holdings into account, but also delegated tokens. 
 
 pragma solidity 0.8.26;
 
@@ -85,9 +85,10 @@ contract TokensSelect is Law {
         for (uint256 i; i < arrayLength; i++) { tar[i] = separatedPowers; } 
 
         // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts. 
-        for (uint256 i = 0; i < numberElected; i++) {
-            cal[i] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _electedSorted[i], false);
-            _elected[_electedSorted[i]] = uint48(0);
+        for (uint256 i; i < numberElected; i++) {
+            uint256 index = (numberElected - i) - 1; // we work backwards through the list. 
+            cal[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
+            _elected[_electedSorted[index]] = uint48(0);
             _electedSorted.pop();
         }
 
@@ -95,7 +96,7 @@ contract TokensSelect is Law {
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
                 address accountElect = NominateMe(NOMINEES).nomineesSorted(i);   
-                cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, accountElect, true);
+                cal[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
                 _elected[accountElect] = uint48(block.timestamp);
                 _electedSorted.push(accountElect);
             }
@@ -123,7 +124,7 @@ contract TokensSelect is Law {
                 } 
                 // 3: assigning role if rank is less than MAX_ROLE_HOLDERS.
                 if (rank < MAX_ROLE_HOLDERS) {
-                    cal[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.setRole.selector, ROLE_ID, _nomineesSorted[i], true); 
+                    cal[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]); 
                     _elected[_nomineesSorted[i]] = uint48(block.timestamp);
                     _electedSorted.push(_nomineesSorted[i]);
                     index++;
