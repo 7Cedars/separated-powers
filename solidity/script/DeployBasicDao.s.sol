@@ -4,18 +4,18 @@ pragma solidity 0.8.26;
 import { Script, console2 } from "lib/forge-std/src/Script.sol";
 
 // core contracts
-import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
-import { Law } from "../../src/Law.sol";
-import { ILaw } from "../../src/interfaces/ILaw.sol";
-import { SeparatedPowersTypes } from "../../src/interfaces/SeparatedPowersTypes.sol";
-import { MockErc20Votes } from "../../src/mocks/MockErc20Votes.sol";
+import { SeparatedPowers } from "../src/SeparatedPowers.sol";
+import { Law } from "../src/Law.sol";
+import { ILaw } from "../src/interfaces/ILaw.sol";
+import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
+import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
 // dao
-import { Constitution } from "../../src/implementations/daos/basic-dao/Constitution.sol";
-import { Founders } from "../../src/implementations/daos/basic-dao/Founders.sol";
+import { Constitution } from "../src/implementations/daos/basic-dao/Constitution.sol";
+import { Founders } from "../src/implementations/daos/basic-dao/Founders.sol";
 
 contract DeployBasicDao is Script {
     /* Functions */
-    function run(MockErc20Votes mockErc20Votes)
+    function run(Erc20VotesMock erc20VotesMock)
         external
         returns (
             SeparatedPowers basicDao,
@@ -35,10 +35,10 @@ contract DeployBasicDao is Script {
         basicDao = new SeparatedPowers("basicDao");
 
         (laws, allowedRoles, lawConfigs) = constitution.initiate(
-            payable(address(basicDao)), payable(address((mockErc20Votes)))
+            payable(address(basicDao)), payable(address((erc20VotesMock)))
         );
 
-        (constituentRoles, constituentAccounts) = founders.get(payable(address(basicDao)));
+        (constituentRoles, constituentAccounts) = founders.get();
 
         basicDao.constitute(
             laws, allowedRoles, lawConfigs, constituentRoles, constituentAccounts

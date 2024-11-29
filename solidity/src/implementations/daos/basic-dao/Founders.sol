@@ -9,22 +9,17 @@
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
-import { BasicDao } from "./BasicDao.sol";
-
 contract Founders {
-    BasicDao basicDao;
-
     uint256 constant LOCAL_CHAIN_ID = 31_337;
     // uint256 constant ETH_SEPOLIA_CHAIN_ID = 11155111;
     // uint256 constant OPT_SEPOLIA_CHAIN_ID = 11155420;
     // uint256 constant ARB_SEPOLIA_CHAIN_ID = 421614;
     // uint256 constant BASE_SEPOLIA_CHAIN_ID = 84532;
 
-    function get(address payable basicDao_)
+    function get()
         external
         returns (uint32[] memory constituentRoles, address[] memory constituentAccounts)
     {
-        basicDao = BasicDao(basicDao_);
         return getFoundersByChainId(block.chainid);
     }
 
@@ -55,11 +50,11 @@ contract Founders {
         address anvil_2 = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
 
         constituentAccounts[0] = anvil_0;
-        constituentRoles[0] = basicDao.SENIOR_ROLE();
+        constituentRoles[0] = 1;
         constituentAccounts[1] = anvil_1;
-        constituentRoles[1] = basicDao.SENIOR_ROLE();
+        constituentRoles[1] = 1;
         constituentAccounts[2] = anvil_2;
-        constituentRoles[2] = basicDao.SENIOR_ROLE();
+        constituentRoles[2] = 1;
 
         return (constituentRoles, constituentAccounts);
     }
