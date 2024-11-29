@@ -8,18 +8,17 @@ import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
 import { Law } from "../../src/Law.sol";
 import { ILaw } from "../../src/interfaces/ILaw.sol";
 import { SeparatedPowersTypes } from "../../src/interfaces/SeparatedPowersTypes.sol";
-import { Erc1155Mock } from "../../test/mocks/Erc1155Mock.sol";
+import { MockErc20Votes } from "../../src/mocks/MockErc20Votes.sol";
 // dao
-import { AlignedGrants } from "../../src/implementations/daos/aligned-grants/AlignedGrants.sol";
-import { Constitution } from "../../src/implementations/daos/aligned-grants/Constitution.sol";
-import { Founders } from "../../src/implementations/daos/aligned-grants/Founders.sol";
+import { Constitution } from "../../src/implementations/daos/basic-dao/Constitution.sol";
+import { Founders } from "../../src/implementations/daos/basic-dao/Founders.sol";
 
-contract DeployAlignedGrants is Script {
+contract DeployBasicDao is Script {
     /* Functions */
-    function run(Erc1155Mock erc1155Mock)
+    function run(MockErc20Votes mockErc20Votes)
         external
         returns (
-            AlignedGrants,
+            SeparatedPowers basicDao,
             address[] memory laws,
             uint32[] memory allowedRoles,
             ILaw.LawConfig[] memory lawConfigs,
@@ -33,21 +32,21 @@ contract DeployAlignedGrants is Script {
         
         // Deploying contracts.
         vm.startBroadcast();
-        AlignedGrants alignedGrants = new AlignedGrants();
+        basicDao = new SeparatedPowers("basicDao");
 
         (laws, allowedRoles, lawConfigs) = constitution.initiate(
-            payable(address(alignedGrants)), payable(address((erc1155Mock)))
+            payable(address(basicDao)), payable(address((mockErc20Votes)))
         );
 
-        (constituentRoles, constituentAccounts) = founders.get(payable(address(alignedGrants)));
+        (constituentRoles, constituentAccounts) = founders.get(payable(address(basicDao)));
 
-        alignedGrants.constitute(
+        basicDao.constitute(
             laws, allowedRoles, lawConfigs, constituentRoles, constituentAccounts
         );
         vm.stopBroadcast();
 
         return (
-            alignedGrants, laws, allowedRoles, lawConfigs, constituentRoles, constituentAccounts
+            basicDao, laws, allowedRoles, lawConfigs, constituentRoles, constituentAccounts
         );
     }
 }

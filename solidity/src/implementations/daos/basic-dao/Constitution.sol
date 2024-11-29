@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-/// @notice Example DAO constitution for the BasicDao example.
+/// @notice Example DAO constitution for the SeparatedPowers example.
 /// 
 /// @dev The constitution uses four roles: PUBLIC_ROLE, DELEGATE_ROLE, SENIOR_ROLE, and ADMIN_ROLE.
 /// - PUBLIC_ROLE: is anyone. 
@@ -32,9 +32,6 @@ import { NominateMe } from "../../laws/electoral/NominateMe.sol";
 // executive laws
 import { ProposalOnly } from "../../laws/executive/ProposalOnly.sol";
 import { OpenAction } from "../../laws/executive/OpenAction.sol";
-
-// dao and its bespoke laws
-import { BasicDao } from "./BasicDao.sol";
 
 contract Constitution {
     uint32 constant NUMBER_OF_LAWS = 6;
@@ -71,20 +68,20 @@ contract Constitution {
             mockErc20Votes_, // the tokens that will be used as votes in the election. 
             laws[0], // nominateMe 
             25,
-            BasicDao(dao_).DELEGATE_ROLE()
+            2
         )
     );
-    allowedRoles[1] = BasicDao(dao_).PUBLIC_ROLE(); // anyone can call for an election at any time. 
+    allowedRoles[1] = SeparatedPowers(dao_).PUBLIC_ROLE(); // anyone can call for an election at any time. 
 
     laws[2] = address(
         new DirectSelect(
             "Seniors elect seniors", // max 31 chars
             "Seniors can propose and vote to (de)select an account for the SENIOR_ROLE.",
             dao_,
-            BasicDao(dao_).SENIOR_ROLE()
+            1
         )
     ); 
-    allowedRoles[2] = BasicDao(dao_).SENIOR_ROLE(); 
+    allowedRoles[2] = 1; 
     lawConfigs[2].quorum = 20; // = Only 20% quorum needed
     lawConfigs[2].succeedAt = 66; // = but at least 2/3 majority needed for assigning and revoking members.
     lawConfigs[2].votingPeriod = 1200; // = number of blocks
@@ -108,7 +105,7 @@ contract Constitution {
             paramsAction
         )
     );
-    allowedRoles[3] = BasicDao(dao_).DELEGATE_ROLE(); 
+    allowedRoles[3] = 2; 
     lawConfigs[3].quorum = 66; // = Two thirds quorum needed to pass the proposal
     lawConfigs[3].succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
     lawConfigs[3].votingPeriod = 50400; // = duration in number of blocks to vote, about one week. 
@@ -120,7 +117,7 @@ contract Constitution {
             dao_ // separated powers
         )
     );
-    allowedRoles[4] = BasicDao(dao_).SENIOR_ROLE(); 
+    allowedRoles[4] = 1; 
     lawConfigs[4].quorum = 51; // = 51 majority of seniors need to vote. 
     lawConfigs[4].succeedAt = 66; // =  two/thirds majority FOR vote needed to pass. 
     lawConfigs[4].votingPeriod = 50400; // = duration in number of blocks to vote, about one week. 
@@ -136,6 +133,6 @@ contract Constitution {
             paramsAction
         )
     );
-    allowedRoles[5] = BasicDao(dao_).ADMIN_ROLE(); 
+    allowedRoles[5] = SeparatedPowers(dao_).ADMIN_ROLE(); 
     }
 }
