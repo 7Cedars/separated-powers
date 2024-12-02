@@ -13,9 +13,7 @@ import { DeployAlignedGrants } from "../../script/DeployAlignedGrants.s.sol";
 import { Erc1155Mock } from "../../test/mocks/Erc1155Mock.sol";
 import { Erc20VotesMock } from "../../test/mocks/Erc20VotesMock.sol";
 
-import { AlignedGrants } from "../../src/implementations/daos/aligned-grants/AlignedGrants.sol";
-import { Constitution } from "../../src/implementations/daos/aligned-grants/Constitution.sol";
-import { Founders } from "../../src/implementations/daos/aligned-grants/Founders.sol";
+import { AlignedGrants } from "../../src/implementations/daos/AlignedGrants.sol";
 import { TestVariables, TestHelpers } from "../../test/TestSetup.t.sol";
 
 /////////////////////////////////////////////////////
@@ -30,77 +28,73 @@ abstract contract TestSetupAlignedGrants is Test, TestVariables, TestHelpers {
 
     // note that this setup does not scale very well re the number of daos.
     function setUpVariables() public virtual {
-        // votes types
-        AGAINST = 0;
-        FOR = 1;
-        ABSTAIN = 2;
+        // // votes types
+        // AGAINST = 0;
+        // FOR = 1;
+        // ABSTAIN = 2;
 
-        // roles
-        ADMIN_ROLE = 0;
-        PUBLIC_ROLE = type(uint32).max;
-        ROLE_ONE = 1;
-        ROLE_TWO = 2;
-        ROLE_THREE = 3;
+        // // roles
+        // ADMIN_ROLE = 0;
+        // PUBLIC_ROLE = type(uint32).max;
+        // ROLE_ONE = 1;
+        // ROLE_TWO = 2;
+        // ROLE_THREE = 3;
 
-        // deploy mocks
-        erc1155Mock = new Erc1155Mock();
-        erc20VotesMock = new Erc20VotesMock();
-        alignedGrants = new AlignedGrants();
+        // // deploy mocks
+        // erc1155Mock = new Erc1155Mock();
+        // erc20VotesMock = new Erc20VotesMock();
+        // alignedGrants = new AlignedGrants();
 
-        Constitution constitution = new Constitution();
-        Founders founders = new Founders();
+        // // users
+        // alice = makeAddr("alice");
+        // bob = makeAddr("bob");
+        // charlotte = makeAddr("charlotte");
+        // david = makeAddr("david");
+        // eve = makeAddr("eve");
+        // frank = makeAddr("frank");
+        // gary = makeAddr("gary");
+        // helen = makeAddr("helen");
 
-        // users
-        alice = makeAddr("alice");
-        bob = makeAddr("bob");
-        charlotte = makeAddr("charlotte");
-        david = makeAddr("david");
-        eve = makeAddr("eve");
-        frank = makeAddr("frank");
-        gary = makeAddr("gary");
-        helen = makeAddr("helen");
-
-        // assign funds
-        vm.deal(alice, 10 ether);
-        vm.deal(bob, 10 ether);
-        vm.deal(charlotte, 10 ether);
-        vm.deal(david, 10 ether);
-        vm.deal(eve, 10 ether);
-        vm.deal(frank, 10 ether);
-        vm.deal(gary, 10 ether);
-        vm.deal(helen, 10 ether);
+        // // assign funds
+        // vm.deal(alice, 10 ether);
+        // vm.deal(bob, 10 ether);
+        // vm.deal(charlotte, 10 ether);
+        // vm.deal(david, 10 ether);
+        // vm.deal(eve, 10 ether);
+        // vm.deal(frank, 10 ether);
+        // vm.deal(gary, 10 ether);
+        // vm.deal(helen, 10 ether);
         
-        users = [alice, bob, charlotte, david, eve, frank, gary, helen];
+        // users = [alice, bob, charlotte, david, eve, frank, gary, helen];
 
-        // assign tokens to users. Increasing amount coins as we go down the list. 
-        for (uint256 i; i < users.length; i++) {
-            vm.startPrank(users[i]);
-            erc1155Mock.mintCoins((i + 1) * 100);
-            erc20VotesMock.mintVotes((i + 1) * 100);
-            erc20VotesMock.delegate(users[i]); // users delegate votes to themselves. 
-            vm.stopPrank();
-        }
+        // // assign tokens to users. Increasing amount coins as we go down the list. 
+        // for (uint256 i; i < users.length; i++) {
+        //     vm.startPrank(users[i]);
+        //     erc1155Mock.mintCoins((i + 1) * 100);
+        //     erc20VotesMock.mintVotes((i + 1) * 100);
+        //     erc20VotesMock.delegate(users[i]); // users delegate votes to themselves. 
+        //     vm.stopPrank();
+        // }
         
-        // get constitution and founders lists.
-        // note: copying structs from memory to storage is not yet supported in solidity. 
-        // Hence we need to create a memory variable to store lawsConfig, while laws and allowedRoles are stored in storage.
-        ILaw.LawConfig[] memory lawsConfig;
-        (            
-            laws, 
-            allowedRoles, 
-            lawsConfig
-            ) = constitution.initiate(
-                payable(address(alignedGrants)), 
-                payable(address((erc1155Mock)))
-                );
+        // // get constitution and founders lists.
+        // // note: copying structs from memory to storage is not yet supported in solidity. 
+        // // Hence we need to create a memory variable to store lawsConfig, while laws and allowedRoles are stored in storage.
+        // ILaw.LawConfig[] memory lawsConfig;
+        // (            
+        //     laws, 
+        //     allowedRoles, 
+        //     lawsConfig
+        //     ) = constitution.initiate(
+        //         payable(address(alignedGrants)), 
+        //         payable(address((erc1155Mock)))
+        //         );
         
-        (constituentRoles, constituentAccounts) = founders.get(payable(address(alignedGrants)));
+        // (constituentRoles, constituentAccounts) = founders.get(payable(address(alignedGrants)));
 
-        // constitute daoMock.
-        alignedGrants.constitute(
-            laws, allowedRoles, lawsConfig,
-            constituentRoles, constituentAccounts
-        );
+        // // constitute daoMock.
+        // alignedGrants.constitute(
+        //     laws, constituentRoles, constituentAccounts
+        // );
     }
 }
 

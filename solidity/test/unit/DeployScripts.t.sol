@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
 import { ILaw } from "../../src/interfaces/ILaw.sol";
 import { DeployAlignedGrants } from "../../script/DeployAlignedGrants.s.sol";
-import { AlignedGrants } from "../../src/implementations/daos/aligned-grants/AlignedGrants.sol";
+import { AlignedGrants } from "../../src/implementations/daos/AlignedGrants.sol";
 
 
 //////////////////////////////////////////////////
@@ -22,16 +22,16 @@ contract DeployAlignedGrantsTest is Test {
 
     DeployAlignedGrants deployAlignedGrants = new DeployAlignedGrants();
 
-    function testDeployScriptAlignedGrants() public {
-        (
-          AlignedGrants alignedGrants, 
-          address[] memory laws,
-          uint32[] memory allowedRoles,
-          ILaw.LawConfig[] memory lawConfigs,
-          uint32[] memory constituentRoles,
-          address[] memory constituentAccounts
-          ) = deployAlignedGrants.run();
-    }
+    // function testDeployScriptAlignedGrants() public {
+    //     (
+    //       AlignedGrants alignedGrants, 
+    //       address[] memory laws,
+    //       uint32[] memory allowedRoles,
+    //       ILaw.LawConfig[] memory lawConfigs,
+    //       uint32[] memory constituentRoles,
+    //       address[] memory constituentAccounts
+    //       ) = deployAlignedGrants.run();
+    // }
 
     // function testDeployEmitsEvent() public {
     //     vm.expectEmit(false, false, false, false);

@@ -50,11 +50,13 @@ contract DelegateSelect is Law {
         string memory name_,
         string memory description_,
         address payable separatedPowers_,
+        uint32 allowedRole_, 
+        LawConfig memory config_,
         address payable erc20Token_,
         address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
-    ) Law(name_, description_, separatedPowers_) {
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         ERC_20_VOTE_TOKEN = erc20Token_; // £todo interface should be checked here. 
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
@@ -132,9 +134,12 @@ contract DelegateSelect is Law {
                 } 
                 console.log("waypoint 7"); 
                 // c: assigning role if rank is less than MAX_ROLE_HOLDERS.
-                if (rank < MAX_ROLE_HOLDERS) {
+                if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberElected) {
+                    console.log("waypoint 7a"); 
                     calldatas[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nominees[i]); 
+                    console.log("waypoint 7b");
                     _elected[_nominees[i]] = uint48(block.timestamp);
+                    console.log("waypoint 7c");
                     _electedSorted.push(_nominees[i]);
                     index++;
                 }

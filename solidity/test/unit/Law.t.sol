@@ -15,9 +15,16 @@ import { ILaw } from "../../src/interfaces/ILaw.sol";
 //////////////////////////////////////////////////
 contract DeployTest is TestSetupLaw {
     using ShortStrings for *;
+    ILaw.LawConfig lawConfig;
 
     function testDeploy() public {
-        Law lawMock = new OpenAction("OpenAction Mock", "This is a mock of the open action law contract", address(123));
+        Law lawMock = new OpenAction(
+            "OpenAction Mock", 
+            "This is a mock of the open action law contract", 
+            address(123),
+            ROLE_ONE, 
+            lawConfig
+            );
 
         string memory lawMockName = lawMock.name().toString();
         string memory lawMockDescription = lawMock.description();
@@ -30,7 +37,13 @@ contract DeployTest is TestSetupLaw {
     function testDeployEmitsEvent() public {
         vm.expectEmit(false, false, false, false);
         emit Law__Initialized(address(0));
-        Law lawMock = new OpenAction("OpenAction Mock", "This is a mock of the open action law contract", address(123));
+        Law lawMock = new OpenAction(
+            "OpenAction Mock", 
+            "This is a mock of the open action law contract", 
+            address(123),
+            ROLE_ONE, 
+            lawConfig
+            );
     }
 }
 
@@ -48,7 +61,7 @@ contract NeedsProposalVoteTest is TestSetupLaw {
 
         // Loop through users, they vote for the proposal
         for (uint256 i = 0; i < users.length; i++) {
-            if (daoMock.hasRoleSince(users[i], allowedRoles[lawNumber]) != 0) {
+            if (daoMock.hasRoleSince(users[i], Law(laws[lawNumber]).allowedRole()) != 0) {
                 vm.prank(users[i]);
                 daoMock.castVote(actionId, FOR);
             }
@@ -74,7 +87,7 @@ contract NeedsProposalVoteTest is TestSetupLaw {
 
         // Loop through users, they vote against the proposal
         for (uint256 i = 0; i < users.length; i++) {
-            if (daoMock.hasRoleSince(users[i], allowedRoles[lawNumber]) != 0) {
+            if (daoMock.hasRoleSince(users[i], Law(laws[lawNumber]).allowedRole()) != 0) {
                 vm.prank(users[i]);
                 daoMock.castVote(actionId, AGAINST);
             }
@@ -114,7 +127,7 @@ contract NeedsParentCompletedTest is TestSetupLaw {
 
         // Loop through users, they vote for the proposal
         for (uint256 i = 0; i < users.length; i++) {
-            if (daoMock.hasRoleSince(users[i], allowedRoles[parentLawNumber]) != 0) {
+            if (daoMock.hasRoleSince(users[i], Law(laws[lawNumber]).allowedRole()) != 0) {
                 vm.prank(users[i]);
                 daoMock.castVote(actionId, FOR);
             }
@@ -149,7 +162,7 @@ contract NeedsParentCompletedTest is TestSetupLaw {
 
         // Loop through users, they vote against the proposal
         for (uint256 i = 0; i < users.length; i++) {
-            if (daoMock.hasRoleSince(users[i], allowedRoles[parentLawNumber]) != 0) {
+            if (daoMock.hasRoleSince(users[i], Law(laws[lawNumber]).allowedRole()) != 0) {
                 vm.prank(users[i]);
                 daoMock.castVote(actionId, AGAINST);
             }
@@ -177,7 +190,7 @@ contract ParentCanBlockTest is TestSetupLaw {
 
         // Loop through users, they vote for the proposal
         for (uint256 i = 0; i < users.length; i++) {
-            if (daoMock.hasRoleSince(users[i], allowedRoles[parentLawNumber]) != 0) {
+            if (daoMock.hasRoleSince(users[i], Law(laws[lawNumber]).allowedRole()) != 0) {
                 vm.prank(users[i]);
                 daoMock.castVote(actionId, FOR);
             }
@@ -206,7 +219,7 @@ contract ParentCanBlockTest is TestSetupLaw {
 
         // Loop through users, they vote against the proposal
         for (uint256 i = 0; i < users.length; i++) {
-            if (daoMock.hasRoleSince(users[i], allowedRoles[parentLawNumber]) != 0) {
+            if (daoMock.hasRoleSince(users[i], Law(laws[lawNumber]).allowedRole()) != 0) {
                 vm.prank(users[i]);
                 daoMock.castVote(actionId, AGAINST);
             }
@@ -239,7 +252,7 @@ contract DelayProposalExecutionTest is TestSetupLaw {
 
         // Loop through users, they vote for the proposal
         for (uint256 i = 0; i < users.length; i++) {
-            if (daoMock.hasRoleSince(users[i], allowedRoles[lawNumber]) != 0) {
+            if (daoMock.hasRoleSince(users[i], Law(laws[lawNumber]).allowedRole()) != 0) {
                 vm.prank(users[i]);
                 daoMock.castVote(actionId, FOR);
             }
@@ -264,7 +277,7 @@ contract DelayProposalExecutionTest is TestSetupLaw {
 
         // Loop through users, they vote for the proposal
         for (uint256 i = 0; i < users.length; i++) {
-            if (daoMock.hasRoleSince(users[i], allowedRoles[lawNumber]) != 0) {
+            if (daoMock.hasRoleSince(users[i], Law(laws[lawNumber]).allowedRole()) != 0) {
                 vm.prank(users[i]);
                 daoMock.castVote(actionId, FOR);
             }

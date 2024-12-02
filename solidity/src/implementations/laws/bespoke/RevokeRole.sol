@@ -5,7 +5,7 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 import { SeparatedPowers } from "../../../SeparatedPowers.sol";
-import { AlignedGrants } from "../../../implementations/daos/aligned-grants/AlignedGrants.sol";
+import { AlignedGrants } from "../../../implementations/daos/AlignedGrants.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 contract RevokeRole is Law {
@@ -13,9 +13,14 @@ contract RevokeRole is Law {
 
     uint32 private immutable _roleId;
 
-    constructor(string memory name_, string memory description_, address separatedPowers_, uint32 roleId_)
-        Law(name_, description_, separatedPowers_)
-    {
+    constructor(
+        string memory name_, 
+        string memory description_, 
+        address separatedPowers_, 
+        uint32 allowedRole_, 
+        LawConfig memory config_,
+        uint32 roleId_
+        ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         _roleId = roleId_;
         params = [dataType("address")];
     } 

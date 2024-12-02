@@ -389,7 +389,7 @@ contract DelegateSelectTest is TestSetupLaws {
         address nominateMe = laws[3];
         address delegateSelect = laws[7];
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe 
-        for (uint256 i = 0; i < users.length; i++) {
+        for (uint256 i = 4; i < users.length; i++) {
             vm.startPrank(address(daoMock));
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }

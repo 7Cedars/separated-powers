@@ -20,16 +20,22 @@ contract PresetAction is Law {
     /// @notice constructor of the law
     /// @param name_ the name of the law.
     /// @param description_ the description of the law.
+    /// @param separatedPowers_ the address of the core governance protocol
+    /// @param targets_ the targets to use in the calls.
+    /// @param allowedRole_ the role that is allowed to execute this law
+    /// @param config_ the configuration of the law
     /// @param values_ the values to use in the calls.
     /// @param calldatas_ the calldatas to use in the calls.
     constructor(
         string memory name_,
         string memory description_,
         address separatedPowers_,
+        uint32 allowedRole_, 
+        LawConfig memory config_,
         address[] memory targets_,
         uint256[] memory values_,
         bytes[] memory calldatas_
-    ) Law(name_, description_, separatedPowers_) {
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         _targets = targets_;
         _values = values_;
         _calldatas = calldatas_;

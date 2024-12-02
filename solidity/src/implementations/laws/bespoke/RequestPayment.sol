@@ -27,6 +27,8 @@ contract RequestPayment is Law {
     /// @param name_ the name of the law.
     /// @param description_ the description of the law.
     /// @param separatedPowers_ the address of the core governance protocol
+    /// @param allowedRole_ the role that is allowed to execute this law
+    /// @param config_ the configuration of the law
     /// @param erc1155Contract_ the address of the erc1155 contract
     /// @param tokenId_ the tokenId of the erc1155 contract
     /// @param amount_ the amount of the erc1155 contract
@@ -35,11 +37,13 @@ contract RequestPayment is Law {
         string memory name_,
         string memory description_,
         address separatedPowers_,
+        uint32 allowedRole_, 
+        LawConfig memory config_,
         address erc1155Contract_,
         uint256 tokenId_,
         uint256 amount_,
         uint48 personalDelay_ 
-    ) Law(name_, description_, separatedPowers_) {
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         params = new bytes4[](0); 
 
         erc1155Contract = erc1155Contract_;

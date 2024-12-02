@@ -50,11 +50,13 @@ contract TokensSelect is Law {
         string memory name_,
         string memory description_,
         address payable separatedPowers_,
+        uint32 allowedRole_, 
+        LawConfig memory config_,
         address payable erc1155Token_,
         address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
-    ) Law(name_, description_, separatedPowers_) {
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         ERC_1155_TOKEN = erc1155Token_;
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
@@ -122,7 +124,7 @@ contract TokensSelect is Law {
                     } 
                 } 
                 // 3: assigning role if rank is less than MAX_ROLE_HOLDERS.
-                if (rank < MAX_ROLE_HOLDERS) {
+                if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberElected) {
                     calldatas[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]); 
                     _elected[_nomineesSorted[i]] = uint48(block.timestamp);
                     _electedSorted.push(_nomineesSorted[i]);

@@ -35,8 +35,10 @@ contract NominateMe is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_
-    ) Law(name_, description_, separatedPowers_) {
+        address payable separatedPowers_,
+        uint32 allowedRole_, 
+        LawConfig memory config_
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         params = [dataType("bool")]; 
     }
 

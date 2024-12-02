@@ -49,10 +49,12 @@ contract RandomlySelect is Law {
         string memory name_,
         string memory description_,
         address payable separatedPowers_,
+        uint32 allowedRole_, 
+        LawConfig memory config_,
         address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
-    ) Law(name_, description_, separatedPowers_) {
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;

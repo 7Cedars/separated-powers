@@ -21,9 +21,15 @@ contract OpenAction is Law {
     /// @param name_ name of the law
     /// @param description_ description of the law
     /// @param separatedPowers_ the address of the core governance protocol
-    constructor(string memory name_, string memory description_, address separatedPowers_)
-        Law(name_, description_, separatedPowers_)
-    { 
+    /// @param allowedRole_ the role that is allowed to execute this law
+    /// @param config_ the configuration of the law
+    constructor(
+        string memory name_, 
+        string memory description_, 
+        address separatedPowers_,
+        uint32 allowedRole_, 
+        LawConfig memory config_
+        ) Law(name_, description_, separatedPowers_, allowedRole_, config_) { 
         params = [dataType("address[]"), dataType("uint256[]"), dataType("bytes[]")]; 
     }
 

@@ -34,8 +34,10 @@ contract DirectSelect is Law {
         string memory name_, 
         string memory description_, 
         address separatedPowers_, 
+        uint32 allowedRole_, 
+        LawConfig memory config_,
         uint32 roleId_
-        ) Law(name_, description_, separatedPowers_) {
+        ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
             ROLE_ID = roleId_;
             params = [dataType("bool")]; 
     }

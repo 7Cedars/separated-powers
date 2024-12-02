@@ -20,6 +20,8 @@ contract BespokeAction is Law {
     /// @param name_ the name of the law.
     /// @param description_ the description of the law.
     /// @param separatedPowers_ the address of the core governance protocol
+    /// @param allowedRole_ the role that is allowed to execute this law
+    /// @param config_ the configuration of the law
     /// @param targetContract_ the address of the target contract
     /// @param targetFunction_ the function of the target contract
     /// @param params_ the parameters of the function
@@ -27,10 +29,12 @@ contract BespokeAction is Law {
         string memory name_,
         string memory description_,
         address separatedPowers_,
+        uint32 allowedRole_, 
+        LawConfig memory config_,
         address targetContract_,
         bytes4 targetFunction_,
         bytes4[] memory params_
-    ) Law(name_, description_, separatedPowers_) {
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         _targetContract = targetContract_;
         _targetFunction = targetFunction_;
         params = params_;
