@@ -286,11 +286,9 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////
     /// @inheritdoc ISeparatedPowers
     function constitute(
-        // laws data
+        // laws
         address[] memory constituentLaws,
-        uint32[] memory allowedRoles,
-        ILaw.LawConfig[] memory lawConfigs,
-        // roles data
+        // roles
         uint32[] memory constituentRoles,
         address[] memory constituentAccounts
     ) external virtual {
@@ -299,16 +297,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             revert SeparatedPowers__AccessDenied();
         }
 
-        // check 2: check lengths of arrays
-        if (
-            constituentLaws.length != allowedRoles.length || 
-            constituentLaws.length != lawConfigs.length || 
-            constituentRoles.length != constituentAccounts.length
-        ) {
-            revert SeparatedPowers__InvalidArrayLengths();
-        }
-
-        // check 3: this function can only be called once.
+        // check 2: this function can only be called once.
         if (_constituentLawsExecuted) {
             revert SeparatedPowers__ConstitutionAlreadyExecuted();
         }
@@ -318,7 +307,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
         // ...set laws
         for (uint256 i = 0; i < constituentLaws.length; i++) {
-            _setLaw(constituentLaws[i], allowedRoles[i], lawConfigs[i]);
+            _setLaw(constituentLaws[i]);
         }
         // ...and set roles
         for (uint256 i = 0; i < constituentRoles.length; i++) {
@@ -327,13 +316,13 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function setLaw(
-        address law, 
-        uint32 allowedRole,
-        ILaw.LawConfig memory lawConfig
-        ) public onlySeparatedPowers {
-            _setLaw(law, allowedRole, lawConfig);
+    function adoptLaw(address law) public onlySeparatedPowers {
+        if (laws[law]) {
+            revert SeparatedPowers__LawAlreadyActive();
         }
+
+        _setLaw(law);
+    }
 
     /// @inheritdoc ISeparatedPowers
     function revokeLaw(address law) public onlySeparatedPowers {
@@ -348,36 +337,17 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     /// @notice internal function to set a law or revoke it.
     ///
     /// @param law address of the law.
-    /// @param allowedRole : the allowed role of the law.
-    /// @param lawConfig : the configuration of the law
     ///
     /// Emits a {SeperatedPowersEvents::LawSet} event.
-    function _setLaw(
-        address law, 
-        uint32 allowedRole, 
-        ILaw.LawConfig memory lawConfig
-        )
-        internal
-        virtual
-    {
+    function _setLaw(address law) internal virtual {
         // check if added address is indeed a law
         if (!ERC165Checker.supportsInterface(law, type(ILaw).interfaceId)) {
             revert SeparatedPowers__IncorrectInterface();
         }
 
-        bool existingLaw = (laws[law]);
-
-        Law(law).setLawConfig(
-            allowedRole, 
-            lawConfig
-        ); 
         laws[law] = true; 
 
-        emit LawSet(
-            law, 
-            allowedRole, 
-            existingLaw
-            );
+        emit LawSet(law);
     }
 
     /// @inheritdoc ISeparatedPowers

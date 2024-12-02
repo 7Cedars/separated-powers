@@ -37,10 +37,10 @@ import "forge-std/Test.sol";
 contract DelegateSelect is Law {
     using ShortStrings for *;
 
-    address private immutable ERC_20_VOTE_TOKEN;
-    uint256 private immutable MAX_ROLE_HOLDERS;
-    uint32 private immutable ROLE_ID;
-    address private immutable NOMINEES;
+    address public immutable ERC_20_VOTE_TOKEN;
+    uint256 public immutable MAX_ROLE_HOLDERS;
+    uint32 public immutable ROLE_ID;
+    address public immutable NOMINEES;
 
     mapping(address => uint48) private _elected;
     address[] private _electedSorted;

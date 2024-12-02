@@ -21,9 +21,9 @@ contract AlignedGrants is SeparatedPowers {
     using ShortStrings for *;
 
     // Optional naming uint48 roles at initiation.
-    uint32 public constant SENIOR_ROLE = 1;
+    uint32 public constant MEMBER_ROLE = 1;
     uint32 public constant WHALE_ROLE = 2;
-    uint32 public constant MEMBER_ROLE = 3;
+    uint32 public constant SENIOR_ROLE = 3;
 
     ShortString[] public coreValue; // description of short strings. have to be shorter than 31 characters.
     mapping(address => bool) public blacklistedAccounts; // description of short strings. have to be shorter than 31 characters.

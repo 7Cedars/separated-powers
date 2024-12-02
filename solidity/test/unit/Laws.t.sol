@@ -4,7 +4,7 @@ pragma solidity 0.8.26;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
-import { TestSetupImplementations } from "../TestSetup.t.sol";
+import { TestSetupLaws } from "../TestSetup.t.sol";
 import { Law } from "../../src/Law.sol";
 import { Erc1155Mock } from "../mocks/Erc1155Mock.sol";
 import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.sol";
@@ -12,7 +12,7 @@ import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.
 //////////////////////////////////////////////////
 //              ELECTORAL LAWS                  //
 //////////////////////////////////////////////////
-contract DirectSelectTest is TestSetupImplementations {
+contract DirectSelectTest is TestSetupLaws {
     using ShortStrings for *;
     error DirectSelect__AccountDoesNotHaveRole();
     error DirectSelect__AccountAlreadyHasRole();
@@ -89,7 +89,7 @@ contract DirectSelectTest is TestSetupImplementations {
     }
 }
 
-contract NominateMeTest is TestSetupImplementations {
+contract NominateMeTest is TestSetupLaws {
     using ShortStrings for *;
 
     error NominateMe__NomineeAlreadyNominated();
@@ -158,7 +158,7 @@ contract NominateMeTest is TestSetupImplementations {
     }
 }
 
-contract RandomlySelectTest is TestSetupImplementations {
+contract RandomlySelectTest is TestSetupLaws {
     using ShortStrings for *;
 
     function testAssignRolesWithFewNominees() public {
@@ -257,7 +257,7 @@ contract RandomlySelectTest is TestSetupImplementations {
     }
 }
 
-contract TokenSelectTest is TestSetupImplementations {
+contract TokenSelectTest is TestSetupLaws {
     using ShortStrings for *;
 
     function testAssignTokenRolesWithFewNominees() public {
@@ -354,7 +354,7 @@ contract TokenSelectTest is TestSetupImplementations {
     }
 }
 
-contract DelegateSelectTest is TestSetupImplementations {
+contract DelegateSelectTest is TestSetupLaws {
     using ShortStrings for *;
 
     function testAssignDelegateRolesWithFewNominees() public {
@@ -453,7 +453,7 @@ contract DelegateSelectTest is TestSetupImplementations {
 //////////////////////////////////////////////////
 //              EXECUTIVE LAWS                  //
 //////////////////////////////////////////////////
-contract OpenActionTest is TestSetupImplementations {
+contract OpenActionTest is TestSetupLaws {
     using ShortStrings for *;
 
     function testExecuteAction() public {
@@ -479,7 +479,7 @@ contract OpenActionTest is TestSetupImplementations {
     }
 }
 
-contract ProposalOnlyTest is TestSetupImplementations {
+contract ProposalOnlyTest is TestSetupLaws {
     using ShortStrings for *;
 
     function testReturnDataProposalOnly() public {
@@ -498,7 +498,7 @@ contract ProposalOnlyTest is TestSetupImplementations {
     }
 }
 
-contract BespokeActionTest is TestSetupImplementations {
+contract BespokeActionTest is TestSetupLaws {
     function testReturnDataBespokeAction() public {
         // this bespoke action mints coins in the mock1155 contract. 
         address bespokeAction = laws[2];

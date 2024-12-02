@@ -16,6 +16,11 @@ import { ProposalOnly } from "../../src/implementations/laws/executive/ProposalO
 import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.sol";
 import { PresetAction } from "../../src/implementations/laws/executive/PresetAction.sol";
 import { BespokeAction } from "../../src/implementations/laws/executive/BespokeAction.sol";
+// bespoke laws.
+import { AlignedGrants } from "../../src/implementations/daos/aligned-grants/AlignedGrants.sol";
+import { ReinstateRole } from "../../src/implementations/daos/aligned-grants/ReinstateRole.sol";
+import { RevokeRole } from "../../src/implementations/daos/aligned-grants/RevokeRole.sol";
+import { RequestPayment } from "../../src/implementations/daos/aligned-grants/RequestPayment.sol";
 
 contract ConstitutionsMock {
     uint32 public numberOfLaws;
@@ -243,7 +248,7 @@ contract ConstitutionsMock {
     //////////////////////////////////////////////////////////////
     //                  FOURTH CONSTITUTION                     //
     //////////////////////////////////////////////////////////////
-    function initiateImplementationConstitution(address payable dao_, address payable mock1155_, address payable mock20_)
+    function initiateLawsTestConstitution(address payable dao_, address payable mock1155_, address payable mock20_)
         external
         returns (
             address[] memory laws,
@@ -375,5 +380,70 @@ contract ConstitutionsMock {
 
         // PresetAction sufficiently tested.
 
+    }
+
+    //////////////////////////////////////////////////////////////
+    //                   FIFTH CONSTITUTION                     //
+    //////////////////////////////////////////////////////////////
+    function initiateBespokeLawsTestConstitution(address payable dao_, address payable mock1155_, address payable mock20_)
+        external
+        returns (
+            address[] memory laws,
+            uint32[] memory allowedRoles,
+            ILaw.LawConfig[] memory lawsConfig
+        )
+    {
+        numberOfLaws = 3;
+        laws = new address[](numberOfLaws);
+        allowedRoles = new uint32[](numberOfLaws);
+        lawsConfig = new ILaw.LawConfig[](numberOfLaws);  
+
+        // dummy call: mint coins at mock1155 contract.
+        address[] memory targets = new address[](1);
+        uint256[] memory values = new uint256[](1);
+        bytes[] memory calldatas = new bytes[](1);
+        targets[0] = mock1155_;
+        values[0] = 0;
+        calldatas[0] = abi.encodeWithSelector(Erc1155Mock.mintCoins.selector, 123);
+
+        // dummy params
+        bytes4[] memory params = new bytes4[](1);
+
+        // executive laws 
+        laws[0] = address(
+            new RevokeRole(
+                "Whales -> revoke member", // max 31 chars
+                "Whales can revoke member. Subject to Vote.",
+                dao_,
+                AlignedGrants(dao_).MEMBER_ROLE()
+            )
+        );
+        allowedRoles[0] = AlignedGrants(dao_).WHALE_ROLE();
+        lawsConfig[0].quorum = 40; 
+        lawsConfig[0].succeedAt = 51;
+        lawsConfig[0].votingPeriod = 1200;
+
+        laws[1] = address(
+            new ReinstateRole(
+                "Seniors -> reinstate member", // max 31 chars
+                "Any Senior can reinstate member.",
+                dao_,
+                AlignedGrants(dao_).MEMBER_ROLE()
+            )
+        );
+        allowedRoles[1] = AlignedGrants(dao_).SENIOR_ROLE();
+    
+        laws[2] = address(
+            new RequestPayment(
+                "Members can request payment", // max 31 chars
+                "Members can request payment once every week.",
+                dao_, 
+                mock1155_, // target contract that can be called. 
+                0,
+                5_000, 
+                50_400 // = one week. 
+            )
+        );
+        allowedRoles[2] = AlignedGrants(dao_).MEMBER_ROLE();
     }
 }

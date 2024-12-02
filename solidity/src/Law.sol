@@ -30,7 +30,7 @@ import { ERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
-abstract contract Law is ERC165, ILaw {
+contract Law is ERC165, ILaw {
     using ShortStrings for *;
 
     //////////////////////////////////////////////////
@@ -64,10 +64,18 @@ abstract contract Law is ERC165, ILaw {
     //                 FUNCTIONS                    //
     //////////////////////////////////////////////////
     /// @dev Constructor function for Law contract.
-    constructor(string memory name_, string memory description_, address separatedPowers_) {
+    constructor(
+        string memory name_, 
+        string memory description_, 
+        address separatedPowers_,
+        uint32 allowedRole_,
+        LawConfig memory config_ 
+        ) {
         separatedPowers = separatedPowers_;
         name = name_.toShortString();
         description = description_;
+        allowedRole = allowedRole_;
+        config = config_;
 
         emit Law__Initialized(address(this));
     }

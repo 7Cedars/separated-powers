@@ -14,6 +14,7 @@ import "lib/openzeppelin-contracts/contracts/utils/ShortStrings.sol";
 // executive laws
 import { ProposalOnly } from "../../laws/executive/ProposalOnly.sol";
 import { BespokeAction } from "../../laws/executive/BespokeAction.sol";
+import { OpenAction } from "../../laws/executive/OpenAction.sol";
 import { RevokeRole } from "./RevokeRole.sol";
 import { ReinstateRole } from "./ReinstateRole.sol";
 import { RequestPayment } from "./RequestPayment.sol";
@@ -21,34 +22,39 @@ import { RequestPayment } from "./RequestPayment.sol";
 // dao and its bespoke laws
 import { AlignedGrants } from "./AlignedGrants.sol";
 
-contract Constitution {
-    uint32 constant NUMBER_OF_LAWS = 11;
+library Constitution {
 
     function initiate(address payable dao_, address payable mock1155_)
         external
-        returns (
-            address[] memory laws,
-            uint32[] memory allowedRoles,
-            ILaw.LawConfig[] memory lawConfigs
-        )
+        returns (address[] memory laws)
     {
-        laws = new address[](NUMBER_OF_LAWS);
-        allowedRoles = new uint32[](NUMBER_OF_LAWS);
-        lawConfigs = new ILaw.LawConfig[](NUMBER_OF_LAWS);
-    
+        address[] memory laws = new address[](NUMBER_OF_LAWS);
+        ILaw.LawConfig memory lawConfig = new ILaw.LawConfig;
 
     //////////////////////////////////////////////////////////////
     //              CHAPTER 1: ELECT ROLES                      //
     //////////////////////////////////////////////////////////////
-    laws[0] = address(
-        new DirectSelect(
+    // ILaw.LawConfig[] memory lawsConfig; 
+    // Law newLaw = new Law(
+    //         "Anyone can become member", // max 31 chars
+    //         "Anyone can apply for a member role in the Aligned Grants Dao",
+    //         dao_
+    //     );
+    // laws[0] = address(newLaw);
+    // allowedRoles[0] = type(uint32).max;
+
+
+    Law newLaw = new DirectSelect(
             "Anyone can become member", // max 31 chars
             "Anyone can apply for a member role in the Aligned Grants Dao",
             dao_,
             AlignedGrants(dao_).MEMBER_ROLE()
-        )
-    );
-    allowedRoles[0] = type(uint32).max;
+        );
+    uint32 allowedRoles = new uint32[](1);
+    newLaw.setLawConfig(
+        type(uint32).max, 
+        lawConfig
+    ); 
 
     laws[1] = address(
         new NominateMe(
@@ -89,7 +95,7 @@ contract Constitution {
     //              CHAPTER 2: EXECUTIVE ACTIONS                //
     //////////////////////////////////////////////////////////////
     
-    bytes4[] memory paramsAddValue = new bytes4[](0);
+    bytes4[] memory paramsAddValue = new bytes4[](1);
     paramsAddValue[0] = bytes4(keccak256("ShortString"));
 
     laws[4] = address(
@@ -134,7 +140,7 @@ contract Constitution {
     lawConfigs[6].succeedAt = 66; // =  two/thirds majority needed to vote 'For' for voet to succeed.
     lawConfigs[6].votingPeriod = 1200; // = time (in number of blocks) to vote
 
-    bytes4[] memory paramsChallengeRevoke = new bytes4[](0);
+    bytes4[] memory paramsChallengeRevoke = new bytes4[](1);
     paramsChallengeRevoke[0] = bytes4(keccak256("address"));
     laws[7] = address(
         new ProposalOnly(
@@ -150,7 +156,7 @@ contract Constitution {
     laws[8] = address(
         new ReinstateRole(
             "Reinstate member",
-            "seniors can reinstated a member after it logged a challange. This is done through a vote.",
+            "seniors can reinstated a member after it logged a challenge. This is done through a vote.",
             dao_,
             AlignedGrants(dao_).MEMBER_ROLE()
         )

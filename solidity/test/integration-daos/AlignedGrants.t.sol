@@ -1,29 +1,131 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.26;
 
-// import {Test, console, console2} from "lib/forge-std/src/Test.sol";
-// import {DeployAgDao} from "../../../script/DeployAgDao.s.sol";
-// import {SeparatedPowers} from "../src/SeparatedPowers.sol";
-// import {AgDao} from   "../src/implementation/DAOs/AgDao.sol";
-// import {AgCoins} from "../src/implementation/DAOs/AgCoins.sol";
-// import {Law} from "../src/Law.sol";
-// import {IAuthoritiesManager} from "../src/interfaces/IAuthoritiesManager.sol";
-// import {ISeparatedPowers} from "../src/interfaces/ISeparatedPowers.sol";
-// import "@openzeppelin/contracts/utils/ShortStrings.sol";
+import {Test, console, console2 } from "lib/forge-std/src/Test.sol";
+import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
-// // constitutional laws
-// import {Admin_setLaw} from "../src/implementation/DAOs/laws/Admin_setLaw.sol";
-// import {Public_assignRole} from "../src/implementation/DAOs/laws/Public_assignRole.sol";
-// import {Public_challengeRevoke} from "../src/implementation/DAOs/laws/Public_challengeRevoke.sol";
-// import {Member_proposeCoreValue} from "../src/implementation/DAOs/laws/Member_proposeCoreValue.sol";
-// import {Senior_acceptProposedLaw} from "../src/implementation/DAOs/laws/Senior_acceptProposedLaw.sol";
-// import {Senior_assignRole} from "../src/implementation/DAOs/laws/Senior_assignRole.sol";
-// import {Senior_reinstateMember} from "../src/implementation/DAOs/laws/Senior_reinstateMember.sol";
-// import {Senior_revokeRole} from "../src/implementation/DAOs/laws/Senior_revokeRole.sol";
-// import {Whale_acceptCoreValue} from "../src/implementation/DAOs/laws/Whale_acceptCoreValue.sol";
-// import {Member_assignWhale} from "../src/implementation/DAOs/laws/Member_assignWhale.sol";
-// import {Whale_proposeLaw} from "../src/implementation/DAOs/laws/Whale_proposeLaw.sol";
-// import {Whale_revokeMember} from "../src/implementation/DAOs/laws/Whale_revokeMember.sol";
+import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
+import { Law } from "../../src/Law.sol";
+import { ILaw } from "../../src/interfaces/ILaw.sol";
+
+import { DeployMocks } from "../../script/DeployMocks.s.sol";
+import { DeployAlignedGrants } from "../../script/DeployAlignedGrants.s.sol";
+import { Erc1155Mock } from "../../test/mocks/Erc1155Mock.sol";
+import { Erc20VotesMock } from "../../test/mocks/Erc20VotesMock.sol";
+
+import { AlignedGrants } from "../../src/implementations/daos/aligned-grants/AlignedGrants.sol";
+import { Constitution } from "../../src/implementations/daos/aligned-grants/Constitution.sol";
+import { Founders } from "../../src/implementations/daos/aligned-grants/Founders.sol";
+import { TestVariables, TestHelpers } from "../../test/TestSetup.t.sol";
+
+/////////////////////////////////////////////////////
+//                      Setup                      //
+/////////////////////////////////////////////////////
+abstract contract TestSetupAlignedGrants is Test, TestVariables, TestHelpers {
+    function setUp() public virtual {
+        // the only law specific event that is emitted.
+        vm.roll(10);
+        setUpVariables();
+    }
+
+    // note that this setup does not scale very well re the number of daos.
+    function setUpVariables() public virtual {
+        // votes types
+        AGAINST = 0;
+        FOR = 1;
+        ABSTAIN = 2;
+
+        // roles
+        ADMIN_ROLE = 0;
+        PUBLIC_ROLE = type(uint32).max;
+        ROLE_ONE = 1;
+        ROLE_TWO = 2;
+        ROLE_THREE = 3;
+
+        // deploy mocks
+        erc1155Mock = new Erc1155Mock();
+        erc20VotesMock = new Erc20VotesMock();
+        alignedGrants = new AlignedGrants();
+
+        Constitution constitution = new Constitution();
+        Founders founders = new Founders();
+
+        // users
+        alice = makeAddr("alice");
+        bob = makeAddr("bob");
+        charlotte = makeAddr("charlotte");
+        david = makeAddr("david");
+        eve = makeAddr("eve");
+        frank = makeAddr("frank");
+        gary = makeAddr("gary");
+        helen = makeAddr("helen");
+
+        // assign funds
+        vm.deal(alice, 10 ether);
+        vm.deal(bob, 10 ether);
+        vm.deal(charlotte, 10 ether);
+        vm.deal(david, 10 ether);
+        vm.deal(eve, 10 ether);
+        vm.deal(frank, 10 ether);
+        vm.deal(gary, 10 ether);
+        vm.deal(helen, 10 ether);
+        
+        users = [alice, bob, charlotte, david, eve, frank, gary, helen];
+
+        // assign tokens to users. Increasing amount coins as we go down the list. 
+        for (uint256 i; i < users.length; i++) {
+            vm.startPrank(users[i]);
+            erc1155Mock.mintCoins((i + 1) * 100);
+            erc20VotesMock.mintVotes((i + 1) * 100);
+            erc20VotesMock.delegate(users[i]); // users delegate votes to themselves. 
+            vm.stopPrank();
+        }
+        
+        // get constitution and founders lists.
+        // note: copying structs from memory to storage is not yet supported in solidity. 
+        // Hence we need to create a memory variable to store lawsConfig, while laws and allowedRoles are stored in storage.
+        ILaw.LawConfig[] memory lawsConfig;
+        (            
+            laws, 
+            allowedRoles, 
+            lawsConfig
+            ) = constitution.initiate(
+                payable(address(alignedGrants)), 
+                payable(address((erc1155Mock)))
+                );
+        
+        (constituentRoles, constituentAccounts) = founders.get(payable(address(alignedGrants)));
+
+        // constitute daoMock.
+        alignedGrants.constitute(
+            laws, allowedRoles, lawsConfig,
+            constituentRoles, constituentAccounts
+        );
+    }
+}
+
+/////////////////////////////////////////////////////
+//                      Tests                      //
+/////////////////////////////////////////////////////
+
+// Note: tests are subdivided by governance chains: linked laws that govern a certain functionality of the DAO. 
+// single laws that have already had unit tests are skipped as much as possible. These are all integration tests.  
+contract TokenNominationTest is TestSetupAlignedGrants {
+
+}
+
+contract SetCoreValueTest is TestSetupAlignedGrants {
+
+}
+
+contract RevokeAndReinstateMemberTest is TestSetupAlignedGrants {
+
+}
+
+contract SetLawTest is TestSetupAlignedGrants {
+
+}
+
 
 //   /* chain propsals */
 //   function testSuccessfulChainOfProposalsLeadsToSuccessfulExecution() public {

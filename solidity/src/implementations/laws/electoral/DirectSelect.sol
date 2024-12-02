@@ -24,7 +24,6 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { console } from "lib/forge-std/src/console.sol";
 
 contract DirectSelect is Law {
-    using ShortStrings for *;
 
     error DirectSelect__AccountDoesNotHaveRole();
     error DirectSelect__AccountAlreadyHasRole();

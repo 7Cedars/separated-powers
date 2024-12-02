@@ -11,8 +11,6 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 contract RevokeRole is Law {
     using ShortStrings for *;
 
-    event RevokeRole__Initialized(uint32 roleId);
-
     uint32 private immutable _roleId;
 
     constructor(string memory name_, string memory description_, address separatedPowers_, uint32 roleId_)
@@ -20,8 +18,6 @@ contract RevokeRole is Law {
     {
         _roleId = roleId_;
         params = [dataType("address")];
-
-        emit RevokeRole__Initialized(roleId_);
     } 
 
     function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 descriptionHash)

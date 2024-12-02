@@ -16,13 +16,6 @@ contract BespokeAction is Law {
     address private _targetContract;
     bytes4 private _targetFunction;
 
-    /// emitted when the law is initialised.
-    event BespokeAction__Initialized(
-      address _targetContract, 
-      bytes4 _targetFunction, 
-      bytes4[] params
-    );
-
     /// @notice constructor of the law
     /// @param name_ the name of the law.
     /// @param description_ the description of the law.
@@ -41,8 +34,6 @@ contract BespokeAction is Law {
         _targetContract = targetContract_;
         _targetFunction = targetFunction_;
         params = params_;
-
-        emit BespokeAction__Initialized(targetContract_, targetFunction_, params_);
     }
 
     /// @notice execute the law.

@@ -17,9 +17,6 @@ contract PresetAction is Law {
     uint256[] private _values;
     bytes[] private _calldatas;
 
-    /// emitted when the law is initialised.
-    event PresetAction__Initialized(address[] targets, uint256[] values, bytes[] calldatas);
-
     /// @notice constructor of the law
     /// @param name_ the name of the law.
     /// @param description_ the description of the law.
@@ -37,8 +34,6 @@ contract PresetAction is Law {
         _values = values_;
         _calldatas = calldatas_;
         params = [dataType("bool")];
-
-        emit PresetAction__Initialized(_targets, _values, _calldatas);
     }
 
     /// @notice execute the law.

@@ -3,9 +3,7 @@ pragma solidity 0.8.26;
 
 import { AlignedGrants } from "./AlignedGrants.sol";
 
-contract Founders {
-    AlignedGrants agDao;
-
+library Founders {
     uint256 constant LOCAL_CHAIN_ID = 31_337;
     // uint256 constant ETH_SEPOLIA_CHAIN_ID = 11155111;
     // uint256 constant OPT_SEPOLIA_CHAIN_ID = 11155420;
@@ -16,17 +14,15 @@ contract Founders {
         external
         returns (uint32[] memory constituentRoles, address[] memory constituentAccounts)
     {
-        agDao = AlignedGrants(alignedGrants);
-
-        return getFoundersByChainId(block.chainid);
+        return getFoundersByChainId(block.chainid, alignedGrants);
     }
 
-    function getFoundersByChainId(uint256 chainId)
+    function getFoundersByChainId(uint256 chainId, address payable alignedGrants)
         internal
         returns (uint32[] memory constituentRoles, address[] memory constituentAccounts)
     {
         if (chainId == LOCAL_CHAIN_ID) {
-            return getFoundersLocal();
+            return getFoundersLocal(alignedGrants);
             // } else if (chainId == ETH_SEPOLIA_CHAIN_ID) {
             // return getFoundersEthSepolia();
             // etc...
@@ -36,10 +32,11 @@ contract Founders {
         }
     }
 
-    function getFoundersLocal()
+    function getFoundersLocal(address payable alignedGrants)
         internal
         returns (uint32[] memory constituentRoles, address[] memory constituentAccounts)
     {
+        AlignedGrants agDao = AlignedGrants(alignedGrants);
         constituentRoles = new uint32[](10);
         constituentAccounts = new address[](10);
 
@@ -73,6 +70,6 @@ contract Founders {
         constituentAccounts[9] = anvil_5;
         constituentRoles[9] = agDao.WHALE_ROLE();
 
-        return (constituentRoles, constituentAccounts);
+        // return (constituentRoles, constituentAccounts);
     }
 }

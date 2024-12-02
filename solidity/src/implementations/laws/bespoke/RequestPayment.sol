@@ -16,20 +16,12 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 contract RequestPayment is Law {
     error RequestPayment__DelayNotPassed();
     
-    address public erc1155Contract;
-    uint256 public tokenId;
-    uint256 public amount;
-    uint48 public personalDelay;
+    address private erc1155Contract;
+    uint256 private tokenId;
+    uint256 private amount;
+    uint48 private personalDelay;
 
     mapping (address initiator => uint48 blockNumber) lastPayment;
-
-    /// emitted when the law is initialised.
-    event RequestPayment__Initialized(
-        address indexed erc1155Contract_,
-        uint256 indexed tokenId_,
-        uint256 indexed amount_,
-        uint48 personalDelay_ 
-    );
 
     /// @notice constructor of the law
     /// @param name_ the name of the law.
@@ -54,8 +46,6 @@ contract RequestPayment is Law {
         tokenId = tokenId_;
         amount = amount_;
         personalDelay = personalDelay_;
-
-        emit RequestPayment__Initialized(erc1155Contract_, tokenId_, amount_, personalDelay_);
     }
 
     /// @notice execute the law.

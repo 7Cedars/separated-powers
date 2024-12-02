@@ -66,13 +66,7 @@ interface SeparatedPowersEvents {
 
     /// @notice Emitted when a law is set.
     /// @param law the address of the law
-    /// @param allowedRole the role that has access to the law
-    /// @param existingLaw whether the law is new or existing (if it is existing, its configuration is updated)
-    event LawSet(
-        address indexed law,
-        uint32 indexed allowedRole,
-        bool indexed existingLaw
-    );
+    event LawSet(address indexed law);
 
     /// @notice Emitted when a law is revoked.
     /// @param law the address of the law

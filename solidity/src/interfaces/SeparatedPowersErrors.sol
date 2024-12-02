@@ -11,6 +11,9 @@ interface SeparatedPowersErrors {
     /// @notice Emitted when constitute is called more than once.
     error SeparatedPowers__ConstitutionAlreadyExecuted();
 
+    /// @notice Emitted when a law is already active, when trying to set a new one.
+    error SeparatedPowers__LawAlreadyActive();
+    
     /// @notice Emitted when a law is not active.
     error SeparatedPowers__NotActiveLaw();
 
@@ -52,9 +55,6 @@ interface SeparatedPowersErrors {
 
     /// @notice Emitted when a law is not active.
     error SeparatedPowers__LawNotActive();
-
-    /// @notice Emitted when Array lengths are not the same at the {constitute} function.
-    error SeparatedPowers__InvalidArrayLengths();
 
     /// @notice Emitted when a callData is invalid.
     error SeparatedPowers__InvalidCallData();
