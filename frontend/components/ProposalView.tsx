@@ -74,7 +74,7 @@ const ProposalView:  React.FC<ProposalViewProps> = ({proposal, isDisabled}: Prop
                             Proposal Id: {`${String(proposal.proposalId).slice(0, 6)}...${String(proposal.proposalId).slice(-6)}`}
                         </p>
                         <p className='text-white text-left'>
-                            Proposer: {`${String(proposal.proposer).slice(0, 6)}...${String(proposal.proposer).slice(-6)}`}
+                            Proposer: {`${String(proposal.initiator).slice(0, 6)}...${String(proposal.initiator).slice(-6)}`}
                         </p>
                     </div>
                     <div className='flex flex-col items-end gap-1'>
