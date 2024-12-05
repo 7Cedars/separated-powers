@@ -12,11 +12,10 @@
     <img src="public/logo.png" alt="Logo" width="300" height="300">
   </a>
 
-<h3 align="center">Separated Powers: Introducing separation of powers to DAO Governance </h3>
+<h3 align="center">Separated Powers </h3>
 
   <p align="center">
-    A role restricted governance protocol for DAOs.
-    <br />
+    A role restricted governance protocol for DAOs
     <br />
     <!--NB: TO DO --> 
     <a href="/solidity">Solidity protocol</a> ·
@@ -41,8 +40,8 @@
       <a href="#about">About</a>
       <ul>
         <li><a href="#the-problem">The problem</a></li>
-        <li><a href="#the-solution">The solution</a></li>
         <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#why-use-separated-powers">Why use Separated Powers?</a></li>
         <li><a href="#important-files-and-folders">Important files and folders</a></li>
         <li><a href="#built-with">Built With</a></li>
       </ul>
