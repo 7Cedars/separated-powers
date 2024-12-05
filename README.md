@@ -26,7 +26,10 @@
 </div>
 
 <div align="center">
-  For a high level explanation of the protocol, <a href="https://www.tella.tv/video/centralized-governance-dilemma-ew5k"><b> watch the project pitch here.</b> </a>
+  For an introduction into the protocol, see
+  
+   <a href="https://www.tella.tv/video/separated-powers-1-aijc"><b> the 2 minute project pitch</b> </a> or <a href="https://www.tella.tv/video/separated-powers-solving-dao-governance-challenges-bis6"><b> the 15 minute explanation</b></a>.
+
 </div>
 
 <!-- TABLE OF CONTENTS --> 
@@ -84,23 +87,10 @@ The best way to gain a deeper understanding of the protocol is to start at  `/so
 ### Why use Separated Powers?
 Separated Powers improves the decentralisation, efficiency and security of DAO governance. 
 
-#### Decentralisation  
-Problem: voting power tends to be centralised around a small group of users with a large amount of governance tokens. 
- 
-Solution: Separated Powers enables DAOs to divide their community in groups (such as builders, token holders, users) and give each groups different, restricted, governance powers. Using roles to separate powers in governance is a tried and true approach to safeguarding decentralisation of (social, political and economic) assets in light of their tendency to centralise around informal elites.
-
-#### Efficiency
-Problem: token holders tend to be asked to vote on each and every proposal. 
-
-Solution: Separated Powers creates a governance process where DAO members only vote on proposals that concern their roles. Role specification is a battle tested approach to enable the seamless scaling of small DAOs into larger ones.  
-
-#### Security
-Problem: Token based voting is susceptible to hostile governance take overs using, for instance, flash loans.   
-
-Solution: Separated Powers allows for the creation of checks and balances between roles. The more checks and balances a DAO implements in its governance structure, the better it will be protected against hostile governance take overs. 
-
-#### Multipliers 
-Above all else, Separated Powers creates multipliers between decentralisation, efficiency and security. In Separated Powers, increased decentralisation leads to more efficiency and more security. A focus on security will also increase decentralisation of DAO governance, etc.     
+- _Efficiency._ Separated Powers creates a governance process where DAO members only vote on proposals that concern their roles. Role specification is a battle tested approach to enable the seamless scaling of small DAOs into larger ones.  
+- _Decentralisation._  Separated Powers enables DAOs to divide their community in groups (such as builders, token holders, users) and give each groups different, restricted, governance powers. Using roles to separate powers in governance is a tried and true approach to safeguarding decentralisation of (social, political and economic) assets in light of their tendency to centralise around informal elites.
+- _Security._ Separated Powers allows for the creation of checks and balances between roles. The more checks and balances a DAO implements in its governance structure, the better it will be protected against hostile governance take overs. 
+- _Multipliers._ Above all else, Separated Powers creates multipliers between decentralisation, efficiency and security. In Separated Powers, increased decentralisation leads to more efficiency and more security. A focus on security will also increase decentralisation of DAO governance, etc.     
 
 ### Important files and folders
 
