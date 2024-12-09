@@ -16,7 +16,7 @@ import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.
 //               CONSTRUCTOR & RECEIVE                      //
 //////////////////////////////////////////////////////////////
 contract DeployTest is TestSetupSeparatedPowers {
-    function testDeployAlignedGrants() public {
+    function testDeployAlignedGrants() public view {
         assertEq(daoMock.name(), daoNames[0]);
         assertEq(daoMock.version(), "1");
 
@@ -28,8 +28,9 @@ contract DeployTest is TestSetupSeparatedPowers {
 
         vm.expectEmit(true, false, false, false);
         emit FundsReceived(1 ether);
-        address(daoMock).call{ value: 1 ether }("");
+        (bool success, ) = address(daoMock).call{ value: 1 ether }("");
 
+        assertTrue(success);
         assertEq(address(daoMock).balance, 1 ether);
     }
 
@@ -78,7 +79,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
 
         vm.expectRevert(SeparatedPowers__NotActiveLaw.selector);
         vm.prank(charlotte);
-        uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
+        daoMock.propose(laws[lawNumber], lawCalldata, description);
     }
 
     function testProposeRevertsIfLawDoesNotNeedVote() public {
@@ -91,7 +92,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
 
         vm.prank(david);
         vm.expectRevert(SeparatedPowers__NoVoteNeeded.selector);
-        uint256 actionId = daoMock.propose(lawThatDoesNotNeedVote, lawCalldata, description);
+        daoMock.propose(lawThatDoesNotNeedVote, lawCalldata, description);
     }
 
     function testProposePassesWithCorrectCredentials() public {
@@ -167,7 +168,7 @@ contract CancelTest is TestSetupSeparatedPowers {
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
         vm.prank(charlotte);
-        uint256 actionId = daoMock.propose(targetLaw, lawCalldata, description);
+        daoMock.propose(targetLaw, lawCalldata, description);
 
         // act: try to cancel the proposal
         vm.expectRevert(SeparatedPowers__AccessDenied.selector);
@@ -181,7 +182,7 @@ contract CancelTest is TestSetupSeparatedPowers {
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
         vm.prank(charlotte);
-        uint256 actionId = daoMock.propose(targetLaw, lawCalldata, description);
+        daoMock.propose(targetLaw, lawCalldata, description);
 
         // prep: cancel the proposal one time...
         vm.prank(charlotte);

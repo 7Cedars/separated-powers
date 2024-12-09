@@ -36,11 +36,4 @@ interface ILaw is IERC165, LawErrors {
         external
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
 
-    /// @notice sets the configuration of a law
-    /// @param allowedRole_ the role that is allowed to execute the law
-    /// @param config_ the configuration of the law
-    function setLawConfig(
-        uint32 allowedRole_,
-        LawConfig memory config_
-        ) external;
 }

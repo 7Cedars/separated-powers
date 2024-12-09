@@ -44,7 +44,7 @@ contract HelperConfig is Script {
         }
     }
 
-    function getArbSepoliaConfig() public view returns (NetworkConfig memory) {
+    function getArbSepoliaConfig() public pure returns (NetworkConfig memory) {
         return NetworkConfig({
             erc1155Mock: address(0), // not yet deployed 
             erc20VotesMock: address(0), // not yet deployed 
@@ -52,7 +52,7 @@ contract HelperConfig is Script {
         });
     }
 
-    function getEthSepoliaConfig() public view returns (NetworkConfig memory) {
+    function getEthSepoliaConfig() public pure returns (NetworkConfig memory) {
         return NetworkConfig({
             erc1155Mock: address(0),
             erc20VotesMock: address(0),
@@ -60,7 +60,7 @@ contract HelperConfig is Script {
         });
     }
 
-    function getOptSepoliaConfig() public view returns (NetworkConfig memory) {
+    function getOptSepoliaConfig() public pure returns (NetworkConfig memory) {
         return NetworkConfig({
             erc1155Mock: address(0),
             erc20VotesMock: address(0),
@@ -68,7 +68,7 @@ contract HelperConfig is Script {
         });
     }
 
-    function getBaseSepoliaConfig() public view returns (NetworkConfig memory) {
+    function getBaseSepoliaConfig() public pure returns (NetworkConfig memory) {
         return NetworkConfig({
             erc1155Mock: address(0),
             erc20VotesMock: address(0),

@@ -48,7 +48,7 @@ contract NominateMe is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // do optional checks. 
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
+        (targets, values, calldatas) = super.executeLaw(address(0), lawCalldata, descriptionHash);
 
         // decode the calldata.
         (bool nominateMe) = abi.decode(lawCalldata, (bool));

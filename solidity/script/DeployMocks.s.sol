@@ -3,8 +3,8 @@ pragma solidity 0.8.26;
 
 import { Script, console2 } from "lib/forge-std/src/Script.sol";
 
-import { Erc1155Mock } from "../../test/mocks/Erc1155Mock.sol";
-import { Erc20VotesMock } from "../../test/mocks/Erc20VotesMock.sol";
+import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
+import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
 
 contract DeployMocks is Script {
     /* Functions */

@@ -30,7 +30,7 @@ contract FoundersMock is Test {
     //////////////////////////////////////////////////////////////
     //                  FIRST CONSTITUTION                      //
     //////////////////////////////////////////////////////////////    
-    function getFounders(address payable daoAddress, address[] memory accounts) external returns (
+    function getFounders(address payable daoAddress) external returns (
       address[] memory constituentAccounts,
       uint32[] memory constituentRoles
         ) {

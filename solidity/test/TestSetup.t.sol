@@ -135,7 +135,7 @@ abstract contract TestSetupSeparatedPowers is BaseSetup, ConstitutionsMock {
 
         // initiate constitution & get founders' roles list
         (address[] memory laws_) = constitutionsMock.initiateSeparatedPowersConstitution(payable(address(daoMock)), payable(address(erc1155Mock)));
-        (address[] memory constituentAccounts, uint32[] memory constituentRoles) = foundersMock.getFounders(payable(address(daoMock)), users);
+        (address[] memory constituentAccounts, uint32[] memory constituentRoles) = foundersMock.getFounders(payable(address(daoMock)));
 
         console.log("laws_[0]: ", laws_[0]);
 
@@ -153,7 +153,7 @@ abstract contract TestSetupLaw is BaseSetup, ConstitutionsMock {
         // initiate constitution & get founders' roles list
         (address[] memory laws_) = constitutionsMock.initiateLawTestConstitution(payable(address(daoMock)), payable(address(erc1155Mock)));
         laws = laws_;
-        (address[] memory constituentAccounts, uint32[] memory constituentRoles) = foundersMock.getFounders(payable(address(daoMock)), users);
+        (address[] memory constituentAccounts, uint32[] memory constituentRoles) = foundersMock.getFounders(payable(address(daoMock)));
 
         // constitute daoMock.
         daoMock.constitute(laws, constituentRoles, constituentAccounts);
@@ -172,7 +172,7 @@ abstract contract TestSetupLaws is BaseSetup, ConstitutionsMock {
             payable(address(erc20VotesMock))
             );
         laws = laws_;
-        (address[] memory constituentAccounts, uint32[] memory constituentRoles) = foundersMock.getFounders(payable(address(daoMock)), users);
+        (address[] memory constituentAccounts, uint32[] memory constituentRoles) = foundersMock.getFounders(payable(address(daoMock)));
 
         // constitute daoMock.
         daoMock.constitute(laws, constituentRoles, constituentAccounts);
@@ -191,7 +191,7 @@ abstract contract TestSetupBespokeLaws is BaseSetup, ConstitutionsMock {
             payable(address(erc20VotesMock))
             );
         laws = laws_;
-        (address[] memory constituentAccounts, uint32[] memory constituentRoles) = foundersMock.getFounders(payable(address(alignedGrants)), users);
+        (address[] memory constituentAccounts, uint32[] memory constituentRoles) = foundersMock.getFounders(payable(address(alignedGrants)));
 
         // constitute daoMock.
         alignedGrants.constitute(laws, constituentRoles, constituentAccounts);

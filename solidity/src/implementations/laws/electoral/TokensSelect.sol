@@ -64,7 +64,7 @@ contract TokensSelect is Law {
         params = new bytes4[](0); 
     }
 
-    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash )
+    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash )
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)

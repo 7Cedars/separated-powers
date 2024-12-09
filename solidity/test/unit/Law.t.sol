@@ -37,7 +37,7 @@ contract DeployTest is TestSetupLaw {
     function testDeployEmitsEvent() public {
         vm.expectEmit(false, false, false, false);
         emit Law__Initialized(address(0));
-        Law lawMock = new OpenAction(
+        new OpenAction(
             "OpenAction Mock", 
             "This is a mock of the open action law contract", 
             address(123),
@@ -106,7 +106,7 @@ contract NeedsProposalVoteTest is TestSetupLaw {
         string memory description = "Executing a proposal vote";
         bytes memory lawCalldata = abi.encode(true);
         vm.prank(alice);
-        uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
+        daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // act & assert
         vm.expectRevert(Law__ProposalNotSucceeded.selector);

@@ -88,6 +88,8 @@ contract Law is ERC165, ILaw {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         _executeChecks(lawCalldata, descriptionHash);
+
+        return (targets, values, calldatas);
     }
 
     /// @notice an internal function to check that the law is valid before execution. 
@@ -145,17 +147,6 @@ contract Law is ERC165, ILaw {
         }  
     }
 
-    /////////////////////////////////////////////////
-    //               CONFIG LAW                    //
-    /////////////////////////////////////////////////
-    function setLawConfig(
-        uint32 allowedRole_, 
-        LawConfig memory config_
-        ) public virtual onlySeparatedPowers{
-            allowedRole = allowedRole_;
-            config = config_;
-        }
-
     //////////////////////////////////////////////////
     //               HELPER FUNCTIONS               //
     //////////////////////////////////////////////////
@@ -175,11 +166,11 @@ contract Law is ERC165, ILaw {
     }
 
     /// @notice an internal helper function for hashing data types
-    function dataType(string memory dataType)
+    function dataType(string memory param)
         internal
         pure
         returns (bytes4)
     {
-        return bytes4(keccak256(bytes(dataType)));
+        return bytes4(keccak256(bytes(param)));
     }
 }

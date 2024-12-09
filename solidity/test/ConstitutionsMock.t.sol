@@ -133,7 +133,7 @@ contract ConstitutionsMock {
     //////////////////////////////////////////////////////////////
     //                  SECOND CONSTITUTION                     //
     //////////////////////////////////////////////////////////////
-    function initiateBasic(address payable dao_, address payable mock1155_)
+    function initiateBasic(address payable dao_, address payable /* mock1155_ */)
         external
         returns (address[] memory laws)
     {
@@ -415,7 +415,7 @@ contract ConstitutionsMock {
     //////////////////////////////////////////////////////////////
     //                   FIFTH CONSTITUTION                     //
     //////////////////////////////////////////////////////////////
-    function initiateBespokeLawsTestConstitution(address payable dao_, address payable mock1155_, address payable mock20_)
+    function initiateBespokeLawsTestConstitution(address payable dao_, address payable mock1155_, address payable /* mock20_ */ )
         external
         returns (address[] memory laws)
     {
@@ -430,9 +430,6 @@ contract ConstitutionsMock {
         targets[0] = mock1155_;
         values[0] = 0;
         calldatas[0] = abi.encodeWithSelector(Erc1155Mock.mintCoins.selector, 123);
-
-        // dummy params
-        bytes4[] memory params = new bytes4[](3);
 
         // setting up config file 
         lawConfig.quorum = 40; // = 30% quorum needed
