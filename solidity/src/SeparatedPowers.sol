@@ -219,7 +219,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function execute(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash) external payable virtual {
+    function execute(address targetLaw, bytes memory lawCalldata, string memory description) external payable virtual {
+        bytes32 descriptionHash = keccak256(bytes(description));
         uint256 proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
         // check 1: does executioner have access to law being executed?
         uint32 allowedRole = Law(targetLaw).allowedRole();

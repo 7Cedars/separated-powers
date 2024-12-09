@@ -70,7 +70,7 @@ contract NeedsProposalVoteTest is TestSetupLaw {
 
         // act
         vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
 
         // assert
         uint256 balance = erc1155Mock.balanceOf(address(daoMock), 0);
@@ -97,7 +97,7 @@ contract NeedsProposalVoteTest is TestSetupLaw {
         // act & assert
         vm.expectRevert(Law__ProposalNotSucceeded.selector);
         vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 
     function testLawRevertsIfVoteStillActive() public {
@@ -111,7 +111,7 @@ contract NeedsProposalVoteTest is TestSetupLaw {
         // act & assert
         vm.expectRevert(Law__ProposalNotSucceeded.selector);
         vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 }
 
@@ -134,7 +134,7 @@ contract NeedsParentCompletedTest is TestSetupLaw {
         }
         vm.roll(4000); // forward in time
         vm.prank(alice);
-        daoMock.execute(laws[parentLawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[parentLawNumber], lawCalldata, description);
         // check if law has been set as completed.
 
         ActionState proposalState = daoMock.state(actionId);
@@ -144,7 +144,7 @@ contract NeedsParentCompletedTest is TestSetupLaw {
 
         // act
         vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
 
         // assert
         uint256 balanceAfter = erc1155Mock.balanceOf(address(daoMock), 0);
@@ -174,7 +174,7 @@ contract NeedsParentCompletedTest is TestSetupLaw {
         // act & assert
         vm.expectRevert(Law__ParentNotCompleted.selector);
         vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 }
 
@@ -197,7 +197,7 @@ contract ParentCanBlockTest is TestSetupLaw {
         }
         vm.roll(4000); // forward in time
         vm.prank(alice);
-        daoMock.execute(laws[parentLawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[parentLawNumber], lawCalldata, description);
         // check if law has been set as completed.
         ActionState proposalState = daoMock.state(actionId);
         assertEq(uint8(proposalState), uint8(ActionState.Completed));
@@ -205,7 +205,7 @@ contract ParentCanBlockTest is TestSetupLaw {
         // act & assert
         vm.prank(alice);
         vm.expectRevert(Law__ParentBlocksCompletion.selector);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 
     function testLawSucceedsIfParentHasNotCompleted() public {
@@ -233,7 +233,7 @@ contract ParentCanBlockTest is TestSetupLaw {
         // act
         uint256 balanceBefore = erc1155Mock.balanceOf(address(daoMock), 0);
         vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
 
         // assert
         uint256 balanceAfter = erc1155Mock.balanceOf(address(daoMock), 0);
@@ -260,7 +260,7 @@ contract DelayProposalExecutionTest is TestSetupLaw {
         vm.roll(10_000); // forward in time, past the delay.
         // act
         vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
 
         // assert
         uint256 balance = erc1155Mock.balanceOf(address(daoMock), 0);
@@ -286,7 +286,7 @@ contract DelayProposalExecutionTest is TestSetupLaw {
         // act & assert
         vm.expectRevert(Law__DeadlineNotPassed.selector);
         vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 }
 
@@ -302,7 +302,7 @@ contract LimitExecutionsTest is TestSetupLaw {
         for (uint256 i = 0; i < numberOfExecutions; i++) {
             vm.roll(block.number + numberOfBlockBetweenExecutions);
             vm.prank(alice);
-            daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(abi.encode(i))));
+            daoMock.execute(laws[lawNumber], lawCalldata, string(abi.encode(i)));
         }
 
         // assert
@@ -316,13 +316,13 @@ contract LimitExecutionsTest is TestSetupLaw {
         bytes memory lawCalldata = abi.encode(true);
         // prep: execute once...
         vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes("first execute")));
+        daoMock.execute(laws[lawNumber], lawCalldata, "first execute");
 
         // act & assert: execute twice, very soon after.
         vm.roll(block.number + 5);
         vm.expectRevert(Law__ExecutionGapTooSmall.selector);
         vm.prank(alice);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes("second execute")));
+        daoMock.execute(laws[lawNumber], lawCalldata, "second execute");
     }
 }
 

@@ -29,14 +29,14 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     ///
     /// @param targetLaw : the address of the law to be executed. Can only be one address.
     /// @param lawCalldata : the calldata to be passed to the law
-    /// @param descriptionHash : the descriptionHash of the proposal
+    /// @param description : the description of the proposal
     ///
     /// @dev note: the arrays of targets, values and calldatas must have the same length.
     ///
     /// Note any references to proposals (as in OpenZeppelin's {Governor} contract are removed.
     /// The mechanism of SeparatedPowers detaches proposals from execution logic.
     /// Instead, proposal checks are placed in the {Law::executeLaw} function.
-    function execute(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash) external payable;
+    function execute(address targetLaw, bytes memory lawCalldata, string memory description) external payable;
 
     /// @dev external function to call to cancel a proposal.
     /// Note The function can only be called by the account that proposed the proposal.

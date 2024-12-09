@@ -457,7 +457,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
 
         // act
         vm.prank(mockAddress);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
 
         // assert that mockAddress now has ROLE_ONE
         assertNotEq(daoMock.hasRoleSince(mockAddress, ROLE_ONE), 0);
@@ -472,7 +472,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
 
         // act
         vm.prank(mockAddress);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
 
         // assert
         uint256 actionId = hashProposal(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
@@ -499,7 +499,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         vm.expectEmit(true, false, false, false);
         emit ProposalExecuted(tar, val, cal);
         vm.prank(mockAddress);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 
     function testExecuteRevertsIfNotAuthorised() public {
@@ -514,7 +514,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // act & assert
         vm.expectRevert(SeparatedPowers__AccessDenied.selector);
         vm.prank(mockAddress);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 
     function testExecuteRevertsIfActionAlreadyExecuted() public {
@@ -525,12 +525,12 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         address mockAddress = makeAddr("mock");
         // execute action once...
         vm.prank(mockAddress);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
 
         // act: try to execute action again.
         vm.expectRevert(SeparatedPowers__ProposalAlreadyCompleted.selector);
         vm.prank(mockAddress);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 
     function testExecuteRevertsIfLawNotActive() public {
@@ -546,7 +546,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // act & assert
         vm.expectRevert(SeparatedPowers__NotActiveLaw.selector);
         vm.prank(mockAddress);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 
     function testExecuteRevertsIfProposalNeeded() public {
@@ -557,7 +557,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
 
         vm.expectRevert();
         vm.prank(charlotte);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 
     function testExecuteRevertsIfProposalDefeated() public {
@@ -586,7 +586,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // act & assert: try to execute proposal.
         vm.expectRevert(); // check selector
         vm.prank(charlotte);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 
     function testExecuteRevertsIfProposalCancelled() public {
@@ -608,7 +608,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // act & assert: try to execute proposal.
         vm.expectRevert(SeparatedPowers__ProposalCancelled.selector);
         vm.prank(charlotte);
-        daoMock.execute(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 }
 
