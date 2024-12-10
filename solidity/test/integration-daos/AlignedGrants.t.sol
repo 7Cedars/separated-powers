@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.26;
 
-import {Test, console, console2 } from "lib/forge-std/src/Test.sol";
+import { Test, console, console2 } from "lib/forge-std/src/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
@@ -19,7 +19,7 @@ import { TestVariables, TestHelpers } from "../../test/TestSetup.t.sol";
 //                      Setup                      //
 /////////////////////////////////////////////////////
 abstract contract TestSetupAlignedGrants is Test, TestVariables, TestHelpers {
-    function TestA() public {}
+    function TestA() public { }
 
     function setUp() public virtual {
         // the only law specific event that is emitted.
@@ -65,31 +65,31 @@ abstract contract TestSetupAlignedGrants is Test, TestVariables, TestHelpers {
         // vm.deal(frank, 10 ether);
         // vm.deal(gary, 10 ether);
         // vm.deal(helen, 10 ether);
-        
+
         // users = [alice, bob, charlotte, david, eve, frank, gary, helen];
 
-        // // assign tokens to users. Increasing amount coins as we go down the list. 
+        // // assign tokens to users. Increasing amount coins as we go down the list.
         // for (uint256 i; i < users.length; i++) {
         //     vm.startPrank(users[i]);
         //     erc1155Mock.mintCoins((i + 1) * 100);
         //     erc20VotesMock.mintVotes((i + 1) * 100);
-        //     erc20VotesMock.delegate(users[i]); // users delegate votes to themselves. 
+        //     erc20VotesMock.delegate(users[i]); // users delegate votes to themselves.
         //     vm.stopPrank();
         // }
-        
+
         // // get constitution and founders lists.
-        // // note: copying structs from memory to storage is not yet supported in solidity. 
+        // // note: copying structs from memory to storage is not yet supported in solidity.
         // // Hence we need to create a memory variable to store lawsConfig, while laws and allowedRoles are stored in storage.
         // ILaw.LawConfig[] memory lawsConfig;
-        // (            
-        //     laws, 
-        //     allowedRoles, 
+        // (
+        //     laws,
+        //     allowedRoles,
         //     lawsConfig
         //     ) = constitution.initiate(
-        //         payable(address(alignedGrants)), 
+        //         payable(address(alignedGrants)),
         //         payable(address((erc1155Mock)))
         //         );
-        
+
         // (constituentRoles, constituentAccounts) = founders.get(payable(address(alignedGrants)));
 
         // // constitute daoMock.
@@ -103,24 +103,15 @@ abstract contract TestSetupAlignedGrants is Test, TestVariables, TestHelpers {
 //                      Tests                      //
 /////////////////////////////////////////////////////
 
-// Note: tests are subdivided by governance chains: linked laws that govern a certain functionality of the DAO. 
-// single laws that have already had unit tests are skipped as much as possible. These are all integration tests.  
-contract TokenNominationTest is TestSetupAlignedGrants {
+// Note: tests are subdivided by governance chains: linked laws that govern a certain functionality of the DAO.
+// single laws that have already had unit tests are skipped as much as possible. These are all integration tests.
+contract TokenNominationTest is TestSetupAlignedGrants { }
 
-}
+contract SetCoreValueTest is TestSetupAlignedGrants { }
 
-contract SetCoreValueTest is TestSetupAlignedGrants {
+contract RevokeAndReinstateMemberTest is TestSetupAlignedGrants { }
 
-}
-
-contract RevokeAndReinstateMemberTest is TestSetupAlignedGrants {
-
-}
-
-contract SetLawTest is TestSetupAlignedGrants {
-
-}
-
+contract SetLawTest is TestSetupAlignedGrants { }
 
 //   /* chain propsals */
 //   function testSuccessfulChainOfProposalsLeadsToSuccessfulExecution() public {

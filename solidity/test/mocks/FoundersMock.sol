@@ -8,11 +8,11 @@ import { DaoMock } from "./DaoMock.sol";
 contract FoundersMock is Test {
     //////////////////////////////////////////////////////////////
     //                  FIRST CONSTITUTION                      //
-    //////////////////////////////////////////////////////////////    
-    function getFounders(address payable daoAddress) external returns (
-      address[] memory constituentAccounts,
-      uint32[] memory constituentRoles
-        ) {
+    //////////////////////////////////////////////////////////////
+    function getFounders(address payable daoAddress)
+        external
+        returns (address[] memory constituentAccounts, uint32[] memory constituentRoles)
+    {
         DaoMock daoMock = DaoMock(daoAddress);
 
         constituentAccounts = new address[](13);
@@ -27,7 +27,7 @@ contract FoundersMock is Test {
         address gary = makeAddr("gary");
         address helen = makeAddr("helen");
 
-        constituentAccounts[0] = alice; 
+        constituentAccounts[0] = alice;
         constituentRoles[0] = daoMock.ROLE_ONE();
         constituentAccounts[1] = bob;
         constituentRoles[1] = daoMock.ROLE_ONE();

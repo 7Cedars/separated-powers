@@ -3,8 +3,8 @@
 /// @notice A base contract that executes a bespoke action.
 ///
 /// Note 1: as of now, it only allows for a single function to be called.
-/// Note 2: as of now, it does not allow sending of ether values to the target function. 
-/// 
+/// Note 2: as of now, it does not allow sending of ether values to the target function.
+///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 
 pragma solidity 0.8.26;
@@ -29,7 +29,7 @@ contract BespokeAction is Law {
         string memory name_,
         string memory description_,
         address separatedPowers_,
-        uint32 allowedRole_, 
+        uint32 allowedRole_,
         LawConfig memory config_,
         address targetContract_,
         bytes4 targetFunction_,
@@ -42,19 +42,19 @@ contract BespokeAction is Law {
 
     /// @notice execute the law.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
-    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // do necessary checks. 
+        // do necessary checks.
         super.executeLaw(address(0), lawCalldata, descriptionHash);
 
         targets = new address[](1);
         values = new uint256[](1);
         calldatas = new bytes[](1);
-        
+
         // send the calldata to the target function
         targets[0] = _targetContract;
         calldatas[0] = abi.encodePacked(_targetFunction, lawCalldata);

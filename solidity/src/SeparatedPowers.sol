@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-/// @title Separated Powers Protocol v.0.2  
+/// @title Separated Powers Protocol v.0.2
 /// @notice Separated Powers is a Role Restricted Governance Protocol. It provides a flexible, decentralised, efficient and secure governance framework for DAOs.
-/// 
-/// @dev This contract is the core protocol. It is meant to be used in combination with implementations of {Law.sol}. 
-/// @dev Code is derived from OpenZeppelin's Governor.sol and AccessManager contracts, in addition to Haberdasher Labs Hats protocol.
-/// @dev The protocol mirrors Governor.sol and AccessManager as closely as possible. It will, eventually, also be compatible with the Hats protocol. 
 ///
-/// Note several key differences from openzeppelin's {Governor.sol}.  
+/// @dev This contract is the core protocol. It is meant to be used in combination with implementations of {Law.sol}.
+/// @dev Code is derived from OpenZeppelin's Governor.sol and AccessManager contracts, in addition to Haberdasher Labs Hats protocol.
+/// @dev The protocol mirrors Governor.sol and AccessManager as closely as possible. It will, eventually, also be compatible with the Hats protocol.
+///
+/// Note several key differences from openzeppelin's {Governor.sol}.
 /// 1 - Any DAO action needs to be encoded in role restricted external contracts, or laws, that follow the {ILaw} interface.
 /// 2 - Proposing, voting, cancelling and executing actions are role restricted along the target law that is called.
 /// 3 - All DAO actions need to run through the governance protocol. Calls to laws that do not need a proposal vote to be executed, still need to be executed through the {execute} function of the core protocol.
@@ -15,13 +15,13 @@
 /// 5 - The core protocol is minimalistic. Any complexity (timelock, delayed execution, guardian roles, weighted votes, staking, etc.) has to be integrated through laws.
 ///
 /// For example implementations of DAOs, see the implementations/daos folder.
-/// 
+///
 /// Note This protocol is a work in progress. A number of features are planned to be added in the future.
 /// - Support for EIP-6372 {clock()} for timestamping governance processes.
-/// - Integration with, or support for OpenZeppelin's {Governor.sol}. This would mean the protocol can be used in combination websites such as Tally.xyz.  
+/// - Integration with, or support for OpenZeppelin's {Governor.sol}. This would mean the protocol can be used in combination websites such as Tally.xyz.
 /// - Integration with, or support for, the Hats Protocol.
-/// - Native support for multi-chain governance. 
-/// - Gas efficiency improvements. 
+/// - Native support for multi-chain governance.
+/// - Gas efficiency improvements.
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 
@@ -120,7 +120,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         virtual
         returns (uint256 proposalId)
     {
-        (uint8 quorum, , uint32 votingPeriod, , , ,) = Law(targetLaw).config();
+        (uint8 quorum,, uint32 votingPeriod,,,,) = Law(targetLaw).config();
         proposalId = hashProposal(targetLaw, lawCalldata, keccak256(bytes(description)));
 
         // check 1: does target law need proposal vote to pass?
@@ -131,7 +131,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         if (_proposals[proposalId].voteStart != 0) {
             revert SeparatedPowers__UnexpectedActionState();
         }
-        
+
         // if checks pass: create proposal
         uint32 duration = votingPeriod;
         Proposal storage proposal = _proposals[proposalId];
@@ -343,7 +343,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             revert SeparatedPowers__IncorrectInterface();
         }
 
-        laws[law] = true; 
+        laws[law] = true;
 
         emit LawSet(law);
     }
@@ -387,14 +387,11 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     function _quorumReached(uint256 proposalId, address targetLaw) internal view virtual returns (bool) {
         Proposal storage proposal = _proposals[proposalId];
 
-        (uint8 quorum, , , , , ,) = Law(targetLaw).config();
+        (uint8 quorum,,,,,,) = Law(targetLaw).config();
         uint32 allowedRole = Law(targetLaw).allowedRole();
         uint256 amountMembers = roles[allowedRole].amountMembers;
 
-        return (
-            quorum == 0
-                || (amountMembers * quorum) / DENOMINATOR <= proposal.forVotes + proposal.abstainVotes
-        );
+        return (quorum == 0 || (amountMembers * quorum) / DENOMINATOR <= proposal.forVotes + proposal.abstainVotes);
     }
 
     /// @notice internal function {voteSucceeded} that checks if a vote for a given proposal has succeeded.
@@ -403,7 +400,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     /// @param targetLaw address of the law that the proposal belongs to.
     function _voteSucceeded(uint256 proposalId, address targetLaw) internal view virtual returns (bool) {
         Proposal storage proposal = _proposals[proposalId];
-        (uint8 quorum, uint8 succeedAt, , , , ,) = Law(targetLaw).config();
+        (uint8 quorum, uint8 succeedAt,,,,,) = Law(targetLaw).config();
         uint32 allowedRole = Law(targetLaw).allowedRole();
         uint256 amountMembers = roles[allowedRole].amountMembers;
 

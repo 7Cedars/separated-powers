@@ -25,34 +25,36 @@ contract ProposalOnly is Law {
     /// @param config_ the configuration of the law
     /// @param params_ the parameters of the function
     constructor(
-        string memory name_, 
-        string memory description_, 
+        string memory name_,
+        string memory description_,
         address separatedPowers_,
-        uint32 allowedRole_, 
+        uint32 allowedRole_,
         LawConfig memory config_,
         bytes4[] memory params_
-        )
-        Law(name_, description_, separatedPowers_, allowedRole_, config_)
-    { 
-        params = params_; 
-     }
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+        params = params_;
+    }
 
     /// @notice Execute the open action.
-    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        override
         virtual
-        // return an empty array.
-        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
-        {
-            // execute all necessary checks. 
-            super.executeLaw(address(0), lawCalldata, descriptionHash); 
+        override
+        returns (
+            // return an empty array.
+            address[] memory tar,
+            uint256[] memory val,
+            bytes[] memory cal
+        )
+    {
+        // execute all necessary checks.
+        super.executeLaw(address(0), lawCalldata, descriptionHash);
 
-            // at execution, send empty calldata to protocol. -- nothing gets done.
-            tar = new address[](1);
-            val = new uint256[](1);
-            cal = new bytes[](1);
-            
-            tar[0] = address(1); // targets[0] = address(1) is a signal to the protocol that it should not try and execute anything. 
-        }
+        // at execution, send empty calldata to protocol. -- nothing gets done.
+        tar = new address[](1);
+        val = new uint256[](1);
+        cal = new bytes[](1);
+
+        tar[0] = address(1); // targets[0] = address(1) is a signal to the protocol that it should not try and execute anything.
+    }
 }

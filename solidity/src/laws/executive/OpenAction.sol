@@ -24,28 +24,27 @@ contract OpenAction is Law {
     /// @param allowedRole_ the role that is allowed to execute this law
     /// @param config_ the configuration of the law
     constructor(
-        string memory name_, 
-        string memory description_, 
+        string memory name_,
+        string memory description_,
         address separatedPowers_,
-        uint32 allowedRole_, 
+        uint32 allowedRole_,
         LawConfig memory config_
-        ) Law(name_, description_, separatedPowers_, allowedRole_, config_) { 
-        params = [dataType("address[]"), dataType("uint256[]"), dataType("bytes[]")]; 
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+        params = [dataType("address[]"), dataType("uint256[]"), dataType("bytes[]")];
     }
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
-    function executeLaw(address /* initiator */, bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // do necessary checks. 
-        super.executeLaw(address(0), lawCalldata, descriptionHash); 
+        // do necessary checks.
+        super.executeLaw(address(0), lawCalldata, descriptionHash);
 
         // decode the calldata.
         // note: no check on decoded call data. If needed, this can be added.
         (targets, values, calldatas) = abi.decode(lawCalldata, (address[], uint256[], bytes[]));
-
     }
 }

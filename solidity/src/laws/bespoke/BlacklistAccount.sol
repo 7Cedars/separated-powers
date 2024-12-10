@@ -2,7 +2,7 @@
 
 // note that natspecs are wip.
 
-/// @notice This contract ... 
+/// @notice This contract ...
 ///
 pragma solidity 0.8.26;
 
@@ -15,54 +15,56 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { console } from "lib/forge-std/src/console.sol";
 
 contract BlacklistAccount is Law {
-  error BlacklistAccount__AlreadyBlacklisted();
-  error BlacklistAccount__NotBlacklisted(); 
-  
-  // the state vars that this law manages: blacklisted accounts. 
-  mapping(address => bool) public blacklistedAccounts; // description of short strings. have to be shorter than 31 characters.
+    error BlacklistAccount__AlreadyBlacklisted();
+    error BlacklistAccount__NotBlacklisted();
 
-  event BlacklistAccount__Added(address account);
-  event BlacklistAccount__Removed(address account);
+    // the state vars that this law manages: blacklisted accounts.
+    mapping(address => bool) public blacklistedAccounts; // description of short strings. have to be shorter than 31 characters.
 
-  constructor(
-      string memory name_, 
-      string memory description_, 
-      address separatedPowers_,
-      uint32 allowedRole_, 
-      LawConfig memory config_
-    )
-      Law(name_, description_, separatedPowers_, allowedRole_, config_)
-  {
-      params = [dataType("address"), dataType("bool")];
-  }
+    event BlacklistAccount__Added(address account);
+    event BlacklistAccount__Removed(address account);
 
-  function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+    constructor(
+        string memory name_,
+        string memory description_,
+        address separatedPowers_,
+        uint32 allowedRole_,
+        LawConfig memory config_
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+        params = [dataType("address"), dataType("bool")];
+    }
+
+    function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
-        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal) {
-        // step 0: execute optional checks. 
+        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
+    {
+        // step 0: execute optional checks.
         super.executeLaw(address(0), lawCalldata, descriptionHash);
 
         // retrieve the account that was revoked
         (address account, bool blacklist) = abi.decode(lawCalldata, (address, bool)); // don't know if this is going to work...
 
         if (blacklist) {
-          if (blacklistedAccounts[account]) {
-            revert BlacklistAccount__AlreadyBlacklisted();
-          }
-          blacklistedAccounts[account] = true;
-          emit BlacklistAccount__Added(account);
-          
+            if (blacklistedAccounts[account]) {
+                revert BlacklistAccount__AlreadyBlacklisted();
+            }
+            blacklistedAccounts[account] = true;
+            emit BlacklistAccount__Added(account);
         } else {
-          if (!blacklistedAccounts[account]) {
-            revert BlacklistAccount__NotBlacklisted();
-          }
-          blacklistedAccounts[account] = false;
-          emit BlacklistAccount__Removed(account);
+            if (!blacklistedAccounts[account]) {
+                revert BlacklistAccount__NotBlacklisted();
+            }
+            blacklistedAccounts[account] = false;
+            emit BlacklistAccount__Removed(account);
         }
 
         // step 2: return data
-        tar[0] = address(1); // signals that separatedPowers should not execute anything else. 
+        address[] memory tar = new address[](1);
+        uint256[] memory val = new uint256[](1);
+        bytes[] memory cal = new bytes[](1);
+
+        tar[0] = address(1); // signals that separatedPowers should not execute anything else.
         return (tar, val, cal);
-  }
+    }
 }

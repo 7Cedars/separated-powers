@@ -89,7 +89,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     function adoptLaw(address law) external;
 
     /// @notice set a law to inactive.
-    /// 
+    ///
     /// @param law address of the law to deactivate.
     ///
     /// @dev this function can only be called from the execute function of SeperatedPowers.sol.

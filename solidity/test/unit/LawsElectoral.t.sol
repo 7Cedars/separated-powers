@@ -11,6 +11,7 @@ import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 
 contract DirectSelectTest is TestSetupLaws {
     using ShortStrings for *;
+
     error DirectSelect__AccountDoesNotHaveRole();
     error DirectSelect__AccountAlreadyHasRole();
 
@@ -18,15 +19,13 @@ contract DirectSelectTest is TestSetupLaws {
         // prep: check if alice does NOT have role 3
         assertEq(daoMock.hasRoleSince(charlotte, ROLE_THREE), 0);
         address directSelect = laws[4];
-        bytes memory lawCalldata = abi.encode(false); // revoke 
-        bytes memory expectedCalldata = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
-        
+        bytes memory lawCalldata = abi.encode(false); // revoke
+        bytes memory expectedCalldata =
+            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
+
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(directSelect).executeLaw(charlotte, lawCalldata, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(directSelect).executeLaw(charlotte, lawCalldata, bytes32(0));
 
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
@@ -37,7 +36,7 @@ contract DirectSelectTest is TestSetupLaws {
         // prep: check if alice does have role 3
         assertNotEq(daoMock.hasRoleSince(alice, ROLE_THREE), 0);
         address directSelect = laws[4];
-        bytes memory lawCalldata = abi.encode(false); // revoke 
+        bytes memory lawCalldata = abi.encode(false); // revoke
         abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, alice);
 
         // act & assert
@@ -50,14 +49,11 @@ contract DirectSelectTest is TestSetupLaws {
         // prep: check if alice does have role 3
         assertNotEq(daoMock.hasRoleSince(alice, ROLE_THREE), 0);
         address directSelect = laws[4];
-        bytes memory lawCalldata = abi.encode(true); // revoke 
+        bytes memory lawCalldata = abi.encode(true); // revoke
         bytes memory expectedCalldata = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_THREE, alice);
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(directSelect).executeLaw(alice, lawCalldata, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(directSelect).executeLaw(alice, lawCalldata, bytes32(0));
 
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
@@ -68,7 +64,7 @@ contract DirectSelectTest is TestSetupLaws {
         // prep: check if alice does have role 3
         assertEq(daoMock.hasRoleSince(charlotte, ROLE_THREE), 0);
         address directSelect = laws[4];
-        bytes memory lawCalldata = abi.encode(true); // revoke 
+        bytes memory lawCalldata = abi.encode(true); // revoke
         abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_THREE, charlotte);
 
         // act & assert
@@ -90,8 +86,8 @@ contract NominateMeTest is TestSetupLaws {
     function testAssignNominationSucceeds() public {
         // prep
         address nominateMe = laws[3];
-        bytes memory lawCalldata = abi.encode(true); // nominateMe  
-        
+        bytes memory lawCalldata = abi.encode(true); // nominateMe
+
         // act & assert
         vm.expectEmit(true, false, false, false);
         emit NominateMe__NominationReceived(charlotte);
@@ -104,43 +100,43 @@ contract NominateMeTest is TestSetupLaws {
     function testAssignNominationRevertsWhenAlreadyNominated() public {
         // prep
         address nominateMe = laws[3];
-        bytes memory lawCalldata = abi.encode(true); // nominateMe  
-        
-        // nominate once.. 
+        bytes memory lawCalldata = abi.encode(true); // nominateMe
+
+        // nominate once..
         vm.startPrank(address(daoMock));
         Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
 
-        // and try to nominate twice. 
+        // and try to nominate twice.
         vm.startPrank(address(daoMock));
         vm.expectRevert(NominateMe__NomineeAlreadyNominated.selector);
         Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
     }
 
     function testRevokeNominationSucceeds() public {
-        // prep 1: nominate charlotte 
+        // prep 1: nominate charlotte
         address nominateMe = laws[3];
-        bytes memory lawCalldata1 = abi.encode(true); // nominateMe  
+        bytes memory lawCalldata1 = abi.encode(true); // nominateMe
         vm.startPrank(address(daoMock));
         Law(nominateMe).executeLaw(charlotte, lawCalldata1, bytes32(0));
 
-        // prep 2: revoke nomination. 
-        bytes memory lawCalldata2 = abi.encode(false); // revokeNomination  
-        
+        // prep 2: revoke nomination.
+        bytes memory lawCalldata2 = abi.encode(false); // revokeNomination
+
         // act & assert
         vm.expectEmit(true, false, false, false);
         emit NominateMe__NominationRevoked(charlotte);
         vm.startPrank(address(daoMock));
         Law(nominateMe).executeLaw(charlotte, lawCalldata2, bytes32(0));
     }
-    
+
     // test subtraction from count
 
     function testRevokeNominationRevertsWhenNotNominated() public {
-        // prep 
+        // prep
         address nominateMe = laws[3];
-        bytes memory lawCalldata = abi.encode(false); // revokeNomination  
-        
-        // charlotte tries to revoke nomination, without being nominated. 
+        bytes memory lawCalldata = abi.encode(false); // revokeNomination
+
+        // charlotte tries to revoke nomination, without being nominated.
         vm.startPrank(address(daoMock));
         vm.expectRevert(NominateMe__NomineeNotNominated.selector);
         Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
@@ -151,25 +147,23 @@ contract RandomlySelectTest is TestSetupLaws {
     using ShortStrings for *;
 
     function testAssignRolesWithFewNominees() public {
-        // prep 
+        // prep
         address nominateMe = laws[3];
         address randomlySelect = laws[5];
-        
-        bytes memory lawCalldataNominate = abi.encode(true);  
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata   
-        bytes memory expectedCalldata = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
+
+        bytes memory lawCalldataNominate = abi.encode(true);
+        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory expectedCalldata =
+            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
         Law(nominateMe).executeLaw(charlotte, lawCalldataNominate, bytes32(0));
 
         // act
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        // assert 
+        // assert
         assertEq(targetsOut.length, 1);
         assertEq(valuesOut.length, 1);
         assertEq(calldatasOut.length, 1);
@@ -182,22 +176,19 @@ contract RandomlySelectTest is TestSetupLaws {
         // prep -- nominate all users
         address nominateMe = laws[3];
         address randomlySelect = laws[5];
-        
-        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe 
+
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
         for (uint256 i = 0; i < users.length; i++) {
             vm.startPrank(address(daoMock));
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
         // act
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata 
+        bytes memory lawCalldataElect = abi.encode(); // empty calldata
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        // assert 
+        // assert
         assertEq(targetsOut.length, 3);
         assertEq(valuesOut.length, 3);
         assertEq(calldatasOut.length, 3);
@@ -214,27 +205,24 @@ contract RandomlySelectTest is TestSetupLaws {
         // prep -- nominate all users
         address nominateMe = laws[3];
         address randomlySelect = laws[5];
-        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe 
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
         for (uint256 i = 0; i < users.length; i++) {
             vm.startPrank(address(daoMock));
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
-        // act: first election 
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata 
+        // act: first election
+        bytes memory lawCalldataElect = abi.encode(); // empty calldata
         vm.startPrank(address(daoMock));
-        ( , , bytes[] memory calldatasOut1) = Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (,, bytes[] memory calldatasOut1) = Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        vm.roll(block.number + 100); 
+        vm.roll(block.number + 100);
 
         // act: second election
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut2, 
-            uint256[] memory valuesOut2, 
-            bytes[] memory calldatasOut2
-            ) = Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (address[] memory targetsOut2, uint256[] memory valuesOut2, bytes[] memory calldatasOut2) =
+            Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        // assert 
+        // assert
         assertEq(targetsOut2.length, 6);
         assertEq(valuesOut2.length, 6);
         assertEq(calldatasOut2.length, 6);
@@ -249,21 +237,19 @@ contract TokenSelectTest is TestSetupLaws {
         // prep -- nominate charlotte
         address nominateMe = laws[3];
         address tokenSelect = laws[6];
-        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe  
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata  
-        bytes memory expectedCalldata = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
+        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory expectedCalldata =
+            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
         Law(nominateMe).executeLaw(charlotte, lawCalldataNominate, bytes32(0));
 
         // act
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        // assert 
+        // assert
         assertEq(targetsOut.length, 1);
         assertEq(valuesOut.length, 1);
         assertEq(calldatasOut.length, 1);
@@ -276,21 +262,18 @@ contract TokenSelectTest is TestSetupLaws {
         // prep -- nominate all users
         address nominateMe = laws[3];
         address tokenSelect = laws[6];
-        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe 
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
         for (uint256 i = 0; i < users.length; i++) {
             vm.startPrank(address(daoMock));
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
         // act
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata 
+        bytes memory lawCalldataElect = abi.encode(); // empty calldata
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        // assert 
+        // assert
         assertEq(targetsOut.length, 3);
         assertEq(valuesOut.length, 3);
         assertEq(calldatasOut.length, 3);
@@ -307,27 +290,24 @@ contract TokenSelectTest is TestSetupLaws {
         // prep -- nominate all users
         address nominateMe = laws[3];
         address tokenSelect = laws[6];
-        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe 
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
         for (uint256 i = 0; i < users.length; i++) {
             vm.startPrank(address(daoMock));
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
-        // act: first election 
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata 
+        // act: first election
+        bytes memory lawCalldataElect = abi.encode(); // empty calldata
         vm.startPrank(address(daoMock));
-        ( , , bytes[] memory calldatasOut1) = Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (,, bytes[] memory calldatasOut1) = Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        vm.roll(block.number + 100); 
+        vm.roll(block.number + 100);
 
         // act: second election
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut2, 
-            uint256[] memory valuesOut2, 
-            bytes[] memory calldatasOut2
-            ) = Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (address[] memory targetsOut2, uint256[] memory valuesOut2, bytes[] memory calldatasOut2) =
+            Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        // assert 
+        // assert
         assertEq(targetsOut2.length, 6);
         assertEq(valuesOut2.length, 6);
         assertEq(calldatasOut2.length, 6);
@@ -342,21 +322,19 @@ contract DelegateSelectTest is TestSetupLaws {
         // prep -- nominate charlotte
         address nominateMe = laws[3];
         address delegateSelect = laws[7];
-        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe  
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata  
-        bytes memory expectedCalldata = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
+        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory expectedCalldata =
+            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
         Law(nominateMe).executeLaw(charlotte, lawCalldataNominate, bytes32(0));
 
         // act
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        // assert 
+        // assert
         assertEq(targetsOut.length, 1);
         assertEq(valuesOut.length, 1);
         assertEq(calldatasOut.length, 1);
@@ -369,7 +347,7 @@ contract DelegateSelectTest is TestSetupLaws {
         // prep -- nominate all users
         address nominateMe = laws[3];
         address delegateSelect = laws[7];
-        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe 
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
         for (uint256 i = 4; i < users.length; i++) {
             vm.startPrank(address(daoMock));
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
@@ -377,13 +355,10 @@ contract DelegateSelectTest is TestSetupLaws {
         // act
         bytes memory lawCalldataElect = abi.encode(); // empty calldata
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        // assert 
+        // assert
         assertEq(targetsOut.length, 3);
         assertEq(valuesOut.length, 3);
         assertEq(calldatasOut.length, 3);
@@ -395,31 +370,29 @@ contract DelegateSelectTest is TestSetupLaws {
             }
         }
     }
+
     function testDelegatesReelectionWorks() public {
         // prep -- nominate all users
         address nominateMe = laws[3];
         address delegateSelect = laws[7];
-        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe 
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
         for (uint256 i = 0; i < users.length; i++) {
             vm.startPrank(address(daoMock));
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
-        // act: first election 
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata 
+        // act: first election
+        bytes memory lawCalldataElect = abi.encode(); // empty calldata
         vm.startPrank(address(daoMock));
-        ( , , bytes[] memory calldatasOut1) = Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (,, bytes[] memory calldatasOut1) = Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        vm.roll(block.number + 100); 
+        vm.roll(block.number + 100);
 
         // act: second election
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut2, 
-            uint256[] memory valuesOut2, 
-            bytes[] memory calldatasOut2
-            ) = Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+        (address[] memory targetsOut2, uint256[] memory valuesOut2, bytes[] memory calldatasOut2) =
+            Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        // assert 
+        // assert
         assertEq(targetsOut2.length, 6);
         assertEq(valuesOut2.length, 6);
         assertEq(calldatasOut2.length, 6);

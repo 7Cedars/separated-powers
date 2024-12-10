@@ -3,8 +3,8 @@
 /// @notice A base contract that executes a bespoke action.
 ///
 /// Note 1: as of now, it only allows for a single function to be called.
-/// Note 2: as of now, it does not allow sending of ether values to the target function. 
-/// 
+/// Note 2: as of now, it does not allow sending of ether values to the target function.
+///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 
 pragma solidity 0.8.26;
@@ -15,13 +15,13 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract RequestPayment is Law {
     error RequestPayment__DelayNotPassed();
-    
+
     address private erc1155Contract;
     uint256 private tokenId;
     uint256 private amount;
     uint48 private personalDelay;
 
-    mapping (address initiator => uint48 blockNumber) lastPayment;
+    mapping(address initiator => uint48 blockNumber) lastPayment;
 
     /// @notice constructor of the law
     /// @param name_ the name of the law.
@@ -37,14 +37,14 @@ contract RequestPayment is Law {
         string memory name_,
         string memory description_,
         address separatedPowers_,
-        uint32 allowedRole_, 
+        uint32 allowedRole_,
         LawConfig memory config_,
         address erc1155Contract_,
         uint256 tokenId_,
         uint256 amount_,
-        uint48 personalDelay_ 
+        uint48 personalDelay_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        params = new bytes4[](0); 
+        params = new bytes4[](0);
 
         erc1155Contract = erc1155Contract_;
         tokenId = tokenId_;
@@ -62,22 +62,23 @@ contract RequestPayment is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // do necessary checks. 
+        // do necessary checks.
         super.executeLaw(address(0), lawCalldata, descriptionHash);
 
-        // check if initiator is not requesting payment too early. 
+        // check if initiator is not requesting payment too early.
         if (uint48(block.number) - lastPayment[initiator] < personalDelay) {
             revert RequestPayment__DelayNotPassed();
         }
 
-        // if check passes: have core Dao pay the request. 
+        // if check passes: have core Dao pay the request.
         lastPayment[initiator] = uint48(block.number);
 
         targets = new address[](1);
         values = new uint256[](1);
         calldatas = new bytes[](1);
-        
+
         targets[0] = erc1155Contract;
-        calldatas[0] = abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, separatedPowers, initiator, amount, tokenId, "");
+        calldatas[0] =
+            abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, separatedPowers, initiator, amount, tokenId, "");
     }
 }

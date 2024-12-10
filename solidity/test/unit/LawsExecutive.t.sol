@@ -23,11 +23,8 @@ contract OpenActionTest is TestSetupLaws {
         address openAction = laws[1];
         bytes memory lawCalldata = abi.encode(targetsIn, valuesIn, calldatasIn);
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(openAction).executeLaw(address(0), lawCalldata, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(openAction).executeLaw(address(0), lawCalldata, bytes32(0));
 
         assertEq(targetsOut[0], targetsIn[0]);
         assertEq(valuesOut[0], valuesIn[0]);
@@ -43,10 +40,8 @@ contract ProposalOnlyTest is TestSetupLaws {
         bytes memory lawCalldata = abi.encode(Erc1155Mock.mintCoins.selector, 123);
 
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            ) = Law(proposalOnly).executeLaw(address(0), lawCalldata, keccak256("this is a proposal"));
+        (address[] memory targetsOut, uint256[] memory valuesOut,) =
+            Law(proposalOnly).executeLaw(address(0), lawCalldata, keccak256("this is a proposal"));
 
         assertEq(targetsOut[0], address(1));
         assertEq(valuesOut[0], 0);
@@ -55,22 +50,17 @@ contract ProposalOnlyTest is TestSetupLaws {
 
 contract BespokeActionTest is TestSetupLaws {
     function testReturnDataBespokeAction() public {
-        // this bespoke action mints coins in the mock1155 contract. 
+        // this bespoke action mints coins in the mock1155 contract.
         address bespokeAction = laws[2];
-        bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint. 
-        bytes memory expectedCalldata = abi.encodeWithSelector(Erc1155Mock.mintCoins.selector, 123);  
+        bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint.
+        bytes memory expectedCalldata = abi.encodeWithSelector(Erc1155Mock.mintCoins.selector, 123);
 
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(bespokeAction).executeLaw(address(0), lawCalldata, keccak256("this is a proposal"));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(bespokeAction).executeLaw(address(0), lawCalldata, keccak256("this is a proposal"));
 
         assertEq(targetsOut[0], address(erc1155Mock));
         assertEq(valuesOut[0], 0);
         assertEq(calldatasOut[0], expectedCalldata);
     }
 }
-
-

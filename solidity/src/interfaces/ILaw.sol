@@ -10,8 +10,7 @@ import { LawErrors } from "./LawErrors.sol";
 pragma solidity 0.8.26;
 
 interface ILaw is IERC165, LawErrors {
-    
-    // £todo not yet optimised for memory slots.  
+    // £todo not yet optimised for memory slots.
     struct LawConfig {
         uint8 quorum;
         uint8 succeedAt;
@@ -35,5 +34,4 @@ interface ILaw is IERC165, LawErrors {
     function executeLaw(address initiator, bytes memory lawCallData, bytes32 descriptionHash)
         external
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
-
 }

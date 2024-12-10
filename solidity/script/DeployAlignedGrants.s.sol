@@ -12,7 +12,7 @@ pragma solidity 0.8.26;
 // import { AlignedGrants } from "../src/daos/AlignedGrants.sol";
 // import { HelperConfig } from "./HelperConfig.s.sol";
 
-// // laws 
+// // laws
 // import { DirectSelect } from "../src/laws/electoral/DirectSelect.sol";
 // import { DelegateSelect } from "../src/laws/electoral/DelegateSelect.sol";
 // import { RandomlySelect } from "../src/laws/electoral/RandomlySelect.sol";
@@ -32,10 +32,10 @@ pragma solidity 0.8.26;
 //     address[] laws;
 //     uint32[] constituentRoles;
 //     address[] constituentAccounts;
-    
+
 //     function run() external {
 //         HelperConfig helperConfig = new HelperConfig();
-//         HelperConfig.NetworkConfig memory config = helperConfig.getConfigByChainId(block.chainid);        
+//         HelperConfig.NetworkConfig memory config = helperConfig.getConfigByChainId(block.chainid);
 
 //         // deploy dao.
 //         vm.startBroadcast();
@@ -46,83 +46,83 @@ pragma solidity 0.8.26;
 //         initiateConstitution(payable(address(alignedGrants)), payable(config.erc1155Mock));
 //         getFounders(payable(address(alignedGrants)));
 
-//         // constitute dao. 
+//         // constitute dao.
 //         vm.startBroadcast();
 //         alignedGrants.constitute(laws, constituentRoles, constituentAccounts);
 //         vm.stopBroadcast();
 //     }
 
-//     function initiateConstitution(address payable dao_, address payable mock1155_) public { 
-//         Law law; 
+//     function initiateConstitution(address payable dao_, address payable mock1155_) public {
+//         Law law;
 //         ILaw.LawConfig memory lawConfig;
 
 //         //////////////////////////////////////////////////////////////
 //         //              CHAPTER 1: ELECT ROLES                      //
 //         //////////////////////////////////////////////////////////////
-        
+
 //         vm.startBroadcast();
 //         law = new DirectSelect(
 //                 "Anyone can become member", // max 31 chars
 //                 "Anyone can apply for a member role in the Aligned Grants Dao",
 //                 dao_,
-//                 type(uint32).max, // access role 
-//                 lawConfig, //  config file. 
+//                 type(uint32).max, // access role
+//                 lawConfig, //  config file.
 //                 // bespoke configs for this law:
 //                 AlignedGrants(dao_).MEMBER_ROLE()
 //             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 
 //         vm.startBroadcast();
 //         law = new NominateMe(
 //                 "Nominees for WHALE_ROLE", // max 31 chars
 //                 "Anyone can nominate themselves for a role WHALE_ROLE",
 //                 dao_,
-//                 type(uint32).max, // access role 
+//                 type(uint32).max, // access role
 //                 lawConfig
-//             ); 
+//             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
-        
+//         laws.push(address(law));
+
 //         vm.startBroadcast();
 //         law = new TokensSelect(
 //                 "Members select WHALE_ROLE", // max 31 chars
 //                 "Members can call (and pay for) a whale election at any time. The nominated accounts with most tokens will be assigned the role.",
 //                 dao_,
-//                 AlignedGrants(dao_).MEMBER_ROLE(), // access role 
-//                 lawConfig, //  config file. 
-//                 // bespoke configs: 
+//                 AlignedGrants(dao_).MEMBER_ROLE(), // access role
+//                 lawConfig, //  config file.
+//                 // bespoke configs:
 //                 mock1155_,
 //                 laws[1],
 //                 15,
 //                 AlignedGrants(dao_).WHALE_ROLE() // 2 // AlignedGrants.WHALE_ROLE()
 //             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 
-//         // setting up config file 
+//         // setting up config file
 //         lawConfig.quorum = 30; // = 30% quorum needed
 //         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
 //         lawConfig.votingPeriod = 1200; // = number of blocks
 //         // initiating law.
-//         vm.startBroadcast(); 
+//         vm.startBroadcast();
 //         law = new DirectSelect(
 //                 "Seniors elect seniors", // max 31 chars
 //                 "Seniors can propose and vote to (de)select an account for the SENIOR_ROLE.",
 //                 dao_,
-//                 AlignedGrants(dao_).SENIOR_ROLE(), // access role 
-//                 lawConfig, 
-//                 // bespoke configs for this law: 
+//                 AlignedGrants(dao_).SENIOR_ROLE(), // access role
+//                 lawConfig,
+//                 // bespoke configs for this law:
 //                 AlignedGrants(dao_).SENIOR_ROLE() // 1 // AlignedGrants.SENIOR_ROLE()
 //             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
- 
+//         laws.push(address(law));
+
 //         //////////////////////////////////////////////////////////////
 //         //              CHAPTER 2: EXECUTIVE ACTIONS                //
 //         //////////////////////////////////////////////////////////////
 
-//         // setting up config file 
+//         // setting up config file
 //         delete lawConfig;
 //         lawConfig.quorum = 60; // = 60% quorum needed
 //         lawConfig.succeedAt = 50; // = Simple majority vote needed.
@@ -130,21 +130,21 @@ pragma solidity 0.8.26;
 //         // setting up params
 //         bytes4[] memory params = new bytes4[](1);
 //         params[0] = bytes4(keccak256("ShortString"));
-//         // initiating law. 
+//         // initiating law.
 //         vm.startBroadcast();
 //         law = new ProposalOnly(
-//                 "Members propose value", 
-//                 "Members can propose a new value to be selected. They cannot implement it.", 
-//                 dao_, 
-//                 AlignedGrants(dao_).MEMBER_ROLE(), // access role 
-//                 lawConfig, 
+//                 "Members propose value",
+//                 "Members can propose a new value to be selected. They cannot implement it.",
+//                 dao_,
+//                 AlignedGrants(dao_).MEMBER_ROLE(), // access role
+//                 lawConfig,
 //                 // bespoke configs for this law:
 //                 params // input parameters
 //             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 
-//         // setting up config file 
+//         // setting up config file
 //         delete lawConfig;
 //         lawConfig.quorum = 30; // = 30% quorum needed
 //         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
@@ -156,17 +156,17 @@ pragma solidity 0.8.26;
 //                 "Whales accept value",
 //                 "Whales can accept and implement a new value that was proposed by members.",
 //                 dao_, // separated powers
-//                 AlignedGrants(dao_).WHALE_ROLE(), // access role 
-//                 lawConfig, 
+//                 AlignedGrants(dao_).WHALE_ROLE(), // access role
+//                 lawConfig,
 //                 // bespoke configs for this law:
 //                 dao_, // target contract
 //                 AlignedGrants.addCoreValue.selector, // function selector
-//                 params // input parameters, same as law4. 
-//             ); 
+//                 params // input parameters, same as law4.
+//             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 
-//         // setting up config file 
+//         // setting up config file
 //         delete lawConfig;
 //         lawConfig.quorum = 80; // = 80% quorum needed
 //         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
@@ -177,53 +177,52 @@ pragma solidity 0.8.26;
 //                 "Whales -> revoke member", // max 31 chars
 //                 "Subject to a vote, whales can revoke a member's role",
 //                 dao_,
-//                 AlignedGrants(dao_).WHALE_ROLE(), // access role 
-//                 lawConfig, 
+//                 AlignedGrants(dao_).WHALE_ROLE(), // access role
+//                 lawConfig,
 //                 // bespoke configs for this law:
 //                 AlignedGrants(dao_).MEMBER_ROLE() // 3 // AlignedGrants.MEMBER_ROLE(): the roleId to be revoked.
-//             ); 
+//             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 
-//         // setting up config file 
+//         // setting up config file
 //         delete lawConfig;
-//         lawConfig.needCompleted = laws[6]; // NB! £todo all the law references need to be changed! 
+//         lawConfig.needCompleted = laws[6]; // NB! £todo all the law references need to be changed!
 //         // input params
 //         params[0] = bytes4(keccak256("address"));
-//         // initiating law 
+//         // initiating law
 //         vm.startBroadcast();
 //         law = new ProposalOnly(
 //                 "Member challenge role revoke",
 //                 "A members that had their role revoked can challenge this decision",
 //                 dao_,
-//                 AlignedGrants(dao_).MEMBER_ROLE(), // access role 
-//                 lawConfig, 
+//                 AlignedGrants(dao_).MEMBER_ROLE(), // access role
+//                 lawConfig,
 //                 // bespoke configs for this law:
 //                 params
 //             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 
-
-//         // setting up config file 
+//         // setting up config file
 //         delete lawConfig;
 //         lawConfig.quorum = 20; // = 20% quorum needed
 //         lawConfig.succeedAt = 67; // =  two/thirds majority needed for
 //         lawConfig.votingPeriod = 1200; // = number of blocks
-//         lawConfig.needCompleted = laws[7]; // NB! £todo all the law references need to be changed! 
-//         //initiating law 
+//         lawConfig.needCompleted = laws[7]; // NB! £todo all the law references need to be changed!
+//         //initiating law
 //         vm.startBroadcast();
 //         law = new ReinstateRole(
 //                 "Reinstate member",
 //                 "seniors can reinstated a member after it logged a challenge. This is done through a vote.",
 //                 dao_,
-//                 AlignedGrants(dao_).SENIOR_ROLE(), // access role 
-//                 lawConfig, 
+//                 AlignedGrants(dao_).SENIOR_ROLE(), // access role
+//                 lawConfig,
 //                 // bespoke configs for this law:
 //                 AlignedGrants(dao_).MEMBER_ROLE()
 //             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 
 //         delete lawConfig;
 //         vm.startBroadcast();
@@ -231,80 +230,79 @@ pragma solidity 0.8.26;
 //                 "Members request payment",
 //                 "Members can request a payment of 5_000 tokens every 30 days.",
 //                 dao_,
-//                 AlignedGrants(dao_).MEMBER_ROLE(), // access role 
+//                 AlignedGrants(dao_).MEMBER_ROLE(), // access role
 //                 lawConfig, //  config
 //                 // bespoke configs for this law:
-//                 mock1155_, // token address. 
+//                 mock1155_, // token address.
 //                 0, // token id
 //                 5_000, // number of tokens
 //                 216_000 // number of blocks = 30 days
 //             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 
 //         //////////////////////////////////////////////////////////////////////
 //         //            Adding new laws and revoking existing ones            //
 //         //////////////////////////////////////////////////////////////////////
-//         // setting up config file 
+//         // setting up config file
 //         delete lawConfig;
 //         lawConfig.quorum = 40; // = 20% quorum needed
 //         lawConfig.succeedAt = 51; // =  two/thirds majority needed for
 //         lawConfig.votingPeriod = 1200; // = number of blocks
 //         // params
 //         params[0] = bytes4(keccak256("address"));
-//         // initiating law 
+//         // initiating law
 //         vm.startBroadcast();
 //         law = new ProposalOnly(
 //                 "Whales propose laws",
 //                 "Whales can propose new laws to be added to the Dao. Subject to a vote.",
 //                 dao_,
-//                 AlignedGrants(dao_).WHALE_ROLE(), // access role 
-//                 lawConfig, 
+//                 AlignedGrants(dao_).WHALE_ROLE(), // access role
+//                 lawConfig,
 //                 // bespoke configs for this law:
 //                 params
-//             ); 
+//             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 
-//         // setting up config file 
+//         // setting up config file
 //         delete lawConfig;
 //         lawConfig.quorum = 30; // = 20% quorum needed
 //         lawConfig.succeedAt = 67; // =  two/thirds majority needed for
 //         lawConfig.votingPeriod = 1200; // = number of blocks
 //         lawConfig.needCompleted = laws[10];
-//         // initiating law       
-//         vm.startBroadcast();  
+//         // initiating law
+//         vm.startBroadcast();
 //         law = new ProposalOnly(
 //                 "Seniors accept laws",
 //                 "Seniors can accept laws proposed by whales. Subject to a vote.",
 //                 dao_,
-//                 AlignedGrants(dao_).SENIOR_ROLE(), // access role 
-//                 lawConfig, 
+//                 AlignedGrants(dao_).SENIOR_ROLE(), // access role
+//                 lawConfig,
 //                 // bespoke configs for this law:
 //                 params // same params as law10
 //             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 
 //         delete lawConfig;
 //         lawConfig.needCompleted = laws[11];
-//         // initiate law 
+//         // initiate law
 //         vm.startBroadcast();
 //         law = new BespokeAction(
 //                 "Admin implements laws",
 //                 "The admin implements laws proposed by whales and accepted by seniors.",
 //                 dao_,
-//                 AlignedGrants(dao_).ADMIN_ROLE(), // access role 
-//                 lawConfig, 
+//                 AlignedGrants(dao_).ADMIN_ROLE(), // access role
+//                 lawConfig,
 //                 // bespoke configs for this law:
 //                 dao_,
 //                 SeparatedPowers.adoptLaw.selector,
 //                 params // same params as law10
-//             ); 
+//             );
 //         vm.stopBroadcast();
-//         laws.push(address(law)); 
+//         laws.push(address(law));
 //     }
-
 
 //     function getFounders(address payable dao_) public {
 //         AlignedGrants agDao = AlignedGrants(dao_);
@@ -338,6 +336,5 @@ pragma solidity 0.8.26;
 //         constituentRoles.push(agDao.WHALE_ROLE());
 //         constituentAccounts.push(anvil_5);
 //         constituentRoles.push(agDao.WHALE_ROLE());
-//     }  
+//     }
 // }
-

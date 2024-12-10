@@ -13,7 +13,7 @@ interface SeparatedPowersErrors {
 
     /// @notice Emitted when a law is already active, when trying to set a new one.
     error SeparatedPowers__LawAlreadyActive();
-    
+
     /// @notice Emitted when a law is not active.
     error SeparatedPowers__NotActiveLaw();
 

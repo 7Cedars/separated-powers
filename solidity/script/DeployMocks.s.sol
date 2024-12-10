@@ -8,20 +8,12 @@ import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
 
 contract DeployMocks is Script {
     /* Functions */
-    function run()
-        external
-        returns (
-            Erc1155Mock erc1155Mock,
-            Erc20VotesMock erc20VotesMock
-        )
-    {   
+    function run() external returns (Erc1155Mock erc1155Mock, Erc20VotesMock erc20VotesMock) {
         vm.startBroadcast();
-          erc1155Mock = new Erc1155Mock();
-          erc20VotesMock = new Erc20VotesMock();
+        erc1155Mock = new Erc1155Mock();
+        erc20VotesMock = new Erc20VotesMock();
         vm.stopBroadcast();
 
-        return (
-            erc1155Mock, erc20VotesMock
-        );
+        return (erc1155Mock, erc20VotesMock);
     }
 }

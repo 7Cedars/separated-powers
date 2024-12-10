@@ -15,16 +15,11 @@ import { ILaw } from "../../src/interfaces/ILaw.sol";
 //////////////////////////////////////////////////
 contract DeployTest is TestSetupLaw {
     using ShortStrings for *;
+
     ILaw.LawConfig lawConfig;
 
     function testDeploy() public {
-        Law lawMock = new Law(
-            "Mock Law", 
-            "This is a mock law contract", 
-            address(123),
-            ROLE_ONE, 
-            lawConfig
-            );
+        Law lawMock = new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
 
         string memory lawMockName = lawMock.name().toString();
         string memory lawMockDescription = lawMock.description();
@@ -37,34 +32,18 @@ contract DeployTest is TestSetupLaw {
     function testDeployEmitsEvent() public {
         vm.expectEmit(false, false, false, false);
         emit Law__Initialized(address(0));
-        new Law(
-            "Mock Law", 
-            "This is a mock law contract", 
-            address(123),
-            ROLE_ONE, 
-            lawConfig
-            );
-
+        new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
     }
 
     function testLawReturnsEmptyValue() public {
-        bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint. 
+        bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint.
         string memory description = "Executing a proposal vote";
 
-        Law lawMock = new Law(
-            "Mock Law", 
-            "This is a mock law contract", 
-            address(123),
-            ROLE_ONE, 
-            lawConfig
-            );
+        Law lawMock = new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
 
         vm.prank(address(123));
-        (
-            address[] memory targets, 
-            uint256[] memory values, 
-            bytes[] memory calldatas
-            ) = lawMock.executeLaw(address(333), lawCalldata, keccak256(bytes(description)));
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
+            lawMock.executeLaw(address(333), lawCalldata, keccak256(bytes(description)));
 
         assertEq(targets.length, 0);
         assertEq(values.length, 0);
@@ -72,17 +51,11 @@ contract DeployTest is TestSetupLaw {
     }
 
     function testLawRevertsIfNotCalledFromSeparatedPowers() public {
-        bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint. 
+        bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint.
         string memory description = "Executing a proposal vote";
-        address separatedPowers = address(123); 
+        address separatedPowers = address(123);
 
-        Law lawMock = new Law(
-            "Mock Law", 
-            "This is a mock law contract", 
-            separatedPowers, 
-            ROLE_ONE, 
-            lawConfig
-            );
+        Law lawMock = new Law("Mock Law", "This is a mock law contract", separatedPowers, ROLE_ONE, lawConfig);
 
         vm.prank(address(1)); // =! separatedPowers
         vm.expectRevert(Law__OnlySeparatedPowers.selector);

@@ -24,22 +24,21 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { console } from "lib/forge-std/src/console.sol";
 
 contract DirectSelect is Law {
-
     error DirectSelect__AccountDoesNotHaveRole();
     error DirectSelect__AccountAlreadyHasRole();
 
     uint32 private immutable ROLE_ID;
 
     constructor(
-        string memory name_, 
-        string memory description_, 
-        address separatedPowers_, 
-        uint32 allowedRole_, 
+        string memory name_,
+        string memory description_,
+        address separatedPowers_,
+        uint32 allowedRole_,
         LawConfig memory config_,
         uint32 roleId_
-        ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-            ROLE_ID = roleId_;
-            params = [dataType("bool")]; 
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+        ROLE_ID = roleId_;
+        params = [dataType("bool")];
     }
 
     function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
@@ -47,7 +46,7 @@ contract DirectSelect is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // step 0: do necessary optional checks. 
+        // step 0: do necessary optional checks.
         super.executeLaw(address(0), lawCalldata, descriptionHash);
 
         // step 1: decode the calldata.

@@ -11,7 +11,6 @@ import { ILaw } from "../../src/interfaces/ILaw.sol";
 //                  SETUP                       //
 //////////////////////////////////////////////////
 
-
 //////////////////////////////////////////////////
 //                  TESTS                       //
 //////////////////////////////////////////////////
@@ -22,7 +21,7 @@ contract DeployAlignedGrantsTest is Test {
 
     // function testDeployScriptAlignedGrants() public {
     //     (
-    //       AlignedGrants alignedGrants, 
+    //       AlignedGrants alignedGrants,
     //       address[] memory laws,
     //       uint32[] memory allowedRoles,
     //       ILaw.LawConfig[] memory lawConfigs,

@@ -27,11 +27,11 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
-import { NominateMe } from "./NominateMe.sol";  
+import { NominateMe } from "./NominateMe.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
-/// ONLY FOR TESTING PURPOSES 
+/// ONLY FOR TESTING PURPOSES
 import "forge-std/Test.sol";
 
 contract RandomlySelect is Law {
@@ -49,7 +49,7 @@ contract RandomlySelect is Law {
         string memory name_,
         string memory description_,
         address payable separatedPowers_,
-        uint32 allowedRole_, 
+        uint32 allowedRole_,
         LawConfig memory config_,
         address nominees_,
         uint256 maxRoleHolders_,
@@ -58,33 +58,33 @@ contract RandomlySelect is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-        params = new bytes4[](0); 
+        params = new bytes4[](0);
     }
 
-    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
+    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // do necessary optional checks. 
+        // do necessary optional checks.
         super.executeLaw(address(0), lawCalldata, descriptionHash);
 
-        // setting up array for revoking & assigning roles. 
+        // setting up array for revoking & assigning roles.
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
         uint256 numberElected = _electedSorted.length;
-        uint256 arrayLength = numberNominees < MAX_ROLE_HOLDERS ? 
-            numberElected + numberNominees 
-            : 
-            numberElected + MAX_ROLE_HOLDERS;
-        
+        uint256 arrayLength =
+            numberNominees < MAX_ROLE_HOLDERS ? numberElected + numberNominees : numberElected + MAX_ROLE_HOLDERS;
+
         targets = new address[](arrayLength);
         values = new uint256[](arrayLength);
         calldatas = new bytes[](arrayLength);
-        for (uint256 i; i < arrayLength; i++) { targets[i] = separatedPowers; } 
+        for (uint256 i; i < arrayLength; i++) {
+            targets[i] = separatedPowers;
+        }
 
-        // calls to revoke roles & delete array with elected accounts. 
+        // calls to revoke roles & delete array with elected accounts.
         for (uint256 i; i < numberElected; i++) {
-            uint256 index = (numberElected - i) - 1; // we work backwards through the list. 
+            uint256 index = (numberElected - i) - 1; // we work backwards through the list.
             calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
             _elected[_electedSorted[index]] = uint48(0);
             _electedSorted.pop();
@@ -93,27 +93,28 @@ contract RandomlySelect is Law {
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
-                address accountElect = NominateMe(NOMINEES).nomineesSorted(i);   
-                calldatas[i + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
+                address accountElect = NominateMe(NOMINEES).nomineesSorted(i);
+                calldatas[i + numberElected] =
+                    abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
                 _elected[accountElect] = uint48(block.timestamp);
                 _electedSorted.push(accountElect);
             }
         } else {
             uint256 pseudoRandomValue = uint256(keccak256(abi.encodePacked(block.number, descriptionHash)));
-            // note: this is very inefficient, but I cannot add a getter function in NominateMe - so have to retrieve addresses one by one.. 
+            // note: this is very inefficient, but I cannot add a getter function in NominateMe - so have to retrieve addresses one by one..
             address[] memory _nomineesSorted = new address[](numberNominees);
             for (uint256 i; i < numberNominees; i++) {
-                _nomineesSorted[i] = NominateMe(NOMINEES).nomineesSorted(i);   
+                _nomineesSorted[i] = NominateMe(NOMINEES).nomineesSorted(i);
             }
             for (uint256 i; i < MAX_ROLE_HOLDERS; i++) {
-                uint256 indexSelected = (pseudoRandomValue / 10 ** (i+1)) % (numberNominees - i); 
+                uint256 indexSelected = (pseudoRandomValue / 10 ** (i + 1)) % (numberNominees - i);
                 address selectedNominee = _nomineesSorted[indexSelected];
-                    // creating call, assigning role, adding nominee to elected, and removing nominee from nominees list.
-                    calldatas[i] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, selectedNominee); // selector probably wrong. check later.
-                    _elected[selectedNominee] = uint48(block.timestamp);
-                    _electedSorted.push(selectedNominee);
-                    // note that we do not need to .pop the last item of the list, because it will never be accessed as the modulo decreases each run. 
-                    _nomineesSorted[indexSelected] = _nomineesSorted[numberNominees - (i + 1)];
+                // creating call, assigning role, adding nominee to elected, and removing nominee from nominees list.
+                calldatas[i] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, selectedNominee); // selector probably wrong. check later.
+                _elected[selectedNominee] = uint48(block.timestamp);
+                _electedSorted.push(selectedNominee);
+                // note that we do not need to .pop the last item of the list, because it will never be accessed as the modulo decreases each run.
+                _nomineesSorted[indexSelected] = _nomineesSorted[numberNominees - (i + 1)];
             }
         }
     }
