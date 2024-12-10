@@ -556,7 +556,7 @@ BRF:39
 BRH:39
 end_of_record
 TN:
-SF:src/implementations/daos/AlignedGrants.sol
+SF:src/daos/AlignedGrants.sol
 FN:35,AlignedGrants.
 FNDA:0,AlignedGrants.
 DA:39,0
@@ -587,7 +587,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:src/implementations/laws/bespoke/ReinstateRole.sol
+SF:src/laws/bespoke/ReinstateRole.sol
 FN:21,ReinstateRole.
 FNDA:0,ReinstateRole.
 DA:31,0
@@ -612,7 +612,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:src/implementations/laws/bespoke/RequestPayment.sol
+SF:src/laws/bespoke/RequestPayment.sol
 FN:36,RequestPayment.
 FNDA:0,RequestPayment.
 DA:47,0
@@ -640,7 +640,7 @@ BRF:1
 BRH:0
 end_of_record
 TN:
-SF:src/implementations/laws/bespoke/RevokeRole.sol
+SF:src/laws/bespoke/RevokeRole.sol
 FN:16,RevokeRole.
 FNDA:0,RevokeRole.
 DA:24,0
@@ -665,7 +665,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:src/implementations/laws/electoral/DelegateSelect.sol
+SF:src/laws/electoral/DelegateSelect.sol
 FN:49,DelegateSelect.
 FNDA:20,DelegateSelect.
 DA:60,20
@@ -734,7 +734,7 @@ BRF:5
 BRH:3
 end_of_record
 TN:
-SF:src/implementations/laws/electoral/DirectSelect.sol
+SF:src/laws/electoral/DirectSelect.sol
 FN:33,DirectSelect.
 FNDA:75,DirectSelect.
 DA:41,75
@@ -766,7 +766,7 @@ BRF:4
 BRH:4
 end_of_record
 TN:
-SF:src/implementations/laws/electoral/NominateMe.sol
+SF:src/laws/electoral/NominateMe.sol
 FN:35,NominateMe.
 FNDA:75,NominateMe.
 DA:42,75
@@ -805,7 +805,7 @@ BRF:5
 BRH:5
 end_of_record
 TN:
-SF:src/implementations/laws/electoral/RandomlySelect.sol
+SF:src/laws/electoral/RandomlySelect.sol
 FN:48,RandomlySelect.
 FNDA:20,RandomlySelect.
 DA:58,20
@@ -854,7 +854,7 @@ BRF:2
 BRH:2
 end_of_record
 TN:
-SF:src/implementations/laws/electoral/TokensSelect.sol
+SF:src/laws/electoral/TokensSelect.sol
 FN:49,TokensSelect.
 FNDA:75,TokensSelect.
 DA:60,75
@@ -912,7 +912,7 @@ BRF:5
 BRH:3
 end_of_record
 TN:
-SF:src/implementations/laws/executive/BespokeAction.sol
+SF:src/laws/executive/BespokeAction.sol
 FN:28,BespokeAction.
 FNDA:20,BespokeAction.
 DA:38,20
@@ -934,7 +934,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:src/implementations/laws/executive/OpenAction.sol
+SF:src/laws/executive/OpenAction.sol
 FN:26,OpenAction.
 FNDA:82,OpenAction.
 DA:33,82
@@ -950,7 +950,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:src/implementations/laws/executive/PresetAction.sol
+SF:src/laws/executive/PresetAction.sol
 FN:29,PresetAction.
 FNDA:130,PresetAction.
 DA:39,130
@@ -972,7 +972,7 @@ BRF:1
 BRH:1
 end_of_record
 TN:
-SF:src/implementations/laws/executive/ProposalOnly.sol
+SF:src/laws/executive/ProposalOnly.sol
 FN:27,ProposalOnly.
 FNDA:95,ProposalOnly.
 DA:37,95

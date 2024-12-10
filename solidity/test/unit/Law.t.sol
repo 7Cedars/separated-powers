@@ -5,8 +5,8 @@ import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
 import { TestSetupLaw } from "../TestSetup.t.sol";
-import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.sol";
-import { PresetAction } from "../../src/implementations/laws/executive/PresetAction.sol";
+import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
+import { PresetAction } from "../../src/laws/executive/PresetAction.sol";
 import { Law } from "../../src/Law.sol";
 import { ILaw } from "../../src/interfaces/ILaw.sol";
 

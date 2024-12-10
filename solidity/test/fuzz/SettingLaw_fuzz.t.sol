@@ -2,7 +2,7 @@
 pragma solidity 0.8.26;
 
 // import {Test, console, console2} from "lib/forge-std/src/Test.sol";
-// import {DeployAgDao} from "../../../script/DeployAgDao.s.sol";
+// import {DeployAgDao} from "../../script/DeployAgDao.s.sol";
 // import {SeparatedPowers} from "../src/SeparatedPowers.sol";
 // import {AgDao} from   "../src/implementation/DAOs/AgDao.sol";
 // import {AgCoins} from "../src/implementation/DAOs/AgCoins.sol";

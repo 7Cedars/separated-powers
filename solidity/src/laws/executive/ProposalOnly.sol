@@ -14,7 +14,7 @@
 
 pragma solidity 0.8.26;
 
-import { Law } from "../../../Law.sol";
+import { Law } from "../../Law.sol";
 
 contract ProposalOnly is Law {
     /// @notice Constructor function for Open contract.

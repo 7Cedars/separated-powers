@@ -9,17 +9,18 @@ import { Law } from "../../src/Law.sol";
 import { ILaw } from "../../src/interfaces/ILaw.sol";
 
 import { DeployMocks } from "../../script/DeployMocks.s.sol";
-import { DeployAlignedGrants } from "../../script/DeployAlignedGrants.s.sol";
+// import { DeployAlignedGrants } from "../../script/DeployAlignedGrants.s.sol";
 import { Erc1155Mock } from "../../test/mocks/Erc1155Mock.sol";
 import { Erc20VotesMock } from "../../test/mocks/Erc20VotesMock.sol";
 
-import { AlignedGrants } from "../../src/implementations/daos/AlignedGrants.sol";
 import { TestVariables, TestHelpers } from "../../test/TestSetup.t.sol";
 
 /////////////////////////////////////////////////////
 //                      Setup                      //
 /////////////////////////////////////////////////////
 abstract contract TestSetupAlignedGrants is Test, TestVariables, TestHelpers {
+    function TestA() public {}
+
     function setUp() public virtual {
         // the only law specific event that is emitted.
         vm.roll(10);

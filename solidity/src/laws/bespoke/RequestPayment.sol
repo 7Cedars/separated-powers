@@ -9,8 +9,8 @@
 
 pragma solidity 0.8.26;
 
-import { Law } from "../../../Law.sol";
-import { Erc1155Mock } from "../../../../test/mocks/Erc1155Mock.sol";
+import { Law } from "../../Law.sol";
+import { Erc1155Mock } from "../../../test/mocks/Erc1155Mock.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract RequestPayment is Law {

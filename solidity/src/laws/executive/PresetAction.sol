@@ -9,7 +9,7 @@
 
 pragma solidity 0.8.26;
 
-import { Law } from "../../../Law.sol";
+import { Law } from "../../Law.sol";
 
 contract PresetAction is Law {
     /// the targets, values and calldatas to be used in the calls: set at construction.

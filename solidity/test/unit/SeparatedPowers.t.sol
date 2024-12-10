@@ -7,7 +7,7 @@ import { Law } from "../../src/Law.sol";
 import { ILaw } from "../../src/interfaces/ILaw.sol";
 import { TestSetupSeparatedPowers } from "../TestSetup.t.sol";
 import { DaoMock } from "../mocks/DaoMock.sol";
-import { OpenAction } from "../../src/implementations/laws/executive/OpenAction.sol";
+import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 
 /// @notice Unit tests for the core Separated Powers protocol.
 /// @dev tests build on the Hats protocol example. See // https.... £todo

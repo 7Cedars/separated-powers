@@ -19,12 +19,11 @@ import { DaoMock } from "./mocks/DaoMock.sol";
 import { Erc1155Mock } from "./mocks/Erc1155Mock.sol";
 import { Erc721Mock } from "./mocks/Erc721Mock.sol";
 import { Erc20VotesMock } from "./mocks/Erc20VotesMock.sol";
-
-import { AlignedGrants } from "../src/implementations/daos/AlignedGrants.sol";
-import { ConstitutionsMock } from "./ConstitutionsMock.t.sol";
-import { FoundersMock } from "./FoundersMock.t.sol";
+import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
+import { FoundersMock } from "./mocks/FoundersMock.sol";
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
+    function test() public {}
 
     // the only event in the Law contract
     event Law__Initialized(address law);
@@ -32,7 +31,6 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     // protocol and mocks
     SeparatedPowers separatedPowers;
     DaoMock daoMock;
-    AlignedGrants alignedGrants;
     ConstitutionsMock constitutionsMock;
     FoundersMock foundersMock;
     Erc1155Mock erc1155Mock;
@@ -83,6 +81,7 @@ abstract contract TestHelpers is TestVariables {
 }
 
 abstract contract BaseSetup is Test, TestVariables, TestHelpers {
+    
     function setUp() public virtual {
         vm.roll(10);
         setUpVariables();

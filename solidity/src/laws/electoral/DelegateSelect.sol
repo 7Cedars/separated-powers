@@ -25,8 +25,8 @@
 
 pragma solidity 0.8.26;
 
-import { Law } from "../../../Law.sol";
-import { SeparatedPowers } from "../../../SeparatedPowers.sol";
+import { Law } from "../../Law.sol";
+import { SeparatedPowers } from "../../SeparatedPowers.sol";
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import { NominateMe } from "./NominateMe.sol"; 
 import "@openzeppelin/contracts/utils/ShortStrings.sol";

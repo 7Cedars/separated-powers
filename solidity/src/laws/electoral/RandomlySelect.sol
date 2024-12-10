@@ -21,12 +21,12 @@
 /// - has two internal mechanisms: nominate or elect. Which one is run depends on calldata input.
 /// - doess not have to role restricted.
 /// - translates a simple token based voting system to separated powers.
-/// - Note this logic can also be applied with a delegation logic added. Not only taking simple token holdings into account, but also delegated tokens. 
+/// - Note this logic can also be applied with a delegation logic added. Not only taking simple token holdings into account, but also delegated tokens.
 
 pragma solidity 0.8.26;
 
-import { Law } from "../../../Law.sol";
-import { SeparatedPowers } from "../../../SeparatedPowers.sol";
+import { Law } from "../../Law.sol";
+import { SeparatedPowers } from "../../SeparatedPowers.sol";
 import { NominateMe } from "./NominateMe.sol";  
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
@@ -34,10 +34,9 @@ import "@openzeppelin/contracts/utils/ShortStrings.sol";
 /// ONLY FOR TESTING PURPOSES 
 import "forge-std/Test.sol";
 
-contract TokensSelect is Law {
+contract RandomlySelect is Law {
     using ShortStrings for *;
 
-    address private immutable ERC_1155_TOKEN;
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
     address private immutable NOMINEES;
@@ -52,28 +51,25 @@ contract TokensSelect is Law {
         address payable separatedPowers_,
         uint32 allowedRole_, 
         LawConfig memory config_,
-        address payable erc1155Token_,
         address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        ERC_1155_TOKEN = erc1155Token_;
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
         params = new bytes4[](0); 
     }
 
-    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash )
+    function executeLaw(address /*initiator*/, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
-        {
-
+    {
         // do necessary optional checks. 
         super.executeLaw(address(0), lawCalldata, descriptionHash);
-    
-        // step 1: setting up array for revoking & assigning roles. 
+
+        // setting up array for revoking & assigning roles. 
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
         uint256 numberElected = _electedSorted.length;
         uint256 arrayLength = numberNominees < MAX_ROLE_HOLDERS ? 
@@ -86,7 +82,7 @@ contract TokensSelect is Law {
         calldatas = new bytes[](arrayLength);
         for (uint256 i; i < arrayLength; i++) { targets[i] = separatedPowers; } 
 
-        // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts. 
+        // calls to revoke roles & delete array with elected accounts. 
         for (uint256 i; i < numberElected; i++) {
             uint256 index = (numberElected - i) - 1; // we work backwards through the list. 
             calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
@@ -102,34 +98,22 @@ contract TokensSelect is Law {
                 _elected[accountElect] = uint48(block.timestamp);
                 _electedSorted.push(accountElect);
             }
-        // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
         } else {
+            uint256 pseudoRandomValue = uint256(keccak256(abi.encodePacked(block.number, descriptionHash)));
+            // note: this is very inefficient, but I cannot add a getter function in NominateMe - so have to retrieve addresses one by one.. 
             address[] memory _nomineesSorted = new address[](numberNominees);
             for (uint256 i; i < numberNominees; i++) {
-                _nomineesSorted[i] = NominateMe(NOMINEES).nomineesSorted(i);
+                _nomineesSorted[i] = NominateMe(NOMINEES).nomineesSorted(i);   
             }
-            uint256[] memory _balances = ERC1155(ERC_1155_TOKEN).balanceOfBatch(_nomineesSorted, new uint256[](numberNominees));
-            // note how the following mechanism works:
-            // 1. we add 1 to each nominee's position, if we found a account that holds more tokens.
-            // 2. if the position is greater than MAX_ROLE_HOLDERS, we break. (it means there are more accounts that have more tokens than MAX_ROLE_HOLDERS)
-            // 3. if the position is less than MAX_ROLE_HOLDERS, we assign the roles.
-            uint256 index;
-            for (uint256 i; i < numberNominees; i++) {
-                uint256 rank; 
-                // 1: loop to assess ranking. 
-                for (uint256 j; j < numberNominees; j++) {
-                    if (_balances[j] > _balances[i]) {
-                        rank++;
-                        if (rank > MAX_ROLE_HOLDERS) { break; } // 2: do not need to know rank beyond MAX_ROLE_HOLDERS threshold. 
-                    } 
-                } 
-                // 3: assigning role if rank is less than MAX_ROLE_HOLDERS.
-                if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberElected) {
-                    calldatas[index + numberElected] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]); 
-                    _elected[_nomineesSorted[i]] = uint48(block.timestamp);
-                    _electedSorted.push(_nomineesSorted[i]);
-                    index++;
-                }
+            for (uint256 i; i < MAX_ROLE_HOLDERS; i++) {
+                uint256 indexSelected = (pseudoRandomValue / 10 ** (i+1)) % (numberNominees - i); 
+                address selectedNominee = _nomineesSorted[indexSelected];
+                    // creating call, assigning role, adding nominee to elected, and removing nominee from nominees list.
+                    calldatas[i] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, selectedNominee); // selector probably wrong. check later.
+                    _elected[selectedNominee] = uint48(block.timestamp);
+                    _electedSorted.push(selectedNominee);
+                    // note that we do not need to .pop the last item of the list, because it will never be accessed as the modulo decreases each run. 
+                    _nomineesSorted[indexSelected] = _nomineesSorted[numberNominees - (i + 1)];
             }
         }
     }

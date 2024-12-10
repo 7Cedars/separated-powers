@@ -1,34 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import { Law } from "../src/Law.sol";
-import { ILaw } from "../src/interfaces/ILaw.sol";
-import { Erc1155Mock } from "./mocks/Erc1155Mock.sol";
-import { DaoMock } from "./mocks/DaoMock.sol";
-import { AlignedGrants } from "../src/implementations/daos/AlignedGrants.sol";
+import { Law } from "../../src/Law.sol";
+import { ILaw } from "../../src/interfaces/ILaw.sol";
+import { Erc1155Mock } from "./Erc1155Mock.sol";
+import { DaoMock } from "./DaoMock.sol";
 
 // electoral laws
-import { TokensSelect } from "../src/implementations/laws/electoral/TokensSelect.sol";
-import { DirectSelect } from "../src/implementations/laws/electoral/DirectSelect.sol";
-import { DelegateSelect } from "../src/implementations/laws/electoral/DelegateSelect.sol";
-import { RandomlySelect } from "../src/implementations/laws/electoral/RandomlySelect.sol";
-import { NominateMe } from "../src/implementations/laws/electoral/NominateMe.sol";
+import { TokensSelect } from "../../src/laws/electoral/TokensSelect.sol";
+import { DirectSelect } from "../../src/laws/electoral/DirectSelect.sol";
+import { DelegateSelect } from "../../src/laws/electoral/DelegateSelect.sol";
+import { RandomlySelect } from "../../src/laws/electoral/RandomlySelect.sol";
+import { NominateMe } from "../../src/laws/electoral/NominateMe.sol";
 // executive laws. 
-import { ProposalOnly } from "../src/implementations/laws/executive/ProposalOnly.sol";
-import { OpenAction } from "../src/implementations/laws/executive/OpenAction.sol";
-import { PresetAction } from "../src/implementations/laws/executive/PresetAction.sol";
-import { BespokeAction } from "../src/implementations/laws/executive/BespokeAction.sol";
+import { ProposalOnly } from "../../src/laws/executive/ProposalOnly.sol";
+import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
+import { PresetAction } from "../../src/laws/executive/PresetAction.sol";
+import { BespokeAction } from "../../src/laws/executive/BespokeAction.sol";
 // bespoke laws.
-import { ReinstateRole } from "../src/implementations/laws/bespoke/ReinstateRole.sol";
-import { RevokeRole } from "../src/implementations/laws/bespoke/RevokeRole.sol";
-import { RequestPayment } from "../src/implementations/laws/bespoke/RequestPayment.sol";
+import { BlacklistAccount } from "../../src/laws/bespoke/BlacklistAccount.sol";
+import { CommunityValues } from "../../src/laws/bespoke/CommunityValues.sol";
+import { LawWithBlacklistCheck } from "../../src/laws/bespoke/LawWithBlacklistCheck.sol";
+import { RequestPayment } from "../../src/laws/bespoke/RequestPayment.sol";
 
 contract ConstitutionsMock {
-
-    // uint32 1 = 1;
-    // uint32 2 = 2;
-    // uint32 3 = 3;
-
     //////////////////////////////////////////////////////////////
     //                  FIRST CONSTITUTION                      //
     //////////////////////////////////////////////////////////////
@@ -436,28 +431,28 @@ contract ConstitutionsMock {
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 1200; // = number of blocks
         // initiating law. 
-        law = new RevokeRole(
-                "Whales -> revoke member", // max 31 chars
-                "Whales can revoke member. Subject to Vote.",
-                dao_,
-                3, // access role 
-                lawConfig, // empty config file. 
-                // bespoke configs for this law:
-                1
-            );
-        laws[0] =(address(law)); 
+        // law = new RevokeRole(
+        //         "Whales -> revoke member", // max 31 chars
+        //         "Whales can revoke member. Subject to Vote.",
+        //         dao_,
+        //         3, // access role 
+        //         lawConfig, // empty config file. 
+        //         // bespoke configs for this law:
+        //         1
+        //     );
+        // laws[0] =(address(law)); 
 
-        delete lawConfig;
-        law = new ReinstateRole(
-                "Seniors -> reinstate member", // max 31 chars
-                "Any Senior can reinstate member.",
-                dao_,
-                2, // access role 
-                lawConfig, // empty config file. 
-                // bespoke configs for this law:
-                1
-            );
-        laws[1] =(address(law)); 
+        // delete lawConfig;
+        // law = new ReinstateRole(
+        //         "Seniors -> reinstate member", // max 31 chars
+        //         "Any Senior can reinstate member.",
+        //         dao_,
+        //         2, // access role 
+        //         lawConfig, // empty config file. 
+        //         // bespoke configs for this law:
+        //         1
+        //     );
+        // laws[1] =(address(law)); 
 
         delete lawConfig;
         law = new RequestPayment(

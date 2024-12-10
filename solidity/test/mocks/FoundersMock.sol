@@ -3,26 +3,7 @@ pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
 
-import { Law } from "../src/Law.sol";
-import { ILaw } from "../src/interfaces/ILaw.sol";
-import { Erc1155Mock } from "./mocks/Erc1155Mock.sol";
-import { DaoMock } from "./mocks/DaoMock.sol";
-import { AlignedGrants } from "../src/implementations/daos/AlignedGrants.sol";
-// electoral laws
-import { TokensSelect } from "../src/implementations/laws/electoral/TokensSelect.sol";
-import { DirectSelect } from "../src/implementations/laws/electoral/DirectSelect.sol";
-import { DelegateSelect } from "../src/implementations/laws/electoral/DelegateSelect.sol";
-import { RandomlySelect } from "../src/implementations/laws/electoral/RandomlySelect.sol";
-import { NominateMe } from "../src/implementations/laws/electoral/NominateMe.sol";
-// executive laws. 
-import { ProposalOnly } from "../src/implementations/laws/executive/ProposalOnly.sol";
-import { OpenAction } from "../src/implementations/laws/executive/OpenAction.sol";
-import { PresetAction } from "../src/implementations/laws/executive/PresetAction.sol";
-import { BespokeAction } from "../src/implementations/laws/executive/BespokeAction.sol";
-// bespoke laws.
-import { ReinstateRole } from "../src/implementations/laws/bespoke/ReinstateRole.sol";
-import { RevokeRole } from "../src/implementations/laws/bespoke/RevokeRole.sol";
-import { RequestPayment } from "../src/implementations/laws/bespoke/RequestPayment.sol";
+import { DaoMock } from "./DaoMock.sol";
 
 contract FoundersMock is Test {
     //////////////////////////////////////////////////////////////
@@ -74,5 +55,9 @@ contract FoundersMock is Test {
         constituentRoles[11] = daoMock.ROLE_THREE();
         constituentAccounts[12] = bob;
         constituentRoles[12] = daoMock.ROLE_THREE();
+    }
+
+    function _createAddress(string memory name) internal returns (address addr) {
+        return address(bytes20(keccak256(bytes(name))));
     }
 }
