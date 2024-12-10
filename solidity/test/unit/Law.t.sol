@@ -18,9 +18,9 @@ contract DeployTest is TestSetupLaw {
     ILaw.LawConfig lawConfig;
 
     function testDeploy() public {
-        Law lawMock = new OpenAction(
-            "OpenAction Mock", 
-            "This is a mock of the open action law contract", 
+        Law lawMock = new Law(
+            "Mock Law", 
+            "This is a mock law contract", 
             address(123),
             ROLE_ONE, 
             lawConfig
@@ -29,21 +29,64 @@ contract DeployTest is TestSetupLaw {
         string memory lawMockName = lawMock.name().toString();
         string memory lawMockDescription = lawMock.description();
 
-        assertEq(lawMockName, "OpenAction Mock");
-        assertEq(lawMockDescription, "This is a mock of the open action law contract");
+        assertEq(lawMockName, "Mock Law");
+        assertEq(lawMockDescription, "This is a mock law contract");
         assertEq(lawMock.separatedPowers(), address(123));
     }
 
     function testDeployEmitsEvent() public {
         vm.expectEmit(false, false, false, false);
         emit Law__Initialized(address(0));
-        new OpenAction(
-            "OpenAction Mock", 
-            "This is a mock of the open action law contract", 
+        new Law(
+            "Mock Law", 
+            "This is a mock law contract", 
             address(123),
             ROLE_ONE, 
             lawConfig
             );
+
+    }
+
+    function testLawReturnsEmptyValue() public {
+        bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint. 
+        string memory description = "Executing a proposal vote";
+
+        Law lawMock = new Law(
+            "Mock Law", 
+            "This is a mock law contract", 
+            address(123),
+            ROLE_ONE, 
+            lawConfig
+            );
+
+        vm.prank(address(123));
+        (
+            address[] memory targets, 
+            uint256[] memory values, 
+            bytes[] memory calldatas
+            ) = lawMock.executeLaw(address(333), lawCalldata, keccak256(bytes(description)));
+
+        assertEq(targets.length, 0);
+        assertEq(values.length, 0);
+        assertEq(calldatas.length, 0);
+    }
+
+    function testLawRevertsIfNotCalledFromSeparatedPowers() public {
+        bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint. 
+        string memory description = "Executing a proposal vote";
+        address separatedPowers = address(123); 
+
+        Law lawMock = new Law(
+            "Mock Law", 
+            "This is a mock law contract", 
+            separatedPowers, 
+            ROLE_ONE, 
+            lawConfig
+            );
+
+        vm.prank(address(1)); // =! separatedPowers
+        vm.expectRevert(Law__OnlySeparatedPowers.selector);
+        lawMock.executeLaw(address(333), lawCalldata, keccak256(bytes(description)));
     }
 }
 

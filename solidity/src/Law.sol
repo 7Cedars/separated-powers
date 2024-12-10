@@ -88,8 +88,6 @@ contract Law is ERC165, ILaw {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         _executeChecks(lawCalldata, descriptionHash);
-
-        return (targets, values, calldatas);
     }
 
     /// @notice an internal function to check that the law is valid before execution. 
@@ -129,9 +127,7 @@ contract Law is ERC165, ILaw {
             uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
             uint256 currentBlock = block.number;
             uint256 deadline = SeparatedPowers(payable(separatedPowers)).proposalDeadline(proposalId);
-            if (deadline == 0) {
-                revert Law__NoDeadlineSet();
-            }
+            
             if (deadline + config.delayExecution > currentBlock) {
                 revert Law__DeadlineNotPassed();
             } 

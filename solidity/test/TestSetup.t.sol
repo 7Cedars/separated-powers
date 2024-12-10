@@ -17,6 +17,7 @@ import { LawErrors } from "../src/interfaces/LawErrors.sol";
 // mocks
 import { DaoMock } from "./mocks/DaoMock.sol";
 import { Erc1155Mock } from "./mocks/Erc1155Mock.sol";
+import { Erc721Mock } from "./mocks/Erc721Mock.sol";
 import { Erc20VotesMock } from "./mocks/Erc20VotesMock.sol";
 
 import { AlignedGrants } from "../src/implementations/daos/AlignedGrants.sol";
@@ -24,6 +25,7 @@ import { ConstitutionsMock } from "./ConstitutionsMock.t.sol";
 import { FoundersMock } from "./FoundersMock.t.sol";
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
+
     // the only event in the Law contract
     event Law__Initialized(address law);
 
@@ -34,6 +36,7 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     ConstitutionsMock constitutionsMock;
     FoundersMock foundersMock;
     Erc1155Mock erc1155Mock;
+    Erc721Mock erc721Mock;
     Erc20VotesMock erc20VotesMock;
 
     // laws
@@ -85,6 +88,9 @@ abstract contract BaseSetup is Test, TestVariables, TestHelpers {
         setUpVariables();
     }
 
+    // // add this to be excluded from coverage report
+    // function test() public {}
+
     function setUpVariables() public virtual {
      // votes types
         AGAINST = 0;
@@ -122,6 +128,7 @@ abstract contract BaseSetup is Test, TestVariables, TestHelpers {
 
         // deploy mocks
         erc1155Mock = new Erc1155Mock();
+        erc721Mock = new Erc721Mock();
         erc20VotesMock = new Erc20VotesMock();
         daoMock = new DaoMock();
         constitutionsMock = new ConstitutionsMock();
@@ -186,15 +193,15 @@ abstract contract TestSetupBespokeLaws is BaseSetup, ConstitutionsMock {
 
         // initiate constitution & get founders' roles list
         (address[] memory laws_) = constitutionsMock.initiateBespokeLawsTestConstitution(
-            payable(address(alignedGrants)), 
+            payable(address(daoMock)), 
             payable(address(erc1155Mock)), 
             payable(address(erc20VotesMock))
             );
         laws = laws_;
-        (address[] memory constituentAccounts, uint32[] memory constituentRoles) = foundersMock.getFounders(payable(address(alignedGrants)));
+        (address[] memory constituentAccounts, uint32[] memory constituentRoles) = foundersMock.getFounders(payable(address(daoMock)));
 
         // constitute daoMock.
-        alignedGrants.constitute(laws, constituentRoles, constituentAccounts);
+        daoMock.constitute(laws, constituentRoles, constituentAccounts);
         daoNames.push("AlignedGrants");
     }
 }

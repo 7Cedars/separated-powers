@@ -55,13 +55,14 @@ contract DeployTest is TestSetupSeparatedPowers {
 //////////////////////////////////////////////////////////////
 contract ProposeTest is TestSetupSeparatedPowers {
     function testProposeRevertsWhenAccountLacksCredentials() public {
-        uint32 lawNumber = 2;
+        uint32 lawNumber = 4;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        // check if helen does not have correct role
+        // check if mockAddress does not have correct role
         address mockAddress = makeAddr("mock");
-        assertEq(daoMock.hasRoleSince(mockAddress, Law(laws[lawNumber]).allowedRole()), 0);
+        assertFalse(daoMock.canCallLaw(mockAddress, laws[lawNumber]));
 
+        // act & assert 
         vm.expectRevert(SeparatedPowers__AccessDenied.selector);
         vm.prank(mockAddress);
         daoMock.propose(laws[4], lawCalldata, description);
@@ -72,7 +73,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
         // check if charlotte has correct role
-        assertNotEq(daoMock.hasRoleSince(charlotte, Law(laws[lawNumber]).allowedRole()), 0);
+        assertTrue(daoMock.canCallLaw(charlotte, laws[lawNumber]));
 
         vm.prank(address(daoMock));
         daoMock.revokeLaw(laws[lawNumber]);
@@ -88,7 +89,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
         bytes memory lawCalldata = abi.encode("this is dummy Data");
         address lawThatDoesNotNeedVote = laws[lawNumber];
         // check if david has correct role
-        assertNotEq(daoMock.hasRoleSince(david, Law(laws[lawNumber]).allowedRole()), 0);
+        assertTrue(daoMock.canCallLaw(david, laws[lawNumber]));
 
         vm.prank(david);
         vm.expectRevert(SeparatedPowers__NoVoteNeeded.selector);
@@ -100,7 +101,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
         // check if charlotte has correct role
-        assertNotEq(daoMock.hasRoleSince(charlotte, Law(laws[lawNumber]).allowedRole()), 0);
+        assertTrue(daoMock.canCallLaw(charlotte, laws[lawNumber]));
 
         vm.prank(charlotte);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
@@ -115,7 +116,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
         bytes memory lawCalldata = abi.encode(true);
         address targetLaw = laws[lawNumber];
         // check if charlotte has correct role
-        assertNotEq(daoMock.hasRoleSince(charlotte, Law(laws[lawNumber]).allowedRole()), 0);
+        assertTrue(daoMock.canCallLaw(charlotte, laws[lawNumber]));
 
         uint256 actionId = hashProposal(targetLaw, lawCalldata, keccak256(bytes(description)));
         ( , , uint32 duration, , , , ) = Law(laws[lawNumber]).config();
@@ -124,6 +125,22 @@ contract ProposeTest is TestSetupSeparatedPowers {
         emit ProposalCreated(
             actionId, charlotte, targetLaw, "", lawCalldata, block.number, block.timestamp + duration, description
         );
+        vm.prank(charlotte);
+        daoMock.propose(targetLaw, lawCalldata, description);
+    }
+
+    function testProposeRevertsIfAlreadyExist() public {
+        uint32 lawNumber = 4;
+        string memory description = "Creating a proposal";
+        bytes memory lawCalldata = abi.encode(true);
+        address targetLaw = laws[lawNumber];
+        // check if charlotte has correct role
+        assertTrue(daoMock.canCallLaw(charlotte, laws[lawNumber]));
+
+        vm.prank(charlotte);
+        daoMock.propose(targetLaw, lawCalldata, description);
+
+        vm.expectRevert(SeparatedPowers__UnexpectedActionState.selector);
         vm.prank(charlotte);
         daoMock.propose(targetLaw, lawCalldata, description);
     }
@@ -610,6 +627,84 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         vm.prank(charlotte);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
+
+    function testExecuteRevertsIfLawChecksNotPassed() public {
+        uint32 lawNumber = 0;
+        string memory description = "Assigning mockAddress ROLE_ONE";
+        bytes memory lawCalldata = abi.encode(false); // revoke = false
+        address mockAddress = makeAddr("mock");
+
+        address[] memory tar = new address[](0); 
+        uint256[] memory val = new uint256[](0);
+        bytes[] memory cal = new bytes[](0);
+
+        vm.mockCall(
+            laws[lawNumber],
+            abi.encodeWithSelector(Law.executeLaw.selector, charlotte, lawCalldata, keccak256(bytes(description))),
+            abi.encode(tar, val, cal) 
+        );
+
+        // act & assert 
+        vm.expectRevert(SeparatedPowers__LawDidNotPassChecks.selector);
+        vm.prank(charlotte);
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
+
+        vm.clearMockedCalls();
+    }
+
+    function testIfReturnDataIsAddressOneNothingGetsExecuted() public {
+        uint32 lawNumber = 0;
+        string memory description = "Assigning mockAddress ROLE_ONE";
+        bytes memory lawCalldata = abi.encode(false); // revoke = false
+        address mockAddress = makeAddr("mock");
+
+        address[] memory tar = new address[](1); 
+        uint256[] memory val = new uint256[](1);
+        bytes[] memory cal = new bytes[](1);
+        tar[0] = address(1);
+
+        vm.mockCall(
+            laws[lawNumber],
+            abi.encodeWithSelector(Law.executeLaw.selector, charlotte, lawCalldata, keccak256(bytes(description))),
+            abi.encode(tar, val, cal) 
+        );
+
+        // act .
+        vm.prank(charlotte);
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
+
+        // assert 
+        vm.assertEq(daoMock.hasRoleSince(mockAddress, ROLE_ONE), 0); 
+
+        // clear mock calls 
+        vm.clearMockedCalls();
+    }
+
+    function testExecuteRevertsWithIncorrectReturnArrayLengths() public {
+        uint32 lawNumber = 0;
+        string memory description = "Assigning mockAddress ROLE_ONE";
+        bytes memory lawCalldata = abi.encode(false); // revoke = false
+        address mockAddress = makeAddr("mock");
+
+        address[] memory tar = new address[](1); 
+        uint256[] memory val = new uint256[](2);
+        bytes[] memory cal = new bytes[](3);
+        tar[0] = address(123);
+
+        vm.mockCall(
+            laws[lawNumber],
+            abi.encodeWithSelector(Law.executeLaw.selector, charlotte, lawCalldata, keccak256(bytes(description))),
+            abi.encode(tar, val, cal) 
+        );
+
+        // act & assert.
+        vm.expectRevert(SeparatedPowers__InvalidCallData.selector);
+        vm.prank(charlotte);
+        daoMock.execute(laws[lawNumber], lawCalldata, description);
+
+        // clear mock calls 
+        vm.clearMockedCalls();
+    }
 }
 
 //////////////////////////////////////////////////////////////
@@ -744,6 +839,29 @@ contract SetLawTest is
         vm.prank(address(daoMock));
         daoMock.adoptLaw(newNotALaw);
     }
+
+    function testAdoptLawRevertsIfAddressAlreadyLaw() public {
+        uint32 lawNumber = 0;
+
+        vm.expectRevert(SeparatedPowers__LawAlreadyActive.selector);
+        vm.prank(address(daoMock));
+        daoMock.adoptLaw(laws[lawNumber]);
+    }
+
+    function testRevokeLawRevertsIfAddressNotActive() public {
+        ILaw.LawConfig memory lawConfig; 
+        address newLaw = address(new OpenAction(
+            "test law", 
+            "This is a test Law", 
+            address(daoMock), 
+            ROLE_ONE,
+            lawConfig
+            ));
+
+        vm.expectRevert(SeparatedPowers__LawNotActive.selector);
+        vm.prank(address(daoMock));
+        daoMock.revokeLaw(newLaw);
+    }
 }
 
 contract SetRoleTest is TestSetupSeparatedPowers {
@@ -810,5 +928,67 @@ contract SetRoleTest is TestSetupSeparatedPowers {
         emit RoleSet(ROLE_THREE, helen);
         vm.prank(address(daoMock));
         daoMock.assignRole(ROLE_THREE, helen);
+    }
+}
+
+contract ComplianceTest is TestSetupSeparatedPowers {
+    function testErc721Compliance() public {
+        // prep
+        uint256 NftToMint = 42;
+        assertEq(erc721Mock.balanceOf(address(daoMock)), 0);
+
+        // act
+        vm.prank(address(daoMock));
+        erc721Mock.mintNFT(NftToMint); 
+
+        // assert
+        assertEq(erc721Mock.balanceOf(address(daoMock)), 1);
+        assertEq(erc721Mock.ownerOf(NftToMint), address(daoMock));
+    }
+
+    function testOnERC721Received() public {
+        // prep
+        address sender = alice;
+        address recipient = address(daoMock);
+        uint256 tokenId = 42;
+        bytes memory data = bytes(abi.encode(0));
+
+        // act
+        vm.prank(address(daoMock));
+        (bytes4 response) = daoMock.onERC721Received(sender, recipient, tokenId, data);
+
+        // assert
+        assertEq(response, daoMock.onERC721Received.selector);
+    }
+
+    function testErc1155Compliance() public {
+        // prep
+        uint256 NumberOfCoinsToMint = 100;
+        assertEq(erc1155Mock.balanceOf(address(daoMock), 0), 0);
+
+        // act
+        vm.prank(address(daoMock));
+        erc1155Mock.mintCoins(NumberOfCoinsToMint); 
+
+        // assert
+        assertEq(erc1155Mock.balanceOf(address(daoMock), 0), NumberOfCoinsToMint); 
+    }
+
+    function testOnERC1155BatchReceived() public {
+        // prep
+        address sender = alice;
+        address recipient = address(daoMock);
+        uint256[] memory tokenIds = new uint256[](1); 
+        tokenIds[0] = 1;
+        uint256[] memory values = new uint256[](1);
+        values[0] = 22;
+        bytes memory data = bytes(abi.encode(0));
+
+        // act
+        vm.prank(address(daoMock));
+        (bytes4 response) = daoMock.onERC1155BatchReceived(sender, recipient, tokenIds, values, data);
+
+        // assert
+        assertEq(response, daoMock.onERC1155BatchReceived.selector);
     }
 }

@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-
 import "forge-std/Test.sol";
-
 
 import { Law } from "../src/Law.sol";
 import { ILaw } from "../src/interfaces/ILaw.sol";

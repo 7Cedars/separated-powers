@@ -440,10 +440,10 @@ contract ConstitutionsMock {
                 "Whales -> revoke member", // max 31 chars
                 "Whales can revoke member. Subject to Vote.",
                 dao_,
-                AlignedGrants(dao_).WHALE_ROLE(), // access role 
+                3, // access role 
                 lawConfig, // empty config file. 
                 // bespoke configs for this law:
-                AlignedGrants(dao_).MEMBER_ROLE()
+                1
             );
         laws[0] =(address(law)); 
 
@@ -452,10 +452,10 @@ contract ConstitutionsMock {
                 "Seniors -> reinstate member", // max 31 chars
                 "Any Senior can reinstate member.",
                 dao_,
-                AlignedGrants(dao_).SENIOR_ROLE(), // access role 
+                2, // access role 
                 lawConfig, // empty config file. 
                 // bespoke configs for this law:
-                AlignedGrants(dao_).MEMBER_ROLE()
+                1
             );
         laws[1] =(address(law)); 
 
@@ -464,7 +464,7 @@ contract ConstitutionsMock {
                 "Members can request payment", // max 31 chars
                 "Members can request payment once every week.",
                 dao_, 
-                AlignedGrants(dao_).MEMBER_ROLE(), // access role 
+                1, // access role 
                 lawConfig, // empty config file. 
                 // bespoke configs for this law:
                 mock1155_, // target contract that can be called. 

@@ -152,7 +152,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         returns (uint256)
     {
         uint256 proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
-        // only initiator can cancel a proposal
+        // only initiator can cancel a proposal, also checks if proposal exists (otherwise _proposals[proposalId].initiator == address(0))
         if (msg.sender != _proposals[proposalId].initiator) {
             revert SeparatedPowers__AccessDenied();
         }
@@ -172,9 +172,6 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     {
         uint256 proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
 
-        if (_proposals[proposalId].targetLaw == address(0)) {
-            revert SeparatedPowers__InvalidProposalId();
-        }
         if (_proposals[proposalId].completed || _proposals[proposalId].cancelled) {
             revert SeparatedPowers__UnexpectedActionState();
         }
@@ -243,7 +240,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
         // if checks pass, call target law -> receive targets, values and calldatas
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
-            Law(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
+            ILaw(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
         // check return data law.
         if (targets.length == 0 || targets[0] == targetLaw || targets[0] == address(0)) {
             revert SeparatedPowers__LawDidNotPassChecks();
@@ -520,11 +517,6 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     /// @inheritdoc ISeparatedPowers
-    function getInitiatorAction(uint256 proposalId) public view virtual returns (address initiator) {
-        return _proposals[proposalId].initiator;
-    }
-
-    /// @inheritdoc ISeparatedPowers
     function getAmountRoleHolders(uint32 roleId) public view returns (uint256 amountMembers) {
         return roles[roleId].amountMembers;
     }
@@ -541,7 +533,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     }
 
     //////////////////////////////////////////////////////////////
-    //                       COMPLIENCE                         //
+    //                       COMPLIANCE                         //
     //////////////////////////////////////////////////////////////
     /// @notice implements ERC721Receiver
     function onERC721Received(address, address, uint256, bytes memory) public virtual returns (bytes4) {

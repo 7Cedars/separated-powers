@@ -148,10 +148,6 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @param roleId role identifier
     function hasRoleSince(address account, uint32 roleId) external returns (uint48 since);
 
-    // @notice returns the initiator of an action
-    /// @param actionId action id
-    function getInitiatorAction(uint256 actionId) external returns (address initiator);
-
     /// @notice returns the number of role holders.
     /// @param roleId role identifier
     function getAmountRoleHolders(uint32 roleId) external returns (uint256);
