@@ -42,6 +42,8 @@ OPT_SEPOLIA_DEPLOY_ARGS := --rpc-url $(OPT_SEPOLIA_RPC_URL) --account dev_2 --se
 anvilTest :; forge test $(ANVIL_ARGS_0)
 arbSepoliaForkedTest :; forge test ${ARB_SEPOLIA_TEST_ARGS}
 
-anvilDeploy :; forge script script/DeployAlignedGrants.s.sol:DeployAlignedGrants $(ANVIL_ARGS_0)
+anvilDeployAg :; forge script script/DeployAlignedGrants.s.sol:DeployAlignedGrants $(ANVIL_ARGS_0)
+anvilDeployBasic :; forge script script/DeployBasicDao.s.sol:DeployBasicDao $(ANVIL_ARGS_0)
+
 arbSepoliaDeploy :; forge script script/DeployAlignedGrants.s.sol:DeployAlignedGrants $(ARB_SEPOLIA_DEPLOY_ARGS)
 optSepoliaDeploy :; forge script script/DeployAlignedGrants.s.sol:DeployAlignedGrants $(OPT_SEPOLIA_DEPLOY_ARGS)

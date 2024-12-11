@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-pragma solidity 0.8.26;
+// // SPDX-License-Identifier: MIT
+// pragma solidity 0.8.26;
 
 // import { Script, console, console2 } from "lib/forge-std/src/Script.sol";
 
@@ -39,7 +39,7 @@ pragma solidity 0.8.26;
 
 //         // deploy dao.
 //         vm.startBroadcast();
-//         AlignedGrants alignedGrants = new AlignedGrants();
+//         AlignedGrants alignedGrants = new SeparatedPowers("Aligned Grants DAO");
 //         vm.stopBroadcast();
 
 //         // initiate constitution & get founders' roles list
