@@ -3,6 +3,8 @@ pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
+import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+
 import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
 import { TestSetupLaws } from "../TestSetup.t.sol";
 import { Law } from "../../src/Law.sol";
@@ -13,6 +15,7 @@ import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 import { BlacklistAccount } from "../../src/laws/bespoke/BlacklistAccount.sol";
 import { CommunityValues } from "../../src/laws/bespoke/CommunityValues.sol";
 import { LawWithBlacklistCheck } from "../../src/laws/bespoke/LawWithBlacklistCheck.sol";
+import { RequestPayment } from "../../src/laws/bespoke/RequestPayment.sol";
 
 contract BlacklistAccountTest is TestSetupLaws {
     error BlacklistAccount__AlreadyBlacklisted();
@@ -175,4 +178,92 @@ contract LawWithBlacklistCheckTest is TestSetupLaws {
     }
 }
 
-contract RequestPaymentTest is TestSetupLaws { }
+contract RequestPaymentTest is TestSetupLaws { 
+    error RequestPayment__DelayNotPassed();
+    error RequestPayment__IncompleteConstructionParams();
+
+    function testDeployRevertsWithZeroAddress() public {
+        // prep
+        ILaw.LawConfig memory lawConfig;
+
+        // act
+        vm.expectRevert(RequestPayment__IncompleteConstructionParams.selector);
+        new RequestPayment(
+            "Request Payment With 0 Address", // max 31 chars
+            "A request payment law that has a zero address as input.",
+            address(daoMock),
+            1,
+            lawConfig,
+            address(0), // address erc1155Contract_, // = zero address
+            0,  // uint256 tokenId_,
+            200, // uint256 amount_,
+            200 // uint48 personalDelay_
+        );
+    }
+
+    function testDeployRevertsWithZeroAmount() public {
+        // prep
+        ILaw.LawConfig memory lawConfig;
+
+        // act
+        vm.expectRevert(RequestPayment__IncompleteConstructionParams.selector);
+        new RequestPayment(
+            "Request Payment With 0 Amount", // max 31 chars
+            "A request payment law that has a zero amount as input.",
+            address(daoMock),
+            1,
+            lawConfig,
+            address(123), // address erc1155Contract_,
+            0,  // uint256 tokenId_,
+            0, // uint256 amount_, // = zero amount
+            200 // uint48 personalDelay_
+        );
+    }
+
+    function testDeploySucceeds() public {
+        address requestPayment = laws[12];
+
+        assertEq(RequestPayment(requestPayment).erc1155Contract(), address(erc1155Mock));
+        assertEq(RequestPayment(requestPayment).tokenId(), 0); 
+        assertEq(RequestPayment(requestPayment).amount(), 300);
+        assertEq(RequestPayment(requestPayment).personalDelay(), 200);
+    }
+    
+    function testRequestPaymentSucceeds() public {
+        // prep
+        vm.roll(block.number + 400); // make sure we passed the delay for request.  
+        address requestPayment = laws[12];
+        bytes memory lawCalldata = abi.encode(); // note: empty calldata
+        bytes memory expectedCalldata = abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, address(daoMock), alice, 300, 0, "");
+
+        // act 
+        vm.startPrank(address(daoMock));
+        (
+            address[] memory targets,
+            uint256[] memory values,
+            bytes[] memory calldatas
+        ) = Law(requestPayment).executeLaw(alice, lawCalldata, bytes32(0));
+
+        // assert
+        assertEq(targets.length, 1);
+        assertEq(values.length, 1);
+        assertEq(calldatas.length, 1);
+        assertEq(targets[0], address(erc1155Mock));
+        assertEq(values[0], 0);
+        assertEq(calldatas[0], expectedCalldata);
+
+        // + test output. 
+    }
+
+    function testRequestPaymentRevertsIfDelayNotPassed() public {
+        // prep
+        // note: no role. We are still at block.number 10.  
+        address requestPayment = laws[12];
+        bytes memory lawCalldata = abi.encode(); // note: empty calldata
+
+        // act
+        vm.startPrank(address(daoMock)); 
+        vm.expectRevert(RequestPayment__DelayNotPassed.selector);
+        Law(requestPayment).executeLaw(alice, lawCalldata, bytes32(0));
+    }
+}

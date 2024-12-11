@@ -15,13 +15,14 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract RequestPayment is Law {
     error RequestPayment__DelayNotPassed();
+    error RequestPayment__IncompleteConstructionParams();
 
-    address private erc1155Contract;
-    uint256 private tokenId;
-    uint256 private amount;
-    uint48 private personalDelay;
+    address public erc1155Contract;
+    uint256 public tokenId;
+    uint256 public amount;
+    uint48 public personalDelay;
 
-    mapping(address initiator => uint48 blockNumber) lastPayment;
+    mapping(address initiator => uint48 blockNumber) public lastPayment;
 
     /// @notice constructor of the law
     /// @param name_ the name of the law.
@@ -45,8 +46,11 @@ contract RequestPayment is Law {
         uint48 personalDelay_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         params = new bytes4[](0);
-
-        erc1155Contract = erc1155Contract_;
+        
+        if (erc1155Contract_ == address(0) || amount_ == 0) {
+            revert RequestPayment__IncompleteConstructionParams();
+        }
+        erc1155Contract = erc1155Contract_; // should this be checked on being an actual erc 1155 contract £todo 
         tokenId = tokenId_;
         amount = amount_;
         personalDelay = personalDelay_;

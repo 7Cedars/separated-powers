@@ -23,8 +23,6 @@ import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
 import { FoundersMock } from "./mocks/FoundersMock.sol";
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
-    function test() public { }
-
     // the only event in the Law contract
     event Law__Initialized(address law);
 
