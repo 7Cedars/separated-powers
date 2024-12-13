@@ -69,12 +69,10 @@ contract DelegateSelect is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // NB! What happens ig accounts have been assigned this role through constitute?! £bug
         // do optional checks.
         super.executeLaw(address(0), lawCalldata, descriptionHash);
 
         // step 1: setting up array for revoking & assigning roles.
-        console.log("waypoint 1");
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
         uint256 numberElected = _electedSorted.length;
         uint256 arrayLength =
@@ -84,12 +82,10 @@ contract DelegateSelect is Law {
         values = new uint256[](arrayLength);
         calldatas = new bytes[](arrayLength);
 
-        console.log("waypoint 2");
         for (uint256 i; i < arrayLength; i++) {
             targets[i] = separatedPowers;
         }
 
-        console.log("waypoint 3");
         // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts.
         for (uint256 i; i < numberElected; i++) {
             uint256 index = (numberElected - i) - 1; // we work backwards through the list.
@@ -98,7 +94,6 @@ contract DelegateSelect is Law {
             _electedSorted.pop();
         }
 
-        console.log("waypoint 4");
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
@@ -110,7 +105,6 @@ contract DelegateSelect is Law {
             }
             // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
         } else {
-            console.log("waypoint 5");
             // retrieve balances of delegated votes of nominees.
             uint256[] memory _votes = new uint256[](numberNominees);
             address[] memory _nominees = new address[](numberNominees);
@@ -124,7 +118,6 @@ contract DelegateSelect is Law {
             // b. if the position is greater than MAX_ROLE_HOLDERS, we break. (it means there are more accounts that have more tokens than MAX_ROLE_HOLDERS)
             // c. if the position is less than MAX_ROLE_HOLDERS, we assign the roles.
             uint256 index;
-            console.log("waypoint 6");
             for (uint256 i; i < numberNominees; i++) {
                 uint256 rank;
                 // a: loop to assess ranking.
@@ -134,15 +127,11 @@ contract DelegateSelect is Law {
                         if (rank > MAX_ROLE_HOLDERS) break; // b: do not need to know rank beyond MAX_ROLE_HOLDERS threshold.
                     }
                 }
-                console.log("waypoint 7");
                 // c: assigning role if rank is less than MAX_ROLE_HOLDERS.
                 if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberElected) {
-                    console.log("waypoint 7a");
                     calldatas[index + numberElected] =
                         abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nominees[i]);
-                    console.log("waypoint 7b");
                     _elected[_nominees[i]] = uint48(block.timestamp);
-                    console.log("waypoint 7c");
                     _electedSorted.push(_nominees[i]);
                     index++;
                 }

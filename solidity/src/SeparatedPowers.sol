@@ -3,7 +3,7 @@
 /// @title Separated Powers Protocol v.0.2
 /// @notice Separated Powers is a Role Restricted Governance Protocol. It provides a flexible, decentralised, efficient and secure governance engine for DAOs.
 ///
-/// @dev This contract is the core protocol. It is meant to be used in combination with implementations of {Law.sol}. It should be used as is, inheriting this contract should be avoided. 
+/// @dev This contract is the core protocol. It is meant to be used in combination with implementations of {Law.sol}. It should be used as is, inheriting this contract should be avoided.
 /// @dev Code is derived from OpenZeppelin's Governor.sol and AccessManager contracts, in addition to Haberdasher Labs Hats protocol.
 /// @dev The protocol mirrors Governor.sol and AccessManager as closely as possible. It will, eventually, also be compatible with the Hats protocol.
 ///
@@ -283,10 +283,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //                  ROLE AND LAW ADMIN                      //
     //////////////////////////////////////////////////////////////
     /// @inheritdoc ISeparatedPowers
-    function constitute(address[] memory constituentLaws) 
-        external 
-        virtual 
-    {
+    function constitute(address[] memory constituentLaws) external virtual {
         // check 1: only admin can call this function
         if (roles[ADMIN_ROLE].members[msg.sender] == 0) {
             revert SeparatedPowers__AccessDenied();

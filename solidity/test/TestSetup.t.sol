@@ -13,6 +13,7 @@ import { SeparatedPowersErrors } from "../src/interfaces/SeparatedPowersErrors.s
 import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
 import { SeparatedPowersEvents } from "../src/interfaces/SeparatedPowersEvents.sol";
 import { LawErrors } from "../src/interfaces/LawErrors.sol";
+import { HelperConfig } from "../script/HelperConfig.s.sol";
 
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 
@@ -29,16 +30,15 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
 
     // protocol and mocks
     SeparatedPowers separatedPowers;
+    HelperConfig helperConfig;
     DaoMock daoMock;
     ConstitutionsMock constitutionsMock;
     Erc1155Mock erc1155Mock;
     Erc721Mock erc721Mock;
     Erc20VotesMock erc20VotesMock;
+    HelperConfig.NetworkConfig config;
 
-    // laws
     address[] laws;
-    uint32[] constituentRoles;
-    address[] constituentAccounts;
 
     // vote options
     uint8 AGAINST;
@@ -76,7 +76,6 @@ abstract contract TestHelpers is TestVariables {
     {
         return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
     }
-    
 }
 
 abstract contract BaseSetup is Test, TestVariables, TestHelpers {
@@ -144,12 +143,12 @@ abstract contract TestSetupSeparatedPowers is BaseSetup, ConstitutionsMock {
         // constitute daoMock.
         laws = laws_;
         daoMock.constitute(laws);
-        // assign Roles 
-        vm.roll(block.number + 4_000);
+        // assign Roles
+        vm.roll(block.number + 4000);
         daoMock.execute(
-            laws[laws.length - 1], 
-            abi.encode(),  // empty calldata
-            'assigning roles'
+            laws[laws.length - 1],
+            abi.encode(), // empty calldata
+            "assigning roles"
         );
         daoNames.push("DaoMock");
     }
@@ -166,12 +165,12 @@ abstract contract TestSetupLaw is BaseSetup, ConstitutionsMock {
 
         // constitute daoMock.
         daoMock.constitute(laws);
-        // assign Roles 
-        vm.roll(block.number + 4_000);
+        // assign Roles
+        vm.roll(block.number + 4000);
         daoMock.execute(
-            laws[laws.length - 1], 
-            abi.encode(),  // empty calldata
-            'assigning roles'
+            laws[laws.length - 1],
+            abi.encode(), // empty calldata
+            "assigning roles"
         );
         daoNames.push("DaoMock");
     }
@@ -189,17 +188,17 @@ abstract contract TestSetupLaws is BaseSetup, ConstitutionsMock {
 
         // constitute daoMock.
         daoMock.constitute(laws);
-        
-        // testing... 
-        PresetAction presetAction = PresetAction(laws[laws.length - 1]); 
-        console.logAddress(presetAction.targets(0)); 
-        
-        // assign Roles 
-        vm.roll(block.number + 4_000);
+
+        // testing...
+        PresetAction presetAction = PresetAction(laws[laws.length - 1]);
+        console.logAddress(presetAction.targets(0));
+
+        // assign Roles
+        vm.roll(block.number + 4000);
         daoMock.execute(
-            laws[laws.length - 1], 
-            abi.encode(),  // empty calldata
-            'assigning roles'
+            laws[laws.length - 1],
+            abi.encode(), // empty calldata
+            "assigning roles"
         );
         daoNames.push("DaoMock");
     }

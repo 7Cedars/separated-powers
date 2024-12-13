@@ -38,12 +38,12 @@ contract ConstitutionsMock is Test {
         ILaw.LawConfig memory lawConfig;
         laws = new address[](7);
 
-        // dummy call. 
+        // dummy call.
         address[] memory targets = new address[](1);
         uint256[] memory values = new uint256[](1);
         bytes[] memory calldatas = new bytes[](1);
-        targets[0] = address(123); 
-        calldatas[0] = abi.encode('mockCall');
+        targets[0] = address(123);
+        calldatas[0] = abi.encode("mockCall");
 
         law = new DirectSelect(
             "1 = open", // max 31 chars
@@ -129,22 +129,22 @@ contract ConstitutionsMock is Test {
         delete lawConfig;
 
         // get calldata
-        (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_); 
+        (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
         // set config
         // setting the throttle to max means the law can only be called once.
         lawConfig.throttleExecution = type(uint48).max - uint48(block.number);
-        // initiate law 
-        vm.startBroadcast(); 
+        // initiate law
+        vm.startBroadcast();
         law = new PresetAction(
-                "Admin assigns initial roles",
-                "The admin assigns initial roles. This law can only be used once.",
-                dao_, // separated powers
-                0, // access role = ADMIN
-                lawConfig, 
-                targetsRoles,
-                valuesRoles,
-                calldatasRoles
-        ); 
+            "Admin assigns initial roles",
+            "The admin assigns initial roles. This law can only be used once.",
+            dao_, // separated powers
+            0, // access role = ADMIN
+            lawConfig,
+            targetsRoles,
+            valuesRoles,
+            calldatasRoles
+        );
         vm.stopBroadcast();
         laws[6] = address(law);
         delete lawConfig;
@@ -281,22 +281,22 @@ contract ConstitutionsMock is Test {
         laws[4] = address(law);
 
         // get calldata
-        (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_); 
+        (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
         // set config
         // setting the throttle to max means the law can only be called once.
         lawConfig.throttleExecution = type(uint48).max - uint48(block.number);
-        // initiate law 
-        vm.startBroadcast(); 
+        // initiate law
+        vm.startBroadcast();
         law = new PresetAction(
-                "Admin assigns initial roles",
-                "The admin assigns initial roles. This law can only be used once.",
-                dao_, // separated powers
-                0, // access role = ADMIN
-                lawConfig, 
-                targetsRoles,
-                valuesRoles,
-                calldatasRoles
-        ); 
+            "Admin assigns initial roles",
+            "The admin assigns initial roles. This law can only be used once.",
+            dao_, // separated powers
+            0, // access role = ADMIN
+            lawConfig,
+            targetsRoles,
+            valuesRoles,
+            calldatasRoles
+        );
         vm.stopBroadcast();
         laws[5] = address(law);
         delete lawConfig;
@@ -339,7 +339,7 @@ contract ConstitutionsMock is Test {
             params
         );
         laws[0] = address(law);
-        delete lawConfig; // reset lawConfig. 
+        delete lawConfig; // reset lawConfig.
 
         law = new OpenAction(
             "Open Action", // max 31 chars
@@ -483,31 +483,34 @@ contract ConstitutionsMock is Test {
         laws[12] = address(law);
 
         // get calldata
-        (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_); 
+        (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
         // set config
         delete lawConfig; // reset lawConfig
         // config
         // setting the throttle to max means the law can only be called once.
         lawConfig.throttleExecution = type(uint48).max - uint48(block.number);
-        // initiate law 
-        vm.startBroadcast(); 
+        // initiate law
+        vm.startBroadcast();
         law = new PresetAction(
-                "Admin assigns initial roles",
-                "The admin assigns initial roles. This law can only be used once.",
-                dao_, // separated powers
-                0, // access role = ADMIN
-                lawConfig, 
-                targetsRoles,
-                valuesRoles,
-                calldatasRoles
-        ); 
+            "Admin assigns initial roles",
+            "The admin assigns initial roles. This law can only be used once.",
+            dao_, // separated powers
+            0, // access role = ADMIN
+            lawConfig,
+            targetsRoles,
+            valuesRoles,
+            calldatasRoles
+        );
         vm.stopBroadcast();
         laws[13] = address(law);
         delete lawConfig; // reset lawConfig
     }
 
-    function _getRoles(address payable dao_) internal returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) {
-        // create addresses. 
+    function _getRoles(address payable dao_)
+        internal
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+    {
+        // create addresses.
         address alice = makeAddr("alice");
         address bob = makeAddr("bob");
         address charlotte = makeAddr("charlotte");
@@ -517,12 +520,14 @@ contract ConstitutionsMock is Test {
         address gary = makeAddr("gary");
         address helen = makeAddr("helen");
 
-        // call to set initial roles. Also used as dummy call data.  
+        // call to set initial roles. Also used as dummy call data.
         address[] memory targets = new address[](13);
         uint256[] memory values = new uint256[](13);
         bytes[] memory calldatas = new bytes[](13);
-        for (uint256 i = 0; i < targets.length; i++) {targets[i] = dao_;}
-        
+        for (uint256 i = 0; i < targets.length; i++) {
+            targets[i] = dao_;
+        }
+
         calldatas[0] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, alice);
         calldatas[1] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, bob);
         calldatas[2] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, charlotte);

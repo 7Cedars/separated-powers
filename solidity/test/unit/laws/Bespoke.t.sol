@@ -178,7 +178,7 @@ contract LawWithBlacklistCheckTest is TestSetupLaws {
     }
 }
 
-contract RequestPaymentTest is TestSetupLaws { 
+contract RequestPaymentTest is TestSetupLaws {
     error RequestPayment__DelayNotPassed();
     error RequestPayment__IncompleteConstructionParams();
 
@@ -195,7 +195,7 @@ contract RequestPaymentTest is TestSetupLaws {
             1,
             lawConfig,
             address(0), // address erc1155Contract_, // = zero address
-            0,  // uint256 tokenId_,
+            0, // uint256 tokenId_,
             200, // uint256 amount_,
             200 // uint48 personalDelay_
         );
@@ -214,7 +214,7 @@ contract RequestPaymentTest is TestSetupLaws {
             1,
             lawConfig,
             address(123), // address erc1155Contract_,
-            0,  // uint256 tokenId_,
+            0, // uint256 tokenId_,
             0, // uint256 amount_, // = zero amount
             200 // uint48 personalDelay_
         );
@@ -224,25 +224,23 @@ contract RequestPaymentTest is TestSetupLaws {
         address requestPayment = laws[12];
 
         assertEq(RequestPayment(requestPayment).erc1155Contract(), address(erc1155Mock));
-        assertEq(RequestPayment(requestPayment).tokenId(), 0); 
+        assertEq(RequestPayment(requestPayment).tokenId(), 0);
         assertEq(RequestPayment(requestPayment).amount(), 300);
         assertEq(RequestPayment(requestPayment).personalDelay(), 200);
     }
-    
+
     function testRequestPaymentSucceeds() public {
         // prep
-        vm.roll(block.number + block.number + 400); // make sure we passed the delay for request.  
+        vm.roll(block.number + block.number + 400); // make sure we passed the delay for request.
         address requestPayment = laws[12];
         bytes memory lawCalldata = abi.encode(); // note: empty calldata
-        bytes memory expectedCalldata = abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, address(daoMock), alice, 300, 0, "");
+        bytes memory expectedCalldata =
+            abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, address(daoMock), alice, 300, 0, "");
 
-        // act 
+        // act
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targets,
-            uint256[] memory values,
-            bytes[] memory calldatas
-        ) = Law(requestPayment).executeLaw(alice, lawCalldata, bytes32(0));
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
+            Law(requestPayment).executeLaw(alice, lawCalldata, bytes32(0));
 
         // assert
         assertEq(targets.length, 1);
@@ -252,21 +250,21 @@ contract RequestPaymentTest is TestSetupLaws {
         assertEq(values[0], 0);
         assertEq(calldatas[0], expectedCalldata);
 
-        // + test output. 
+        // + test output.
     }
 
     function testRequestPaymentRevertsIfDelayNotPassed() public {
         // prep
-        // note: no role. We are still at block.number 10.  
+        // note: no role. We are still at block.number 10.
         address requestPayment = laws[12];
         bytes memory lawCalldata = abi.encode(); // note: empty calldata
 
-        vm.startPrank(address(daoMock)); 
+        vm.startPrank(address(daoMock));
         Law(requestPayment).executeLaw(alice, lawCalldata, bytes32(0));
 
-        // at same time, try a second call... 
+        // at same time, try a second call...
         // act
-        vm.startPrank(address(daoMock)); 
+        vm.startPrank(address(daoMock));
         vm.expectRevert(RequestPayment__DelayNotPassed.selector);
         Law(requestPayment).executeLaw(alice, lawCalldata, bytes32(0));
     }

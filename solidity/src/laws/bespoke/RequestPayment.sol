@@ -46,11 +46,11 @@ contract RequestPayment is Law {
         uint48 personalDelay_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         params = new bytes4[](0);
-        
+
         if (erc1155Contract_ == address(0) || amount_ == 0) {
             revert RequestPayment__IncompleteConstructionParams();
         }
-        erc1155Contract = erc1155Contract_; // should this be checked on being an actual erc 1155 contract £todo 
+        erc1155Contract = erc1155Contract_; // should this be checked on being an actual erc 1155 contract £todo
         tokenId = tokenId_;
         amount = amount_;
         personalDelay = personalDelay_;

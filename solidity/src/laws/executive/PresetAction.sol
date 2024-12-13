@@ -38,7 +38,7 @@ contract PresetAction is Law {
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         targets = targets_;
         values = values_;
-        calldatas = calldatas_; 
+        calldatas = calldatas_;
     }
 
     /// @notice execute the law.
@@ -54,6 +54,6 @@ contract PresetAction is Law {
         // do necessary checks.
         super.executeLaw(address(0), lawCalldata, descriptionHash);
 
-        return (targets, values, calldatas);        
+        return (targets, values, calldatas);
     }
 }
