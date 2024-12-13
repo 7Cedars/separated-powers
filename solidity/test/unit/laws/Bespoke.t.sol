@@ -5,17 +5,17 @@ import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
-import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
-import { TestSetupLaws } from "../TestSetup.t.sol";
-import { Law } from "../../src/Law.sol";
-import { ILaw } from "../../src/interfaces/ILaw.sol";
-import { Erc1155Mock } from "../mocks/Erc1155Mock.sol";
-import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
+import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
+import { TestSetupLaws } from "../../TestSetup.t.sol";
+import { Law } from "../../../src/Law.sol";
+import { ILaw } from "../../../src/interfaces/ILaw.sol";
+import { Erc1155Mock } from "../../mocks/Erc1155Mock.sol";
+import { OpenAction } from "../../../src/laws/executive/OpenAction.sol";
 
-import { BlacklistAccount } from "../../src/laws/bespoke/BlacklistAccount.sol";
-import { CommunityValues } from "../../src/laws/bespoke/CommunityValues.sol";
-import { LawWithBlacklistCheck } from "../../src/laws/bespoke/LawWithBlacklistCheck.sol";
-import { RequestPayment } from "../../src/laws/bespoke/RequestPayment.sol";
+import { BlacklistAccount } from "../../../src/laws/bespoke/BlacklistAccount.sol";
+import { CommunityValues } from "../../../src/laws/bespoke/CommunityValues.sol";
+import { LawWithBlacklistCheck } from "../../../src/laws/bespoke/LawWithBlacklistCheck.sol";
+import { RequestPayment } from "../../../src/laws/bespoke/RequestPayment.sol";
 
 contract BlacklistAccountTest is TestSetupLaws {
     error BlacklistAccount__AlreadyBlacklisted();

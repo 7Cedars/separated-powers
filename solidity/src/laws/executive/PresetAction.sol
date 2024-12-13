@@ -13,9 +13,9 @@ import { Law } from "../../Law.sol";
 
 contract PresetAction is Law {
     /// the targets, values and calldatas to be used in the calls: set at construction.
-    address[] private _targets;
-    uint256[] private _values;
-    bytes[] private _calldatas;
+    address[] public targets;
+    uint256[] public values;
+    bytes[] public calldatas;
 
     /// @notice constructor of the law
     /// @param name_ the name of the law.
@@ -36,10 +36,9 @@ contract PresetAction is Law {
         uint256[] memory values_,
         bytes[] memory calldatas_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        _targets = targets_;
-        _values = values_;
-        _calldatas = calldatas_;
-        params = [dataType("bool")];
+        targets = targets_;
+        values = values_;
+        calldatas = calldatas_; 
     }
 
     /// @notice execute the law.
@@ -48,20 +47,13 @@ contract PresetAction is Law {
         public
         virtual
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (address[] memory, uint256[] memory, bytes[] memory)
     {
-        // decode the calldata.
-        // note: no check on decoded call data. If needed, this can be added through a bespoke modifier.
-        (bool execute) = abi.decode(lawCalldata, (bool));
+        // note: no calldata to decode.
 
         // do necessary checks.
         super.executeLaw(address(0), lawCalldata, descriptionHash);
 
-        // log execution block
-        // and send calldata straight to the SeparatedPowers protocol.
-        if (execute) {
-            // executions.push(uint48(block.number));
-            return (_targets, _values, _calldatas);
-        }
+        return (targets, values, calldatas);        
     }
 }

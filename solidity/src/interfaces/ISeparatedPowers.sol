@@ -70,22 +70,17 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @dev  external function to batch activate laws and roles in a DAO. Can only be called once, and only by Admin.
     ///
     /// @param laws : the addresses of the laws to be activated.
-    /// @param constituentRoles : the roles to be activated.
-    /// @param constituentAccounts : the accounts to be assigned to the roles
     ///
-    /// emits a {ProposalCreated} event.
-    function constitute(
-        address[] memory laws,
-        // roles data
-        uint32[] memory constituentRoles,
-        address[] memory constituentAccounts
-    ) external;
+    /// emits a {LawAdopted} event for each law set.
+    function constitute(address[] memory laws) external;
 
     /// @notice set a law to active or inactive.
     ///
     /// @param law address of the law.
     ///
     /// @dev this function can only be called from the execute function of SeperatedPowers.sol.
+    ///
+    /// emits a {LawAdopted} event
     function adoptLaw(address law) external;
 
     /// @notice set a law to inactive.
@@ -93,6 +88,8 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @param law address of the law to deactivate.
     ///
     /// @dev this function can only be called from the execute function of SeperatedPowers.sol.
+    ///
+    /// emits a {LawRevoked} event
     function revokeLaw(address law) external;
 
     /// @notice assigns account to role

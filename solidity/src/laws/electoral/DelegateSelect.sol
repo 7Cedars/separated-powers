@@ -69,6 +69,7 @@ contract DelegateSelect is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
+        // NB! What happens ig accounts have been assigned this role through constitute?! £bug
         // do optional checks.
         super.executeLaw(address(0), lawCalldata, descriptionHash);
 

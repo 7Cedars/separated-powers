@@ -145,7 +145,10 @@ contract Law is ERC165, ILaw {
         /// Optional check 5: throttle how often the law can be executed.
         if (config.throttleExecution != 0) {
             uint256 numberOfExecutions = executions.length - 1;
-            if (block.number - executions[numberOfExecutions] < config.throttleExecution) {
+            if (
+                executions[numberOfExecutions] != 0 && 
+                block.number - executions[numberOfExecutions] < config.throttleExecution
+                ) {
                 revert Law__ExecutionGapTooSmall();
             }
             executions.push(uint48(block.number));

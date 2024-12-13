@@ -720,7 +720,7 @@ contract ConstituteTest is TestSetupSeparatedPowers {
         laws[0] = address(new OpenAction("test law", "This is a test Law", address(daoMock), ROLE_ONE, lawConfig));
 
         vm.prank(alice);
-        daoMockTest.constitute(laws, constituentRoles, constituentAccounts);
+        daoMockTest.constitute(laws);
 
         for (uint32 i = 0; i < laws.length; i++) {
             bool active = daoMockTest.getActiveLaw(laws[i]);
@@ -737,11 +737,11 @@ contract ConstituteTest is TestSetupSeparatedPowers {
         laws[0] = address(new OpenAction("test law", "This is a test Law", address(daoMock), ROLE_ONE, lawConfig));
 
         vm.prank(alice);
-        daoMockTest.constitute(laws, constituentRoles, constituentAccounts);
+        daoMockTest.constitute(laws);
 
         vm.expectRevert(SeparatedPowers__ConstitutionAlreadyExecuted.selector);
         vm.prank(alice);
-        daoMockTest.constitute(laws, constituentRoles, constituentAccounts);
+        daoMockTest.constitute(laws);
     }
 
     function testConstituteCannotBeCalledByNonAdmin() public {
@@ -754,7 +754,7 @@ contract ConstituteTest is TestSetupSeparatedPowers {
 
         vm.expectRevert(SeparatedPowers__AccessDenied.selector);
         vm.prank(bob);
-        daoMockTest.constitute(laws, constituentRoles, constituentAccounts);
+        daoMockTest.constitute(laws);
     }
 }
 
@@ -778,7 +778,7 @@ contract SetLawTest is
             address(new OpenAction("test law", "This is a test Law", address(daoMock), ROLE_ONE, lawConfig));
 
         vm.expectEmit(true, false, false, false);
-        emit LawSet(newLaw);
+        emit LawAdopted(newLaw);
         vm.prank(address(daoMock));
         daoMock.adoptLaw(newLaw);
     }

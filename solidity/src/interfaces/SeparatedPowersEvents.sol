@@ -66,7 +66,7 @@ interface SeparatedPowersEvents {
 
     /// @notice Emitted when a law is set.
     /// @param law the address of the law
-    event LawSet(address indexed law);
+    event LawAdopted(address indexed law);
 
     /// @notice Emitted when a law is revoked.
     /// @param law the address of the law

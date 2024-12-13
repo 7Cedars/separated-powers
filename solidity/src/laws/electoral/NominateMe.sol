@@ -45,7 +45,7 @@ contract NominateMe is Law {
     function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
-        returns (address[] memory, /*targets*/ uint256[] memory, /*values*/ bytes[] memory /*calldatas*/ )
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         // do optional checks.
         super.executeLaw(address(0), lawCalldata, descriptionHash);
@@ -82,5 +82,10 @@ contract NominateMe is Law {
             }
             emit NominateMe__NominationRevoked(initiator);
         }
+
+        targets = new address[](1);
+        values = new uint256[](1);
+        calldatas = new bytes[](1);
+        targets[0] = address(1);
     }
 }

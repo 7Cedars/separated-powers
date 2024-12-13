@@ -14,13 +14,14 @@ import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol
 import { SeparatedPowersEvents } from "../src/interfaces/SeparatedPowersEvents.sol";
 import { LawErrors } from "../src/interfaces/LawErrors.sol";
 
+import { PresetAction } from "../src/laws/executive/PresetAction.sol";
+
 // mocks
 import { DaoMock } from "./mocks/DaoMock.sol";
 import { Erc1155Mock } from "./mocks/Erc1155Mock.sol";
 import { Erc721Mock } from "./mocks/Erc721Mock.sol";
 import { Erc20VotesMock } from "./mocks/Erc20VotesMock.sol";
 import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
-import { FoundersMock } from "./mocks/FoundersMock.sol";
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
     // the only event in the Law contract
@@ -30,7 +31,6 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     SeparatedPowers separatedPowers;
     DaoMock daoMock;
     ConstitutionsMock constitutionsMock;
-    FoundersMock foundersMock;
     Erc1155Mock erc1155Mock;
     Erc721Mock erc721Mock;
     Erc20VotesMock erc20VotesMock;
@@ -76,6 +76,7 @@ abstract contract TestHelpers is TestVariables {
     {
         return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
     }
+    
 }
 
 abstract contract BaseSetup is Test, TestVariables, TestHelpers {
@@ -128,7 +129,6 @@ abstract contract BaseSetup is Test, TestVariables, TestHelpers {
         erc20VotesMock = new Erc20VotesMock();
         daoMock = new DaoMock();
         constitutionsMock = new ConstitutionsMock();
-        foundersMock = new FoundersMock();
     }
 }
 
@@ -140,14 +140,17 @@ abstract contract TestSetupSeparatedPowers is BaseSetup, ConstitutionsMock {
         (address[] memory laws_) = constitutionsMock.initiateSeparatedPowersConstitution(
             payable(address(daoMock)), payable(address(erc1155Mock))
         );
-        (address[] memory constituentAccounts, uint32[] memory constituentRoles) =
-            foundersMock.getFounders(payable(address(daoMock)));
-
-        console.log("laws_[0]: ", laws_[0]);
 
         // constitute daoMock.
         laws = laws_;
-        daoMock.constitute(laws, constituentRoles, constituentAccounts);
+        daoMock.constitute(laws);
+        // assign Roles 
+        vm.roll(4_000);
+        daoMock.execute(
+            laws[laws.length - 1], 
+            abi.encode(),  // empty calldata
+            'assigning roles'
+        );
         daoNames.push("DaoMock");
     }
 }
@@ -160,11 +163,16 @@ abstract contract TestSetupLaw is BaseSetup, ConstitutionsMock {
         (address[] memory laws_) =
             constitutionsMock.initiateLawTestConstitution(payable(address(daoMock)), payable(address(erc1155Mock)));
         laws = laws_;
-        (address[] memory constituentAccounts, uint32[] memory constituentRoles) =
-            foundersMock.getFounders(payable(address(daoMock)));
 
         // constitute daoMock.
-        daoMock.constitute(laws, constituentRoles, constituentAccounts);
+        daoMock.constitute(laws);
+        // assign Roles 
+        vm.roll(4_000);
+        daoMock.execute(
+            laws[laws.length - 1], 
+            abi.encode(),  // empty calldata
+            'assigning roles'
+        );
         daoNames.push("DaoMock");
     }
 }
@@ -178,11 +186,21 @@ abstract contract TestSetupLaws is BaseSetup, ConstitutionsMock {
             payable(address(daoMock)), payable(address(erc1155Mock)), payable(address(erc20VotesMock))
         );
         laws = laws_;
-        (address[] memory constituentAccounts, uint32[] memory constituentRoles) =
-            foundersMock.getFounders(payable(address(daoMock)));
 
         // constitute daoMock.
-        daoMock.constitute(laws, constituentRoles, constituentAccounts);
+        daoMock.constitute(laws);
+        
+        // testing... 
+        PresetAction presetAction = PresetAction(laws[laws.length - 1]); 
+        console.logAddress(presetAction.targets(0)); 
+        
+        // assign Roles 
+        vm.roll(4_000);
+        daoMock.execute(
+            laws[laws.length - 1], 
+            abi.encode(),  // empty calldata
+            'assigning roles'
+        );
         daoNames.push("DaoMock");
     }
 }

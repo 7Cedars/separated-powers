@@ -3,11 +3,11 @@ pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
-import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
-import { TestSetupLaws } from "../TestSetup.t.sol";
-import { Law } from "../../src/Law.sol";
-import { Erc1155Mock } from "../mocks/Erc1155Mock.sol";
-import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
+import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
+import { TestSetupLaws } from "../../TestSetup.t.sol";
+import { Law } from "../../../src/Law.sol";
+import { Erc1155Mock } from "../../mocks/Erc1155Mock.sol";
+import { OpenAction } from "../../../src/laws/executive/OpenAction.sol";
 
 contract DirectSelectTest is TestSetupLaws {
     using ShortStrings for *;

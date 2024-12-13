@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
 /// @title Separated Powers Protocol v.0.2
-/// @notice Separated Powers is a Role Restricted Governance Protocol. It provides a flexible, decentralised, efficient and secure governance framework for DAOs.
+/// @notice Separated Powers is a Role Restricted Governance Protocol. It provides a flexible, decentralised, efficient and secure governance engine for DAOs.
 ///
-/// @dev This contract is the core protocol. It is meant to be used in combination with implementations of {Law.sol}.
+/// @dev This contract is the core protocol. It is meant to be used in combination with implementations of {Law.sol}. It should be used as is, inheriting this contract should be avoided. 
 /// @dev Code is derived from OpenZeppelin's Governor.sol and AccessManager contracts, in addition to Haberdasher Labs Hats protocol.
 /// @dev The protocol mirrors Governor.sol and AccessManager as closely as possible. It will, eventually, also be compatible with the Hats protocol.
 ///
@@ -242,7 +242,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
             ILaw(targetLaw).executeLaw(msg.sender, lawCalldata, descriptionHash);
         // check return data law.
-        if (targets.length == 0 || targets[0] == targetLaw || targets[0] == address(0)) {
+        if (targets.length == 0 || targets[0] == address(0)) {
             revert SeparatedPowers__LawDidNotPassChecks();
         }
 
@@ -283,18 +283,14 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //                  ROLE AND LAW ADMIN                      //
     //////////////////////////////////////////////////////////////
     /// @inheritdoc ISeparatedPowers
-    function constitute(
-        // laws
-        address[] memory constituentLaws,
-        // roles
-        uint32[] memory constituentRoles,
-        address[] memory constituentAccounts
-    ) external virtual {
+    function constitute(address[] memory constituentLaws) 
+        external 
+        virtual 
+    {
         // check 1: only admin can call this function
         if (roles[ADMIN_ROLE].members[msg.sender] == 0) {
             revert SeparatedPowers__AccessDenied();
         }
-
         // check 2: this function can only be called once.
         if (_constituentLawsExecuted) {
             revert SeparatedPowers__ConstitutionAlreadyExecuted();
@@ -302,14 +298,9 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
         // if checks pass, set _constituentLawsExecuted to true...
         _constituentLawsExecuted = true;
-
-        // ...set laws
+        // ...and set laws
         for (uint256 i = 0; i < constituentLaws.length; i++) {
-            _setLaw(constituentLaws[i]);
-        }
-        // ...and set roles
-        for (uint256 i = 0; i < constituentRoles.length; i++) {
-            _setRole(constituentRoles[i], constituentAccounts[i], true);
+            _adoptLaw(constituentLaws[i]);
         }
     }
 
@@ -318,8 +309,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         if (laws[law]) {
             revert SeparatedPowers__LawAlreadyActive();
         }
-
-        _setLaw(law);
+        _adoptLaw(law);
     }
 
     /// @inheritdoc ISeparatedPowers
@@ -327,7 +317,6 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         if (!laws[law]) {
             revert SeparatedPowers__LawNotActive();
         }
-
         emit LawRevoked(law);
         laws[law] = false;
     }
@@ -336,8 +325,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     ///
     /// @param law address of the law.
     ///
-    /// Emits a {SeperatedPowersEvents::LawSet} event.
-    function _setLaw(address law) internal virtual {
+    /// Emits a {SeperatedPowersEvents::LawAdopted} event.
+    function _adoptLaw(address law) internal virtual {
         // check if added address is indeed a law
         if (!ERC165Checker.supportsInterface(law, type(ILaw).interfaceId)) {
             revert SeparatedPowers__IncorrectInterface();
@@ -345,7 +334,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
         laws[law] = true;
 
-        emit LawSet(law);
+        emit LawAdopted(law);
     }
 
     /// @inheritdoc ISeparatedPowers
@@ -459,7 +448,6 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
 
         uint256 start = _proposals[proposalId].voteStart; // = startDate
-
         if (start == 0) {
             revert SeparatedPowers__InvalidProposalId();
         }

@@ -48,7 +48,7 @@
 
 //         // constitute dao.
 //         vm.startBroadcast();
-//         alignedGrants.constitute(laws, constituentRoles, constituentAccounts);
+//         alignedGrants.constitute(laws);
 //         vm.stopBroadcast();
 //     }
 

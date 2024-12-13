@@ -15,6 +15,7 @@ import { DelegateSelect } from "../src/laws/electoral/DelegateSelect.sol";
 import { DirectSelect } from "../src/laws/electoral/DirectSelect.sol";
 import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
 import { OpenAction } from "../src/laws/executive/OpenAction.sol";
+import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 
 // mock & config 
 import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
@@ -27,10 +28,8 @@ import { HelperConfig } from "./HelperConfig.s.sol";
 /// Note the {getFounders} function for setting founders' roles.
 contract DeployBasicDao is Script {
     address[] laws;
-    uint32[] constituentRoles;
-    address[] constituentAccounts;
 
-    function run() external {
+    function run() external returns (address payable dao, address[] memory constituentLaws) {
         HelperConfig helperConfig = new HelperConfig();
         HelperConfig.NetworkConfig memory config = helperConfig.getConfigByChainId(block.chainid);
 
@@ -39,14 +38,15 @@ contract DeployBasicDao is Script {
         SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao");
         vm.stopBroadcast();
 
-        // initiate constitution & get founders' roles list
+        // initiate constitution
         initiateConstitution(payable(address(separatedPowers)), payable(config.erc1155Mock), payable(config.erc20VotesMock));
-        getFounders(payable(address(separatedPowers)));
 
         // constitute dao.
         vm.startBroadcast();
-        separatedPowers.constitute(laws, constituentRoles, constituentAccounts);
+        separatedPowers.constitute(laws);
         vm.stopBroadcast();
+
+        return (payable(address(separatedPowers)), laws);
     }
 
 
@@ -78,8 +78,8 @@ contract DeployBasicDao is Script {
               lawConfig, //  config file.
               mock20_, // the tokens that will be used as votes in the election.
               laws[0], // nominateMe
-              25,
-              2
+              3, // maximum amount of delegates
+              2 // role id to be assigned
           ); 
       vm.stopBroadcast();
       laws.push(address(law));
@@ -141,7 +141,6 @@ contract DeployBasicDao is Script {
       ); 
       vm.stopBroadcast();
       laws.push(address(law));
-      delete lawConfig;
 
       // setting config.
       lawConfig.quorum = 51; // = 51 majority of seniors need to vote.
@@ -162,33 +161,47 @@ contract DeployBasicDao is Script {
       vm.stopBroadcast();
       laws.push(address(law));
       delete lawConfig;
+
+      // set calldata 
+      address[] memory targets = new address[](3);
+      uint256[] memory values = new uint256[](3);
+      bytes[] memory calldatas = new bytes[](3);
+      for (uint256 i = 0; i < 4; i++) {targets[i] = dao_;}
+      calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 1, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+      calldatas[1] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 1, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
+      calldatas[2] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 1, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
+      // set config
+      lawConfig.throttleExecution = type(uint48).max; // setting the throttle to max means the law can only be called once.
+      // initiate law 
+      vm.startBroadcast(); 
+      law = new PresetAction(
+            "Admin assigns initial Seniors",
+            "The admin can assign the initial group of SENIOR_ROLE holders. It can only be used once.",
+            dao_, // separated powers
+            0, // access role = ADMIN
+            lawConfig, 
+            targets,
+            values,
+            calldatas
+      ); 
+      vm.stopBroadcast();
+      laws.push(address(law));
+      delete lawConfig;
+
+
   }
 
 
-  function getFounders(address payable dao_) public {
-    uint256 LOCAL_CHAIN_ID = 31337; 
+        // community[0] = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+        // community[1] = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
+        // community[2] = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
+        // community[3] = 0x90F79bf6EB2c4f870365E785982E1f101E93b906;
+        // community[4] = 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65;
+        // community[5] = 0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc;
+        // community[6] = 0x976EA74026E726554dB657fA54763abd0C3a0aa9;
+        // community[7] = 0x14dC79964da2C08b23698B3D3cc7Ca32193d9955;
+        // community[8] = 0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f;
+        // community[9] = 0xa0Ee7A142d267C1f36714E4a8F75612F20a79720;
 
-    if (block.chainid == LOCAL_CHAIN_ID) {
-    return getFoundersLocal();
-        // } else if (chainId == ETH_SEPOLIA_CHAIN_ID) {
-        // return getFoundersEthSepolia();
-        // etc...
-        // }
-    } else {
-    revert("ChainId not supported");
-    }
-  }
-  
-  function getFoundersLocal() internal {
-        address anvil_0 = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
-        address anvil_1 = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
-        address anvil_2 = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
 
-        constituentAccounts.push(anvil_0);
-        constituentRoles.push(1);
-        constituentAccounts.push(anvil_1);
-        constituentRoles.push(1);
-        constituentAccounts.push(anvil_2);
-        constituentRoles.push(1);
-  }
 }
