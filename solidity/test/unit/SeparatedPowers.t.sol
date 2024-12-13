@@ -240,7 +240,7 @@ contract VoteTest is TestSetupSeparatedPowers {
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // act: go forward in time. -- no votes are cast.
-        vm.roll(4000);
+        vm.roll(block.number + 4000);
 
         // check state of proposal
         ActionState proposalState = daoMock.state(actionId);
@@ -256,7 +256,7 @@ contract VoteTest is TestSetupSeparatedPowers {
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // prep: defeat proposal: by going beyond voting period, quorum not reached. Proposal is defeated.
-        vm.roll(4000);
+        vm.roll(block.number + 4000);
 
         // act : try to vote
         vm.expectRevert(SeparatedPowers__ProposalNotActive.selector);
@@ -281,7 +281,7 @@ contract VoteTest is TestSetupSeparatedPowers {
             }
         }
         // go forward in time.
-        vm.roll(4000); //
+        vm.roll(block.number + 4000); //
 
         // assert
         ActionState proposalState = daoMock.state(actionId);
@@ -305,7 +305,7 @@ contract VoteTest is TestSetupSeparatedPowers {
             }
         }
         // go forward in time.
-        vm.roll(4000);
+        vm.roll(block.number + 4000);
 
         // assert
         ActionState proposalState = daoMock.state(actionId);
@@ -329,7 +329,7 @@ contract VoteTest is TestSetupSeparatedPowers {
             }
         }
         // go forward in time.
-        vm.roll(4000); //
+        vm.roll(block.number + 4000); //
 
         // assert
         ActionState proposalState = daoMock.state(actionId);
@@ -594,7 +594,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
             }
         }
         // go forward in time.
-        vm.roll(4000); //
+        vm.roll(block.number + 4000); //
 
         // check if proposal is defeated.
         ActionState proposalState = daoMock.state(actionId);

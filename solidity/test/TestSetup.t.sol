@@ -81,7 +81,7 @@ abstract contract TestHelpers is TestVariables {
 
 abstract contract BaseSetup is Test, TestVariables, TestHelpers {
     function setUp() public virtual {
-        vm.roll(10);
+        vm.roll(block.number + 10);
         setUpVariables();
     }
 
@@ -145,7 +145,7 @@ abstract contract TestSetupSeparatedPowers is BaseSetup, ConstitutionsMock {
         laws = laws_;
         daoMock.constitute(laws);
         // assign Roles 
-        vm.roll(4_000);
+        vm.roll(block.number + 4_000);
         daoMock.execute(
             laws[laws.length - 1], 
             abi.encode(),  // empty calldata
@@ -167,7 +167,7 @@ abstract contract TestSetupLaw is BaseSetup, ConstitutionsMock {
         // constitute daoMock.
         daoMock.constitute(laws);
         // assign Roles 
-        vm.roll(4_000);
+        vm.roll(block.number + 4_000);
         daoMock.execute(
             laws[laws.length - 1], 
             abi.encode(),  // empty calldata
@@ -195,7 +195,7 @@ abstract contract TestSetupLaws is BaseSetup, ConstitutionsMock {
         console.logAddress(presetAction.targets(0)); 
         
         // assign Roles 
-        vm.roll(4_000);
+        vm.roll(block.number + 4_000);
         daoMock.execute(
             laws[laws.length - 1], 
             abi.encode(),  // empty calldata

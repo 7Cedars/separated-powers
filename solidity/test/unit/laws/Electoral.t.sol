@@ -215,7 +215,7 @@ contract RandomlySelectTest is TestSetupLaws {
         vm.startPrank(address(daoMock));
         (,, bytes[] memory calldatasOut1) = Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        vm.roll(block.number + 100);
+        vm.roll(block.number + block.number + 100);
 
         // act: second election
         vm.startPrank(address(daoMock));
@@ -300,7 +300,7 @@ contract TokenSelectTest is TestSetupLaws {
         vm.startPrank(address(daoMock));
         (,, bytes[] memory calldatasOut1) = Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        vm.roll(block.number + 100);
+        vm.roll(block.number + block.number + 100);
 
         // act: second election
         vm.startPrank(address(daoMock));
@@ -385,7 +385,7 @@ contract DelegateSelectTest is TestSetupLaws {
         vm.startPrank(address(daoMock));
         (,, bytes[] memory calldatasOut1) = Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
-        vm.roll(block.number + 100);
+        vm.roll(block.number + block.number + 100);
 
         // act: second election
         vm.startPrank(address(daoMock));

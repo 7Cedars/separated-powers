@@ -231,7 +231,7 @@ contract RequestPaymentTest is TestSetupLaws {
     
     function testRequestPaymentSucceeds() public {
         // prep
-        vm.roll(block.number + 400); // make sure we passed the delay for request.  
+        vm.roll(block.number + block.number + 400); // make sure we passed the delay for request.  
         address requestPayment = laws[12];
         bytes memory lawCalldata = abi.encode(); // note: empty calldata
         bytes memory expectedCalldata = abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, address(daoMock), alice, 300, 0, "");
@@ -261,6 +261,10 @@ contract RequestPaymentTest is TestSetupLaws {
         address requestPayment = laws[12];
         bytes memory lawCalldata = abi.encode(); // note: empty calldata
 
+        vm.startPrank(address(daoMock)); 
+        Law(requestPayment).executeLaw(alice, lawCalldata, bytes32(0));
+
+        // at same time, try a second call... 
         // act
         vm.startPrank(address(daoMock)); 
         vm.expectRevert(RequestPayment__DelayNotPassed.selector);

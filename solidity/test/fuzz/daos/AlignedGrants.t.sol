@@ -23,7 +23,7 @@
 
 //     function setUp() public virtual {
 //         // the only law specific event that is emitted.
-//         vm.roll(10);
+//         vm.roll(block.number + 10);
 //         setUpVariables();
 //     }
 
@@ -134,7 +134,7 @@
 // //     vm.prank(eve);
 // //     daoMock.castVote(actionIdOne, 1); // = for
 
-// //     vm.roll(4_000);
+// //     vm.roll(block.number + 4_000);
 
 // //     // executing...
 // //     vm.prank(david);
@@ -146,7 +146,7 @@
 
 // //     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
 // //     // proposing...
-// //     vm.roll(5_000);
+// //     vm.roll(block.number + 5_000);
 // //     vm.prank(charlotte); // = a senior
 // //     uint256 actionIdTwo = daoMock.propose(
 // //       laws[5], // = Senior_acceptProposedLaw
@@ -162,7 +162,7 @@
 // //     vm.prank(charlotte);
 // //     daoMock.castVote(actionIdTwo, 1); // = for
 
-// //     vm.roll(9_000);
+// //     vm.roll(block.number + 9_000);
 
 // //     // executing...
 // //     vm.prank(bob);
@@ -173,7 +173,7 @@
 // //     assert(uint8(proposalStateTwo) == 4); // == ActionState.Completed
 
 // //     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
-// //     vm.roll(10_000);
+// //     vm.roll(block.number + 10_000);
 // //     vm.prank(alice); // = admin role
 // //     daoMock.execute(laws[6], lawCalldata, keccak256(bytes(description)));
 
@@ -202,7 +202,7 @@
 // //     vm.prank(eve);
 // //     daoMock.castVote(actionIdOne, 0); // = against
 
-// //     vm.roll(4_000);
+// //     vm.roll(block.number + 4_000);
 
 // //     // executing does not work.
 // //     vm.prank(david);
@@ -213,7 +213,7 @@
 
 // //     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
 // //     // proposing...
-// //     vm.roll(5_000);
+// //     vm.roll(block.number + 5_000);
 // //     // NB: Note that it IS possible to create proposals that link back to non executed proposals.
 // //     // this is something to fix at a later date.
 // //     // proposals will not execute though. See below.
@@ -232,7 +232,7 @@
 // //     vm.prank(charlotte);
 // //     daoMock.castVote(actionIdTwo, 1); // = for
 
-// //     vm.roll(9_000);
+// //     vm.roll(block.number + 9_000);
 
 // //     // executing...
 // //     vm.prank(bob);
@@ -262,14 +262,14 @@
 // //     vm.prank(eve);
 // //     daoMock.castVote(actionIdOne, 1); // = for
 
-// //     vm.roll(4_000);
+// //     vm.roll(block.number + 4_000);
 
 // //     // executing...
 // //     vm.prank(david);
 // //     daoMock.execute(laws[4], lawCalldata, keccak256(bytes(description)));
 
 // //     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
-// //     vm.roll(5_000);
+// //     vm.roll(block.number + 5_000);
 // //     vm.prank(charlotte); // = a senior
 // //     uint256 actionIdTwo = daoMock.propose(
 // //       laws[5], // = Senior_acceptProposedLaw
@@ -285,7 +285,7 @@
 // //     vm.prank(charlotte);
 // //     daoMock.castVote(actionIdTwo, 0); // = against
 
-// //     vm.roll(9_000);
+// //     vm.roll(block.number + 9_000);
 
 // //     // executing...
 // //     vm.prank(bob);
@@ -295,7 +295,7 @@
 // //     daoMock.execute(laws[5], lawCalldata, keccak256(bytes(description)));
 
 // //     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
-// //     vm.roll(10_000);
+// //     vm.roll(block.number + 10_000);
 // //     vm.prank(alice); // = admin role
 // //     vm.expectRevert();
 // //     daoMock.execute(laws[6], lawCalldata, keccak256(bytes(description)));
@@ -332,7 +332,7 @@
 // //   ///                   Setup                 ///
 // //   ///////////////////////////////////////////////
 // //   function setUp() public {
-// //     vm.roll(10);
+// //     vm.roll(block.number + 10);
 // //     vm.startBroadcast(alice);
 // //       agDao = new AgDao();
 // //       agCoins = new AgCoins(address(agDao));
@@ -390,7 +390,7 @@
 // //     vm.prank(eve);
 // //     agDao.castVote(proposalIdOne, 1); // = for
 
-// //     vm.roll(4_000);
+// //     vm.roll(block.number + 4_000);
 
 // //     // executing...
 // //     vm.prank(eve);
@@ -402,7 +402,7 @@
 
 // //     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
 // //     // proposing...
-// //     vm.roll(5_000);
+// //     vm.roll(block.number + 5_000);
 
 // //     vm.prank(david); // = a whale
 // //     uint256 proposalIdTwo = agDao.propose(
@@ -417,7 +417,7 @@
 // //     vm.prank(eve);
 // //     agDao.castVote(proposalIdTwo, 1); // = for
 
-// //     vm.roll(9_000);
+// //     vm.roll(block.number + 9_000);
 
 // //     // executing...
 // //     vm.prank(eve);
@@ -458,7 +458,7 @@
 // //     vm.prank(eve);
 // //     agDao.castVote(proposalIdOne, 1); // = for
 
-// //     vm.roll(4_000);
+// //     vm.roll(block.number + 4_000);
 
 // //     // executing...
 // //     vm.prank(david);
@@ -495,7 +495,7 @@
 // //     vm.prank(eve);
 // //     agDao.castVote(proposalIdOne, 1); // = for
 
-// //     vm.roll(4_000);
+// //     vm.roll(block.number + 4_000);
 
 // //     // executing...
 // //     vm.prank(david);
@@ -506,7 +506,7 @@
 // //     assert(uint8(proposalStateOne) == 4); // == ActionState.Completed
 // //     assert (agDao.blacklistedAccounts(alice) == true);
 
-// //     vm.roll(5_000);
+// //     vm.roll(block.number + 5_000);
 // //     // PROPOSAL LINK 2: challenge revoke decision
 // //     // proposing...
 // //     string memory descriptionChallenge = "I challenge the revoking of my membership to agDAO.";
@@ -519,7 +519,7 @@
 // //       descriptionChallenge
 // //     );
 
-// //     vm.roll(9_000); // No vote needed, but does need pass time for vote to be executed.
+// //     vm.roll(block.number + 9_000); // No vote needed, but does need pass time for vote to be executed.
 
 // //     vm.prank(alice);
 // //     agDao.execute(constituentLaws[10], lawCalldataChallenge, keccak256(bytes(descriptionChallenge)));
@@ -528,7 +528,7 @@
 // //     SeparatedPowersTypes.ActionState proposalStateTwo = agDao.state(proposalIdTwo);
 // //     assert(uint8(proposalStateTwo) == 4); // == ActionState.Completed
 
-// //     vm.roll(10_000);
+// //     vm.roll(block.number + 10_000);
 // //     // PROPOSAL LINK 3: challenge is accepted by Seniors, member is reinstated.
 // //     vm.prank(bob); // = a senior
 // //     uint256 proposalIdThree = agDao.propose(
@@ -545,7 +545,7 @@
 // //     vm.prank(charlotte);
 // //     agDao.castVote(proposalIdThree, 1); // = for
 
-// //     vm.roll(14_000);
+// //     vm.roll(block.number + 14_000);
 
 // //     // executing...
 // //     vm.prank(bob);

@@ -82,7 +82,7 @@ contract NeedsProposalVoteTest is TestSetupLaw {
                 daoMock.castVote(actionId, FOR);
             }
         }
-        vm.roll(4000); // forward in time
+        vm.roll(block.number + 4000); // forward in time
 
         // act
         vm.prank(alice);
@@ -108,7 +108,7 @@ contract NeedsProposalVoteTest is TestSetupLaw {
                 daoMock.castVote(actionId, AGAINST);
             }
         }
-        vm.roll(4000); // forward in time
+        vm.roll(block.number + 4000); // forward in time
 
         // act & assert
         vm.expectRevert(Law__ProposalNotSucceeded.selector);
@@ -148,7 +148,7 @@ contract NeedsParentCompletedTest is TestSetupLaw {
                 daoMock.castVote(actionId, FOR);
             }
         }
-        vm.roll(4000); // forward in time
+        vm.roll(block.number + 4000); // forward in time
         vm.prank(alice);
         daoMock.execute(laws[parentLawNumber], lawCalldata, description);
         // check if law has been set as completed.
@@ -183,7 +183,7 @@ contract NeedsParentCompletedTest is TestSetupLaw {
                 daoMock.castVote(actionId, AGAINST);
             }
         }
-        vm.roll(4000); // forward in time
+        vm.roll(block.number + 4000); // forward in time
         ActionState proposalState = daoMock.state(actionId);
         assertEq(uint8(proposalState), uint8(ActionState.Defeated));
 
@@ -211,7 +211,7 @@ contract ParentCanBlockTest is TestSetupLaw {
                 daoMock.castVote(actionId, FOR);
             }
         }
-        vm.roll(4000); // forward in time
+        vm.roll(block.number + 4000); // forward in time
         vm.prank(alice);
         daoMock.execute(laws[parentLawNumber], lawCalldata, description);
         // check if law has been set as completed.
@@ -240,7 +240,7 @@ contract ParentCanBlockTest is TestSetupLaw {
                 daoMock.castVote(actionId, AGAINST);
             }
         }
-        vm.roll(4000); // forward in time
+        vm.roll(block.number + 4000); // forward in time
         vm.prank(alice);
         // check if law has been set as defeated.
         ActionState proposalState = daoMock.state(actionId);
@@ -273,7 +273,7 @@ contract DelayProposalExecutionTest is TestSetupLaw {
                 daoMock.castVote(actionId, FOR);
             }
         }
-        vm.roll(10_000); // forward in time, past the delay.
+        vm.roll(block.number + 10_000); // forward in time, past the delay.
         // act
         vm.prank(alice);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
@@ -298,7 +298,7 @@ contract DelayProposalExecutionTest is TestSetupLaw {
                 daoMock.castVote(actionId, FOR);
             }
         }
-        vm.roll(4000); // forward in time, but NOT past the delay.
+        vm.roll(block.number + 4000); // forward in time, but NOT past the delay.
         // act & assert
         vm.expectRevert(Law__DeadlineNotPassed.selector);
         vm.prank(alice);
@@ -316,7 +316,7 @@ contract LimitExecutionsTest is TestSetupLaw {
 
         // act
         for (uint256 i = 0; i < numberOfExecutions; i++) {
-            vm.roll(block.number + numberOfBlockBetweenExecutions);
+            vm.roll(block.number + block.number + numberOfBlockBetweenExecutions);
             vm.prank(alice);
             daoMock.execute(laws[lawNumber], lawCalldata, string(abi.encode(i)));
         }

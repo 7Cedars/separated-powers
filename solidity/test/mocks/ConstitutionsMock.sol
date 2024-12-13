@@ -131,7 +131,8 @@ contract ConstitutionsMock is Test {
         // get calldata
         (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_); 
         // set config
-        lawConfig.throttleExecution = type(uint48).max; // setting the throttle to max means the law can only be called once.
+        // setting the throttle to max means the law can only be called once.
+        lawConfig.throttleExecution = type(uint48).max - uint48(block.number);
         // initiate law 
         vm.startBroadcast(); 
         law = new PresetAction(
@@ -282,7 +283,8 @@ contract ConstitutionsMock is Test {
         // get calldata
         (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_); 
         // set config
-        lawConfig.throttleExecution = type(uint48).max; // setting the throttle to max means the law can only be called once.
+        // setting the throttle to max means the law can only be called once.
+        lawConfig.throttleExecution = type(uint48).max - uint48(block.number);
         // initiate law 
         vm.startBroadcast(); 
         law = new PresetAction(
@@ -484,7 +486,9 @@ contract ConstitutionsMock is Test {
         (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_); 
         // set config
         delete lawConfig; // reset lawConfig
-        lawConfig.throttleExecution = type(uint48).max; // setting the throttle to max means the law can only be called once.
+        // config
+        // setting the throttle to max means the law can only be called once.
+        lawConfig.throttleExecution = type(uint48).max - uint48(block.number);
         // initiate law 
         vm.startBroadcast(); 
         law = new PresetAction(
