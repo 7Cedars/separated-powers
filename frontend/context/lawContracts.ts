@@ -11,9 +11,6 @@ export const lawContracts = [
     address: "0xC45B6b4013fd888d18F1d94A32bc4af882cDCF86",
     accessRoleId: 4n
   }, 
-
-
-
   {
     contract: "Public_assignRole", 
     description: "Anyone can request a member role",
