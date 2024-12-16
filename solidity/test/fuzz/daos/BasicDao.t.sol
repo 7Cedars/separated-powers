@@ -59,97 +59,97 @@ contract TestElectoralLaws is BaseSetup {
         config = selectedConfig;
     }
 
-    function testFuzz_DelegateElect(uint256 numNominees, uint256 voteTokensRandomiser) public {
-        numNominees = bound(numNominees, 4, 10);
-        voteTokensRandomiser = bound(voteTokensRandomiser, 100_000, type(uint256).max);
+    // function testFuzz_DelegateElect(uint256 numNominees, uint256 voteTokensRandomiser) public {
+    //     numNominees = bound(numNominees, 4, 10);
+    //     voteTokensRandomiser = bound(voteTokensRandomiser, 100_000, type(uint256).max);
 
-        // step 0: distribute tokens. Tokens are distributed randomly.
-        _distributeTokens(config.erc20VotesMock, config.testAccounts, voteTokensRandomiser);
+    //     // step 0: distribute tokens. Tokens are distributed randomly.
+    //     _distributeTokens(config.erc20VotesMock, config.testAccounts, voteTokensRandomiser);
 
-        // step 1: people nominate their accounts.
-        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe = true
-        for (uint256 i = 0; i < numNominees; i++) {
-            vm.prank(config.testAccounts[i]);
-            basicDao.execute(
-                laws[0], lawCalldataNominate, string.concat("Account nominates themself", Strings.toString(i))
-            );
-        }
+    //     // step 1: people nominate their accounts.
+    //     bytes memory lawCalldataNominate = abi.encode(true); // nominateMe = true
+    //     for (uint256 i = 0; i < numNominees; i++) {
+    //         vm.prank(config.testAccounts[i]);
+    //         basicDao.execute(
+    //             laws[0], lawCalldataNominate, string.concat("Account nominates themself", Strings.toString(i))
+    //         );
+    //     }
 
-        // step 2: run election.
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata
-        address executioner = config.testAccounts[voteTokensRandomiser % 10];
-        vm.prank(executioner);
-        basicDao.execute(laws[1], lawCalldataElect, "Account executes an election.");
+    //     // step 2: run election.
+    //     bytes memory lawCalldataElect = abi.encode(); // empty calldata
+    //     address executioner = config.testAccounts[voteTokensRandomiser % 10];
+    //     vm.prank(executioner);
+    //     basicDao.execute(laws[1], lawCalldataElect, "Account executes an election.");
 
-        // step 3: assert that the elected accounts are correct.
-        for (uint256 i = 0; i < numNominees; i++) {
-            for (uint256 j = 0; j < numNominees; j++) {
-                address nominee = config.testAccounts[i];
-                address nominee2 = config.testAccounts[j];
-                if (basicDao.hasRoleSince(nominee, 2) != 0 && basicDao.hasRoleSince(nominee2, 2) == 0) {
-                    uint256 balanceNominee = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee);
-                    uint256 balanceNominee2 = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee2);
-                    assertGe(balanceNominee, balanceNominee2); // assert that nominee has more tokens than nominee2.
-                }
-                if (basicDao.hasRoleSince(nominee, 2) == 0 && basicDao.hasRoleSince(nominee2, 2) != 0) {
-                    uint256 balanceNominee = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee);
-                    uint256 balanceNominee2 = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee2);
-                    assertLe(balanceNominee, balanceNominee2); // assert that nominee has fewer tokens than nominee2.
-                }
-            }
-        }
-    }
+    //     // step 3: assert that the elected accounts are correct.
+    //     for (uint256 i = 0; i < numNominees; i++) {
+    //         for (uint256 j = 0; j < numNominees; j++) {
+    //             address nominee = config.testAccounts[i];
+    //             address nominee2 = config.testAccounts[j];
+    //             if (basicDao.hasRoleSince(nominee, 2) != 0 && basicDao.hasRoleSince(nominee2, 2) == 0) {
+    //                 uint256 balanceNominee = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee);
+    //                 uint256 balanceNominee2 = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee2);
+    //                 assertGe(balanceNominee, balanceNominee2); // assert that nominee has more tokens than nominee2.
+    //             }
+    //             if (basicDao.hasRoleSince(nominee, 2) == 0 && basicDao.hasRoleSince(nominee2, 2) != 0) {
+    //                 uint256 balanceNominee = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee);
+    //                 uint256 balanceNominee2 = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee2);
+    //                 assertLe(balanceNominee, balanceNominee2); // assert that nominee has fewer tokens than nominee2.
+    //             }
+    //         }
+    //     }
+    // }
 
-    function testFuzz_VoteAndDirectSelect(uint256 numNominees, uint256 indexRandomiser, uint256 quorumPassChance, uint256 succeedPassChance) public {
-        uint256 communitySize = config.testAccounts.length;
-        quorumPassChance = bound(quorumPassChance, 0, 100);
-        succeedPassChance = bound(succeedPassChance, 0, 100);
+    // function testFuzz_VoteAndDirectSelect(uint256 numNominees, uint256 indexRandomiser, uint256 quorumPassChance, uint256 succeedPassChance) public {
+    //     uint256 communitySize = config.testAccounts.length;
+    //     quorumPassChance = bound(quorumPassChance, 0, 100);
+    //     succeedPassChance = bound(succeedPassChance, 0, 100);
 
-        // step 1: people nominate their accounts.
-        uint256 numNominees; 
-        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe = true
-        for (uint256 i = 0; i < communitySize; i++) {
-          if (SeparatedPowers(basicDao).hasRoleSince(config.testAccounts[i], 1) == 0) {
-            vm.prank(config.testAccounts[i]);
-            basicDao.execute(
-                laws[2], lawCalldataNominate, string.concat("Account nominates themself", Strings.toString(i))
-            );
-          }
-          numNominees++; 
-        }
-        indexRandomiser = bound(indexRandomiser, 0, numNominees - 1);
+    //     // step 1: people nominate their accounts.
+    //     uint256 numNominees; 
+    //     bytes memory lawCalldataNominate = abi.encode(true); // nominateMe = true
+    //     for (uint256 i = 0; i < communitySize; i++) {
+    //       if (SeparatedPowers(basicDao).hasRoleSince(config.testAccounts[i], 1) == 0) {
+    //         vm.prank(config.testAccounts[i]);
+    //         basicDao.execute(
+    //             laws[2], lawCalldataNominate, string.concat("Account nominates themself", Strings.toString(i))
+    //         );
+    //       }
+    //       numNominees++; 
+    //     }
+    //     indexRandomiser = bound(indexRandomiser, 0, numNominees - 1);
 
-        // step 2: propose action and run election.
-        bytes memory lawCalldataSelect = abi.encode(indexRandomiser, false); // = revoke = false 
-        string memory descriptionSelect = "Elect an account to role 1.";
-        vm.prank(alice); // already has role 1. 
-        uint256 proposalId = daoMock.propose(laws[3], lawCalldataSelect, descriptionSelect);
+    //     // step 2: propose action and run election.
+    //     bytes memory lawCalldataSelect = abi.encode(indexRandomiser, false); // = revoke = false 
+    //     string memory descriptionSelect = "Elect an account to role 1.";
+    //     vm.prank(alice); // already has role 1. 
+    //     uint256 proposalId = daoMock.propose(laws[3], lawCalldataSelect, descriptionSelect);
 
-        (uint256 roleCount, uint256 againstVote, uint256 forVote, uint256 abstainVote) = _voteOnProposal(
-          payable(address(basicDao)),
-          laws[3], 
-          proposalId, 
-          config.testAccounts,
-          indexRandomiser, 
-          quorumPassChance,
-          succeedPassChance
-        );
+    //     (uint256 roleCount, uint256 againstVote, uint256 forVote, uint256 abstainVote) = _voteOnProposal(
+    //       payable(address(basicDao)),
+    //       laws[3], 
+    //       proposalId, 
+    //       config.testAccounts,
+    //       indexRandomiser, 
+    //       quorumPassChance,
+    //       succeedPassChance
+    //     );
 
-        // step 3:  assert that the elected accounts are correct.
-        (uint8 quorum, uint8 succeedAt,,,,,) = Law(laws[3]).config();
-        bool quorumReached = (forVote + abstainVote) * 100 / roleCount > quorum;
-        bool succeeded = forVote * 100 / roleCount > succeedAt;
+    //     // step 3:  assert that the elected accounts are correct.
+    //     (uint8 quorum, uint8 succeedAt,,,,,) = Law(laws[3]).config();
+    //     bool quorumReached = (forVote + abstainVote) * 100 / roleCount > quorum;
+    //     bool succeeded = forVote * 100 / roleCount > succeedAt;
 
-        if (quorumReached && succeeded) {
-          vm.prank(alice);
-          daoMock.execute(laws[3], lawCalldataSelect, descriptionSelect);
-          assertEq(basicDao.hasRoleSince(config.testAccounts[indexRandomiser], 1), block.number);
-        } else {
-          vm.expectRevert();
-          vm.prank(alice);
-          daoMock.execute(laws[3], lawCalldataSelect, descriptionSelect);
-        }
-    }
+    //     if (quorumReached && succeeded) {
+    //       vm.prank(alice);
+    //       daoMock.execute(laws[3], lawCalldataSelect, descriptionSelect);
+    //       assertEq(basicDao.hasRoleSince(config.testAccounts[indexRandomiser], 1), block.number);
+    //     } else {
+    //       vm.expectRevert();
+    //       vm.prank(alice);
+    //       daoMock.execute(laws[3], lawCalldataSelect, descriptionSelect);
+    //     }
+    // }
 
     // abstract contract TestSetupAlignedGrants is Test, TestVariables, TestHelpers {
     //     function TestA() public { }

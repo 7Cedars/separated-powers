@@ -192,7 +192,7 @@ contract DeployBasicDao is Script {
         calldatas[2] =
             abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 1, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
         // set config
-        lawConfig.throttleExecution = type(uint48).max; // setting the throttle to max means the law can only be called once.
+        lawConfig.throttleExecution = type(uint48).max - uint48(block.number); // setting the throttle to max means the law can only be called once.
         // initiate law
         vm.startBroadcast();
         law = new PresetAction(
