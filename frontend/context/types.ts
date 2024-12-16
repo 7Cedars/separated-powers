@@ -10,7 +10,7 @@ export type ProposalViewProps = { proposal: Proposal, isDisabled: boolean}
 export type Proposal = {
   targetLaw: `0x${string}`;
   proposalId: number;
-  proposer: `0x${string}`;
+  initiator: `0x${string}`;
   executeCalldata: `0x${string}`;
   voteStart: bigint;
   voteEnd: bigint;

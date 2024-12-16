@@ -16,7 +16,24 @@ import { lawContracts } from "@/context/lawContracts";
 import { useReadContract } from "wagmi";
 import { agCoinsAbi } from "@/context/abi";
 import Link from "next/link";
+import { Battery50Icon } from "@heroicons/react/24/outline";
 
+
+// const DashboardPage: React.FC = () => {
+
+//     return (
+//         <section className="w-full h-screen bg-slate-200 dark:bg-slate-800 flex flex-col justify-center items-center p-4">
+//             <div className="flex flex-col items-center justify-center w-full h-full text-lg text-center border-4 border-yellow-400 rounded-lg">
+//                 <div className="flex justify-center items-center"> 
+//                     <Battery50Icon className="w-16 h-16" />
+//                 </div>
+//                 <div className="text-bold dark:text-slate-200 text-slate-800">
+//                 This site is currently under construction. Check back later.
+//                 </div>
+//             </div>
+//         </section>
+//     )
+// }
 const DashboardPage: React.FC = () => {
     const [admin, setAdmin] = useState<boolean>(false);  
     const [senior, setSenior] = useState<boolean>(false);  ;  

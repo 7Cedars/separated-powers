@@ -51,7 +51,7 @@ const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                         onChange={(e) => setNewValue(e.target.value)}
                         placeholder="Enter new value (max 30 characters)"
                         maxLength={30}
-                        className="border border-white rounded-lg p-2 mb-4 w-full"
+                        className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                     />
                     <input
                         type="text"
@@ -59,7 +59,7 @@ const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                         onChange={(e) => setDescriptionA(e.target.value)}
                         placeholder="Enter supporting message"
                         maxLength={100}
-                        className="border border-white rounded-lg p-2 mb-4 w-full"
+                        className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                     />
                     <div className="flex flex-row justify-start">
                         <button
@@ -92,7 +92,7 @@ const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                         value={whaleAddress}
                         onChange={(e) => setWhaleAddress(e.target.value as `0x${string}`)}
                         placeholder="Enter account address"
-                        className="border border-white rounded-lg p-2 mb-4 w-full"
+                        className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                     />
                     <input
                         type="text"
@@ -100,7 +100,7 @@ const MemberActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                         onChange={(e) => setDescriptionB(e.target.value)}
                         placeholder="Enter supporting message"
                         maxLength={100}
-                        className="border border-white rounded-lg p-2 mb-4 w-full"
+                        className="border border-white rounded-lg p-2 mb-4 w-full text-slate-900"
                     />
                     <div className="flex flex-row justify-start">
                         <button

@@ -12,13 +12,11 @@
     <img src="public/logo.png" alt="Logo" width="300" height="300">
   </a>
 
-<h3 align="center">Separated Powers: Introducing separation of powers to DAO Governance </h3>
-
+<h3 align="center">Separated Powers </h3>
   <p align="center">
-    A protocol providing restricted governance processes for DAOs.
+    A role restricted governance protocol for DAOs
     <br />
-    <br />
-    <!--NB: TO DO --> 
+    <!--NB: TO DO -->  
     <a href="/solidity">Solidity protocol</a> ·
     <a href="https://sepolia.arbiscan.io/address/0x001a6a16d2fc45248e00351314bce898b7d8578f">Proof of Concept (Arbiscan)</a> ·
     <a href="https://separated-powers.vercel.app/">Proof of Concept (dApp)</a>
@@ -26,10 +24,10 @@
 </div>
 
 <div align="center">
-For the judges of the RnDAO CollabTech 2024 Hackathon  
-    <br />
-    <a href="https://www.tella.tv/video/centralized-governance-dilemma-ew5k"><b> Watch our project pitch here </b> </a>
-    <br />
+  For an introduction into the protocol, see
+  
+   <a href="https://www.tella.tv/video/separated-powers-1-aijc"><b> the 2 minute project pitch</b> </a> or <a href="https://www.tella.tv/video/separated-powers-solving-dao-governance-challenges-bis6"><b> the 15 minute explanation</b></a>.
+
 </div>
 
 <!-- TABLE OF CONTENTS --> 
@@ -41,8 +39,8 @@ For the judges of the RnDAO CollabTech 2024 Hackathon
       <a href="#about">About</a>
       <ul>
         <li><a href="#the-problem">The problem</a></li>
-        <li><a href="#the-solution">The solution</a></li>
         <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#why-use-separated-powers">Why use Separated Powers?</a></li>
         <li><a href="#important-files-and-folders">Important files and folders</a></li>
         <li><a href="#built-with">Built With</a></li>
       </ul>
@@ -54,64 +52,24 @@ For the judges of the RnDAO CollabTech 2024 Hackathon
 
 <!-- ABOUT THE PROJECT -->
 ## About
-Separated Powers restricts governance processes along access roles. 
+Separated Powers restricts governance processes along access roles.
 
-### The problem 
-The centralisation of power in DAO governance. 
-- Voting power tends to be centralised around a small group of users with a large amount of (governance) tokens. 
-- Voter disengagement among DAO members that do not own large amounts of governance tokens.
-- A tendency to centralise governance around a small number of vetted member in order to secure governance against hostile takeovers.
+## Advantages
+In comparison to existing governance protocols, Separated Powers improves the scalability, security and decentralisation of on-chain governance.
+- _Scalability._ Separated Powers creates a governance process where DAO members only vote on proposals that concern their roles. Role specification is a battle tested approach to enable the seamless scaling of small DAOs into larger ones.  
+- _Security._ Separated Powers allows for the creation of checks and balances between roles. The more checks and balances a DAO implements in its governance structure, the better it will be protected against hostile governance take overs. 
+- _Decentralisation._  Separated Powers enables DAOs to divide their community in groups (such as builders, token holders, users) and give each groups different, restricted, governance powers. Using roles to separate powers in governance is a tried and true approach to safeguarding decentralisation of (social, political and economic) assets in light of their tendency to centralise around informal elites.
+- _Multipliers._ Above all else, Separated Powers creates multipliers between decentralisation, efficiency and security. In Separated Powers, increased decentralisation leads to more efficiency and more security. A focus on security will also increase decentralisation of DAO governance, etc.     
 
-DAOs control crypto that is worth billions of dollars. Still, the amount is tiny when compared to national economies or companies such as Apple. Blockchains will only reach their full potential if they are truly decentralised, give ownership to all their users and provide a safe environment for day-to-day use.  
+## Protocol Architecture 
+For now, the protocol does not have extensive documentation. Instead, you can do the following 
+- Watch the <a href="www.tella.tv/video/separated-powers-solving-dao-governance-challenges-bis6"><b> 15 minute explanation</b></a>.
+- Read <a href="/solidity"> `/solidity/README.md`</a>. 
+- Then read through the code of `solidity/src/SeparatedPowers.sol`, `solidity/src/ISeparatedPowers.sol` and `solidity/src/Law.sol` and read through their code and natspecs.  
 
-### The solution
-To foster decentralised DAO governance, separated Powers restricts governance processes along access roles. This enables: 
-- defining multiple groups within blockchain communities. 
-- assigning them restricted powers. 
-- balancing and checking powers between groups. 
-- creating bespoke incentives for engagement in DAO governance. 
+More extensive documentation will be created asap. 
 
-Using roles to separate powers in governance is a tried and true approach to safeguarding decentralisation of (social, political and economic) assets in light of their tendency to centralise around informal elites.
-
-### How it works 
-To introduce role restrictions to governance processes, the Separated Powers protocol forces all governance actions to refer to whitelisted and role restricted external contracts. 
-
-These contracts 
-- are restricted to one role Id. 
-- give this role Id privileges to call specific outside functions.
-- constrain these privileges through specific conditions. 
-
-Because the role restricted external contracts closely resemble **laws**, they are referred as such throughout the protocol.
-
-Governance actions are only allowed for accounts that hold the role of the target law. An account that holds role A, can only propose proposals, vote on proposals and execute proposals in relation to laws that have access role id A.     
-
-As a flowchart 
-  <a href="https://github.com/7Cedars/separated-powers/blob/master/public/SeparatedPowers_introLaws.png"> 
-    <img src="public/SeparatedPowers_introLaws.png" alt="Schema Protocol" width="100%" height="100%">
-  </a>
-
-#### Creating checks and balance 
-Crucially, laws allow proposals to be chained. It means that accounts with role A can balance or check decisions of accounts that hold role B.  
-
-Consider the following steps:  
-- A user with role A proposes a proposal directed at law A. Its vote succeeds, but nothing happens.   
-- A user with role B proposes a proposal directed at law B. The law _only allows the exact same calldata that was included in the proposal to law A_. 
-- When a user with role B calls the execute function of law B, it checks if _both_ proposal A and proposal B have passed. If this is the case, the intended action is executed.
-- The proposal chain can be made as long as required.
-
-It allows, for instance, users with role A to propose a change and users with role B to accept that change. In such a case, power becomes balanced between the two roles: A has power of initiative, B power of execution. 
-
-As a flowchart
-  <a href="https://github.com/7Cedars/separated-powers/blob/master/public/SeparatedPowers_flowchart2.png"> 
-    <img src="public/SeparatedPowers_flowchart2.png" alt="Flowchart Governance.sol" width="100%" height="100%">
-  </a>
-
-#### Gaining a deeper understanding of Separated Powers 
-For now, the protocol does not have extensive documentation. It does have extensive natspecs throughout the protocol contracts. 
-
-The best way to gain a deeper understanding of the protocol is to start at `solidity/src/SeparatedPowers.sol` and `solidity/src/ISeparatedPowers.sol` and read through the code and natspecs.  
-
-### Important files and folders
+## Important files and folders
 
 ```
 .
@@ -122,7 +80,7 @@ The best way to gain a deeper understanding of the protocol is to start at `soli
 ├── public            # Images
 |
 ├── solidity          # Contains all the contracts, interfaces and tests. 
-│    ├── README.md    # All information needed to run contracts locally, test and deploy contracts.   
+│    ├── README.md    # All information needed to run contracts locally, test and deploy contracts. It also gives more detailed information on the protocol itself. 
 │    └── ...                     
 | 
 ├── LICENSE

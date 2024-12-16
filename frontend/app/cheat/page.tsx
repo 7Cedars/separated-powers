@@ -51,4 +51,10 @@ export default function Page() {
           </Link>
       </section>
     )
+
+    // return (
+    //   <section className="w-full h-screen bg-white flex flex-col justify-center items-center text-center">
+    //     ...      
+    //   </section>
+    // )
 }
