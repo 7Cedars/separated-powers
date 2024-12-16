@@ -1,3 +1,10 @@
+// This should become landing page: 
+// searchers for deployed Separated Powers Protocols.
+// Has search bar.
+// also has template DAOs to deploy.  
+// Loads names,# laws, # proposals, # roles, # members, chain. 
+// see example: https://www.tally.xyz/explore
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -17,7 +24,6 @@ import { useReadContract } from "wagmi";
 import { agCoinsAbi } from "@/context/abi";
 import Link from "next/link";
 import { Battery50Icon } from "@heroicons/react/24/outline";
-
 
 // const DashboardPage: React.FC = () => {
 
