@@ -18,7 +18,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Providers>
           <ThemeProvider>
             <Header /> 
-            <div className="grow max-w-screen-lg min-h-screen flex flex-col pt-20">
+            <div className="grow max-w-screen-lg min-h-screen flex flex-col pt-28">
               {children}
             </div>
             {/* <Footer />  */}

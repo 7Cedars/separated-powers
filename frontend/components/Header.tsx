@@ -26,23 +26,24 @@ import { useWallets } from "@privy-io/react-auth";
 export const Header = () => {
   const router = useRouter();
   const organisation = useOrgStore((state) => state.organisation)
-  const deleteOrg = useOrgStore((action) => action.delete)
+  const deleteOrg = useOrgStore((action) => action.deleteOrg)
   const path = usePathname()
   const {wallets } = useWallets();
   const wallet = wallets[0];
   const {ready, authenticated, login, logout} = usePrivy();
-  const layoutIconBox: string = 'flex flex-row gap-2 text-xs align-middle items-center'
+  const layoutIconBox: string = 'flex flex-row gap-2 align-middle items-center'
   const layoutIcons: string = 'h-4 w-4'
 
-  const handleHome = () => {
-    deleteOrg() 
-    router.push('/') 
-  }
+  useEffect(() => {
+    if (!organisation) {
+      router.push('/') 
+    }
+  }, [organisation]);
 
   return (
-    <header className="absolute grow w-screen top-0 h-fit py-4 flex justify-around text-sm px-4 bg-slate-50 border-b border-slate-300">
-      <section className="grow flex flex-row gap-3 justify-between gap-3 max-w-screen-lg">
-        <div className="flex flex-row gap-1"> 
+    <header className="absolute grow w-screen top-0 h-fit p-4 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
+      <section className="grow flex flex-row gap-3 justify-between max-w-screen-lg">
+        <div className="flex flex-row gap-1 max-w-96"> 
           <Button size = {0} onClick={() => router.push('/')}> 
             <Image 
               src='/logo.png' 
@@ -52,22 +53,34 @@ export const Header = () => {
               >
             </Image>
           </Button> 
-          <div className="min-w-40">
+          <div className="">
           {
               organisation ? 
-                <Button size = {0}  onClick={() => router.push('/')}>
-                  {organisation}
-                </Button> 
-              :
               <Button 
                 size = {0} 
-                onClick={() => handleHome() }
+                onClick={() => deleteOrg() }
                 >
-                  <div className={layoutIconBox}> 
+                  <div className={"flex flex-row gap-1 justify-center items-center"}> 
                     <GiftIcon
                     className={layoutIcons} 
                     />
-                    Select organisation           
+                    <div className="w-32">
+                      {organisation}
+                    </div>
+                </div> 
+              </Button>
+              :
+              <Button 
+                size = {0} 
+                onClick={() => deleteOrg() }
+                >
+                  <div className={"flex flex-row gap-1 justify-center items-center"}> 
+                    <GiftIcon
+                    className={layoutIcons} 
+                    />
+                    <div className="w-32">
+                    Select organisation 
+                    </div>
                 </div> 
             </Button>
           }

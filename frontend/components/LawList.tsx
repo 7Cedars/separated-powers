@@ -1,7 +1,7 @@
 "use client";
- 
+
 import React, { useState } from "react";
-import { useOrgStore } from "../../context/store";
+import { useOrgStore } from "../context/store";
 import { Button } from "@/components/Button";
 import Link from "next/link";
 import { GiftIcon } from "@heroicons/react/24/outline";
@@ -13,9 +13,8 @@ type Law = {
   roleId: number;
 }
 
-
-export default function Page() {
-    const organisation = useOrgStore((state) => state.organisation)
+export default function LawList() {
+ const organisation = useOrgStore((state) => state.organisation)
     const [selectedRoles, setSelectedRoles] = useState<number[]>([])
 
     // Have
@@ -126,71 +125,7 @@ export default function Page() {
             </table>   
          </div>
 
-          {/* right panel  */}
-          <div className="w-96 flex flex-col gap-4 justify-start items-center ps-4">
-            {/* My proposals  */}
-            <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-4 rounded-md"> 
-              <Link
-                href="/proposals"
-                className="w-full border-b border-slate-300 p-2"
-              >
-              <div className="w-full flex flex-row gap-6 items-center justify-between px-2">
-                <div className="text-left text-sm text-slate-600 w-52">
-                  My proposals
-                </div> 
-                  <GiftIcon
-                    className="w-4 h-4 text-slate-600"
-                    />
-                </div>
-              </Link>
-              <div className="w-full flex flex-col gap-3 justify-start items-center px-2 pb-4">
-                <div className = "text-sm text-slate-600">
-                  Here some dynamic text
-                </div>
-              </div>
-            </div>
-
-            {/* Roles  */}
-            <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md"> 
-            <Link
-                href="/roles"
-                className="w-full border-b border-slate-300 p-2"
-              >
-              <div className="w-full flex flex-row gap-6 items-center justify-between px-2">
-                <div className="text-left text-sm text-slate-600 w-52">
-                  My roles
-                </div> 
-                  <GiftIcon
-                    className="w-4 h-4 text-slate-600"
-                    />
-                </div>
-              </Link>
-              <div className="w-full flex flex-col gap-3 justify-start items-center px-2 pb-4">
-                <div className = "text-sm text-slate-600">
-                  Here some dynamic text
-                </div>
-              </div>
-            </div>
-            
-
-            {/* Notifications  */}
-            <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md"> 
-              <div className="w-full border-b border-slate-300 p-2">
-                <div className="w-full flex flex-row gap-6 items-center justify-between px-2">
-                  <div className="text-left text-sm text-slate-600 w-52">
-                    Notifications
-                  </div>
-                </div>
-              </div>
-              <div className="w-full flex flex-col gap-3 justify-start items-center px-2 pb-4">
-                <div className = "text-sm text-slate-600">
-                  Here some dynamic text
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-    )
-
+     </section>
+  </main>
+  )
 }

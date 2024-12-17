@@ -41,7 +41,7 @@ type Org = {
 export default function Page() {
     const router = useRouter();
     const organisation = useOrgStore((state) => state.organisation)
-    const assign = useOrgStore((action) => action.assign)
+    const assignOrg = useOrgStore((action) => action.assignOrg)
 
     // Have to read for event 'SeparatedPowers__Initialized' - and get address from this. Get the most efficient way of doing this. 
     // See Consumer Card project? I think I have a nice useEvents hook there.. 
@@ -89,7 +89,7 @@ export default function Page() {
                         <tr key={org.name} className="text-sm text-right text-slate-900 h-16">
                             <td className="text-left rounded-bl-md ps-2 py-2">
                                 <Button 
-                                    size={1} align={0} showBorder={false} onClick={() => assign(org.name, org.logo, org.address)}>
+                                    size={1} align={0} showBorder={false} onClick={() => assignOrg(org.name, org.logo, org.address)}>
                                     {org.name}
                                 </Button>
                             </td>

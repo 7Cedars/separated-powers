@@ -7,19 +7,20 @@ type State = {
 }
 
 type Action = {
-  assign: (organisation: string, logo: string, address: `0x${string}`) => void;
-  delete: () => void;
+  assignOrg: (organisation: string, logo: string, address: `0x${string}`) => void;
+  deleteOrg: () => void;
+  
 }
 
 export const useOrgStore = create<State & Action>((set) => ({
   organisation: null,
   address: null,
   logo: null,
-  assign: (organisation, logo, address) => set(() => ({ 
+  assignOrg: (organisation, logo, address) => set(() => ({ 
     organisation: organisation, 
     logo: logo,
     address: address })),
-  delete: () => set(() => ({ 
+  deleteOrg: () => set(() => ({ 
     organisation: null, 
     logo: null,
     address: null 

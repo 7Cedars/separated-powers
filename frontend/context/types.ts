@@ -7,6 +7,10 @@ export type Vote = 0n | 1n | 2n  // = against, for, abstain
 export type userActionsProps = { wallet: ConnectedWallet, isDisabled: boolean }
 export type ProposalViewProps = { proposal: Proposal, isDisabled: boolean} 
 
+export type Law = {
+  
+}
+
 export type Proposal = {
   targetLaw: `0x${string}`;
   proposalId: number;
