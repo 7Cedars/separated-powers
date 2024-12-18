@@ -65,7 +65,7 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     string[] daoNames;
 
     // the only event in the Law contract
-    event Law__Initialized(address indexed law, address indexed separatedPowers, ShortString name, string description, uint48 allowedRole, ILaw.LawConfig config);
+    event Law__Initialized(address indexed law, address indexed separatedPowers, string name, string description, uint48 allowedRole, ILaw.LawConfig config);
 }
 
 abstract contract TestHelpers is TestVariables {

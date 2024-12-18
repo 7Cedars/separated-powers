@@ -9,7 +9,7 @@ pragma solidity 0.8.26;
 interface SeparatedPowersEvents {
     /// @notice Emitted when protocol is initialized.
     /// @param contractAddress the address of the contract
-    event SeparatedPowers__Initialized(address contractAddress);
+    event SeparatedPowers__Initialized(address contractAddress, string name);
 
     /// @notice Emitted when protocol receives funds/
     /// @param value the amount of funds received

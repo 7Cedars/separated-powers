@@ -8,87 +8,61 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useOrgStore } from "@/context/store";
+import { useOrgStore, assignOrg } from "@/context/store";
 import { useRouter } from "next/navigation";
 import { Button } from "../components/Button";
-import { useSeparatedPowers } from "@/hooks/useSeparatedPowers";
-import { separatedPowersAbi } from "@/context/abi";
-
-type Org = {
-    logo: string;
-    name: string; 
-    address: `0x${string}`;
-    laws: number; 
-    proposals: number;
-    roles: number; 
-    holders: number; 
-}
+import { useOrganisations } from "@/hooks/useOrganisations";
 
 export default function Page() {
     const router = useRouter();
-    const organisation = useOrgStore((state) => state.organisation)
-    const assignOrg = useOrgStore((action) => action.assignOrg)
-    const { fetchOrganisations, organisations } = useSeparatedPowers()
+    // const organisation = useOrgStore((state) => state.organisation)
+    const organisation = useOrgStore()
+
+    const { fetchOrganisations, organisations } = useOrganisations()
+    const colourScheme = [
+        "from-indigo-500 to-emerald-500", 
+        "from-blue-500 to-red-500", 
+        "from-indigo-300 to-emerald-900",
+        "from-emerald-400 to-indigo-700 ",
+        "from-red-200 to-blue-400",
+        "from-red-800 to-blue-400"
+      ]
     
     console.log("organisations", organisations)
-
-    // Have to read for event 'SeparatedPowers__Initialized' - and get address from this. Get the most efficient way of doing this. 
-    // See Consumer Card project? I think I have a nice useEvents hook there.. 
-    const dummyData: Org[] = [
-        {   
-            logo: '/logo.png',
-            name: 'Organisation A', 
-            address: '0x123',
-            laws: 5,
-            proposals: 23,
-            roles: 3,
-            holders: 4000
-        },
-        {
-            logo: '/logo.png',
-            name: 'Organisation B', 
-            address: '0x123',
-            laws: 12,
-            proposals: 256,
-            roles: 3,
-            holders: 76353
-        }
-    ]
+    console.log("organisation", organisation)
+    useEffect(() => {
+        if (organisation.name != '') router.push('/home') 
+    }, [organisation])
 
     useEffect(() => {
-        if (organisation) router.push('/home') 
-    }, [organisation])
+        if (!organisations) fetchOrganisations()
+    }, [, organisation])
 
     return (
         <main className="w-full flex flex-col justify-center items-center border border-slate-300 rounded-md">
-            
-            <Button size={2} align={1} showBorder={false} onClick={() => fetchOrganisations()}>TEST</Button>
-
             <table className="w-full table-auto">
             <thead className="w-full">
                 <tr className="w-96 bg-slate-50 text-xs font-light text-slate-600 rounded-md border-b border-slate-300">
                     <th className="text-left ps-6 py-2 font-light rounded-tl-md">Name</th>
                     <th className="text-right font-light">Laws</th>
                     <th className="text-right font-light">Proposals</th>
-                    <th className="text-right font-light">Roles</th>
-                    <th className="text-right font-light">Holders</th>
+                    <th className="text-right font-light">Roles</th> 
                     <th className="text-right font-light pe-2 rounded-tr-md">Chain</th>
                 </tr>
             </thead>
             <tbody className="w-full text-sm text-right text-slate-600 bg-slate-50 divide-y divide-slate-300">
                 {
-                    dummyData.map((org) => (
+                    organisations?.map((org) => (
                         <tr key={org.name} className="text-sm text-right text-slate-900 h-16">
                             <td className="text-left rounded-bl-md ps-2 py-2">
                                 <Button 
-                                    size={1} align={0} showBorder={false} onClick={() => assignOrg(org.name, org.logo, org.address)}>
+                                    size={1} align={0} showBorder={false} onClick={() => assignOrg(org)}>
                                     {org.name}
                                 </Button>
                             </td>
-                            <td>{org.laws}</td>
-                            <td>{org.proposals}</td>
-                            <td>{org.roles}</td>
-                            <td>{org.holders}</td>
+                            <td>{org.laws?.length}</td>
+                            <td>{org.proposals?.length}</td>
+                            <td>{org.roles?.length}</td>
                             <td className="pe-2 rounded-br-md"> Arbitrum </td>
                         </tr>
                     ))

@@ -6,7 +6,6 @@
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
 import { LawErrors } from "./LawErrors.sol";
-import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 pragma solidity 0.8.26;
 
@@ -23,7 +22,7 @@ interface ILaw is IERC165, LawErrors {
     }
 
     // @notice emitted when the law is initialized
-    event Law__Initialized(address indexed law, address indexed separatedPowers, ShortString name, string description, uint48 allowedRole, LawConfig config);
+    event Law__Initialized(address indexed law, address indexed separatedPowers, string name, string description, uint48 allowedRole, LawConfig config);
 
     /// @notice function to execute a law.
     /// @param initiator the address of the account that proposed execution of the law.

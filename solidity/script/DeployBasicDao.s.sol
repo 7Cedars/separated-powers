@@ -39,7 +39,7 @@ contract DeployBasicDao is Script {
 
         // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao 2");
+        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao 1.2");
         vm.stopBroadcast();
 
         initiateConstitution(

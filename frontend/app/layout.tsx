@@ -14,15 +14,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="h-dvh w-full flex justify-center items-center overflow-hidden relative bg-slate-100">
+      <body className="h-dvh w-full flex justify-center items-start relative bg-slate-100">
         <Providers>
-          <ThemeProvider>
+          {/* <ThemeProvider> */}
             <Header /> 
-            <div className="grow max-w-screen-lg min-h-screen flex flex-col pt-28">
+            <div className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1 py-20 overflow-y-auto">
               {children}
             </div>
             {/* <Footer />  */}
-          </ThemeProvider>
+          {/* </ThemeProvider> */}
         </Providers>
       </body>
     </html>

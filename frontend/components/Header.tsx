@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation';
 import type { PropsWithChildren } from "react";
 import { useRouter } from 'next/navigation'
 import { useEffect } from "react";
-import { useOrgStore } from "../context/store";
+import { useOrgStore, deleteOrg } from "../context/store";
 import Image from 'next/image'
 import { Button } from "./Button";
 import { 
@@ -25,8 +25,8 @@ import { useWallets } from "@privy-io/react-auth";
 
 export const Header = () => {
   const router = useRouter();
-  const organisation = useOrgStore((state) => state.organisation)
-  const deleteOrg = useOrgStore((action) => action.deleteOrg)
+  const organisation = useOrgStore(); 
+  
   const path = usePathname()
   const {wallets } = useWallets();
   const wallet = wallets[0];
@@ -35,7 +35,7 @@ export const Header = () => {
   const layoutIcons: string = 'h-4 w-4'
 
   useEffect(() => {
-    if (!organisation) {
+    if (organisation.name == '') {
       router.push('/') 
     }
   }, [organisation]);
@@ -55,24 +55,24 @@ export const Header = () => {
           </Button> 
           <div className="">
           {
-              organisation ? 
+              organisation.name != '' ? 
               <Button 
                 size = {0} 
-                onClick={() => deleteOrg() }
+                onClick={() => deleteOrg({}) }
                 >
                   <div className={"flex flex-row gap-1 justify-center items-center"}> 
                     <GiftIcon
                     className={layoutIcons} 
                     />
                     <div className="w-32">
-                      {organisation}
+                      {organisation.name}
                     </div>
                 </div> 
               </Button>
               :
               <Button 
                 size = {0} 
-                onClick={() => deleteOrg() }
+                onClick={() => deleteOrg({}) }
                 >
                   <div className={"flex flex-row gap-1 justify-center items-center"}> 
                     <GiftIcon
@@ -87,7 +87,7 @@ export const Header = () => {
           </div>
         </div>
         {
-          organisation ? 
+          organisation.name != '' ? 
             <div className="flex flex-row gap-2"> 
               <Button 
                 size = {0} 

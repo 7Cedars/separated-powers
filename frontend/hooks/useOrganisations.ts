@@ -1,19 +1,19 @@
-import { Status, Proposal, Organisation } from "../context/types"
+import { Status, Proposal, Organisation, Law } from "../context/types"
 import { readContracts } from '@wagmi/core'
 import { wagmiConfig } from '../context/wagmiConfig'
 import { useCallback, useEffect, useRef, useState } from "react";
-import { separatedPowersAbi } from "@/context/abi";
+import { lawAbi, separatedPowersAbi } from "@/context/abi";
 import { Hex, Log, parseEventLogs, ParseEventLogsReturnType } from "viem"
 import { publicClient } from "@/context/clients";
 import { lawContracts } from "@/context/lawContracts";
 import { readContract } from "wagmi/actions";
 
-export const useSeparatedPowers = () => {
+export const useOrganisations = () => {
   const [status, setStatus ] = useState<Status>("idle")
   const [error, setError] = useState<any | null>(null)
   const [organisations, setOrganisations] = useState<Organisation[] | undefined>() 
 
-  // console.log("@useProposal:", {proposals, status, error})
+  // const fromBlock = 102000000n // this should be taken from a config file. £todo 
 
   const getOrganisations = useCallback( 
     async () => {
@@ -30,7 +30,6 @@ export const useSeparatedPowers = () => {
             logs
           })
           const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
-          console.log("@fetchedLogsTyped", fetchedLogsTyped)
           const fetchedOrganisations: Organisation[] = fetchedLogsTyped.map(log => log.args as Organisation)
           return fetchedOrganisations
         } catch (error) {
@@ -40,37 +39,40 @@ export const useSeparatedPowers = () => {
       } 
   }, [ ])
 
-  const getOrganisationData = async (organisations: Organisation[]) => {
+  const fetchLaws = async (organisations: Organisation[]) => {
     let organisation: Organisation
-    let orgsWithProposals: Organisation[] = []
+    let orgsWithLaws: Organisation[] = []
 
     if (publicClient) {
       try {
         for await (organisation of organisations) {
-          if (organisation?.address) {
-            const separatedPowersContract = {
-              address: organisation.address,
-              abi: separatedPowersAbi,
-            } as const
+          if (organisation?.contractAddress) {
+            const logs = await publicClient.getContractEvents({ 
+              abi: lawAbi, 
+              eventName: 'Law__Initialized',
+              fromBlock: 102000000n,
+              args: {
+                separatedPowers: organisation.contractAddress as `0x${string}`
+              }
+            })
+            const fetchedLogs = parseEventLogs({
+              abi: lawAbi,
+              eventName: 'Law__Initialized',
+              logs
+            })
+            const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
+            const fetchedLaws: Law[] = fetchedLogsTyped.map(log => log.args as Law)
+            console.log("@fetchLaws", {fetchedLaws})
 
-            const fetchedState = await readContracts(wagmiConfig, {
-              contracts: [
-                {
-                ...separatedPowersContract,
-                functionName: 'name'
-                }
-
-              ]
-            }
+            const rolesAll = fetchedLaws.map((law: Law) => law.allowedRole)
+            const roles = [... new Set(rolesAll)] as bigint[]
           
-          )
-
-
-            if (Number(fetchedState) < 5) 
-              proposalWithState.push({...proposal, state: Number(fetchedState)}) // = 5 is a non-existent state
+            if (fetchedLaws && roles) {
+              orgsWithLaws.push({...organisation, laws: fetchedLaws, roles: roles, colourScheme: orgsWithLaws.length})
+            }
           }
         } 
-        return proposalWithState
+        return orgsWithLaws
       } catch (error) {
         setStatus("error") 
         setError(error)
@@ -85,9 +87,9 @@ export const useSeparatedPowers = () => {
     if (publicClient) {
       try {
         for await (organisation of organisations) {
-          if (organisation?.address) {
+          if (organisation?.contractAddress) {
             const logs = await publicClient.getContractEvents({ 
-              address: organisation.address,
+              address: organisation.contractAddress as `0x${string}`,
               abi: separatedPowersAbi, 
               eventName: 'ProposalCreated',
               fromBlock: 102000000n
@@ -116,12 +118,19 @@ export const useSeparatedPowers = () => {
     async () => {
       setStatus("loading")
 
-      const fetchedOrganisations = await getProposals()
-      if (fetchedOrganisations) {
-        // const proposalsWithState = await getProposalState(proposalsWithoutState)
-        setOrganisations(fetchedOrganisations)
-      }
+      let orgsWithLaws: Organisation[] | undefined
+      let orgsWithProposals: Organisation[] | undefined 
 
+      const fetchedOrganisations = await getOrganisations()
+      if (fetchedOrganisations) {
+        orgsWithLaws = await fetchLaws(fetchedOrganisations)
+      }
+      if (orgsWithLaws) {
+        orgsWithProposals = await fetchProposals(orgsWithLaws)
+      }
+      if (orgsWithProposals) {
+        setOrganisations(orgsWithProposals)
+      }
       setStatus("success")
     }, [ ])
 

@@ -77,7 +77,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         roles[ADMIN_ROLE].amountMembers = 1; // the number of admins at set up is 1.
         roles[PUBLIC_ROLE].amountMembers = type(uint256).max; // the number for holders of the PUBLIC_ROLE is type(uint256).max. As in, everyone has this role.
 
-        emit SeparatedPowers__Initialized(address(this));
+        emit SeparatedPowers__Initialized(address(this), name);
     }
 
     /// @notice receive function enabling ETH deposits.

@@ -77,7 +77,7 @@ contract Law is ERC165, ILaw {
         allowedRole = allowedRole_;
         config = config_;
 
-        emit Law__Initialized(address(this), separatedPowers, name, description, allowedRole, config);
+        emit Law__Initialized(address(this), separatedPowers, name_, description, allowedRole, config);
     }
 
     /// note this is the function that is called by the SeparatedPowers protocol. It always runs checks before execution of law logic.
@@ -165,9 +165,8 @@ contract Law is ERC165, ILaw {
     }
 
     //////////////////////////////////////////////////
-    //               HELPER FUNCTIONS               //
+    //           HELPER & VIEW FUNCTIONS            //
     //////////////////////////////////////////////////
-
     /// @notice implements ERC165
     function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(ILaw).interfaceId || super.supportsInterface(interfaceId);

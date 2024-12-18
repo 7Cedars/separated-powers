@@ -36,7 +36,7 @@ contract DeployTest is TestSetupSeparatedPowers {
 
     function testDeployProtocolEmitsEvent() public {
         vm.expectEmit(true, false, false, false);
-        emit SeparatedPowers__Initialized(address(daoMock));
+        emit SeparatedPowers__Initialized(address(daoMock), "DaoMock");
 
         vm.prank(alice);
         daoMock = new DaoMock();

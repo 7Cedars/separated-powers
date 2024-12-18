@@ -7,28 +7,33 @@ export type Vote = 0n | 1n | 2n  // = against, for, abstain
 export type userActionsProps = { wallet: ConnectedWallet, isDisabled: boolean }
 export type ProposalViewProps = { proposal: Proposal, isDisabled: boolean} 
 
+export type Config = {
+  delayExecution: bigint; 
+  needCompleted: `0x${string}`;
+  needNotCompleted: `0x${string}`;
+  quorum: bigint; 
+  succeedAt: bigint; 
+  throttleExecution: bigint;
+  votingPeriod: bigint;
+}
+
 export type Law = {
-  address: `0x${string}`;
+  law: `0x${string}`;
   name?: string;
   description?: string;
   allowedRole?: bigint;
+  separatedPowers?: `0x${string}`;
+  config: Config;
   params?: string[];
-  quorum?: bigint;
-  succeedAt?: bigint;
-  votingPeriod?: bigint;
-  needCompleted?: `0x${string}`;
-  needNotCompleted?: `0x${string}`;
-  delayExecution?: bigint;
-  throttleExecution?: bigint;
 }
 
 export type Organisation = {
-  address: `0x${string}`;
-  name?: string;
-  colourScheme?: string;
+  contractAddress: `0x${string}`;
+  name: string;
+  colourScheme: number;
   laws?: Law[];
   proposals?: Proposal[];
-  holders: number;
+  roles: Role[];
 }
 
 export type Proposal = {
