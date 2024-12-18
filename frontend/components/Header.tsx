@@ -16,9 +16,12 @@ import Image from 'next/image'
 import { Button } from "./Button";
 import { 
   GiftIcon, 
+  MagnifyingGlassIcon, 
   HomeIcon, 
-  Cog6ToothIcon, 
-  ShoppingCartIcon
+  BookOpenIcon,
+  IdentificationIcon,
+  ChatBubbleBottomCenterIcon,
+  BuildingLibraryIcon
 } from '@heroicons/react/24/outline';
 import { usePrivy } from "@privy-io/react-auth";
 import { useWallets } from "@privy-io/react-auth";
@@ -61,7 +64,7 @@ export const Header = () => {
                 onClick={() => deleteOrg({}) }
                 >
                   <div className={"flex flex-row gap-1 justify-center items-center"}> 
-                    <GiftIcon
+                    <MagnifyingGlassIcon
                     className={layoutIcons} 
                     />
                     <div className="w-32">
@@ -75,7 +78,7 @@ export const Header = () => {
                 onClick={() => deleteOrg({}) }
                 >
                   <div className={"flex flex-row gap-1 justify-center items-center"}> 
-                    <GiftIcon
+                    <MagnifyingGlassIcon
                     className={layoutIcons} 
                     />
                     <div className="w-32">
@@ -96,7 +99,7 @@ export const Header = () => {
                 showBorder={false}
                 >
                   <div className={layoutIconBox}> 
-                    <GiftIcon
+                    <HomeIcon
                     className={layoutIcons} 
                     />
                     Home           
@@ -110,7 +113,7 @@ export const Header = () => {
                 showBorder={false}
                 >
                   <div className={layoutIconBox}> 
-                    <GiftIcon
+                    <BookOpenIcon
                     className={layoutIcons} 
                     />
                     Laws           
@@ -124,7 +127,7 @@ export const Header = () => {
                 showBorder={false}
                 >
                   <div className={layoutIconBox}> 
-                    <GiftIcon
+                    <ChatBubbleBottomCenterIcon
                     className={layoutIcons} 
                     />
                     Proposals           
@@ -138,7 +141,7 @@ export const Header = () => {
                 showBorder={false}
                 >
                   <div className={layoutIconBox}> 
-                    <GiftIcon
+                    <IdentificationIcon
                     className={layoutIcons} 
                     />
                     Roles           
@@ -152,7 +155,7 @@ export const Header = () => {
                 showBorder={false}
                 >
                   <div className={layoutIconBox}> 
-                    <GiftIcon
+                    <BuildingLibraryIcon
                     className={layoutIcons} 
                     />
                     Treasury           

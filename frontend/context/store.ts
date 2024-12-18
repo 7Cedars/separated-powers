@@ -1,19 +1,8 @@
 import { create } from 'zustand';
 import { Config, Proposal, Law, Organisation } from '../context/types'
 
-
-// type Law = {
-//   name: string | null;
-//   description: string | null;
-//   law: `0x${string}` | null;
-//   allowedRole: bigint | null;
-//   config?: Config;
-//   params?: string[];
-// }
-
 type OrgStore = Organisation; 
-
-const initialState: OrgStore = {
+const initialStateOrg: OrgStore = {
   name: '',
   contractAddress: `0x0`,
   colourScheme: 0,
@@ -22,43 +11,42 @@ const initialState: OrgStore = {
   roles: []
 }
 
-export const useOrgStore = create<OrgStore>()(() => initialState); 
+type LawStore = Law;
+const initialStateLaw: LawStore = {
+  name: '',
+  description: '',
+  config: {
+    delayExecution: 0n, 
+    needCompleted: `0x0`,
+    needNotCompleted: `0x0`,
+    quorum: 0n, 
+    succeedAt: 0n, 
+    throttleExecution: 0n,
+    votingPeriod: 0n
+  },
+  law: `0x0`,
+  params: [],
+  allowedRole: 0n
+}
 
-// export default function updateOrg() {
-//   const organisation = useOrgStore()
-//   const assignOrg: typeof useOrgStore.setState = (organisation) => {
-//     useOrgStore.setState(organisation)
-//   }
+// Organisation Store
+export const useOrgStore = create<OrgStore>()(() => initialStateOrg); 
+
 export const assignOrg: typeof useOrgStore.setState = (organisation) => {
       useOrgStore.setState(organisation)
     }
 export const deleteOrg: typeof useOrgStore.setState = () => {
-      useOrgStore.setState(initialState)
+      useOrgStore.setState(initialStateOrg)
+    }
+
+// Law Store 
+export const useLawStore = create<LawStore>()(() => initialStateLaw); 
+
+export const setLaw: typeof useLawStore.setState = (law) => {
+  useLawStore.setState(law)
+    }
+export const deleteLaw: typeof useOrgStore.setState = () => {
+      useLawStore.setState(initialStateLaw)
     }
 
 
-// {
-//   name: null,
-//   description: null,
-//   address: null, 
-//   assignOrg: (name, description, address) => set(() => ({
-//       name: name,
-//       description: description,
-//       address: address
-//   })),
-//   deleteOrg: () => set(() => ({ 
-//     name: null,
-//     description: null,
-//     address: null, 
-//   }))
-// }));
-
-// export const useLawStore = create<LawsState & LawAction>((set) => ({
-//   laws: [], 
-//   saveLaw: (name, description, law, allowedRole) => set(() => ({
-//     laws: [...state.laws]
-//   })),
-//   deleteLaw: () => set(() => ({ 
-//     laws: laws.slice(index, 1)
-//   }))
-// }));

@@ -15,7 +15,6 @@ import { useOrganisations } from "@/hooks/useOrganisations";
 
 export default function Page() {
     const router = useRouter();
-    // const organisation = useOrgStore((state) => state.organisation)
     const organisation = useOrgStore()
 
     const { fetchOrganisations, organisations } = useOrganisations()
