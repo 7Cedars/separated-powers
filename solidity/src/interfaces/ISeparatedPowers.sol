@@ -116,7 +116,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @param proposalId : the id of the proposal
     ///
     /// @dev returns the State of a proposal
-    function state(uint256 proposalId) external returns (ActionState);
+    function state(uint256 proposalId) external returns (ProposalState);
 
     /// @notice Checks if account has voted for a proposal.
     ///

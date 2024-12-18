@@ -31,7 +31,7 @@ contract DeployTest is TestSetupLaw {
 
     function testDeployEmitsEvent() public {
         vm.expectEmit(false, false, false, false);
-        emit Law__Initialized(address(0));
+        emit Law__Initialized(address(0), address(123), "Mock Law".toShortString(), "This is a mock law contract", ROLE_ONE, lawConfig);
         new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
     }
 
@@ -153,8 +153,8 @@ contract NeedsParentCompletedTest is TestSetupLaw {
         daoMock.execute(laws[parentLawNumber], lawCalldata, description);
         // check if law has been set as completed.
 
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Completed));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Completed));
 
         uint256 balanceBefore = erc1155Mock.balanceOf(address(daoMock), 0);
 
@@ -184,8 +184,8 @@ contract NeedsParentCompletedTest is TestSetupLaw {
             }
         }
         vm.roll(block.number + 4000); // forward in time
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Defeated));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Defeated));
 
         // act & assert
         vm.expectRevert(Law__ParentNotCompleted.selector);
@@ -215,8 +215,8 @@ contract ParentCanBlockTest is TestSetupLaw {
         vm.prank(alice);
         daoMock.execute(laws[parentLawNumber], lawCalldata, description);
         // check if law has been set as completed.
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Completed));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Completed));
 
         // act & assert
         vm.prank(alice);
@@ -243,8 +243,8 @@ contract ParentCanBlockTest is TestSetupLaw {
         vm.roll(block.number + 4000); // forward in time
         vm.prank(alice);
         // check if law has been set as defeated.
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Defeated));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Defeated));
 
         // act
         uint256 balanceBefore = erc1155Mock.balanceOf(address(daoMock), 0);

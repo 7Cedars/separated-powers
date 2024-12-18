@@ -33,7 +33,7 @@ interface SeparatedPowersTypes {
     ///
     /// @dev that a proposal cannot be set as 'executed' as in Governor.sol. It can only be set as 'completed'.
     /// This is because execution logic in {SeparatedPowers} is separated from the proposal logic.
-    enum ActionState {
+    enum ProposalState {
         Active,
         Cancelled,
         Defeated,

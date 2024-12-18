@@ -77,17 +77,27 @@ contract Law is ERC165, ILaw {
         allowedRole = allowedRole_;
         config = config_;
 
-        emit Law__Initialized(address(this));
+        emit Law__Initialized(address(this), separatedPowers, name, description, allowedRole, config);
     }
 
+    /// note this is the function that is called by the SeparatedPowers protocol. It always runs checks before execution of law logic.
     /// @inheritdoc ILaw
     function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        virtual
         onlySeparatedPowers
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
         _executeChecks(initiator, lawCalldata, descriptionHash);
+        (targets, values, calldatas) = simulateLaw(initiator, lawCalldata, descriptionHash);
+    }
+
+    /// note NB! this function needs to be overwritten by law implementations to include law specific logics. 
+    /// @inheritdoc ILaw
+    function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) 
+        public 
+        virtual
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) {
+            // Empty law logic. Needs to be overridden by law implementations   
     }
 
     /// @notice an internal function to check that the law is valid before execution.
@@ -96,13 +106,12 @@ contract Law is ERC165, ILaw {
     /// @param lawCalldata the calldata for the law.
     /// @param descriptionHash the hash of the description of the law.
     function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal virtual {
-        /* Optional checks on law */
         // Optional check 1: make law conditional on a proposal succeeding.
         if (config.quorum != 0) {
             uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
             if (
                 SeparatedPowers(payable(separatedPowers)).state(proposalId)
-                    != SeparatedPowersTypes.ActionState.Succeeded
+                    != SeparatedPowersTypes.ProposalState.Succeeded
             ) {
                 revert Law__ProposalNotSucceeded();
             }
@@ -113,7 +122,7 @@ contract Law is ERC165, ILaw {
             uint256 parentProposalId = _hashProposal(config.needCompleted, lawCalldata, descriptionHash);
             if (
                 SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
-                    != SeparatedPowersTypes.ActionState.Completed
+                    != SeparatedPowersTypes.ProposalState.Completed
             ) {
                 revert Law__ParentNotCompleted();
             }
@@ -125,7 +134,7 @@ contract Law is ERC165, ILaw {
             uint256 parentProposalId = _hashProposal(config.needNotCompleted, lawCalldata, descriptionHash);
             if (
                 SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
-                    == SeparatedPowersTypes.ActionState.Completed
+                    == SeparatedPowersTypes.ProposalState.Completed
             ) {
                 revert Law__ParentBlocksCompletion();
             }

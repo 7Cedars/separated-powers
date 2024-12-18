@@ -33,7 +33,7 @@ interface SeparatedPowersErrors {
     error SeparatedPowers__RoleAccessNotChanged();
 
     /// @notice Emitted when a execution is attempted on a proposal that is not active.
-    error SeparatedPowers__UnexpectedActionState();
+    error SeparatedPowers__UnexpectedProposalState();
 
     // @notice Emitted when a law does not pass checks.
     error SeparatedPowers__LawDidNotPassChecks();

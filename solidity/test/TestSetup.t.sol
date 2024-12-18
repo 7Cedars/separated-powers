@@ -14,6 +14,7 @@ import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol
 import { SeparatedPowersEvents } from "../src/interfaces/SeparatedPowersEvents.sol";
 import { LawErrors } from "../src/interfaces/LawErrors.sol";
 import { HelperConfig } from "../script/HelperConfig.s.sol";
+import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 
@@ -25,9 +26,6 @@ import { Erc20VotesMock } from "./mocks/Erc20VotesMock.sol";
 import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
-    // the only event in the Law contract
-    event Law__Initialized(address law);
-
     // protocol and mocks
     SeparatedPowers separatedPowers;
     HelperConfig helperConfig;
@@ -65,6 +63,9 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
 
     // list of dao names
     string[] daoNames;
+
+    // the only event in the Law contract
+    event Law__Initialized(address indexed law, address indexed separatedPowers, ShortString name, string description, uint48 allowedRole, ILaw.LawConfig config);
 }
 
 abstract contract TestHelpers is TestVariables {

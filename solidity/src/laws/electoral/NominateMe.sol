@@ -42,14 +42,11 @@ contract NominateMe is Law {
         params = [dataType("bool")];
     }
 
-    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // do optional checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         // decode the calldata.
         (bool nominateMe) = abi.decode(lawCalldata, (bool));
 

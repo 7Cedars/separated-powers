@@ -8,25 +8,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import MemberActions from "@/components/MemberActions";
-import WhaleActions from "@/components/WhaleActions";
-import SeniorActions from "@/components/SeniorActions";
-import GuestActions from "@/components/GuestActions";
-import AdminActions from "@/components/AdminActions";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { useRoles } from "@/hooks/useRoles";
-import { useProposals } from "@/hooks/useProposals";
-import ProposalView from "@/components/ProposalView";
-import { Proposal } from "@/context/types";
-import ValuesView from "@/components/ValuesView";
-import { lawContracts } from "@/context/lawContracts";
-import { useReadContract } from "wagmi";
-import { agCoinsAbi } from "@/context/abi";
-import Link from "next/link";
-import { Battery50Icon } from "@heroicons/react/24/outline";
 import { useOrgStore } from "@/context/store";
 import { useRouter } from "next/navigation";
 import { Button } from "../components/Button";
+import { useSeparatedPowers } from "@/hooks/useSeparatedPowers";
+import { separatedPowersAbi } from "@/context/abi";
 
 type Org = {
     logo: string;
@@ -42,6 +28,9 @@ export default function Page() {
     const router = useRouter();
     const organisation = useOrgStore((state) => state.organisation)
     const assignOrg = useOrgStore((action) => action.assignOrg)
+    const { fetchOrganisations, organisations } = useSeparatedPowers()
+    
+    console.log("organisations", organisations)
 
     // Have to read for event 'SeparatedPowers__Initialized' - and get address from this. Get the most efficient way of doing this. 
     // See Consumer Card project? I think I have a nice useEvents hook there.. 
@@ -72,6 +61,9 @@ export default function Page() {
 
     return (
         <main className="w-full flex flex-col justify-center items-center border border-slate-300 rounded-md">
+            
+            <Button size={2} align={1} showBorder={false} onClick={() => fetchOrganisations()}>TEST</Button>
+
             <table className="w-full table-auto">
             <thead className="w-full">
                 <tr className="w-96 bg-slate-50 text-xs font-light text-slate-600 rounded-md border-b border-slate-300">

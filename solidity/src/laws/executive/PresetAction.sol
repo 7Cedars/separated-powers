@@ -43,17 +43,12 @@ contract PresetAction is Law {
 
     /// @notice execute the law.
     /// @param lawCalldata the calldata of the law.
-    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         virtual
         override
         returns (address[] memory, uint256[] memory, bytes[] memory)
     {
-        // note: no calldata to decode.
-
-        // do necessary checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         return (targets, values, calldatas);
     }
 }

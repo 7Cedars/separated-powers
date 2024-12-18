@@ -60,15 +60,12 @@ contract RequestPayment is Law {
     /// @param initiator the address of the initiator.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
     /// @param descriptionHash the hash of the description of the law.
-    function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // do necessary checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         // check if initiator is not requesting payment too early.
         if (uint48(block.number) - lastPayment[initiator] < personalDelay) {
             revert RequestPayment__DelayNotPassed();

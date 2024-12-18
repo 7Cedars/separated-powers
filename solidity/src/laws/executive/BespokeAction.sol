@@ -42,15 +42,12 @@ contract BespokeAction is Law {
 
     /// @notice execute the law.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
-    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // do necessary checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         targets = new address[](1);
         values = new uint256[](1);
         calldatas = new bytes[](1);

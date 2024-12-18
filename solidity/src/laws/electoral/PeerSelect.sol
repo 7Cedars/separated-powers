@@ -44,14 +44,11 @@ contract PeerSelect is Law {
         params = [dataType("uint256"), dataType("bool")];
     }
 
-    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // do optional checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         (uint256 index, bool revoke) = abi.decode(lawCalldata, (uint256, bool));
 
         targets = new address[](1);

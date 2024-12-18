@@ -129,7 +129,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         }
         // check 2: do we have a proposal with the same targetLaw and lawCalldata?
         if (_proposals[proposalId].voteStart != 0) {
-            revert SeparatedPowers__UnexpectedActionState();
+            revert SeparatedPowers__UnexpectedProposalState();
         }
 
         // if checks pass: create proposal
@@ -173,7 +173,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         uint256 proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
 
         if (_proposals[proposalId].completed || _proposals[proposalId].cancelled) {
-            revert SeparatedPowers__UnexpectedActionState();
+            revert SeparatedPowers__UnexpectedProposalState();
         }
 
         _proposals[proposalId].cancelled = true;
@@ -200,7 +200,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     /// Emits a {SeperatedPowersEvents::VoteCast} event.
     function _castVote(uint256 proposalId, address account, uint8 support, string memory reason) internal virtual {
         // Check that the proposal is active, that it has not been paused, cancelled or ended yet.
-        if (SeparatedPowers(payable(address(this))).state(proposalId) != ActionState.Active) {
+        if (SeparatedPowers(payable(address(this))).state(proposalId) != ProposalState.Active) {
             revert SeparatedPowers__ProposalNotActive();
         }
         // Note that we check if account has access to the law targetted in the proposal.
@@ -431,17 +431,17 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     //                      VIEW FUNCTIONS                      //
     //////////////////////////////////////////////////////////////
     /// @inheritdoc ISeparatedPowers
-    function state(uint256 proposalId) public view virtual returns (ActionState) {
+    function state(uint256 proposalId) public view virtual returns (ProposalState) {
         // We read the struct fields into the stack at once so Solidity emits a single SLOAD
         Proposal storage proposal = _proposals[proposalId];
         bool proposalCompleted = proposal.completed;
         bool proposalCancelled = proposal.cancelled;
 
         if (proposalCompleted) {
-            return ActionState.Completed;
+            return ProposalState.Completed;
         }
         if (proposalCancelled) {
-            return ActionState.Cancelled;
+            return ProposalState.Cancelled;
         }
 
         uint256 start = _proposals[proposalId].voteStart; // = startDate
@@ -453,11 +453,11 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         address targetLaw = proposal.targetLaw;
 
         if (deadline >= block.number) {
-            return ActionState.Active;
+            return ProposalState.Active;
         } else if (!_quorumReached(proposalId, targetLaw) || !_voteSucceeded(proposalId, targetLaw)) {
-            return ActionState.Defeated;
+            return ProposalState.Defeated;
         } else {
-            return ActionState.Succeeded;
+            return ProposalState.Succeeded;
         }
     }
 

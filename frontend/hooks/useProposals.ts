@@ -42,7 +42,8 @@ export const useProposals = () => {
       } 
   }, [ ])
 
-  const getActionState = async (proposals: Proposal[]) => {
+
+  const getProposalState = async (proposals: Proposal[]) => {
     let proposal: Proposal
     let proposalWithState: Proposal[] = []
 
@@ -74,7 +75,7 @@ export const useProposals = () => {
 
       const proposalsWithoutState = await getProposals()
       if (proposalsWithoutState) {
-        const proposalsWithState = await getActionState(proposalsWithoutState)
+        const proposalsWithState = await getProposalState(proposalsWithoutState)
         setProposals(proposalsWithState)
       }
 

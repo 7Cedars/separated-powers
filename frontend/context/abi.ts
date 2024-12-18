@@ -1,10 +1,10 @@
-// import { Abi } from "viem"
+import { Abi } from "viem"
 
-// import agDao from "../../solidity/out/AgDao.sol/AgDao.json"
-// import agCoins from "../../solidity/out/AgCoins.sol/AgCoins.json"
+import separatedPowers from "../../solidity/out/SeparatedPowers.sol/SeparatedPowers.json"
+import law from "../../solidity/out/Law.sol/Law.json"
 
-// export const agDaoAbi: Abi = JSON.parse(JSON.stringify(agDao.abi)) 
-// export const agCoinsAbi: Abi = JSON.parse(JSON.stringify(agCoins.abi)) 
+export const separatedPowersAbi: Abi = JSON.parse(JSON.stringify(separatedPowers.abi)) 
+export const lawAbi: Abi = JSON.parse(JSON.stringify(law.abi)) 
 
 export const agDaoAbi =  [
   { "type": "constructor", "inputs": [], "stateMutability": "nonpayable" },
@@ -436,7 +436,7 @@ export const agDaoAbi =  [
       {
         "name": "",
         "type": "uint8",
-        "internalType": "enum ISeparatedPowers.ActionState"
+        "internalType": "enum ISeparatedPowers.ProposalState"
       }
     ],
     "stateMutability": "view"
@@ -775,7 +775,7 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__UnexpectedActionState",
+    "name": "SeparatedPowers__UnexpectedProposalState",
     "inputs": []
   },
   {

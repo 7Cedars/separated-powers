@@ -36,7 +36,7 @@ contract ProposalOnly is Law {
     }
 
     /// @notice Execute the open action.
-    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         virtual
         override
@@ -47,9 +47,6 @@ contract ProposalOnly is Law {
             bytes[] memory cal
         )
     {
-        // execute all necessary checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         // at execution, send empty calldata to protocol. -- nothing gets done.
         tar = new address[](1);
         val = new uint256[](1);

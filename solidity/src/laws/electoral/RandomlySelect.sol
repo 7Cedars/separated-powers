@@ -61,14 +61,11 @@ contract RandomlySelect is Law {
         params = new bytes4[](0);
     }
 
-    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        // do necessary optional checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         // setting up array for revoking & assigning roles.
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
         uint256 numberElected = _electedSorted.length;

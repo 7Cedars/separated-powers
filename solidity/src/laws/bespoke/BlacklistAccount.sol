@@ -34,14 +34,11 @@ contract BlacklistAccount is Law {
         params = [dataType("address"), dataType("bool")];
     }
 
-    function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
     {
-        // step 0: execute optional checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         // retrieve the account that was revoked
         (address account, bool blacklist) = abi.decode(lawCalldata, (address, bool)); // don't know if this is going to work...
 

@@ -31,14 +31,11 @@ contract CommunityValues is Law {
         params = [dataType("string"), dataType("bool")];
     }
 
-    function executeLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
         public
         override
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
     {
-        // step 0: do necessary optional checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         // retrieve the account that was revoked
         (string memory value, bool addValue) = abi.decode(lawCalldata, (string, bool)); // don't know if this is going to work...
 
