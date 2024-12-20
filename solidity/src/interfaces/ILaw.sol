@@ -22,7 +22,7 @@ interface ILaw is IERC165, LawErrors {
     }
 
     // @notice emitted when the law is initialized
-    event Law__Initialized(address indexed law, address indexed separatedPowers, string name, string description, uint48 allowedRole, LawConfig config);
+    event Law__Initialized(address indexed law, address indexed separatedPowers, bytes4[] params, string name, string description, uint48 allowedRole, LawConfig config);
 
     /// @notice function to execute a law.
     /// @param initiator the address of the account that proposed execution of the law.

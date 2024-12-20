@@ -77,7 +77,7 @@ contract Law is ERC165, ILaw {
         allowedRole = allowedRole_;
         config = config_;
 
-        emit Law__Initialized(address(this), separatedPowers, name_, description, allowedRole, config);
+        emit Law__Initialized(address(this), separatedPowers, params, name_, description, allowedRole, config);
     }
 
     /// note this is the function that is called by the SeparatedPowers protocol. It always runs checks before execution of law logic.

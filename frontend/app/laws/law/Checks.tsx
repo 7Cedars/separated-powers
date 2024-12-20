@@ -5,6 +5,7 @@ import { useLawStore } from "@/context/store";
 import { userActionsProps } from "@/context/types";
 import { useLaw } from "@/hooks/useLaw";
 import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/react/24/outline";
+import { useEffect } from "react";
 
 
 export const Checks: React.FC = () => {
@@ -18,7 +19,9 @@ export const Checks: React.FC = () => {
     : law.allowedRole == 4294967295n ? 6 
     : Number(law.allowedRole)
 
-    console.log("checks", checks)
+  useEffect(() => {
+    checkStatus("description", "0x0") // needs to be prop. 
+  }, [])
   
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
@@ -43,59 +46,68 @@ export const Checks: React.FC = () => {
           </div>
         </div>
 
-        {/* from here on elements need to be conditional  */}
-        {/* Proposal Vote */}
-        <div className = "w-full flex flex-col justify-center items-center p-2"> 
-          <div className = "w-full flex flex-row px-2 justify-between items-center">
-            <CheckIcon className="w-4 h-4 text-green-600"/>
-            <div>
-              Proposal passed
+        {checks?.proposalPassed != undefined ?
+          <div className = "w-full flex flex-col justify-center items-center p-2"> 
+            <div className = "w-full flex flex-row px-2 justify-between items-center">
+              <CheckIcon className="w-4 h-4 text-green-600"/>
+              <div>
+                Proposal passed
+              </div>
+            </div>
+            <div className = "w-full flex flex-row px-2 py-1">
+              <button className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[role]}`}>
+                <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1  px-2 py-1`}>
+                  View / Create Proposal
+                </div>
+              </button>
             </div>
           </div>
-          <div className = "w-full flex flex-row px-2 py-1">
-            <button className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[role]}`}>
-              <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1  px-2 py-1`}>
-                View / Create Proposal
-              </div>
-            </button>
-          </div>
-        </div>
+          : null
+        }
 
         {/* Executed */}
-        <div className = "w-full flex flex-col justify-center items-center p-2"> 
-          <div className = "w-full flex flex-row px-2 justify-between items-center">
-            <CheckIcon className="w-4 h-4 text-green-600"/>
-            <div>
-              Law executed
+        {checks?.lawCompleted != undefined ?  
+          <div className = "w-full flex flex-col justify-center items-center p-2"> 
+            <div className = "w-full flex flex-row px-2 justify-between items-center">
+              <CheckIcon className="w-4 h-4 text-green-600"/>
+              <div>
+                Law executed
+              </div>
+            </div>
+            <div className = "w-full flex flex-row px-2 py-1">
+              <button className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]}`}>
+                <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
+                  Here a law name
+                </div>
+              </button>
             </div>
           </div>
-          <div className = "w-full flex flex-row px-2 py-1">
-            <button className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]}`}>
-              <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
-                Here a law name
-              </div>
-            </button>
-          </div>
-        </div>
+          :
+          null
+        }
 
         {/* Not executed */}
-        <div className = "w-full flex flex-col justify-center items-center p-2"> 
-          <div className = "w-full flex flex-row px-2 justify-between items-center">
-            <XMarkIcon className="w-4 h-4 text-red-600"/>
-            <div>
-              Law not executed
+        {checks?.lawNotCompleted != undefined ? 
+          <div className = "w-full flex flex-col justify-center items-center p-2"> 
+            <div className = "w-full flex flex-row px-2 justify-between items-center">
+              <XMarkIcon className="w-4 h-4 text-red-600"/>
+              <div>
+                Law not executed
+              </div>
+            </div>
+            <div className = "w-full flex flex-row px-2 py-1">
+              <button className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]}`}>
+                <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
+                  Here a law name
+                </div>
+              </button>
             </div>
           </div>
-          <div className = "w-full flex flex-row px-2 py-1">
-            <button className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]}`}>
-              <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
-                Here a law name
-              </div>
-            </button>
-          </div>
-        </div>
+          : null
+          }
 
         {/* Delay */}
+        {checks?.delayPassed != undefined ?
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
           <div className = "w-full flex flex-row px-2 justify-between items-center">
             <XMarkIcon className="w-4 h-4 text-red-600"/>
@@ -109,8 +121,11 @@ export const Checks: React.FC = () => {
             </div>
           </div>
         </div>
+        : null  
+        }
 
         {/* Delay */}
+        {checks?.throttlePassed != undefined ? 
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
           <div className = "w-full flex flex-row px-2 justify-between items-center">
             <XMarkIcon className="w-4 h-4 text-red-600"/>
@@ -124,6 +139,8 @@ export const Checks: React.FC = () => {
             </div>
           </div>
         </div>
+        : null
+        }
     </section>
   )
 }

@@ -1,7 +1,9 @@
+import { useOrgStore } from "@/context/store";
 import Link from "next/link";
 
 
 export function Executions() {
+  const organisation = useOrgStore();
   
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
@@ -12,58 +14,36 @@ export function Executions() {
         </div>
 
         {/* execution logs block 1 */}
-        <div className = "w-full flex flex-col justify-center items-center p-2"> 
-          <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
-            <div>
-              12 Dec 2024
-            </div>
-            <div>
-              13:45
-            </div>
-          </div>
-          <div className = "w-full flex flex-row px-2">
-            {/* This should link to block explorer */}
-            <Link href="/laws/law">
-              0x74ea8...439bc89
-            </Link>
-          </div>
-        </div>
-
-        {/* execution logs block 1 */}
-        <div className = "w-full flex flex-col justify-center items-center p-2"> 
-          <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
-            <div>
-              12 Dec 2024
-            </div>
-            <div>
-              13:45
-            </div>
-          </div>
-          <div className = "w-full flex flex-row px-2">
-            {/* This should link to block explorer */}
-            <Link href="/laws/law">
-              0x74ea8...439bc89
-            </Link>
-          </div>
-        </div>
-
-        {/* execution logs block 1 */}
-        <div className = "w-full flex flex-col justify-center items-center p-2"> 
-          <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
-            <div>
-              12 Dec 2024
-            </div>
-            <div>
-              13:45
-            </div>
-          </div>
-          <div className = "w-full flex flex-row px-2">
-            {/* This should link to block explorer */}
-            <Link href="/laws/law">
-              0x74ea8...439bc89
-            </Link>
-          </div>
-        </div>
+        {
+          organisation.proposals?.length != 0 ?
+          <>
+            {organisation?.proposals?.map((proposal => 
+              <div className = "w-full flex flex-col justify-center items-center p-2"> 
+                <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
+                  <div>
+                    {/* need to get the timestamp.. */}
+                    {proposal.blockNumber}  
+                  </div>
+                  {/* <div>
+                    13:45
+                  </div> */}
+                </div>
+                <div className = "w-full flex flex-row px-2">
+                  {/* This should link to block explorer */}
+                  <Link href="/laws/law">
+                    {proposal.blockHash}
+                  </Link>
+                </div>
+              </div>
+              ))
+            }
+            </>
+            :
+              <div className = "w-full flex flex-col justify-center items-center italic p-2">
+                No executions found. 
+              </div> 
+          }
+        
 
     </section>
   )

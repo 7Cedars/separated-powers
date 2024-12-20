@@ -29,9 +29,11 @@ contract DeployTest is TestSetupLaw {
         assertEq(lawMock.separatedPowers(), address(123));
     }
 
+    bytes4[] params = new bytes4[](0);
+
     function testDeployEmitsEvent() public {
         vm.expectEmit(false, false, false, false);
-        emit Law__Initialized(address(0), address(123), "Mock Law", "This is a mock law contract", ROLE_ONE, lawConfig);
+        emit Law__Initialized(address(0), address(123), params, "Mock Law", "This is a mock law contract", ROLE_ONE, lawConfig);
         new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
     }
 
