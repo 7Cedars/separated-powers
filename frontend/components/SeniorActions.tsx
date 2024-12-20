@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { userActionsProps } from '@/context/types';
-import { useActions } from '@/hooks/useActions';
+import { useActions } from '@/hooks/useProposal';
 import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, parseAbiParameters, stringToBytes, stringToHex } from 'viem'
 
@@ -61,7 +61,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
         <>
         {/* AcceptProposeLaw */}
         <div 
-            className="bg-gradient-to-r from-amber-300 to-amber-600 p-4 px-6 rounded-lg shadow-lg border-2 border-amber-600 opacity-30 aria-selected:opacity-100"
+            className="bg-gradient-to-r from-yellow-300 to-yellow-600 p-4 px-6 rounded-lg shadow-lg border-2 border-yellow-600 opacity-30 aria-selected:opacity-100"
             aria-selected={!isDisabled}
             >
             <h4 className='text-white text-lg font-semibold text-center'>
@@ -99,7 +99,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                 <div className="flex flex-row justify-start mt-6">
                     <button
                         onClick={handleAcceptProposeLaw}
-                        className="w-fit bg-white text-amber-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200  disabled:hover:bg-white transition duration-100"
+                        className="w-fit bg-white text-yellow-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200  disabled:hover:bg-white transition duration-100"
                         disabled = {isDisabled} 
                         
                     >
@@ -110,7 +110,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
 
         {/* AssignRole */}
         <div 
-            className="bg-gradient-to-r from-amber-300 to-amber-600 p-4 px-6 rounded-lg shadow-lg border-2 border-amber-600 opacity-30 aria-selected:opacity-100"
+            className="bg-gradient-to-r from-yellow-300 to-yellow-600 p-4 px-6 rounded-lg shadow-lg border-2 border-yellow-600 opacity-30 aria-selected:opacity-100"
             aria-selected={!isDisabled}
         >
             <h4 className='text-white text-lg font-semibold text-center'>
@@ -138,7 +138,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                 <div className="flex flex-row justify-start mt-6">
                     <button
                         onClick={handleAssignRole}
-                        className="w-fit bg-white text-amber-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
+                        className="w-fit bg-white text-yellow-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
                         disabled = {isDisabled}
                     >
                         Propose to assign senior role 
@@ -148,7 +148,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
         
         {/* ReinstateMember */}
         <div 
-            className="bg-gradient-to-r from-amber-300 to-amber-600 p-4 px-6 rounded-lg shadow-lg border-2 border-amber-600 opacity-30 aria-selected:opacity-100"
+            className="bg-gradient-to-r from-yellow-300 to-yellow-600 p-4 px-6 rounded-lg shadow-lg border-2 border-yellow-600 opacity-30 aria-selected:opacity-100"
             aria-selected={!isDisabled}
         >
             <h4 className='text-white text-lg font-semibold text-center'>
@@ -176,7 +176,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                 <div className="flex flex-row justify-start mt-6">
                     <button
                         onClick={handleReinstateMember}
-                        className="w-fit bg-white text-amber-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
+                        className="w-fit bg-white text-yellow-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
                         disabled = {isDisabled} 
                     >
                         Propose to reinstate member role 
@@ -187,7 +187,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
 
         {/* RevokeRole */}
         <div 
-            className="bg-gradient-to-r from-amber-300 to-amber-600 p-4 px-6 rounded-lg shadow-lg border-2 border-amber-600 opacity-30 aria-selected:opacity-100"
+            className="bg-gradient-to-r from-yellow-300 to-yellow-600 p-4 px-6 rounded-lg shadow-lg border-2 border-yellow-600 opacity-30 aria-selected:opacity-100"
             aria-selected={!isDisabled}>
             
             <h4 className='text-white text-lg font-semibold text-center'>
@@ -215,7 +215,7 @@ const SeniorActions: React.FC<userActionsProps> = ({wallet, isDisabled}: userAct
                 <div className="flex flex-row justify-start mt-6">
                     <button
                         onClick={handleRevokeRole}
-                        className="w-fit bg-white text-amber-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
+                        className="w-fit bg-white text-yellow-600 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 disabled:hover:bg-white transition duration-100"
                         disabled = {isDisabled} 
                     >
                         Propose to revoke senior role 

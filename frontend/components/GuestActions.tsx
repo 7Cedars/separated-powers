@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { userActionsProps } from '@/context/types';
-import { useActions } from '@/hooks/useActions';
+import { useActions } from '@/hooks/useProposal';
 import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
 import { TwoSeventyRingWithBg } from 'react-svg-spinners';

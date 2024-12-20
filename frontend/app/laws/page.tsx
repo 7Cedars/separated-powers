@@ -15,7 +15,6 @@ import React, { useState } from "react";
 import {LawList} from "@/components/LawList";
 import { usePathname } from 'next/navigation'
 
-
 export default function Page() {     
     return (
       <main className="w-full h-full flex flex-col justify-center items-center">

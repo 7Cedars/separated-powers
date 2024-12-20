@@ -49,4 +49,7 @@ interface ILaw is IERC165, LawErrors {
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) 
         external
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
+
+    /// @notice function to get the params of the law
+    function getParams() external returns (bytes4[] memory params); 
 }

@@ -51,9 +51,31 @@ export type Proposal = {
   description?: string;
   executeCalldata?: `0x${string}`;
   state?: number;
+  blockNumber: number;
+  blockHash?: `0x${string}`;
+}
+
+export type ProtocolEvent = {
+  address: `0x${string}`;
+  blockHash: `0x${string}`;
+  blockNumber: bigint;
+  args: any; 
+  data: `0x${string}`;
+  eventName: string;
+  logIndex: number;
+  transactionHash: `0x${string}`;
+  transactionIndex: number;
 }
 
 export type ContractAddress = {
   contract: string; 
   address: `0x${string}`; 
 }
+
+export type CompletedProposal = {
+  initiator: `0x${string}`;
+  address: `0x${string}`;
+  lawCalldata: `0x${string}`;
+  descriptionHash: `0x${string}`;
+  blockNumber: bigint;
+} 

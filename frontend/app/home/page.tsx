@@ -2,18 +2,12 @@
  
 import React, { useEffect, useState } from "react";
 import { useOrgStore, setLaw, useLawStore, deleteLaw  } from "../../context/store";
-import { Button } from "@/components/Button";
 import Link from "next/link";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
-import { Law } from "@/context/types";
-import { useRouter } from "next/navigation";
 import { LawList } from "@/components/LawList";
 
 export default function Page() {
     const organisation = useOrgStore()
-    const router = useRouter();
-    const law = useLawStore()
-    const [selectedRoles, setSelectedRoles] = useState<number[]>([0, 4294967295])
     const colourScheme = [
       "from-indigo-500 to-emerald-500", 
       "from-blue-500 to-red-500", 
@@ -22,18 +16,6 @@ export default function Page() {
       "from-red-200 to-blue-400",
       "from-red-800 to-blue-400"
     ]
-
-    const handleRoleSelection = (role: number) => {
-      const index = selectedRoles.indexOf(role)
-      if (index == -1) {
-        setSelectedRoles([...selectedRoles, role])
-      } else {
-        const updatedRoles = selectedRoles.toSpliced(index, 1); 
-        setSelectedRoles(updatedRoles);
-      }  
-    }
-
-    console.log("selectedRoles", selectedRoles)
  
     return (
       <main className="w-full h-full flex flex-col justify-center items-center">
@@ -52,7 +34,7 @@ export default function Page() {
           {/* right panel  */}
           <div className="w-96 flex flex-col gap-4 justify-start items-center ps-4">
             {/* My proposals  */}
-            <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-4 rounded-md"> 
+            <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-2 rounded-md"> 
               <Link
                 href="/proposals"
                 className="w-full border-b border-slate-300 p-2"

@@ -1,7 +1,7 @@
 "use client"
 
 import { ProposalViewProps, Vote } from '@/context/types';
-import { useActions } from '@/hooks/useActions';
+import { useActions } from '@/hooks/useProposal';
 import React, { useState } from 'react';
 import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'
@@ -11,7 +11,7 @@ import { useWallets } from '@privy-io/react-auth';
 
 const proposalColour = [
     "from-red-300 to-red-600 border-red-600",
-    "from-amber-300 to-yellow-600 border-amber-600",
+    "from-yellow-300 to-yellow-600 border-yellow-600",
     "from-emerald-300 to-emerald-600 border-emerald-600",
     "from-blue-300 to-blue-600 border-blue-600",
     "from-purple-300 to-purple-600 border-purple-600"
@@ -19,7 +19,7 @@ const proposalColour = [
 
 const textColour = [
     "text-red-600",
-    "text-amber-600",
+    "text-yellow-600",
     "text-emerald-600",
     "text-blue-600",
     "text-purple-600"

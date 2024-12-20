@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from 'react';
-import { useActions } from '@/hooks/useActions';
+import { useActions } from '@/hooks/useProposal';
 import { userActionsProps } from '@/context/types';
 import { lawContracts } from '@/context/lawContracts';
 import { encodeAbiParameters, keccak256, parseAbiParameters, stringToBytes, stringToHex, toHex } from 'viem'

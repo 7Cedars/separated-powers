@@ -13,20 +13,20 @@ type ButtonProps = {
 
 const fontSize = [
   "text-sm h-6",
-  "text-md p-2 h-12", 
+  "text-md p-1 h-10", 
   "text-lg p-3 h-16", 
 ]
 
 const fontAlign = [
-  "justify-left",
-  "justify-center", 
-  "justify-right", 
+  "justify-left text-left",
+  "justify-center text-center", 
+  "justify-right text-right", 
 ]
 
 const roleColour = [
   "aria-selected:bg-blue-200 hover:border-blue-600",
   "aria-selected:bg-red-200 hover:border-red-600",
-  "aria-selected:bg-amber-200 hover:border-amber-600",
+  "aria-selected:bg-yellow-200 hover:border-yellow-600",
   "aria-selected:bg-purple-200 hover:border-purple-600",
   "aria-selected:bg-green-200 hover:green-slate-600",
   "aria-selected:bg-orange-200 hover:border-orange-600",

@@ -7,60 +7,43 @@
 "use client";
 
 import React, { useState } from "react";
-import { lawContracts } from "@/context/lawContracts";
-import { useWriteContract } from "wagmi";
-import { agCoinsAbi } from "@/context/abi";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import {LawBox} from "./LawBox";
 import Link from "next/link";
+import { Checks } from "./Checks";
+import { Children } from "./Children";
+import { Executions } from "./Executions";
+import { useLaw } from "@/hooks/useLaw";
+import { Button } from "@/components/Button";
 
-export default function Page() {
-    const [value, setValue] = useState<string>('');  
-    
-    const agCoinsContract = lawContracts.find((law: any) => law.contract === "AgCoins")
-    const { writeContract, status, error } = useWriteContract()
+const Page: React.FC = () => {
+  const {status, error, law: currentLaw, execute, simulate, checkStatus} = useLaw(); 
+  
+  return (
+    <main className="w-full h-full flex flex-col justify-center items-center">
+      {/* main body  */}
+      <section className="w-full flex flex-row">
 
-    console.log("@cheat:", {status, error})
+        {/* left panel  */}
+         <LawBox />
 
-    const handleValueSet = (input: string) => {
-      if (Number(input) != 0) {
-        setValue(input) 
-      }
-    }
- 
-    return (
-      <section className="w-full h-screen bg-white flex flex-col justify-center items-center text-center">
-        How many agCoins do you want?
-
-        <input
-            type="number"
-            value={Number(value)}
-            onChange={(e) => handleValueSet(e.target.value)}
-            placeholder="How many agCoins do you want?"
-            className="border border-gray-800 rounded-lg p-2 m-8 w-1/2"
-        />
-
-          <button
-            onClick={() => 
-              writeContract({ 
-                abi: agCoinsAbi,
-                  address: agCoinsContract?.address as `0x${string}`,
-                  functionName: 'mintCoins',
-                  args: [value ? BigInt(Number(value)) : 0n],
-              })
-              }
-              className="w-fit bg-white text-gray-800 border px-4 py-2 rounded-lg hover:bg-blue-200 disabled:bg-white transition duration-100"
-            >
-            {status === "success" ? "Success!" : "Gimme the coins!" }  
-          </button>
-
-          <Link href="/" className="text-gray-800 m-6 underline">
-              Back to dashboard
-          </Link>
+        {/* right panel  */}
+        <div className="w-96 flex flex-col gap-4 justify-start items-center ps-4">
+          <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-2 rounded-md">
+            <Checks /> 
+          </div>
+          <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md"> 
+            <Children /> 
+          </div>
+          <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md">
+            <Executions /> 
+          </div>
+        </div>
+        
       </section>
-    )
+    </main>
+  )
 
-    // return (
-    //   <section className="w-full h-screen bg-white flex flex-col justify-center items-center text-center">
-    //     ...      
-    //   </section>
-    // )
 }
+
+export default Page 

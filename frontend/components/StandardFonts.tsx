@@ -1,11 +1,11 @@
 type TitleTextProps = {
-  title: string; 
+  title?: string; 
   subtitle?: string;
   size?: 0 | 1 | 2;
 }
 
 type SectionTextProps = {
-  text: string; 
+  text?: string; 
   subtext?: string;
   size?: 0 | 1 | 2;
 }
@@ -17,13 +17,13 @@ type NoteTextProps = {
 }
 
 const appearanceTitle = [
-  "text-sm py-0",
+  "text-md py-0",
   "text-lg py-0",
   "text-2xl py-1"
 ]
 
 const appearanceSubtitle = [
-  "text-xs",
+  "text-sm",
   "text-md",
   "text-lg"
 ]
@@ -63,7 +63,7 @@ export const SectionText = ({
   size = 1
 }: SectionTextProps) => {
   return (
-    <div className="grid grid-cols-1 px-2">
+    <div className="grid grid-cols-1">
       <div className={`text-start font-bold break-words ${appearanceTitle[size]}`}>
         {text}
       </div>

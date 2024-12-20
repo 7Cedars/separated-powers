@@ -6,7 +6,7 @@ import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { useWaitForTransactionReceipt } from "wagmi";
 
-export const useActions = () => {
+export const useProposal = () => {
   const [status, setStatus ] = useState<Status>("idle")
   const [transactionHash, setTransactionHash ] = useState<`0x${string}` | undefined>()
   const [law, setLaw ] = useState<`0x${string}` | undefined>()
@@ -23,6 +23,12 @@ export const useActions = () => {
     if (statusReceipt === "error") setStatus("error")
   }, [statusReceipt])
 
+
+  // Status //
+  // NB! see useProposals for checking status.. 
+
+
+  // Actions // 
   const propose = useCallback( 
     async (
       targetLaw: `0x${string}`,
@@ -67,28 +73,6 @@ export const useActions = () => {
       }
   }, [ ])
 
-  const execute = useCallback( 
-    async (
-      targetLaw: `0x${string}`,
-      lawCalldata: `0x${string}`,
-      descriptionHash: `0x${string}`
-    ) => {
-        setStatus("loading")
-        setLaw(targetLaw)
-        try {
-          const result = await writeContract(wagmiConfig, {
-            abi: agDaoAbi,
-            address: agDaoAddress,
-            functionName: 'execute', 
-            args: [targetLaw, lawCalldata, descriptionHash]
-          })
-          setTransactionHash(result)
-      } catch (error) {
-          setStatus("error") 
-          setError(error)
-      }
-  }, [ ])
-
   // note: I did not implement castVoteWithReason -- to much work for now. 
   const castVote = useCallback( 
     async (
@@ -111,5 +95,5 @@ export const useActions = () => {
       }
   }, [ ])
 
-  return {status, error, law, propose, cancel, execute, castVote}
+  return {status, error, law, propose, cancel, castVote}
 }

@@ -13,14 +13,6 @@ export function LawList() {
   const organisation = useOrgStore();
   const router = useRouter();
   const [selectedRoles, setSelectedRoles] = useState<number[]>([0, 4294967295]);
-  const colourScheme = [
-    "from-indigo-500 to-emerald-500",
-    "from-blue-500 to-red-500",
-    "from-indigo-300 to-emerald-900",
-    "from-emerald-400 to-indigo-700 ",
-    "from-red-200 to-blue-400",
-    "from-red-800 to-blue-400",
-  ];
 
   const handleRoleSelection = (role: number) => {
     const index = selectedRoles.indexOf(role);
@@ -72,19 +64,27 @@ export function LawList() {
         >
           Public
         </Button>
-        <Button size={0}>Create Law</Button>
+        <Button size={0}>New Law</Button>
       </div>
       {/* table laws  */}
       <table className="w-full table-auto border border-t-0">
-        <tbody className="w-full text-sm text-right text-slate-600 bg-slate-50 p-2 rounded-b-md">
-          {organisation?.laws?.map((law: Law, index: number) =>
-            law.allowedRole != undefined &&
-            selectedRoles.includes(Number(law.allowedRole)) ? (
+      <thead className="w-full">
+            <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
+                <th className="ps-6 py-2 font-light rounded-tl-md"> Name </th>
+                <th className="font-light"> Description </th>
+                <th className="font-light"> Role </th>
+            </tr>
+        </thead>
+        <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
+          {
+            organisation?.laws?.map((law: Law) =>
+              law.allowedRole != undefined && selectedRoles.includes(Number(law.allowedRole)) ? 
+              (
               <tr
                 key={law.name}
                 className={`text-sm text-left text-slate-800 h-16 p-2`}
               >
-                <div className={`flex flex-row items-center justify-start p-2`}>
+                <td className="flex flex-col justify-center items-start text-left rounded-bl-md ps-2 py-2">
                   <Button
                     showBorder={false}
                     role={
@@ -98,22 +98,21 @@ export function LawList() {
                       setLaw(law);
                       router.push("/laws/law");
                     }}
+                    align={0}
                   >
-                    <div
-                      className={`w-full flex flex-row gap-6 items-center justify-between pe-2`}
-                    >
-                      <div className="text-left min-w-52">{law.name}</div>
-                      <div className="grow text-left">{law.description}</div>
-                      <div className="min-w-16 text-right">
-                        {law.allowedRole == 0n
-                          ? "Admin"
-                          : law.allowedRole == 4294967295n
-                          ? "Public"
-                          : `Role ${law.allowedRole}`}
-                      </div>
-                    </div>
+                    {law.name}
                   </Button>
-                </div>
+                </td>
+                <td className="pe-4 text-slate-500">{law.description}</td>
+                <td className="pe-4 min-w-20 text-slate-500"> { 
+                  law.allowedRole == 0n ? 
+                    "Admin"
+                  : law.allowedRole == 4294967295n ? 
+                      "Public"
+                    : 
+                      `Role ${law.allowedRole}`
+                    }
+                </td>
               </tr>
             ) : null
           )}

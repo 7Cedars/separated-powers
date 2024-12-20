@@ -30,6 +30,7 @@ export const useOrganisations = () => {
             logs
           })
           const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
+          console.log("@getOrganisations", {fetchedLogsTyped})
           const fetchedOrganisations: Organisation[] = fetchedLogsTyped.map(log => log.args as Organisation)
           return fetchedOrganisations
         } catch (error) {
@@ -101,8 +102,14 @@ export const useOrganisations = () => {
                       })
             const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
             const fetchedProposals: Proposal[] = fetchedLogsTyped.map(log => log.args as Proposal)
-            if (fetchedProposals) {
-              orgsWithProposals.push({...organisation, proposals: fetchedProposals})
+            const fetchedProposalsWithBlockNumber: Proposal[] = fetchedProposals.map(
+              (proposal, index) => ({ ...proposal, 
+                blockNumber: Number(fetchedLogsTyped[index].blockNumber), 
+                blockHash: fetchedLogsTyped[index].blockHash
+              }))
+              fetchedProposalsWithBlockNumber.sort((a: Proposal, b: Proposal) => a.blockNumber > b.blockNumber ? 1 : -1)
+            if (fetchedProposalsWithBlockNumber) {
+              orgsWithProposals.push({...organisation, proposals: fetchedProposalsWithBlockNumber})
             }
           }
         } 

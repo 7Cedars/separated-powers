@@ -15,6 +15,7 @@ export const useProposals = () => {
   const agDaoAddress: `0x${string}` = lawContracts.find((law: any) => law.contract === "AgDao")?.address as `0x${string}`
 
   // console.log("@useProposal:", {proposals, status, error})
+  // NB! Proposals already fetched! in useOrganisations
 
   const getProposals = useCallback( 
     async () => {
