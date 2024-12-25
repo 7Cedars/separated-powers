@@ -8,10 +8,19 @@ import { GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { Law } from "@/context/types";
 import { TitleText, SectionText } from "@/components/StandardFonts";
+import { useReadContract } from 'wagmi'
+import { lawAbi } from "@/context/abi";
 
 export function LawBox() {
   const law = useLawStore();
   const router = useRouter();
+  const { data: params, isLoading, isError } = useReadContract({
+    abi: lawAbi,
+    address: law.law,
+    functionName: 'getParams'
+  })
+
+  console.log({params, isLoading, isError})
 
   const roleColour = [
     "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
@@ -40,9 +49,6 @@ export function LawBox() {
           subtext={law?.description} 
           size = {0}
         /> 
-        <div className="w-40 px-4">
-          <Button size={0}>New Law</Button>
-        </div>
       </div>
 
       {/* dynamic form */}

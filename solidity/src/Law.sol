@@ -41,7 +41,7 @@ contract Law is ERC165, ILaw {
     ShortString public immutable name; // name of the law
     address public separatedPowers; // the address of the core governance protocol
     string public description; // description of the law
-    bytes4[] public params; // hashes of data types needed for the lawCalldata. Saved as bytes4, encoded through the {DataType} function
+    uint8[] public params; // hashes of data types needed for the lawCalldata. Saved as bytes4, encoded through the {DataType} function
 
     // optional parameters
     LawConfig public config;
@@ -77,7 +77,7 @@ contract Law is ERC165, ILaw {
         allowedRole = allowedRole_;
         config = config_;
 
-        emit Law__Initialized(address(this), separatedPowers, params, name_, description, allowedRole, config);
+        emit Law__Initialized(address(this), separatedPowers, name_, description, allowedRole, config);
     }
 
     /// note this is the function that is called by the SeparatedPowers protocol. It always runs checks before execution of law logic.
@@ -167,8 +167,13 @@ contract Law is ERC165, ILaw {
     //////////////////////////////////////////////////
     //           HELPER & VIEW FUNCTIONS            //
     //////////////////////////////////////////////////
-    function getParams() public view returns (bytes4[] memory params) {
-        return params;
+    function getParams() public view returns (uint8[] memory params) {
+        uint8[] memory returnParams = new uint8[](params.length);
+
+        for (uint256 i = 0; i < params.length; i++) {
+            returnParams[i] = Law(address(this)).params(i);
+        }
+        return returnParams; 
     }
     
     /// @notice implements ERC165
@@ -186,7 +191,7 @@ contract Law is ERC165, ILaw {
     }
 
     /// @notice an internal helper function for hashing data types
-    function dataType(string memory param) internal pure returns (bytes4) {
-        return bytes4(keccak256(bytes(param)));
+    function dataType(string memory param) internal pure returns (uint8) {
+        return uint8(uint256(keccak256(bytes(param))));
     }
 }

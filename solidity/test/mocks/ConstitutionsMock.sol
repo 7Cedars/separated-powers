@@ -80,7 +80,7 @@ contract ConstitutionsMock is Test {
 
         // Note this proposalOnly law has no internal data, as such it cannot actually do anyting.
         // This law is only for example and testing purposes.
-        bytes4[] memory params = new bytes4[](0);
+        uint8[] memory params = new uint8[](0);
         law = new ProposalOnly(
             "3 makes proposals", // max 31 chars
             "3 holders can make any proposal, without vote.",
@@ -322,7 +322,7 @@ contract ConstitutionsMock is Test {
         calldatas[0] = abi.encodeWithSelector(Erc1155Mock.mintCoins.selector, 123);
 
         // dummy params
-        bytes4[] memory params = new bytes4[](9);
+        uint8[] memory params = new uint8[](9);
 
         // setting up config file
         lawConfig.quorum = 30; // = 30% quorum needed
@@ -352,8 +352,8 @@ contract ConstitutionsMock is Test {
         laws[1] = address(law);
 
         // need to setup a memory array of bytes4 for setting bespoke params
-        bytes4[] memory bespokeParams = new bytes4[](1);
-        bespokeParams[0] = bytes4(keccak256("uint256"));
+        uint8[] memory bespokeParams = new uint8[](1);
+        bespokeParams[0] = uint8(uint256(keccak256("uint256")));
         law = new BespokeAction(
             "Bespoke Action", // max 31 chars
             "Execute any action, but confined by a contract and function selector.",

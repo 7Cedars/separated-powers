@@ -30,7 +30,7 @@ contract ProposalOnly is Law {
         address separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
-        bytes4[] memory params_
+        uint8[] memory params_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         params = params_;
     }

@@ -12,19 +12,19 @@ import { Law } from "@/context/types";
 export function LawList() {
   const organisation = useOrgStore();
   const router = useRouter();
-  const [selectedRoles, setSelectedRoles] = useState<number[]>([0, 4294967295]);
+  const [deselectedRoles, setDeselectedRoles] = useState<number[]>([]);
 
   const handleRoleSelection = (role: number) => {
-    const index = selectedRoles.indexOf(role);
+    const index = deselectedRoles.indexOf(role);
     if (index == -1) {
-      setSelectedRoles([...selectedRoles, role]);
+      setDeselectedRoles([...deselectedRoles, role]);
     } else {
-      const updatedRoles = selectedRoles.toSpliced(index, 1);
-      setSelectedRoles(updatedRoles);
+      const updatedRoles = deselectedRoles.toSpliced(index, 1);
+      setDeselectedRoles(updatedRoles);
     }
   };
 
-  console.log("selectedRoles", selectedRoles);
+  console.log("deselectedRoles", deselectedRoles);
 
   return (
     <div className="w-full flex flex-col justify-start items-center">
@@ -38,7 +38,7 @@ export function LawList() {
           showBorder={false}
           role={0}
           onClick={() => handleRoleSelection(0)}
-          selected={selectedRoles.includes(0)}
+          selected={!deselectedRoles.includes(0)}
         >
           Admin
         </Button>
@@ -48,7 +48,7 @@ export function LawList() {
               size={0}
               showBorder={false}
               role={Number(role)}
-              selected={selectedRoles.includes(Number(role))}
+              selected={!deselectedRoles.includes(Number(role))}
               onClick={() => handleRoleSelection(Number(role))}
             >
               Role {role}
@@ -60,7 +60,7 @@ export function LawList() {
           showBorder={false}
           role={6}
           onClick={() => handleRoleSelection(4294967295)}
-          selected={selectedRoles.includes(4294967295)}
+          selected={!deselectedRoles.includes(4294967295)}
         >
           Public
         </Button>
@@ -78,13 +78,13 @@ export function LawList() {
         <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
           {
             organisation?.laws?.map((law: Law) =>
-              law.allowedRole != undefined && selectedRoles.includes(Number(law.allowedRole)) ? 
+              law.allowedRole != undefined && !deselectedRoles.includes(Number(law.allowedRole)) ? 
               (
               <tr
                 key={law.name}
                 className={`text-sm text-left text-slate-800 h-16 p-2`}
               >
-                <td className="flex flex-col justify-center items-start text-left rounded-bl-md ps-2 py-2">
+                <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-60">
                   <Button
                     showBorder={false}
                     role={

@@ -33,7 +33,7 @@ contract BespokeAction is Law {
         LawConfig memory config_,
         address targetContract_,
         bytes4 targetFunction_,
-        bytes4[] memory params_
+        uint8[] memory params_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         _targetContract = targetContract_;
         _targetFunction = targetFunction_;

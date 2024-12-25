@@ -29,11 +29,9 @@ contract DeployTest is TestSetupLaw {
         assertEq(lawMock.separatedPowers(), address(123));
     }
 
-    bytes4[] params = new bytes4[](0);
-
     function testDeployEmitsEvent() public {
         vm.expectEmit(false, false, false, false);
-        emit Law__Initialized(address(0), address(123), params, "Mock Law", "This is a mock law contract", ROLE_ONE, lawConfig);
+        emit Law__Initialized(address(0), address(123), "Mock Law", "This is a mock law contract", ROLE_ONE, lawConfig);
         new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
     }
 
@@ -62,6 +60,19 @@ contract DeployTest is TestSetupLaw {
         vm.prank(address(1)); // =! separatedPowers
         vm.expectRevert(Law__OnlySeparatedPowers.selector);
         lawMock.executeLaw(address(333), lawCalldata, keccak256(bytes(description)));
+    }
+
+    function testGetParams() public {
+        bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint.
+        string memory description = "Executing a proposal vote";
+        address separatedPowers = address(123);
+
+        Law lawMock = new OpenAction("Mock Law", "This is a mock law contract", separatedPowers, ROLE_ONE, lawConfig);
+
+        lawMock.params(0); 
+
+        uint8[] memory params = lawMock.getParams();
+        // assert(lengthParams > 0);
     }
 }
 

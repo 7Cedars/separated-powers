@@ -39,7 +39,7 @@ contract DeployBasicDao is Script {
 
         // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao 1.2");
+        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao 1.4");
         vm.stopBroadcast();
 
         initiateConstitution(
@@ -64,8 +64,8 @@ contract DeployBasicDao is Script {
 
         vm.startBroadcast();
         law = new NominateMe(
-            "Nominees for DELEGATE_ROLE", // max 31 chars
-            "Anyone can nominate themselves for a WHALE_ROLE",
+            "Nominate yourself for role 2", // max 31 chars
+            "Anyone can nominate themselves for role 2.",
             dao_,
             type(uint32).max, // access role = public access
             lawConfig
@@ -74,9 +74,10 @@ contract DeployBasicDao is Script {
         laws.push(address(law));
 
         vm.startBroadcast();
+        lawConfig.throttleExecution = 500; 
         law = new DelegateSelect(
-            "Anyone can elect delegates", // max 31 chars
-            "Anyone can call (and pay for) a delegate election at any time. The nominated accounts with most delegated vote tokens will be assigned the DELEGATE_ROLE.",
+            "Anyone can call role 2 election", // max 31 chars
+            "Anyone can call (and pay for) an election to assign accounts to role 2. The nominated accounts with most delegated vote tokens will be assigned to role 2. The law can only be called once every 500 blocks.",
             dao_, // separated powers protocol.
             type(uint32).max, // public access
             lawConfig, //  config file.
@@ -87,11 +88,12 @@ contract DeployBasicDao is Script {
         );
         vm.stopBroadcast();
         laws.push(address(law));
+        delete lawConfig;
 
         vm.startBroadcast();
         law = new NominateMe(
-            "Nominees for SENIOR_ROLE", // max 31 chars
-            "Anyone can nominate themselves for a SENIOR_ROLE",
+            "Nominees for role 1", // max 31 chars
+            "Anyone can nominate themselves for role 1.",
             dao_,
             type(uint32).max, // access role = public access
             lawConfig
@@ -106,8 +108,8 @@ contract DeployBasicDao is Script {
         // initiate law
         vm.startBroadcast();
         law = new PeerSelect(
-            "Seniors elect seniors", // max 31 chars
-            "Seniors can propose and vote to (de)select an account for the SENIOR_ROLE.",
+            "Elect an account for role 1", // max 31 chars
+            "Propose to (de)select an account for role 1.",
             dao_,
             1, // access role
             lawConfig,
@@ -124,10 +126,10 @@ contract DeployBasicDao is Script {
         //////////////////////////////////////////////////////////////
 
         // setting input params.
-        bytes4[] memory paramsAction = new bytes4[](3);
-        paramsAction[0] = bytes4(keccak256("address[]")); // targets
-        paramsAction[1] = bytes4(keccak256("uint256[]")); // values
-        paramsAction[2] = bytes4(keccak256("bytes[]")); // calldatas
+        uint8[] memory paramsAction = new uint8[](3);
+        paramsAction[0] = uint8(uint256(keccak256("address[]"))); // targets
+        paramsAction[1] = uint8(uint256(keccak256("uint256[]"))); // values
+        paramsAction[2] = uint8(uint256(keccak256("bytes[]"))); // calldatas
         // setting config.
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
@@ -135,8 +137,8 @@ contract DeployBasicDao is Script {
         // initiating law
         vm.startBroadcast();
         law = new ProposalOnly(
-            "Delegates propose actions",
-            "Delegates can propose new actions to be executed. They cannot implement it.",
+            "Role 2 proposes actions",
+            "Accounts with role 2 can propose new actions to be executed. They cannot implement them.",
             dao_,
             2, // access role
             lawConfig,
@@ -148,8 +150,8 @@ contract DeployBasicDao is Script {
 
         vm.startBroadcast();
         law = new ProposalOnly(
-            "Admin can veto actions",
-            "An admin can veto any action. No vote as only one address holds the ADMIN_ROLE.",
+            "Veto actions",
+            "The admin can veto any proposed action.",
             dao_,
             0, // access role
             lawConfig,
@@ -168,8 +170,8 @@ contract DeployBasicDao is Script {
         // initiate law
         vm.startBroadcast();
         law = new OpenAction(
-            "Seniors execute actions",
-            "Seniors can execute actions that delegates proposed. By vote. Admin can veto any execution.",
+            "Execute an action",
+            "Accounts with role 1 can execute actions that accounts with role 2 proposed and passed the proposal vote.",
             dao_, // separated powers
             1, // access role
             lawConfig
@@ -196,8 +198,8 @@ contract DeployBasicDao is Script {
         // initiate law
         vm.startBroadcast();
         law = new PresetAction(
-            "Admin assigns initial Seniors",
-            "The admin can assign the initial group of SENIOR_ROLE holders. It can only be used once.",
+            "Assign accounts to role 1",
+            "The admin can assign the initial group of role 1 holders. This law can only be executed once.",
             dao_, // separated powers
             0, // access role = ADMIN
             lawConfig,

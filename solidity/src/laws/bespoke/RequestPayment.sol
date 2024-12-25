@@ -45,7 +45,7 @@ contract RequestPayment is Law {
         uint256 amount_,
         uint48 personalDelay_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        params = new bytes4[](0);
+        params = new uint8[](0);
 
         if (erc1155Contract_ == address(0) || amount_ == 0) {
             revert RequestPayment__IncompleteConstructionParams();
