@@ -41,7 +41,9 @@ contract PeerSelect is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-        params = [dataType("uint256"), dataType("bool")];
+        string[] memory paramArray = new string[](2);
+        params[0] = dataType("uint256");
+        params[1] = dataType("bool");
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)

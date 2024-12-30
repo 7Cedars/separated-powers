@@ -30,9 +30,12 @@ contract ProposalOnly is Law {
         address separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
-        uint8[] memory params_
+        string[] memory params_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        params = params_;
+        /// £todo: this should actually be a separate function 'encodeParams' with a revert if more than 8 params are entered.
+        for (uint256 i = 0; i < params_.length; i++) {
+            params[i] = dataType(params_[i]);
+        }
     }
 
     /// @notice Execute the open action.

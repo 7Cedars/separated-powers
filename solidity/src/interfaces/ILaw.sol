@@ -51,5 +51,5 @@ interface ILaw is IERC165, LawErrors {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);
 
     /// @notice function to get the params of the law
-    function getParams() external returns (uint8[] memory params); 
+    function getParams() external returns (bytes4 param0, bytes4 param1, bytes4 param2, bytes4 param3, bytes4 param4, bytes4 param5, bytes4 param6, bytes4 param7); 
 }

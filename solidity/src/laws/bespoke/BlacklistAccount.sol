@@ -31,7 +31,8 @@ contract BlacklistAccount is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        params = [dataType("address"), dataType("bool")];
+        params[0] = dataType("address");
+        params[1] = dataType("bool");
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)

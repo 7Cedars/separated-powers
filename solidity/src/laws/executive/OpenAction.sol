@@ -30,7 +30,13 @@ contract OpenAction is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        params = [dataType("address[]"), dataType("uint256[]"), dataType("bytes[]")];
+        // string[] memory inputParams = new string[](3);
+        // inputParams[0] = "address[]";
+        // inputParams[1] = "uint256[]";
+        // inputParams[2] = "bytes[]"; 
+        params[0] = dataType("address[]");
+        params[1] = dataType("uint256[]");
+        params[2] = dataType("bytes[]");
     }
 
     /// @notice Execute the open action.

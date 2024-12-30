@@ -71,7 +71,16 @@ contract DeployTest is TestSetupLaw {
 
         lawMock.params(0); 
 
-        uint8[] memory params = lawMock.getParams();
+        (
+            bytes4 param0,
+            bytes4 param1, 
+            bytes4 param2,
+            bytes4 param3,
+            bytes4 param4,
+            bytes4 param5,
+            bytes4 param6,
+            bytes4 param7
+            ) = lawMock.getParams();
         // assert(lengthParams > 0);
     }
 }

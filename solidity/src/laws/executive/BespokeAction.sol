@@ -33,11 +33,13 @@ contract BespokeAction is Law {
         LawConfig memory config_,
         address targetContract_,
         bytes4 targetFunction_,
-        uint8[] memory params_
+        string[] memory params_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         _targetContract = targetContract_;
         _targetFunction = targetFunction_;
-        params = params_;
+        for (uint256 i = 0; i < params_.length; i++) {
+            params[i] = dataType(params_[i]);
+        }
     }
 
     /// @notice execute the law.

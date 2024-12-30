@@ -41,24 +41,13 @@ contract Law is ERC165, ILaw {
     ShortString public immutable name; // name of the law
     address public separatedPowers; // the address of the core governance protocol
     string public description; // description of the law
-    uint8[] public params; // hashes of data types needed for the lawCalldata. Saved as bytes4, encoded through the {DataType} function
+    bytes4[8] public params; // hashes of data types needed for the lawCalldata. Saved as bytes4, encoded through the {DataType} function
 
     // optional parameters
     LawConfig public config;
 
     // optional storage
     uint48[] public executions = [0]; // optional log of when the law was executed in block.number.
-
-    //////////////////////////////////////////////////
-    //                 MODIFIERS                    //
-    //////////////////////////////////////////////////
-    /// @notice A modifier that sets a function to only be callable by the {SeparatedPowers} contract.
-    modifier onlySeparatedPowers() {
-        if (msg.sender != separatedPowers) {
-            revert Law__OnlySeparatedPowers();
-        }
-        _;
-    }
 
     //////////////////////////////////////////////////
     //                 FUNCTIONS                    //
@@ -84,9 +73,11 @@ contract Law is ERC165, ILaw {
     /// @inheritdoc ILaw
     function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        onlySeparatedPowers
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
+        if (msg.sender != separatedPowers) {
+            revert Law__OnlySeparatedPowers();
+        }
         _executeChecks(initiator, lawCalldata, descriptionHash);
         (targets, values, calldatas) = simulateLaw(initiator, lawCalldata, descriptionHash);
     }
@@ -167,13 +158,14 @@ contract Law is ERC165, ILaw {
     //////////////////////////////////////////////////
     //           HELPER & VIEW FUNCTIONS            //
     //////////////////////////////////////////////////
-    function getParams() public view returns (uint8[] memory params) {
-        uint8[] memory returnParams = new uint8[](params.length);
-
-        for (uint256 i = 0; i < params.length; i++) {
-            returnParams[i] = Law(address(this)).params(i);
-        }
-        return returnParams; 
+    function getParams() public view returns (
+        bytes4 param0, bytes4 param1, bytes4 param2, bytes4 param3, 
+        bytes4 param4, bytes4 param5, bytes4 param6, bytes4 param7
+        ) {
+            return (
+                params[0], params[1], params[2], params[3],
+                params[4], params[5], params[6], params[7]
+       );
     }
     
     /// @notice implements ERC165
@@ -191,7 +183,15 @@ contract Law is ERC165, ILaw {
     }
 
     /// @notice an internal helper function for hashing data types
-    function dataType(string memory param) internal pure returns (uint8) {
-        return uint8(uint256(keccak256(bytes(param))));
+    function dataType(string memory param) internal pure returns (bytes4) {
+        return bytes4(keccak256(bytes(param)));
+        // bytes4[] memory dataTypeArray = new bytes4[](8);
+        // for (uint256 i = 0; i < params.length; i++) {
+        //     dataTypeArray[i] = bytes4(keccak256(bytes(params[i])));
+        // }
+        // return abi.encodePacked(
+        //     dataTypeArray[0], dataTypeArray[1], dataTypeArray[2], dataTypeArray[3],
+        //     dataTypeArray[4], dataTypeArray[5], dataTypeArray[6], dataTypeArray[7] 
+        //     );
     }
 }

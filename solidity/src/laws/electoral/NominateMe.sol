@@ -39,7 +39,9 @@ contract NominateMe is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        params = [dataType("bool")];
+        // string[] memory paramArray = new string[](1);
+        // paramArray[0] = "bool";
+        params[0] = dataType("bool");
     }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)

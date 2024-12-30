@@ -126,10 +126,10 @@ contract DeployBasicDao is Script {
         //////////////////////////////////////////////////////////////
 
         // setting input params.
-        uint8[] memory paramsAction = new uint8[](3);
-        paramsAction[0] = uint8(uint256(keccak256("address[]"))); // targets
-        paramsAction[1] = uint8(uint256(keccak256("uint256[]"))); // values
-        paramsAction[2] = uint8(uint256(keccak256("bytes[]"))); // calldatas
+        string[] memory paramsAction;
+        paramsAction[0] = "address[]"; // targets
+        paramsAction[1] = "uint256[]"; // values
+        paramsAction[2] = "bytes[]"; // calldatas
         // setting config.
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.

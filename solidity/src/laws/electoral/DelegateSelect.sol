@@ -59,7 +59,8 @@ contract DelegateSelect is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-        params = [dataType("address[]")];
+
+        params[0] = dataType("address[]");
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
