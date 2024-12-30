@@ -42,8 +42,6 @@ contract DelegateSelect is Law {
     uint32 public immutable ROLE_ID;
     address public immutable NOMINEES;
 
-    uint48 private _lastElection;
-
     constructor(
         string memory name_,
         string memory description_,
@@ -59,7 +57,6 @@ contract DelegateSelect is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-
         params[0] = dataType("address[]");
     }
 

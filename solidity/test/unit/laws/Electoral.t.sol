@@ -152,7 +152,7 @@ contract RandomlySelectTest is TestSetupLaws {
         address randomlySelect = laws[5];
 
         bytes memory lawCalldataNominate = abi.encode(true);
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory lawCalldataElect = abi.encode(new address[](0)); // no one to revoke
         bytes memory expectedCalldata =
             abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
@@ -172,7 +172,7 @@ contract RandomlySelectTest is TestSetupLaws {
         assertEq(calldatasOut[0], expectedCalldata);
     }
 
-    function testAssignRandomRolesWithManyNominees() public {
+    function testAssignRandomRolesWithManyNominees() public { 
         // prep -- nominate all users
         address nominateMe = laws[3];
         address randomlySelect = laws[5];
@@ -183,7 +183,7 @@ contract RandomlySelectTest is TestSetupLaws {
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
         // act
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory lawCalldataElect = abi.encode(new address[](0)); // no one to revoke
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
             Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
@@ -211,7 +211,7 @@ contract RandomlySelectTest is TestSetupLaws {
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
         // act: first election
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory lawCalldataElect = abi.encode(new address[](0)); // no one to revoke
         vm.startPrank(address(daoMock));
         (,, bytes[] memory calldatasOut1) = Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
@@ -219,6 +219,13 @@ contract RandomlySelectTest is TestSetupLaws {
 
         // act: second election
         vm.startPrank(address(daoMock));
+        address[] memory revokees = new address[](5);
+        revokees[0] = users[0];
+        revokees[1] = users[1];
+        revokees[2] = users[2];
+        revokees[3] = users[3];
+        revokees[4] = users[4];
+        bytes memory lawCalldataElect2 = abi.encode(revokees); // no one to revoke
         (address[] memory targetsOut2, uint256[] memory valuesOut2, bytes[] memory calldatasOut2) =
             Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
@@ -238,7 +245,7 @@ contract TokenSelectTest is TestSetupLaws {
         address nominateMe = laws[3];
         address tokenSelect = laws[6];
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory lawCalldataElect = abi.encode(new address[](0)); // no one to revoke
         bytes memory expectedCalldata =
             abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
@@ -268,7 +275,7 @@ contract TokenSelectTest is TestSetupLaws {
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
         // act
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory lawCalldataElect = abi.encode(new address[](0)); // no one to revoke
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
             Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
@@ -296,7 +303,7 @@ contract TokenSelectTest is TestSetupLaws {
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
         // act: first election
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory lawCalldataElect = abi.encode(new address[](0)); // no one to revoke
         vm.startPrank(address(daoMock));
         (,, bytes[] memory calldatasOut1) = Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 

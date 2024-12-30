@@ -42,10 +42,6 @@ contract TokensSelect is Law {
     uint32 private immutable ROLE_ID;
     address private immutable NOMINEES;
 
-    mapping(address => uint48) private _elected;
-    address[] private _electedSorted;
-    uint48 private _lastElection;
-
     constructor(
         string memory name_,
         string memory description_,
@@ -61,6 +57,7 @@ contract TokensSelect is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
+        params[0] = dataType("address[]");
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
@@ -68,9 +65,12 @@ contract TokensSelect is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
+        // step 0: retrieve accounts from calldata that need to be revoked from role prior to election. 
+        (address[] memory revokees) = abi.decode(lawCalldata, (address[]));
+
         // step 1: setting up array for revoking & assigning roles.
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
-        uint256 numberElected = _electedSorted.length;
+        uint256 numberElected = revokees.length;
         uint256 arrayLength =
             numberNominees < MAX_ROLE_HOLDERS ? numberElected + numberNominees : numberElected + MAX_ROLE_HOLDERS;
 
@@ -83,10 +83,7 @@ contract TokensSelect is Law {
 
         // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts.
         for (uint256 i; i < numberElected; i++) {
-            uint256 index = (numberElected - i) - 1; // we work backwards through the list.
-            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
-            _elected[_electedSorted[index]] = uint48(0);
-            _electedSorted.pop();
+            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, revokees[i]);
         }
 
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
@@ -95,8 +92,6 @@ contract TokensSelect is Law {
                 address accountElect = NominateMe(NOMINEES).nomineesSorted(i);
                 calldatas[i + numberElected] =
                     abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
-                _elected[accountElect] = uint48(block.timestamp);
-                _electedSorted.push(accountElect);
             }
             // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
         } else {
@@ -124,8 +119,6 @@ contract TokensSelect is Law {
                 if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberElected) {
                     calldatas[index + numberElected] =
                         abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]);
-                    _elected[_nomineesSorted[i]] = uint48(block.timestamp);
-                    _electedSorted.push(_nomineesSorted[i]);
                     index++;
                 }
             }
