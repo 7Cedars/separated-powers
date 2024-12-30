@@ -839,12 +839,14 @@ contract SetRoleTest is TestSetupSeparatedPowers {
         daoMock.assignRole(ROLE_THREE, bob);
     }
 
-    function testSetRoleRevertsIfAccountAlreadyHasRole() public {
+    function testSetRoleEmitsCorrectEventIfAccountAlreadyHasRole() public {
         // prep: check that bob has ROLE_ONE
         assertNotEq(daoMock.hasRoleSince(bob, ROLE_ONE), 0);
 
         vm.prank(address(daoMock));
-        vm.expectRevert(SeparatedPowers__RoleAccessNotChanged.selector);
+
+        vm.expectEmit(true, false, false, false);
+        emit RoleSet(ROLE_ONE, bob, false);
         daoMock.assignRole(ROLE_ONE, bob);
     }
 
@@ -881,7 +883,7 @@ contract SetRoleTest is TestSetupSeparatedPowers {
     function testSetRoleSetsEmitsEvent() public {
         // act & assert
         vm.expectEmit(true, false, false, false);
-        emit RoleSet(ROLE_THREE, helen);
+        emit RoleSet(ROLE_THREE, helen, true);
         vm.prank(address(daoMock));
         daoMock.assignRole(ROLE_THREE, helen);
     }

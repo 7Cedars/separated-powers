@@ -4,17 +4,17 @@
 
 /// @notice This contract assigns accounts to roles by the tokens that have been delegated to them.
 /// - At construction time, the following is set:
-///    - the amount of role holders {N}
-///    - the roleId {R} to be assigned
-///    - the ERC20 token {T} address to be assessed.
-///
-/// - The contract is meant to be open (using PUBLIC_ROLE at SeperatedPowers protocol), but can also be role restricted.
-///    - anyone can nominate themselves for the role.
-///    - anyone can call the law to have it (re)assign accounts to the law.
+///    - the maximum amount of accounts that can be assigned the role 
+///    - the roleId to be assigned
+///    - the ERC20 token address to be assessed.
+///    - the address from which to retrieve nominees.
 ///
 /// - The logic:
+///    - The calldata holds the accounts that need to be _revoked_ from the role prior to the election. 
 ///    - If fewer than N accounts are nominated, all will be assigne roleId R.
 ///    - If more than N accounts are nominated, the accounts that hold most ERC20 T will be assigned roleId R.
+/// 
+/// 
 ///
 /// @dev The contract is an example of a law that
 /// - has does not need a proposal to be voted through. It can be called directly.
@@ -42,8 +42,6 @@ contract DelegateSelect is Law {
     uint32 public immutable ROLE_ID;
     address public immutable NOMINEES;
 
-    mapping(address => uint48) private _elected;
-    address[] private _electedSorted;
     uint48 private _lastElection;
 
     constructor(
@@ -61,7 +59,7 @@ contract DelegateSelect is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-        params = new uint8[](0);
+        params = [dataType("address[]")];
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
@@ -69,11 +67,15 @@ contract DelegateSelect is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
+        
+        // step 0: retrieve accounts from calldata that need to be revoked from role prior to election. 
+        (address[] memory revokees) = abi.decode(lawCalldata, (address[]));
+        
         // step 1: setting up array for revoking & assigning roles.
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
-        uint256 numberElected = _electedSorted.length;
+        uint256 numberRevokees = revokees.length;
         uint256 arrayLength =
-            numberNominees < MAX_ROLE_HOLDERS ? numberElected + numberNominees : numberElected + MAX_ROLE_HOLDERS;
+            numberNominees < MAX_ROLE_HOLDERS ? numberRevokees + numberNominees : numberRevokees + MAX_ROLE_HOLDERS;
 
         targets = new address[](arrayLength);
         values = new uint256[](arrayLength);
@@ -84,21 +86,16 @@ contract DelegateSelect is Law {
         }
 
         // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts.
-        for (uint256 i; i < numberElected; i++) {
-            uint256 index = (numberElected - i) - 1; // we work backwards through the list.
-            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
-            _elected[_electedSorted[index]] = uint48(0);
-            _electedSorted.pop();
+        for (uint256 i; i < numberRevokees; i++) {
+            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, revokees[i]);
         }
 
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
                 address accountElect = NominateMe(NOMINEES).nomineesSorted(i);
-                calldatas[i + numberElected] =
+                calldatas[i + numberRevokees] =
                     abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
-                _elected[accountElect] = uint48(block.timestamp);
-                _electedSorted.push(accountElect);
             }
             // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
         } else {
@@ -125,11 +122,9 @@ contract DelegateSelect is Law {
                     }
                 }
                 // c: assigning role if rank is less than MAX_ROLE_HOLDERS.
-                if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberElected) {
-                    calldatas[index + numberElected] =
+                if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberRevokees) {
+                    calldatas[index + numberRevokees] =
                         abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nominees[i]);
-                    _elected[_nominees[i]] = uint48(block.timestamp);
-                    _electedSorted.push(_nominees[i]);
                     index++;
                 }
             }

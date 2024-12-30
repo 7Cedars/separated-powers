@@ -323,7 +323,7 @@ contract DelegateSelectTest is TestSetupLaws {
         address nominateMe = laws[3];
         address delegateSelect = laws[7];
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory lawCalldataElect = abi.encode(new address[](0)); // no addresses to delete
         bytes memory expectedCalldata =
             abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
@@ -353,7 +353,7 @@ contract DelegateSelectTest is TestSetupLaws {
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
         // act
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory lawCalldataElect = abi.encode(new address[](0)); // empty calldata
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
             Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
@@ -381,16 +381,21 @@ contract DelegateSelectTest is TestSetupLaws {
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
         }
         // act: first election
-        bytes memory lawCalldataElect = abi.encode(); // empty calldata
+        bytes memory lawCalldataElect = abi.encode(new address[](0)); // empty calldata
         vm.startPrank(address(daoMock));
         (,, bytes[] memory calldatasOut1) = Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
 
         vm.roll(block.number + block.number + 100);
 
         // act: second election
+        address[] memory revokees = new address[](3);
+        revokees[0] = users[0];
+        revokees[1] = users[1];
+        revokees[2] = users[2];
+        bytes memory lawCalldataElect2 = abi.encode(revokees); // empty calldata
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut2, uint256[] memory valuesOut2, bytes[] memory calldatasOut2) =
-            Law(delegateSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+            Law(delegateSelect).executeLaw(charlotte, lawCalldataElect2, bytes32(0));
 
         // assert
         assertEq(targetsOut2.length, 6);

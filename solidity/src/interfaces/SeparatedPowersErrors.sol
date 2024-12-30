@@ -29,9 +29,6 @@ interface SeparatedPowersErrors {
     /// @notice Emmitted when a law does not need a proposal.
     error SeparatedPowers__LawDoesNotNeedProposalVote();
 
-    // emitted when a role access is called, but role access is already set at requested access.
-    error SeparatedPowers__RoleAccessNotChanged();
-
     /// @notice Emitted when a execution is attempted on a proposal that is not active.
     error SeparatedPowers__UnexpectedProposalState();
 

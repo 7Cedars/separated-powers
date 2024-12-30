@@ -350,16 +350,18 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     function _setRole(uint32 roleId, address account, bool access) internal virtual {
         bool newMember = roles[roleId].members[account] == 0;
 
-        if (access && newMember) {
+        if (access) {
             roles[roleId].members[account] = uint48(block.number); // 'since' is set at current block.number
-            roles[roleId].amountMembers++;
-        } else if (!access && !newMember) {
-            roles[roleId].members[account] = 0;
-            roles[roleId].amountMembers--;
+            if (newMember) {
+                roles[roleId].amountMembers++;
+            }
         } else {
-            revert SeparatedPowers__RoleAccessNotChanged();
-        }
-        emit RoleSet(roleId, account);
+            roles[roleId].members[account] = 0;
+            if (!newMember) {
+                roles[roleId].amountMembers--;
+            }
+        } 
+        emit RoleSet(roleId, account, access);
     }
 
     //////////////////////////////////////////////////////////////
