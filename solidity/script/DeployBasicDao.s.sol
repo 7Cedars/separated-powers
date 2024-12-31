@@ -39,7 +39,7 @@ contract DeployBasicDao is Script {
 
         // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao 1.4");
+        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao 1.5");
         vm.stopBroadcast();
 
         initiateConstitution(
@@ -126,7 +126,7 @@ contract DeployBasicDao is Script {
         //////////////////////////////////////////////////////////////
 
         // setting input params.
-        string[] memory paramsAction;
+        string[] memory paramsAction = new string[](3); 
         paramsAction[0] = "address[]"; // targets
         paramsAction[1] = "uint256[]"; // values
         paramsAction[2] = "bytes[]"; // calldatas

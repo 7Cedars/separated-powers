@@ -219,15 +219,13 @@ contract RandomlySelectTest is TestSetupLaws {
 
         // act: second election
         vm.startPrank(address(daoMock));
-        address[] memory revokees = new address[](5);
+        address[] memory revokees = new address[](3);
         revokees[0] = users[0];
         revokees[1] = users[1];
         revokees[2] = users[2];
-        revokees[3] = users[3];
-        revokees[4] = users[4];
         bytes memory lawCalldataElect2 = abi.encode(revokees); // no one to revoke
         (address[] memory targetsOut2, uint256[] memory valuesOut2, bytes[] memory calldatasOut2) =
-            Law(randomlySelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+            Law(randomlySelect).executeLaw(charlotte, lawCalldataElect2, bytes32(0));
 
         // assert
         assertEq(targetsOut2.length, 6);
@@ -310,9 +308,14 @@ contract TokenSelectTest is TestSetupLaws {
         vm.roll(block.number + block.number + 100);
 
         // act: second election
+        address[] memory revokees = new address[](3);
+        revokees[0] = users[0];
+        revokees[1] = users[1];
+        revokees[2] = users[2];
+        bytes memory lawCalldataElect2 = abi.encode(revokees); 
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut2, uint256[] memory valuesOut2, bytes[] memory calldatasOut2) =
-            Law(tokenSelect).executeLaw(charlotte, lawCalldataElect, bytes32(0));
+            Law(tokenSelect).executeLaw(charlotte, lawCalldataElect2, bytes32(0));
 
         // assert
         assertEq(targetsOut2.length, 6);
@@ -399,7 +402,7 @@ contract DelegateSelectTest is TestSetupLaws {
         revokees[0] = users[0];
         revokees[1] = users[1];
         revokees[2] = users[2];
-        bytes memory lawCalldataElect2 = abi.encode(revokees); // empty calldata
+        bytes memory lawCalldataElect2 = abi.encode(revokees); 
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut2, uint256[] memory valuesOut2, bytes[] memory calldatasOut2) =
             Law(delegateSelect).executeLaw(charlotte, lawCalldataElect2, bytes32(0));
