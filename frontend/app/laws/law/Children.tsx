@@ -45,7 +45,7 @@ export function Children() {
           )
         : 
         <> 
-          <div className = "w-full flex flex-row p-2 px-3 italic text-slate-400">
+          <div className = "w-full flex flex-col justify-center items-center p-2 px-3 italic text-slate-400">
             No dependencies found. 
           </div>
         </>

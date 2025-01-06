@@ -185,13 +185,5 @@ contract Law is ERC165, ILaw {
     /// @notice an internal helper function for hashing data types
     function dataType(string memory param) internal pure returns (bytes4) {
         return bytes4(keccak256(bytes(param)));
-        // bytes4[] memory dataTypeArray = new bytes4[](8);
-        // for (uint256 i = 0; i < params.length; i++) {
-        //     dataTypeArray[i] = bytes4(keccak256(bytes(params[i])));
-        // }
-        // return abi.encodePacked(
-        //     dataTypeArray[0], dataTypeArray[1], dataTypeArray[2], dataTypeArray[3],
-        //     dataTypeArray[4], dataTypeArray[5], dataTypeArray[6], dataTypeArray[7] 
-        //     );
     }
 }

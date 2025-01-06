@@ -476,7 +476,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         uint32 allowedRole = Law(targetLaw).allowedRole();
         uint48 since = hasRoleSince(caller, allowedRole);
 
-        return since != 0;
+        return since != 0 || allowedRole == PUBLIC_ROLE;
     }
 
     /// @inheritdoc ISeparatedPowers

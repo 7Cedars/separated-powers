@@ -39,7 +39,7 @@ export function Executions() {
             }
             </>
             :
-              <div className = "w-full flex flex-col justify-center items-center italic p-2">
+              <div className = "w-full flex flex-col justify-center items-center italic text-slate-400 p-2">
                 No executions found. 
               </div> 
           }

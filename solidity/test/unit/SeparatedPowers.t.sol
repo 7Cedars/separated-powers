@@ -950,3 +950,58 @@ contract ComplianceTest is TestSetupSeparatedPowers {
         assertEq(response, daoMock.onERC1155BatchReceived.selector);
     }
 }
+
+contract DataTypeSignatureTest is TestSetupSeparatedPowers {
+
+    function testEncodeDataType() public {
+        console.logBytes4(encodeDataType("uint8"));
+        console.logBytes4(encodeDataType("uint16"));
+        console.logBytes4(encodeDataType("uint32"));
+        console.logBytes4(encodeDataType("uint64"));
+        console.logBytes4(encodeDataType("uint128"));
+        console.logBytes4(encodeDataType("uint256"));
+        console.logBytes4(encodeDataType("address"));
+        console.logBytes4(encodeDataType("bytes"));
+        console.logBytes4(encodeDataType("string"));
+        console.logBytes4(encodeDataType("bytes32"));
+        console.logBytes4(encodeDataType("bool"));
+        console.logBytes4(encodeDataType("uint8[]"));
+        console.logBytes4(encodeDataType("uint16[]"));
+        console.logBytes4(encodeDataType("uint32[]"));
+        console.logBytes4(encodeDataType("uint64[]"));
+        console.logBytes4(encodeDataType("uint128[]"));
+        console.logBytes4(encodeDataType("uint256[]"));
+        console.logBytes4(encodeDataType("address[]"));
+        console.logBytes4(encodeDataType("bytes[]"));
+        console.logBytes4(encodeDataType("string[]"));
+        console.logBytes4(encodeDataType("bytes32[]"));
+        console.logBytes4(encodeDataType("bool[]"));
+    }
+
+    function encodeDataType(string memory param) private returns (bytes4 signature) {
+        return bytes4(keccak256(bytes(param)));
+    }
+}
+
+// uint8, 
+// uint16, 
+// uint32, 
+// uint64, 
+// uint128,
+// uint256, 
+// address, 
+// bytes, 
+// string, 
+// bytes32, 
+// bool, 
+// uint8[], 
+// uint16[],
+// uint32[],
+// uint64[],
+// uint128[],
+// uint256[], 
+// address[], 
+// bytes[], 
+// string[], 
+// bytes32[], 
+// bool[], 

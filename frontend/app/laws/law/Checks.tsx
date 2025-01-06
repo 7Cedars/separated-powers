@@ -19,6 +19,8 @@ export const Checks: React.FC = () => {
     : law.allowedRole == 4294967295n ? 6 
     : Number(law.allowedRole)
 
+    console.log
+
   useEffect(() => {
     checkStatus("description", "0x0") // needs to be prop. 
   }, [])
@@ -39,7 +41,8 @@ export const Checks: React.FC = () => {
         {/* authorised block */}
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
           <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
-            <XMarkIcon className="w-4 h-4 text-red-600"/>
+            { checks?.authorised ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
+            {/* <XMarkIcon className="w-4 h-4 text-red-600"/> */}
             <div>
               Account authorised
             </div>

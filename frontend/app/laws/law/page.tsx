@@ -7,18 +7,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import {LawBox} from "./LawBox";
-import Link from "next/link";
 import { Checks } from "./Checks";
 import { Children } from "./Children";
 import { Executions } from "./Executions";
-import { useLaw } from "@/hooks/useLaw";
-import { Button } from "@/components/Button";
 
 const Page: React.FC = () => {
-  const {status, error, law: currentLaw, execute, simulate, checkStatus} = useLaw(); 
-  
   return (
     <main className="w-full h-full flex flex-col justify-center items-center">
       {/* main body  */}
