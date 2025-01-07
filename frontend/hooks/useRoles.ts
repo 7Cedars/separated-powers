@@ -14,7 +14,7 @@ export const useRoles = () => {
 
   const fetchRoles = useCallback( 
     async (wallet: ConnectedWallet | undefined) => {
-        setStatus("loading")
+        setStatus("pending")
         if (wallet) {
           try {
 
@@ -29,7 +29,7 @@ export const useRoles = () => {
                 functionName: 'hasRoleSince', 
                 args: [wallet.address, role]
               })
-              if (response != 0) hasRoles.push(role)
+              if (response != 0n) hasRoles.push(role)
             }
             setRoles(hasRoles)
             setStatus("success")

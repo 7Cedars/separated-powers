@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Config, Proposal, Law, Organisation } from '../context/types'
+import { Config, Proposal, Law, Organisation, Action } from '../context/types'
 
 type OrgStore = Organisation; 
 const initialStateOrg: OrgStore = {
@@ -29,6 +29,15 @@ const initialStateLaw: LawStore = {
   allowedRole: 0n
 }
 
+type ActionStore = Action;
+const initialStateAction: ActionStore = {
+  dataTypes: [],
+  inputValues: [],
+  description: '',
+  callData: `0x0`, 
+  upToDate: false
+}
+
 // Organisation Store
 export const useOrgStore = create<OrgStore>()(() => initialStateOrg); 
 
@@ -49,4 +58,17 @@ export const deleteLaw: typeof useOrgStore.setState = () => {
       useLawStore.setState(initialStateLaw)
     }
 
+// Action Store
+export const useActionStore = create<ActionStore>()(() => initialStateAction);
+
+export const setAction: typeof useActionStore.setState = (action) => {
+  useActionStore.setState(action)
+    }
+export const deleteAction: typeof useOrgStore.setState = () => {
+      useActionStore.setState(initialStateAction)
+    }
+
+export const notUpToDate: typeof useOrgStore.setState = () => {
+  useActionStore.setState({...initialStateAction, upToDate: false})
+}
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { setLaw, useLawStore, useOrgStore } from "../../../context/store";
+import { setLaw, useActionStore, setAction, useLawStore, useOrgStore } from "../../../context/store";
 import { Button } from "@/components/Button";
 import Link from "next/link";
 import { GiftIcon } from "@heroicons/react/24/outline";
@@ -14,11 +14,13 @@ import { useLaw } from "@/hooks/useLaw";
 import { encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
 import { parseParam } from "../../../utils/parsers";
 import { InputType } from "../../../context/types";
-
+import { DynamicInput } from "@/components/DynamicInput";
 
 export function LawBox() {
   const router = useRouter();
-  const [inputValues, setInputValues] = useState<InputType[]>([]);
+  const action = useActionStore();
+
+  const [inputValues, setInputValues] = useState<InputType[]>([]); // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
   const {status, error, law, checks, execute, simulate, checkStatus} = useLaw();
   const { data: params, isLoading, isError } = useReadContract({
@@ -26,19 +28,33 @@ export function LawBox() {
     address: law.law,
     functionName: 'getParams'
   })
+
   const paramsTyped: string[] = params as string[];
-  const parsedParams = paramsTyped ? paramsTyped.map(param => {
+  const dataTypes = paramsTyped ? paramsTyped.map(param => {
     return parseParam(param);
   }) : [];
 
+  const roleColour = [ // this I should import from somewhere. 
+    "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
+    "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
+  ]
+
+  const role = law.allowedRole == 0n ? 0 
+  : law.allowedRole == 4294967295n ? 6 
+  : Number(law.allowedRole)
+  const statusExecute = action.upToDate ? status : 'idle'
+  
   const handleSimulate = async () => {
-      const inputTypes = parsedParams.map(param => param.dataType);
-      const inputHexValues = inputValues.map(value => value != undefined ? toHex(value) : '0x0');
-
-      const lawCalldata: string = encodeAbiParameters(parseAbiParameters(inputTypes.toString()), [toHex(newValue)]);
-      //  encodeAbiParameters(parseAbiParameters("address, bool"), [addressLaw ? addressLaw : '0x0', toInclude]);
-
-
+      const lawCalldata: `0x${string}` = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), [inputValues]);
+      // updating stored action. 
+      setAction({
+        dataTypes: dataTypes,
+        inputValues: inputValues,
+        description: description,
+        callData: lawCalldata,
+        upToDate: true
+      })
+      // simulating law. 
       simulate(
         law.law as `0x${string}`,
         lawCalldata as `0x${string}`,
@@ -47,30 +63,14 @@ export function LawBox() {
   };
 
   const handleExecute = async () => {
-      const lawCalldata: string = encodeAbiParameters(parseAbiParameters("address"), [whaleAddress as `0x${string}`]);
       execute(
           law.law as `0x${string}`,
-          lawCalldata as `0x${string}`,
-          description
+          action.callData as `0x${string}`,
+          action.description
       )
   };
 
-  const roleColour = [
-    "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
-    "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
-  ]
-
-  const role = law.allowedRole == 0n ? 0 
-    : law.allowedRole == 4294967295n ? 6 
-    : Number(law.allowedRole)
-
-    // need to check this here, to adapt the input params
-            // {
-        //   ...currentLaw,
-        //   functionName: 'getParams', // NB need to deploy new DAO to get this to work. 
-        // },
-  
-  console.log("law:", law)
+  // NB! need to check if Action from store is same as Action in current form. If not -> disable Execute! + disable links in check boxes. -> do not let user go to other law. 
 
   return (
     <main className="w-full flex flex-col justify-start items-center">
@@ -79,38 +79,32 @@ export function LawBox() {
       <div className="w-full flex flex-row gap-3 justify-between items-center border-b border-slate-300 py-4 ps-6 pe-2">
         <SectionText
           text={law?.name}
-          subtext={law?.description} 
+          subtext={law?.description}
           size = {0}
         /> 
       </div>
 
       {/* dynamic form */}
       <form action="" method="get" className="w-full">
-        
-        {/* Below needs to be a dynamic list */}
-        <div className="w-full mt-6 flex flex-row justify-center items-center gap-y-4 px-6">
-          <label htmlFor="username" className="block min-w-28 text-sm/6 font-medium text-slate-600 pb-1">Input 1 (text) </label>
-            <div className="w-full flex items-center rounded-md bg-white pl-3 outline outline-1 outline-gray-300">  
-              <input type="text" name="username" id="username" className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" placeholder="janesmith" />
-            </div>
-        </div>
-        <div className="w-full mt-4 flex flex-row justify-center items-center gap-y-4 px-6">
-          <label htmlFor="username" className="block min-w-28 text-sm/6 font-medium text-slate-600 pb-1">Input 1 (text) </label>
-            <div className="w-full flex items-center rounded-md bg-white pl-3 outline outline-1 outline-gray-300">  
-              <input type="text" name="username" id="username" className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" placeholder="janesmith" />
-            </div>
-        </div>
+        {
+          dataTypes.map(dataType => 
+            <DynamicInput dataType = {dataType}/>)
+        }
 
-         {/* Above needs to be a dynamic list */}
-
-         <div className="w-full mt-4 flex flex-row justify-center items-start gap-y-4 px-6 pb-4 min-h-24">
+        <div className="w-full mt-4 flex flex-row justify-center items-start gap-y-4 px-6 pb-4 min-h-24">
           <label htmlFor="username" className="block min-w-28 text-sm/6 font-medium text-slate-600 pb-1">Reason</label>
           <div className="w-full flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
-              <textarea name="reason" id="reason" rows={3} cols ={25} className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" placeholder="janesmith"/>
+              <textarea 
+                name="reason" 
+                id="reason" 
+                rows={3} 
+                cols ={25} 
+                className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
+                placeholder="Describe reason for action here. This description needs to be unique for action to be valid."/>
             </div>
         </div>
         <div className="w-full flex flex-row justify-center items-center px-6 pb-4">
-          <Button size={1} showBorder={true}> 
+          <Button size={1} showBorder={true} onClick={handleSimulate} statusButton={status}> 
             Submit
           </Button>
         </div>
@@ -143,11 +137,6 @@ export function LawBox() {
                 </tr>
               </tbody>
             </table>
-            {/* <div className="w-full h-fit p-2">
-              <Button size={0} showBorder={false}> 
-                Simulate output
-              </Button>
-            </div> */}
           </div>
         
         {/* Horizontal divider line  */}
@@ -157,7 +146,7 @@ export function LawBox() {
 
       {/* execute button */}
         <div className="w-full h-fit p-6">
-          <Button size={1}> 
+          <Button size={1} onClick={handleExecute} statusButton={statusExecute}> 
             Execute
           </Button>
         </div>

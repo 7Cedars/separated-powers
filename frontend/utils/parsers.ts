@@ -1,38 +1,96 @@
+import { ChangeEvent } from "react";
 import {InputType, DataType} from "../context/types"
 
 
 export const parseParam = (param: string) => {
-  let inputType: InputType; 
-  let dataType: DataType; 
-  let array: boolean = false
+  let dataType: DataType;
 
   switch (param) {
-    case "0x7bcdc9c6": inputType = "number"; dataType = "uint8"; break;
-    case "0x267213ef": inputType = "number"; dataType = "uint16"; break;
-    case "0xaab7cacf": inputType = "number"; dataType = "uint32"; break;
-    case "0xf1b7aa7b": inputType = "number"; dataType = "uint64"; break;
-    case "0x26255fcf": inputType = "number"; dataType = "uint128"; break;
-    case "0xec13d6d1": inputType = "number"; dataType = "uint256"; break;
-    case "0x79b36d0f": inputType = "number"; dataType = "uint8[]"; array = true; break;
-    case "0x176bfc5e": inputType = "number"; dataType = "uint16[]"; array = true; break;
-    case "0x78cd6b36": inputType = "number"; dataType = "uint32[]"; array = true; break;
-    case "0x9dc4a28a": inputType = "number"; dataType = "uint64[]"; array = true; break;
-    case "0x3d05ac75": inputType = "number"; dataType = "uint128[]"; array = true; break;
-    case "0xc1b76e99": inputType = "number"; dataType = "uint256[]"; array = true; break;
-    case "0x421683f8": inputType = "address"; dataType = "address"; break;
-    case "0x23d8ff3d": inputType = "address"; dataType = "address"; break;
-    case "0x084b42f8": inputType = "hex"; dataType = "bytes"; break;
-    case "0xb963e9b4": inputType = "hex"; dataType = "bytes"; break;
-    case "0xc0427979": inputType = "hex"; dataType = "bytes"; break;
-    case "0x9878dbb4": inputType = "hex"; dataType = "bytes32"; break;
-    case "0x97fc4627": inputType = "string"; dataType = "string"; break;
-    case "0xa227fd7a": inputType = "string"; dataType = "string"; array = true; break; 
-    case "0xc1053bda": inputType = "bool"; dataType = "bool"; break;
-    case "0x8761250c": inputType = "bool"; dataType = "bool"; array = true; break; 
+    case "0x00000000": dataType = "empty"; break;
+
+    case "0x7bcdc9c6": dataType = "uint8"; break;
+    case "0x267213ef": dataType = "uint16"; break;
+    case "0xaab7cacf": dataType = "uint32"; break;
+    case "0xf1b7aa7b": dataType = "uint64"; break;
+    case "0x26255fcf": dataType = "uint128"; break;
+    case "0xec13d6d1": dataType = "uint256"; break;
+    case "0x79b36d0f": dataType = "uint8[]"; break;
+    case "0x176bfc5e": dataType = "uint16[]"; break;
+    case "0x78cd6b36": dataType = "uint32[]"; break;
+    case "0x9dc4a28a": dataType = "uint64[]"; break;
+    case "0x3d05ac75": dataType = "uint128[]"; break;
+    case "0xc1b76e99": dataType = "uint256[]"; break;
+
+    case "0x421683f8": dataType = "address"; break;
+    case "0x23d8ff3d": dataType = "address[]"; break;
+    
+    case "0xb963e9b4": dataType = "bytes"; break;
+    case "0x084b42f8": dataType = "bytes[]"; break;
+    
+    case "0x9878dbb4": dataType = "bytes32"; break;
+    case "0xc0427979": dataType = "bytes32[]"; break;
+    
+    case "0x97fc4627": dataType = "string"; break;
+    case "0xa227fd7a": dataType = "string[]"; break; 
+    
+    case "0xc1053bda": dataType = "bool"; break;
+    case "0x8761250c": dataType = "bool[]"; break; 
+
+    default:
+      dataType = "unsupported"; break
+  } 
+
+  return dataType
+}
+
+export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataType): InputType | string => {
+  // very basic parser. Here necessary input checks can be added later.  
+  const errorMessage: string = 'Incorrect input data';
+  if ( !event || typeof event !== 'string' || typeof event !== 'number' || typeof event !== 'boolean' ) {
+     throw new Error('Incorrect or missing data.');
   }
 
-  return { dataType, inputType, array }
-}
+  // Note that later on I can also check for maximum values by taking the power of uintxxx
+  if (dataType.indexOf('uint') > -1) {
+    try {
+      return Number(event) 
+    } catch {
+      return errorMessage
+    }
+  }
+
+  if (dataType.indexOf('bool') > -1) {
+    try {
+      return Boolean(event) 
+    } catch {
+      return errorMessage
+    }
+  }
+  
+  if (dataType.indexOf('string') > -1) { 
+    try {
+      return String(event) 
+    } catch {
+      return errorMessage
+    }
+  }
+  
+  if (dataType.indexOf('address') > -1) {
+    try {
+      return event as `0x${string}` 
+    } catch {
+      return errorMessage
+    }
+  }
+
+  if (dataType.indexOf('bytes') > -1)  {
+    try {
+      return event as `0x${string}` 
+    } catch {
+      return errorMessage
+    }
+  }
+};
 
 
 
@@ -56,7 +114,7 @@ export const parseParam = (param: string) => {
 // uint256[], = 0xc1b76e99
 // address[], = 0x23d8ff3d
 // bytes[], = 0x084b42f8
-// string[], = 0xa227fd7a
+// string[], = 0xa227fd7a 
 // bytes32[], = 0xc0427979
 // bool[], = 0x8761250c
 
