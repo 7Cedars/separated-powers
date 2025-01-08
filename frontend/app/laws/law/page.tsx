@@ -26,9 +26,7 @@ const Page: React.FC = () => {
           <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-2 rounded-md">
             <Checks /> 
           </div>
-          <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md"> 
-            <Children /> 
-          </div>
+          <Children /> 
           <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md">
             <Executions /> 
           </div>

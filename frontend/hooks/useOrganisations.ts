@@ -62,6 +62,7 @@ export const useOrganisations = () => {
               logs
             })
             const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
+            console.log("@fetchLaws", {fetchedLogsTyped})
             const fetchedLaws: Law[] = fetchedLogsTyped.map(log => log.args as Law)
             console.log("@fetchLaws", {fetchedLaws})
 
@@ -123,7 +124,7 @@ export const useOrganisations = () => {
 
   const fetchOrganisations = useCallback(
     async () => {
-      setStatus("loading")
+      setStatus("pending")
 
       let orgsWithLaws: Organisation[] | undefined
       let orgsWithProposals: Organisation[] | undefined 

@@ -47,7 +47,7 @@ export const Button = ({
 
   return (
     <button 
-      className={`w-full h-full disabled:opacity-50 rounded-md border ${roleColour[role]} ${fontSize[size]} ${showBorder ? "border-slate-300": "border-transparent"}`}  
+      className={`w-full h-full disabled:opacity-50 rounded-md border ${roleColour[role]} ${fontSize[size]} ${showBorder ? "border-slate-300 disabled:hover:border-slate-300": "border-transparent"}`}  
       onClick={onClick} 
       disabled={statusButton != 'idle'}
       aria-selected={selected}

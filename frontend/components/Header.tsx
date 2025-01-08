@@ -23,16 +23,17 @@ import {
   ChatBubbleBottomCenterIcon,
   BuildingLibraryIcon
 } from '@heroicons/react/24/outline';
-import { usePrivy } from "@privy-io/react-auth";
+import { useConnectWallet, usePrivy } from "@privy-io/react-auth";
 import { useWallets } from "@privy-io/react-auth";
 
 export const Header = () => {
   const router = useRouter();
   const organisation = useOrgStore(); 
+  const {connectWallet} = useConnectWallet();
   
   const path = usePathname()
   const {wallets } = useWallets();
-  const wallet = wallets[0];
+  // const wallet = wallets[0];
   const {ready, authenticated, login, logout} = usePrivy();
   const layoutIconBox: string = 'flex flex-row gap-2 align-middle items-center'
   const layoutIcons: string = 'h-4 w-4'
@@ -168,19 +169,19 @@ export const Header = () => {
 
         <div className="flex flex-row gap-2 min-w-40"> 
         { 
-          ready && wallet && authenticated ? 
+          ready && wallets[0] && authenticated ? 
           <Button 
               size = {0} 
               onClick={() => logout()}
               >
                 <div className={layoutIconBox}> 
-                  {wallet.address.slice(0, 6)}...{wallet.address.slice(-6)}   
+                  {wallets[0].address.slice(0, 6)}...{wallets[0].address.slice(-6)}   
                 </div> 
           </Button>
           : 
           <Button 
           size = {0} 
-          onClick={() => login()}
+          onClick={() => connectWallet()}
           >
             <div className={layoutIconBox}> 
               <b> Connect Wallet </b>       

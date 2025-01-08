@@ -12,8 +12,8 @@ export type ProposalViewProps = { proposal: Proposal, isDisabled: boolean}
 
 export type Config = {
   delayExecution: bigint; 
-  needCompleted: `0x${string}`;
   needNotCompleted: `0x${string}`;
+  needCompleted: `0x${string}`;
   quorum: bigint; 
   succeedAt: bigint; 
   throttleExecution: bigint;

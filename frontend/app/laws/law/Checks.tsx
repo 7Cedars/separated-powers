@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/Button";
-import { setLaw, useLawStore, useOrgStore } from "@/context/store";
+import { setLaw, useActionStore, useLawStore, useOrgStore } from "@/context/store";
 import { Law, userActionsProps } from "@/context/types";
 import { useLaw } from "@/hooks/useLaw";
 import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/react/24/outline";
@@ -12,6 +12,7 @@ export const Checks: React.FC = () => {
   const {status, error, checks, law: currentLaw, execute, fetchSimulation, fetchChecks} = useLaw(); 
   const law = useLawStore();
   const organisation = useOrgStore();
+  const action = useActionStore();
   const needCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needCompleted); 
   const needNotCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needNotCompleted); 
   const roleColour = [
@@ -23,6 +24,12 @@ export const Checks: React.FC = () => {
     : Number(law.allowedRole)
 
   console.log({checks})
+
+  useEffect(() => {
+    fetchChecks("dummy string", "0x0")
+  }, [])
+
+  console.log("action.upToDate: ", action.upToDate)
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
@@ -51,15 +58,18 @@ export const Checks: React.FC = () => {
         {law.config.quorum != 0n ?
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 justify-between items-center">
-              <CheckIcon className="w-4 h-4 text-green-600"/>
+              { checks?.proposalPassed ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
               <div>
                 Proposal passed
               </div>
             </div>
             <div className = "w-full flex flex-row px-2 py-1">
-              <button className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[role]}`}>
+              <button 
+                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[role]} disabled:opacity-50`}
+                disabled = { !action.upToDate }
+                >
                 <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1  px-2 py-1`}>
-                  View / Create Proposal
+                { checks?.proposalExists ? "View Proposal" : "Create proposal" }
                 </div>
               </button>
             </div>
@@ -71,15 +81,16 @@ export const Checks: React.FC = () => {
         {law.config.needCompleted != '0x0000000000000000000000000000000000000000'  ?  
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 justify-between items-center">
-              <CheckIcon className="w-4 h-4 text-green-600"/>
+            { checks?.lawCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
               <div>
                 Law executed
               </div>
             </div>
             <div className = "w-full flex flex-row px-2 py-1">
               <button 
-                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]}`}
+                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]} disabled:opacity-50`}
                 onClick = {() => {setLaw(needCompletedLaw ? needCompletedLaw : law)}}
+                disabled = { !action.upToDate }
                 >
                 <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
                 {needCompletedLaw?.name}
@@ -95,15 +106,16 @@ export const Checks: React.FC = () => {
         {law.config.needNotCompleted != '0x0000000000000000000000000000000000000000' ? 
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 justify-between items-center">
-              <XMarkIcon className="w-4 h-4 text-red-600"/>
+            { checks?.lawNotCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
               <div>
                 Law not executed
               </div>
             </div>
             <div className = "w-full flex flex-row px-2 py-1">
               <button 
-                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]}`}
+                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]} disabled:opacity-50`}
                 onClick = {() => {setLaw(needNotCompletedLaw ? needNotCompletedLaw : law)}}
+                disabled = { !action.upToDate }
                 >
                 <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
                  {needNotCompletedLaw?.name}
@@ -118,7 +130,7 @@ export const Checks: React.FC = () => {
         {law.config.delayExecution != 0n?
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
           <div className = "w-full flex flex-row px-2 justify-between items-center">
-            <XMarkIcon className="w-4 h-4 text-red-600"/>
+            { checks?.delayPassed ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
             <div>
               Delayed execution
             </div>
@@ -136,7 +148,7 @@ export const Checks: React.FC = () => {
         {law.config.throttleExecution != 0n ? 
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
           <div className = "w-full flex flex-row px-2 justify-between items-center">
-            <XMarkIcon className="w-4 h-4 text-red-600"/>
+            { checks?.throttlePassed ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
             <div>
               Throttled execution
             </div>

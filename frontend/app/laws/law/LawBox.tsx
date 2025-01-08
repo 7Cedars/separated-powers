@@ -54,8 +54,12 @@ export function LawBox() {
   const handleSimulate = async (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault() 
       console.log("@handleSimulate Called")
+      let lawCalldata: `0x${string}`
       if (dataTypes.length > 0 && inputValues) {
-        const lawCalldata: `0x${string}` = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), inputValues);
+        lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), inputValues);
+      } else {
+        lawCalldata = '0x0'
+      }
         // resetting rendering output
         setJsxSimulation([])
         // resetting store 
@@ -72,7 +76,6 @@ export function LawBox() {
           lawCalldata as `0x${string}`,
           keccak256(toHex(description))
         )
-      }
   };
 
   const handleExecute = async () => {
@@ -144,9 +147,9 @@ export function LawBox() {
             showBorder={true} 
             onClick={(event) => handleSimulate(event)} 
             statusButton={
-              !action.upToDate && inputValues.length > 0 && description.length > 0 ? status : 'disabled'
+              !action.upToDate && description.length > 0 ? status : 'disabled'
               }> 
-            Submit
+            Check 
           </Button>
         </div>
       </form>

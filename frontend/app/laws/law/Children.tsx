@@ -17,17 +17,15 @@ export function Children() {
   ) 
 
   return (
+    childLaws?.length != 0 ? 
+    <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md"> 
     <section className="w-full flex flex-col text-sm text-slate-600" > 
       <div className="w-full flex flex-row items-center justify-between px-4 py-2 text-slate-900 border-b border-slate-300">
         <div className="text-left w-52">
           Child laws
         </div> 
       </div>
-
-      {/* Law -- this should be dynamic. btw. will very rarely be more than 2*/}
-
-      { 
-        childLaws?.length != 0 ?
+        {    
           childLaws?.map(law =>
             <> 
               <div className = "w-full flex flex-row p-2 px-3">
@@ -42,13 +40,9 @@ export function Children() {
               </div>
             </>
           )
-        : 
-        <> 
-          <div className = "w-full flex flex-col justify-center items-center p-2 px-3 italic text-slate-400">
-            No dependencies found. 
-          </div>
-        </>
       }
   </section>
+  </div>
+  : null
   )
 }

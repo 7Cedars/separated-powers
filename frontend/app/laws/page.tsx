@@ -21,5 +21,4 @@ export default function Page() {
         <LawList />
       </main>
     )
-
 }

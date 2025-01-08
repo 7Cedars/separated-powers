@@ -110,6 +110,17 @@ export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataT
   }
 };
 
+export const parseRole = (role: bigint): number => {
+  const returnValue = 
+  role == 4294967295n ? 6
+  : role == 0n ? 0
+  : Number(role)
+
+  return returnValue
+}
+  
+
+
 
 
 // Info: supported dataType Signatures: 
