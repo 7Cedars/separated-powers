@@ -64,11 +64,11 @@ export const useActionStore = create<ActionStore>()(() => initialStateAction);
 export const setAction: typeof useActionStore.setState = (action) => {
   useActionStore.setState(action)
     }
-export const deleteAction: typeof useOrgStore.setState = () => {
+export const deleteAction: typeof useActionStore.setState = () => {
       useActionStore.setState(initialStateAction)
     }
 
-export const notUpToDate: typeof useOrgStore.setState = () => {
+export const notUpToDate: typeof useActionStore.setState = () => {
   useActionStore.setState({...initialStateAction, upToDate: false})
 }
 

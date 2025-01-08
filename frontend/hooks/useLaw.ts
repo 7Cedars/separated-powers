@@ -22,16 +22,22 @@ type Checks = {
   throttlePassed?: boolean | 'checked';
 }
 
+type LawSimulation = [
+  `0x${string}`[], 
+  bigint[], 
+  `0x${string}`[] 
+]
+
 export const useLaw = () => {
   const organisation = useOrgStore()
   const law = useLawStore()
   const blockNumber = useBlockNumber()
   const {wallets} = useWallets();
-  const wallet = wallets[0];
+  // const wallet = wallets[0];
 
   const [status, setStatus ] = useState<Status>("idle")
   const [error, setError] = useState<any | null>(null)
-  const [lawOutput, setLawOutput ] = useState<{ targets: `0x${string}`[], values: bigint[], calldatas: `0x${string}`[] }>()
+  const [simulation, setLawSimulation ] = useState<LawSimulation>()
   const [transactionHash, setTransactionHash ] = useState<`0x${string}` | undefined>()
   const {error: errorReceipt, status: statusReceipt} = useWaitForTransactionReceipt({
     confirmations: 2, 
@@ -47,23 +53,22 @@ export const useLaw = () => {
   // Status //
   const checkAccountAuthorised = useCallback(
     async () => {
-      console.log({
-        org: organisation.contractAddress,
-        wallet: wallet.address,
-        law: law.law
-      })
-      try {
-        const result =  await readContract(wagmiConfig, {
-                abi: separatedPowersAbi,
-                address: organisation.contractAddress as `0x${string}`,
-                functionName: 'canCallLaw', 
-                args: [wallet.address, law.law],
-              })
-        setChecks({...checks, authorised: result as boolean})
-    } catch (error) {
-        setStatus("error") 
-        setError(error)
-    }
+      if (!wallets[0]) {
+        setChecks({...checks, authorised: false})
+      } else {      
+        try {
+          const result =  await readContract(wagmiConfig, {
+                  abi: separatedPowersAbi,
+                  address: organisation.contractAddress as `0x${string}`,
+                  functionName: 'canCallLaw', 
+                  args: [wallets[0].address, law.law],
+                })
+          setChecks({...checks, authorised: result as boolean})
+        } catch (error) {
+            setStatus("error") 
+            setError(error)
+        }
+      }
   }, []) 
 
   const checkProposalStatus = useCallback(
@@ -148,8 +153,9 @@ export const useLaw = () => {
         } else {
           setChecks({...checks, lawNotCompleted: true})
         }
-      } catch {
+      } catch (error) {
         setStatus("error")
+        setError( error )
         setChecks({...checks, lawNotCompleted: true})
       }
 
@@ -172,7 +178,7 @@ export const useLaw = () => {
       proposal.targetLaw === law.law && 
       proposal.state === 4
     )
-    if (selectedProposals) {
+    if (selectedProposals && selectedProposals.length > 0) {
       const result = selectedProposals[0].blockNumber + Number(law.config.throttleExecution) < Number(blockNumber)
       setChecks({...checks, throttlePassed: result})
     } else {
@@ -180,8 +186,9 @@ export const useLaw = () => {
     } 
   }
 
-  const checkStatus = useCallback( 
+  const fetchChecks = useCallback( 
     async (description: string, calldata: `0x${string}`) => {
+        setError(null)
         setStatus("pending")
         
         // this can be written better. But ok for now. 
@@ -192,34 +199,27 @@ export const useLaw = () => {
         if (law.config.delayExecution != 0n) checkDelayedExecution(description, calldata)
         if (law.config.throttleExecution == 0n) checkThrottledExecution()
 
-        setStatus("success")
+        setStatus("idle") //NB note: after checking status, sets the status back to idle! 
   }, [ ])
   
-
   // Actions // 
-  // £todo:  need to retrieve the data that is returned from this call. 
-  const simulate = useCallback( 
-    async (
-      targetLaw: `0x${string}`,
-      lawCalldata: `0x${string}`,
-      description: string
-    ) => {
-        setStatus("pending")
-        try {
-          // NB! This needs to be READcontract. 
-          const result = await readContract(wagmiConfig, {
-            abi: lawAbi,
-            address: law.law,
-            functionName: 'simulateLaw', 
-            args: [targetLaw, lawCalldata, description]
-          })
-          console.log("result @simulate", result)
-          // £TODO : here need to set state of lawOutput. 
+  const fetchSimulation = useCallback( 
+    async (targetLaw: `0x${string}`, lawCalldata: `0x${string}`, description: string) => {
+      setError(null)
+      setStatus("pending")
+      try {
+        const result = await readContract(wagmiConfig, {
+          abi: lawAbi,
+          address: law.law,
+          functionName: 'fetchSimulationLaw', 
+          args: [targetLaw, lawCalldata, description]
+        })
+          setLawSimulation(result as LawSimulation)
           setStatus("success")
-      } catch (error) {
+        } catch (error) {
           setStatus("error") 
           setError(error)
-      }
+        }
   }, [ ])
 
   const execute = useCallback( 
@@ -228,6 +228,7 @@ export const useLaw = () => {
       lawCalldata: `0x${string}`,
       description: string
     ) => {
+        setError(null)
         setStatus("pending")
         try {
           const result = await writeContract(wagmiConfig, {
@@ -243,5 +244,5 @@ export const useLaw = () => {
       }
   }, [ ])
 
-  return {status, error, law, lawOutput, checks, execute, simulate, checkStatus}
+  return {status, error, law, simulation, checks, fetchSimulation, fetchChecks, execute}
 }

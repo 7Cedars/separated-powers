@@ -13,9 +13,8 @@ export function Children() {
   ]
 
   const childLaws: Law[] | undefined = organisation?.laws?.filter(law => 
-    law.config.needCompleted === currentLaw.law || law.config.needNotCompleted === currentLaw.law
+    law.config.needCompleted == currentLaw.law || law.config.needNotCompleted == currentLaw.law
   ) 
-  console.log("childLaws", childLaws)
 
   return (
     <section className="w-full flex flex-col text-sm text-slate-600" > 

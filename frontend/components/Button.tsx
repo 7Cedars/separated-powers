@@ -8,7 +8,7 @@ type ButtonProps = {
   align?: 0 | 1 | 2;   
   role?: number; 
   children: any;
-  onClick?: () => void;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 const fontSize = [

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { setLaw, useOrgStore } from "../context/store";
 import { Button } from "@/components/Button";
 import Link from "next/link";
-import { GiftIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { Law } from "@/context/types";
 
@@ -64,7 +64,11 @@ export function LawList() {
         >
           Public
         </Button>
-        <Button size={0}>New Law</Button>
+        <button className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 ">
+            <ArrowPathIcon
+              className="w-4 h-4 text-slate-600"
+              />
+        </button>
       </div>
       {/* table laws  */}
       <table className="w-full table-auto border border-t-0">

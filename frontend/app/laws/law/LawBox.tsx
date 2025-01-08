@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { setLaw, useActionStore, setAction, useLawStore, useOrgStore } from "../../../context/store";
 import { Button } from "@/components/Button";
 import Link from "next/link";
@@ -12,7 +12,7 @@ import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { parseParam } from "../../../utils/parsers";
+import { parseParams } from "../../../utils/parsers";
 import { InputType } from "../../../context/types";
 import { DynamicInput } from "@/components/DynamicInput";
 
@@ -20,19 +20,19 @@ export function LawBox() {
   const router = useRouter();
   const action = useActionStore();
 
-  const [inputValues, setInputValues] = useState<InputType[]>([]); // NB! String has to be converted to hex using toHex before being able to use as input.  
-  const [description, setDescription] = useState<string>("");
-  const {status, error, law, checks, execute, simulate, checkStatus} = useLaw();
+  const {status, error, law, simulation, checks, execute, fetchSimulation, fetchChecks} = useLaw();
   const { data: params, isLoading, isError } = useReadContract({
     abi: lawAbi,
     address: law.law,
     functionName: 'getParams'
   })
+  const dataTypes = params ? parseParams(params as string[]) : []
+  console.log("@lawbox:", {error, status})
 
-  const paramsTyped: string[] = params as string[];
-  const dataTypes = paramsTyped ? paramsTyped.map(param => {
-    return parseParam(param);
-  }) : [];
+  const [inputValues, setInputValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(dataTypes.length)); // NB! String has to be converted to hex using toHex before being able to use as input.  
+  const [description, setDescription] = useState<string>("");
+  const [jsxSimulation, setJsxSimulation] = useState<React.JSX.Element[]> ([]); 
+
 
   const roleColour = [ // this I should import from somewhere. 
     "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
@@ -42,24 +42,37 @@ export function LawBox() {
   const role = law.allowedRole == 0n ? 0 
   : law.allowedRole == 4294967295n ? 6 
   : Number(law.allowedRole)
-  const statusExecute = action.upToDate ? status : 'idle'
+
+  const handleChange = (input: InputType | InputType[], index: number) => {
+    console.log("@handleChange triggered")
+    const currentInput = inputValues 
+    currentInput[index] = input
+    console.log("@handleChange", {currentInput})
+    setInputValues(currentInput)
+  }  
   
-  const handleSimulate = async () => {
-      const lawCalldata: `0x${string}` = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), [inputValues]);
-      // updating stored action. 
-      setAction({
-        dataTypes: dataTypes,
-        inputValues: inputValues,
-        description: description,
-        callData: lawCalldata,
-        upToDate: true
-      })
-      // simulating law. 
-      simulate(
-        law.law as `0x${string}`,
-        lawCalldata as `0x${string}`,
-        description
-      )
+  const handleSimulate = async (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault() 
+      console.log("@handleSimulate Called")
+      if (dataTypes.length > 0 && inputValues) {
+        const lawCalldata: `0x${string}` = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), inputValues);
+        // resetting rendering output
+        setJsxSimulation([])
+        // resetting store 
+        setAction({
+          dataTypes: dataTypes,
+          inputValues: inputValues,
+          description: description,
+          callData: lawCalldata,
+          upToDate: true
+        })
+        // simulating law. 
+        fetchSimulation(
+          law.law as `0x${string}`,
+          lawCalldata as `0x${string}`,
+          keccak256(toHex(description))
+        )
+      }
   };
 
   const handleExecute = async () => {
@@ -71,6 +84,28 @@ export function LawBox() {
   };
 
   // NB! need to check if Action from store is same as Action in current form. If not -> disable Execute! + disable links in check boxes. -> do not let user go to other law. 
+  useEffect(() => {
+    if (simulation && simulation[0].length > 0) {
+      console.log("@useEffect, jsxSimulate triggered")
+      let jsxElements: React.JSX.Element[] = []; 
+      for (let i = 0; i < simulation[0].length; i++) {
+        console.log("@useEffect building..", i)
+        jsxElements = [ 
+          ... jsxElements, 
+          <tr
+            key={i}
+            className={`text-sm text-left text-slate-800 h-16 p-2`}
+          >
+            {/*  */}
+            <td className="ps-6 text-slate-500"> {simulation[0][i]} </td> 
+            <td className="text-slate-500"> {String(simulation[1][i])} </td>
+            <td className="pe-4 text-slate-500"> {simulation[2][i]} </td>
+          </tr>
+        ];
+      }
+      setJsxSimulation(jsxElements)
+    }  
+  }, [simulation])
 
   return (
     <main className="w-full flex flex-col justify-start items-center">
@@ -87,12 +122,11 @@ export function LawBox() {
       {/* dynamic form */}
       <form action="" method="get" className="w-full">
         {
-          dataTypes.map(dataType => 
-            <DynamicInput dataType = {dataType}/>)
+          dataTypes.map((dataType, index) => 
+            <DynamicInput dataType = {dataType} onChange = {(input)=> {handleChange(input, index)}}/>)
         }
-
         <div className="w-full mt-4 flex flex-row justify-center items-start gap-y-4 px-6 pb-4 min-h-24">
-          <label htmlFor="username" className="block min-w-28 text-sm/6 font-medium text-slate-600 pb-1">Reason</label>
+          <label htmlFor="reason" className="block min-w-20 text-sm/6 font-medium text-slate-600 pb-1">Reason</label>
           <div className="w-full flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
               <textarea 
                 name="reason" 
@@ -100,18 +134,25 @@ export function LawBox() {
                 rows={3} 
                 cols ={25} 
                 className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
-                placeholder="Describe reason for action here. This description needs to be unique for action to be valid."/>
+                placeholder="Describe reason for action here. This description needs to be unique for action to be valid."
+                onChange={(event) => {setDescription(event.target.value)}} />
             </div>
         </div>
         <div className="w-full flex flex-row justify-center items-center px-6 pb-4">
-          <Button size={1} showBorder={true} onClick={handleSimulate} statusButton={status}> 
+          <Button 
+            size={1} 
+            showBorder={true} 
+            onClick={(event) => handleSimulate(event)} 
+            statusButton={
+              !action.upToDate && inputValues.length > 0 && description.length > 0 ? status : 'disabled'
+              }> 
             Submit
           </Button>
         </div>
       </form>
 
 
-      {/* simulate output */}
+      {/* fetchSimulation output */}
       <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 pt-2 px-6">
         <div className="w-full text-xs text-center text-slate-500 border rounded-t-md border-b-0 border-slate-300 p-2">
           Simulated output 
@@ -126,15 +167,7 @@ export function LawBox() {
               </tr>
             </thead>
               <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
-                {/* This has to become dynamic */}
-                <tr
-                  key={law.name}
-                  className={`text-sm text-left text-slate-800 h-16 p-2`}
-                >
-                  <td className="ps-6 text-slate-500"> Address here + link to explorer? </td>
-                  <td className="text-slate-500"> Value here </td>
-                  <td className="pe-4 text-slate-500"> Summary calldata here </td>
-                </tr>
+                { jsxSimulation.map(row => {return (row)} ) } 
               </tbody>
             </table>
           </div>
@@ -146,7 +179,19 @@ export function LawBox() {
 
       {/* execute button */}
         <div className="w-full h-fit p-6">
-          <Button size={1} onClick={handleExecute} statusButton={statusExecute}> 
+          <Button 
+            size={1} 
+            onClick={handleExecute} 
+            statusButton={
+              checks && 
+              checks.authorised && 
+              checks.delayPassed && 
+              checks.lawCompleted && 
+              checks.lawNotCompleted && 
+              checks.proposalPassed && 
+              checks.throttlePassed ? 
+              status : 'disabled'
+              }> 
             Execute
           </Button>
         </div>

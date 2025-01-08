@@ -4,9 +4,9 @@ export type Role = bigint;
 export type Status = "idle" | "pending" | "error" | "success"
 export type Vote = 0n | 1n | 2n  // = against, for, abstain  
 // 'string | number | bigint | boolean | ByteArray 
-export type InputType = Number | Boolean | String | `0x${string}` | Number[] | Boolean[] | String[] | `0x${string}`[] | undefined 
+export type InputType = number | boolean | string | `0x${string}` | undefined 
 export type DataType = "uint8" | "uint16" | "uint32" | "uint64" | "uint128" | "uint256" | "address" | "bytes" | "string" | "bytes32" | "bool" |
-                       "uint8[]" | "uint16[]" | "uint32[]" | "uint64[]" | "uint128[]" | "uint256[]" | "address[]" | "bytes[]" | "string[]" | "bytes32[]" | "bool[]" | "unsupported" | "empty"
+                       "uint8[]" | "uint16[]" | "uint32[]" | "uint64[]" | "uint128[]" | "uint256[]" | "address[]" | "bytes[]" | "string[]" | "bytes32[]" | "bool[]" | "unsupported" | "empty" 
 export type userActionsProps = { wallet: ConnectedWallet, isDisabled: boolean }
 export type ProposalViewProps = { proposal: Proposal, isDisabled: boolean} 
 
@@ -40,8 +40,8 @@ export type Organisation = {
 }
 
 export type Action = {
-  dataTypes: DataType[];
-  inputValues: InputType[];
+  dataTypes: DataType[] | undefined;
+  inputValues: InputType[] | InputType[][] | undefined;
   description: string;
   callData: `0x${string}`;
   upToDate: boolean;
