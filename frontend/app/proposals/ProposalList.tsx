@@ -1,18 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { setLaw, useOrgStore } from "@/context/store";
 import { Button } from "@/components/Button";
 import Link from "next/link";
 import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { Law, Proposal } from "@/context/types";
+import { parseRole } from "@/utils/parsers";
+import { useProposal } from "@/hooks/useProposal";
 
 
 export function ProposalList() {
   const organisation = useOrgStore();
   const router = useRouter();
   const [deselectedRoles, setDeselectedRoles] = useState<number[]>([]);
+  const {status, error, law, proposals: proposalsWithState, fetchProposalsState, propose, cancel, castVote} = useProposal();
 
   const handleRoleSelection = (role: number) => {
     const index = deselectedRoles.indexOf(role);
@@ -23,6 +26,12 @@ export function ProposalList() {
       setDeselectedRoles(updatedRoles);
     }
   };
+
+  useEffect(() => {
+    if (organisation?.proposals) {
+      fetchProposalsState(organisation.proposals);
+    }
+  }, [organisation, organisation?.proposals]);
 
   return (
     <div className="w-full flex flex-col justify-start items-center">
@@ -81,35 +90,31 @@ export function ProposalList() {
         </thead>
         <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
           {
-            organisation?.proposals?.map((proposal: Proposal) => {
+            proposalsWithState?.map((proposal: Proposal, i) => {
               const law = organisation?.laws?.find(law => law.law == proposal.targetLaw)
               return (
                 law && law.allowedRole != undefined && !deselectedRoles.includes(Number(law.allowedRole)) ? 
              
                 <tr
-                  key={law.name}
+                  key={i}
                   className={`text-sm text-left text-slate-800 h-16 p-2`}
                 >
                   <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-60">
                     <Button
                       showBorder={false}
-                      role={
-                        law.allowedRole == 4294967295n
-                          ? 6
-                          : law.allowedRole == 0n
-                          ? 0
-                          : Number(law.allowedRole)
-                      }
+                      role={parseRole(law.allowedRole)}
                       onClick={() => {
                         setLaw(law);
-                        router.push("/laws/law");
+                        router.push("/proposals/proposal");
                       }}
                       align={0}
                     >
-                      {law.name}
+                      {proposal.blockNumber}
                     </Button>
                   </td>
-                  <td className="pe-4 text-slate-500">{law.description}</td>
+                  <td className="pe-4 text-slate-500">{law.name}</td>
+                  <td className="pe-4 text-slate-500">{proposal.description}</td>
+                  <td className="pe-4 text-slate-500">{proposal.state}</td>
                   <td className="pe-4 min-w-20 text-slate-500"> { 
                     law.allowedRole == 0n ? 
                       "Admin"

@@ -23,7 +23,7 @@ const fontAlign = [
   "justify-right text-right", 
 ]
 
-const roleColour = [
+const roleBorderColour = [
   "aria-selected:bg-blue-200 hover:border-blue-600",
   "aria-selected:bg-red-200 hover:border-red-600",
   "aria-selected:bg-yellow-200 hover:border-yellow-600",
@@ -47,7 +47,7 @@ export const Button = ({
 
   return (
     <button 
-      className={`w-full h-full disabled:opacity-50 rounded-md border ${roleColour[role]} ${fontSize[size]} ${showBorder ? "border-slate-300 disabled:hover:border-slate-300": "border-transparent"}`}  
+      className={`w-full h-full disabled:opacity-50 rounded-md border ${roleBorderColour[role]} ${fontSize[size]} ${showBorder ? "border-slate-300 disabled:hover:border-slate-300": "border-transparent"}`}  
       onClick={onClick} 
       disabled={statusButton != 'idle'}
       aria-selected={selected}

@@ -1,4 +1,6 @@
 // ThemeContext.tsx
+// added local theming as well. 
+
 'use client';
 
 import React, {
@@ -10,6 +12,11 @@ import React, {
     SetStateAction,
     Dispatch
 } from 'react';
+
+const roleColour = [ // this I should import from somewhere. 
+    "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
+    "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
+  ]
 
 interface ThemeContextProps {
     theme: string;
@@ -53,4 +60,4 @@ const useTheme = () => {
     return context;
 };
 
-export { ThemeProvider, useTheme };
+export { roleColour, ThemeProvider, useTheme };

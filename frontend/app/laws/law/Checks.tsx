@@ -6,6 +6,8 @@ import { Law, userActionsProps } from "@/context/types";
 import { useLaw } from "@/hooks/useLaw";
 import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
+import { roleColour } from "@/context/ThemeContext"
+import { parseRole } from "@/utils/parsers";
 
 
 export const Checks: React.FC = () => {
@@ -15,21 +17,10 @@ export const Checks: React.FC = () => {
   const action = useActionStore();
   const needCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needCompleted); 
   const needNotCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needNotCompleted); 
-  const roleColour = [
-    "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
-    "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
-  ]
-  const role = law.allowedRole == 0n ? 0 
-    : law.allowedRole == 4294967295n ? 6 
-    : Number(law.allowedRole)
-
-  console.log({checks})
 
   useEffect(() => {
     fetchChecks("dummy string", "0x0")
   }, [])
-
-  console.log("action.upToDate: ", action.upToDate)
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
@@ -65,7 +56,7 @@ export const Checks: React.FC = () => {
             </div>
             <div className = "w-full flex flex-row px-2 py-1">
               <button 
-                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[role]} disabled:opacity-50`}
+                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[parseRole(law.allowedRole)]} disabled:opacity-50`}
                 disabled = { !action.upToDate }
                 >
                 <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1  px-2 py-1`}>

@@ -19,10 +19,12 @@ const Page: React.FC = () => {
       <section className="w-full flex flex-row">
 
         {/* left panel  */}
+        <div className="grow-0 w-5/6 flex"> 
          <LawBox />
+        </div>
 
         {/* right panel  */}
-        <div className="w-96 flex flex-col gap-4 justify-start items-center ps-4">
+        <div className="grow-0 w-96 flex flex-col gap-4 justify-start items-center ps-4">
           <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-2 rounded-md">
             <Checks /> 
           </div>

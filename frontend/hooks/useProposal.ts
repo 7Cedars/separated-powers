@@ -1,17 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { agDaoAbi } from "../context/abi";
-import { Status } from "../context/types"
+import { separatedPowersAbi } from "../context/abi";
+import { Proposal, Status } from "../context/types"
 import { lawContracts } from "@/context/lawContracts";
 import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { useWaitForTransactionReceipt } from "wagmi";
+import { readContract } from "wagmi/actions";
+import { publicClient } from "@/context/clients";
+import { useOrgStore } from "@/context/store";
 
 export const useProposal = () => {
   const [status, setStatus ] = useState<Status>("idle")
+  const organisation = useOrgStore()
   const [transactionHash, setTransactionHash ] = useState<`0x${string}` | undefined>()
+  const [proposals, setProposals] = useState<Proposal[] | undefined>()
   const [law, setLaw ] = useState<`0x${string}` | undefined>()
   const [error, setError] = useState<any | null>(null)
-  const agDaoAddress: `0x${string}` = lawContracts.find((law: any) => law.contract === "AgDao")?.address as `0x${string}`
 
   const {error: errorReceipt, status: statusReceipt} = useWaitForTransactionReceipt({
     confirmations: 2, 
@@ -25,8 +29,31 @@ export const useProposal = () => {
 
 
   // Status //
-  // NB! see useProposals for checking status.. 
+  const fetchProposalsState = async (proposals: Proposal[]) => {
+    let proposal: Proposal
+    let proposalsWithState: Proposal[] = []
 
+    if (publicClient) {
+      try {
+        for await (proposal of proposals) {
+          if (proposal?.proposalId) {
+            const fetchedState = await readContract(wagmiConfig, {
+              abi: separatedPowersAbi,
+              address: organisation.contractAddress,
+              functionName: 'state', 
+              args: [proposal.proposalId]
+            })
+            if (Number(fetchedState) < 5) 
+              proposalsWithState.push({...proposal, state: Number(fetchedState)}) // = 5 is a non-existent state
+          }
+        } 
+        setProposals(proposalsWithState)
+      } catch (error) {
+        setStatus("error") 
+        setError(error)
+      }
+    }
+  }
 
   // Actions // 
   const propose = useCallback( 
@@ -35,12 +62,12 @@ export const useProposal = () => {
       lawCalldata: `0x${string}`,
       description: string
     ) => {
-        setStatus("loading")
+        setStatus("pending")
         setLaw(targetLaw)
         try {
             const result = await writeContract(wagmiConfig, {
-              abi: agDaoAbi,
-              address: agDaoAddress,
+              abi: separatedPowersAbi,
+              address: organisation.contractAddress,
               functionName: 'propose', 
               args: [targetLaw, lawCalldata, description]
             })
@@ -57,12 +84,12 @@ export const useProposal = () => {
       lawCalldata: `0x${string}`,
       descriptionHash: `0x${string}`
     ) => {
-        setStatus("loading")
+        setStatus("pending")
         setLaw(targetLaw)
         try {
           const result = await writeContract(wagmiConfig, {
-            abi: agDaoAbi,
-            address: agDaoAddress,
+            abi: separatedPowersAbi,
+            address: organisation.contractAddress,
             functionName: 'cancel', 
             args: [targetLaw, lawCalldata, descriptionHash]
           })
@@ -79,12 +106,12 @@ export const useProposal = () => {
       proposalId: bigint,
       support: bigint 
     ) => {
-        setStatus("loading")
+        setStatus("pending")
         setLaw("0x01") // note: a dummy value to signify cast vote 
         try {
           const result = await writeContract(wagmiConfig, {
-            abi: agDaoAbi,
-            address: agDaoAddress,
+            abi: separatedPowersAbi,
+            address: organisation.contractAddress,
             functionName: 'castVote', 
             args: [proposalId, support]
           })
@@ -95,5 +122,5 @@ export const useProposal = () => {
       }
   }, [ ])
 
-  return {status, error, law, propose, cancel, castVote}
+  return {status, error, law, proposals, fetchProposalsState, propose, cancel, castVote}
 }

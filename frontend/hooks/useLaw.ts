@@ -51,6 +51,13 @@ export const useLaw = () => {
     if (statusReceipt === "error") setStatus("error")
   }, [statusReceipt])
 
+  // reset // 
+  const resetStatus = () => {
+    setStatus("idle")
+    setError(null)
+    setTransactionHash(undefined)
+  }
+
   // Status //
   const checkAccountAuthorised = useCallback(
     async () => {
@@ -262,5 +269,5 @@ export const useLaw = () => {
       }
   }, [ ])
 
-  return {status, error, law, simulation, checks, fetchSimulation, fetchChecks, execute}
+  return {status, error, law, simulation, checks, resetStatus, fetchSimulation, fetchChecks, execute}
 }

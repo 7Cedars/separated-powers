@@ -12,43 +12,38 @@ import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { parseParams } from "../../../utils/parsers";
-import { InputType } from "../../../context/types";
+import { parseParams, parseRole } from "../../../utils/parsers";
+import { InputType } from "@/context/types";
 import { DynamicInput } from "@/components/DynamicInput";
+import { roleColour } from "@/context/ThemeContext"
+import { notUpToDate } from "@/context/store"
 
 export function LawBox() {
   const router = useRouter();
   const action = useActionStore();
 
-  const {status, error, law, simulation, checks, execute, fetchSimulation, fetchChecks} = useLaw();
+  const {status, error, law, simulation, checks, resetStatus, execute, fetchSimulation, fetchChecks} = useLaw();
   const { data: params, isLoading, isError } = useReadContract({
     abi: lawAbi,
     address: law.law,
     functionName: 'getParams'
   })
   const dataTypes = params ? parseParams(params as string[]) : []
-  console.log("@lawbox:", {error, status})
+  console.log("@lawbox:", {error, status, action})
 
   const [inputValues, setInputValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(dataTypes.length)); // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
   const [jsxSimulation, setJsxSimulation] = useState<React.JSX.Element[]> ([]); 
 
-
-  const roleColour = [ // this I should import from somewhere. 
-    "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
-    "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
-  ]
-
-  const role = law.allowedRole == 0n ? 0 
-  : law.allowedRole == 4294967295n ? 6 
-  : Number(law.allowedRole)
-
   const handleChange = (input: InputType | InputType[], index: number) => {
-    console.log("@handleChange triggered")
+    console.log("@lawbox @handleChange triggered, input:", input)
     const currentInput = inputValues 
     currentInput[index] = input
-    console.log("@handleChange", {currentInput})
+    console.log("@lawbox @handleChange", {currentInput})
     setInputValues(currentInput)
+
+    // reset useLaw hook  
+    resetStatus()
   }  
   
   const handleSimulate = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -86,7 +81,6 @@ export function LawBox() {
       )
   };
 
-  // NB! need to check if Action from store is same as Action in current form. If not -> disable Execute! + disable links in check boxes. -> do not let user go to other law. 
   useEffect(() => {
     if (simulation && simulation[0].length > 0) {
       console.log("@useEffect, jsxSimulate triggered")
@@ -97,7 +91,7 @@ export function LawBox() {
           ... jsxElements, 
           <tr
             key={i}
-            className={`text-sm text-left text-slate-800 h-16 p-2`}
+            className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}
           >
             {/*  */}
             <td className="ps-6 text-slate-500"> {simulation[0][i]} </td> 
@@ -110,9 +104,18 @@ export function LawBox() {
     }  
   }, [simulation])
 
+  // resetting lawBox when switching laws: 
+  useEffect(() => {
+    console.log("startup set lawbox triggered")
+    notUpToDate({})
+    resetStatus()
+    setJsxSimulation([])
+
+  }, [law])
+
   return (
     <main className="w-full flex flex-col justify-start items-center">
-      <section className={`w-full flex flex-col justify-start items-center bg-slate-50 border ${roleColour[role]} mt-2 rounded-md overflow-hidden`} >
+      <section className={`w-full flex flex-col justify-start items-center bg-slate-50 border ${roleColour[parseRole(law.allowedRole)]} mt-2 rounded-md overflow-hidden`} >
       {/* title  */}
       <div className="w-full flex flex-row gap-3 justify-between items-center border-b border-slate-300 py-4 ps-6 pe-2">
         <SectionText
@@ -126,7 +129,7 @@ export function LawBox() {
       <form action="" method="get" className="w-full">
         {
           dataTypes.map((dataType, index) => 
-            <DynamicInput dataType = {dataType} onChange = {(input)=> {handleChange(input, index)}}/>)
+            <DynamicInput dataType = {dataType} values = {inputValues[index]} onChange = {(input)=> {handleChange(input, index)}}/>)
         }
         <div className="w-full mt-4 flex flex-row justify-center items-start gap-y-4 px-6 pb-4 min-h-24">
           <label htmlFor="reason" className="block min-w-20 text-sm/6 font-medium text-slate-600 pb-1">Reason</label>
@@ -138,7 +141,10 @@ export function LawBox() {
                 cols ={25} 
                 className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
                 placeholder="Describe reason for action here. This description needs to be unique for action to be valid."
-                onChange={(event) => {setDescription(event.target.value)}} />
+                onChange={(event) => {{
+                  setDescription(event.target.value); 
+                  resetStatus(); 
+                  }}} />
             </div>
         </div>
         <div className="w-full flex flex-row justify-center items-center px-6 pb-4">
@@ -160,8 +166,8 @@ export function LawBox() {
         <div className="w-full text-xs text-center text-slate-500 border rounded-t-md border-b-0 border-slate-300 p-2">
           Simulated output 
         </div>
-        <div className="w-full h-fit border border-slate-300 rounded-b-md overflow-hidden">
-          <table className="w-full table-auto">
+        <div className="w-full h-fit border border-slate-300 overflow-scroll rounded-b-md">
+          <table className="table-auto w-full ">
             <thead className="w-full">
               <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
                   <th className="ps-6 py-2 font-light"> Target contracts </th>

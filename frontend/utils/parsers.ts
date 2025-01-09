@@ -68,9 +68,8 @@ export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataT
 
   // Note that later on I can also check for maximum values by taking the power of uintxxx
   if (dataType.indexOf('uint') > -1) {
-    if (typeof event.target.value != 'number') { return errorMessage }
     try {
-      return Number(event.target.value) 
+      return event.target.value as string 
     } catch {
       return errorMessage
     }
@@ -79,7 +78,7 @@ export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataT
   if (dataType.indexOf('bool') > -1) {
     console.log("@parser: ", event.target.value)
     try {
-      return Boolean(event.target.value == 'true') 
+      return event.target.value as string 
     } catch {
       return errorMessage
     }
@@ -110,9 +109,10 @@ export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataT
   }
 };
 
-export const parseRole = (role: bigint): number => {
+export const parseRole = (role: bigint | undefined): number => {
   const returnValue = 
-  role == 4294967295n ? 6
+  role == undefined ? 0
+  : role == 4294967295n ? 6
   : role == 0n ? 0
   : Number(role)
 
