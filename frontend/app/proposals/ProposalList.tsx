@@ -15,7 +15,7 @@ export function ProposalList() {
   const organisation = useOrgStore();
   const router = useRouter();
   const [deselectedRoles, setDeselectedRoles] = useState<number[]>([]);
-  const {status, error, law, proposals: proposalsWithState, fetchProposalsState, propose, cancel, castVote} = useProposal();
+  const {status, error, law, proposals: proposalsWithState, fetchProposals, propose, cancel, castVote} = useProposal();
 
   const handleRoleSelection = (role: number) => {
     const index = deselectedRoles.indexOf(role);
@@ -28,8 +28,8 @@ export function ProposalList() {
   };
 
   useEffect(() => {
-    if (organisation?.proposals) {
-      fetchProposalsState(organisation.proposals);
+    if (organisation) {
+      fetchProposals(organisation);
     }
   }, [organisation, organisation?.proposals]);
 
@@ -105,6 +105,7 @@ export function ProposalList() {
                       role={parseRole(law.allowedRole)}
                       onClick={() => {
                         setLaw(law);
+                        
                         router.push("/proposals/proposal");
                       }}
                       align={0}

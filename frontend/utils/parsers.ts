@@ -69,7 +69,7 @@ export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataT
   // Note that later on I can also check for maximum values by taking the power of uintxxx
   if (dataType.indexOf('uint') > -1) {
     try {
-      return event.target.value as string 
+      return Number(event.target.value) 
     } catch {
       return errorMessage
     }
@@ -78,7 +78,7 @@ export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataT
   if (dataType.indexOf('bool') > -1) {
     console.log("@parser: ", event.target.value)
     try {
-      return event.target.value as string 
+      return Boolean(event.target.value)
     } catch {
       return errorMessage
     }

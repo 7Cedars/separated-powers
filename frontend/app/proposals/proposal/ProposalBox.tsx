@@ -14,71 +14,57 @@ import { useLaw } from "@/hooks/useLaw";
 import { encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
 import { parseParams, parseRole } from "../../../utils/parsers";
 import { InputType } from "@/context/types";
-import { DynamicInput } from "@/app/laws/law/DynamicInput";
+import { StaticInput } from "./StaticInput";
 import { roleColour } from "@/context/ThemeContext"
 import { notUpToDate } from "@/context/store"
+import { useProposal } from "@/hooks/useProposal";
 
-export function LawBox() {
+export function ProposalBox() {
   const router = useRouter();
   const action = useActionStore();
 
-  const {status, error, law, simulation, checks, resetStatus, execute, fetchSimulation, fetchChecks} = useLaw();
-  const { data: params, isLoading, isError } = useReadContract({
-    abi: lawAbi,
-    address: law.law,
-    functionName: 'getParams'
-  })
-  const dataTypes = params ? parseParams(params as string[]) : []
-  console.log("@lawbox:", {error, status, action, checks})
-
-  const [inputValues, setInputValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(dataTypes.length)); // NB! String has to be converted to hex using toHex before being able to use as input.  
-  const [description, setDescription] = useState<string>("");
+  const {simulation, law, checks, resetStatus, execute, checkProposalExists, fetchSimulation, fetchChecks} = useLaw();
+  const {status, error, proposals: proposalsWithState, fetchProposals, propose, cancel, castVote} = useProposal();
   const [jsxSimulation, setJsxSimulation] = useState<React.JSX.Element[]> ([]); 
+  console.log("@ProposalBox:", {status, checks, action})
 
-  const handleChange = (input: InputType | InputType[], index: number) => {
-    console.log("@lawbox @handleChange triggered, input:", input)
-    const currentInput = inputValues 
-    currentInput[index] = input
-    console.log("@lawbox @handleChange", {currentInput})
-    setInputValues(currentInput)
-
-    // reset useLaw hook  
-    resetStatus()
-  }  
-  
-  const handleSimulate = async (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.preventDefault() 
+  const handleSimulate = async () => { // handleSimulate
+      // event.preventDefault() 
       console.log("@handleSimulate Called")
       let lawCalldata: `0x${string}`
-      if (dataTypes.length > 0 && inputValues) {
-        lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), inputValues);
+      if (action.dataTypes && action.dataTypes.length > 0 && action.inputValues) {
+        lawCalldata = encodeAbiParameters(parseAbiParameters(action.dataTypes.toString()), action.inputValues);
       } else {
         lawCalldata = '0x0'
       }
-        // resetting rendering output
-        setJsxSimulation([])
-        // resetting store 
-        setAction({
-          dataTypes: dataTypes,
-          inputValues: inputValues,
-          description: description,
-          callData: lawCalldata,
-          upToDate: true
-        })
-        // simulating law. 
-        fetchSimulation(
-          law.law as `0x${string}`,
-          lawCalldata as `0x${string}`,
-          keccak256(toHex(description))
-        )
-        fetchChecks(description, lawCalldata) 
+
+      // resetting rendering output
+      setJsxSimulation([])
+      
+      // simulating law. 
+      fetchSimulation(
+        law.law as `0x${string}`,
+        lawCalldata as `0x${string}`,
+        keccak256(toHex(action.description))
+      )
+
+      fetchChecks(action.description, action.callData)
   };
 
-  const handleExecute = async () => {
-      execute(
+  const handlePropose = async () => {
+    propose(
           law.law as `0x${string}`,
           action.callData as `0x${string}`,
           action.description
+      )
+  };
+
+  const handleCastVote = async (support: bigint) => {
+    const selectedProposal = checkProposalExists(action.description, action.callData)
+    if (selectedProposal)
+    castVote(
+        BigInt(selectedProposal.proposalId),
+        support
       )
   };
 
@@ -92,12 +78,12 @@ export function LawBox() {
           ... jsxElements, 
           <tr
             key={i}
-            className={`text-sm text-slate-800 h-16 p-2 overflow-x-scroll`}
+            className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}
           >
             {/*  */}
-            <td className="ps-6 text-left text-slate-500"> {simulation[0][i]} </td> 
-            <td className="text-center text-slate-500"> {String(simulation[1][i])} </td>
-            <td className="pe-4 text-left text-slate-500"> {simulation[2][i]} </td>
+            <td className="ps-6 text-slate-500"> {simulation[0][i]} </td> 
+            <td className="text-slate-500"> {String(simulation[1][i])} </td>
+            <td className="pe-4 text-slate-500"> {simulation[2][i]} </td>
           </tr>
         ];
       }
@@ -107,10 +93,8 @@ export function LawBox() {
 
   // resetting lawBox when switching laws: 
   useEffect(() => {
-    console.log("startup set lawbox triggered")
-    notUpToDate({})
-    resetStatus()
-    setJsxSimulation([])
+    console.log("startup set @proposalBox triggered")
+    handleSimulate()
 
   }, [law])
 
@@ -120,7 +104,7 @@ export function LawBox() {
       {/* title  */}
       <div className="w-full flex flex-row gap-3 justify-between items-center border-b border-slate-300 py-4 ps-6 pe-2">
         <SectionText
-          text={law?.name}
+          text={`Proposal: ${law?.name}`}
           subtext={law?.description}
           size = {0}
         /> 
@@ -129,38 +113,27 @@ export function LawBox() {
       {/* dynamic form */}
       <form action="" method="get" className="w-full">
         {
-          dataTypes.map((dataType, index) => 
-            <DynamicInput dataType = {dataType} values = {inputValues[index]} onChange = {(input)=> {handleChange(input, index)}}/>)
+          action.dataTypes ? action.dataTypes.map((dataType, index) => 
+            <StaticInput dataType = {dataType} values = {action.inputValues && action.inputValues[index] ? action.inputValues[index] : []} />)
+          :
+          null
         }
         <div className="w-full mt-4 flex flex-row justify-center items-start gap-y-4 px-6 pb-4 min-h-24">
           <label htmlFor="reason" className="block min-w-20 text-sm/6 font-medium text-slate-600 pb-1">Reason</label>
-          <div className="w-full flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+          <div className="w-full flex items-center rounded-md bg-slate-100 pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
               <textarea 
                 name="reason" 
                 id="reason" 
                 rows={3} 
                 cols ={25} 
+                value={action.description}
                 className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
                 placeholder="Describe reason for action here. This description needs to be unique for action to be valid."
-                onChange={(event) => {{
-                  setDescription(event.target.value); 
-                  resetStatus(); 
-                  }}} />
+                disabled={true} 
+                />
             </div>
         </div>
-        <div className="w-full flex flex-row justify-center items-center px-6 pb-4">
-          <Button 
-            size={1} 
-            showBorder={true} 
-            onClick={(event) => handleSimulate(event)} 
-            statusButton={
-              !action.upToDate && description.length > 0 ? status : 'disabled'
-              }> 
-            Check 
-          </Button>
-        </div>
       </form>
-
 
       {/* fetchSimulation output */}
       <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 pt-2 px-6">
@@ -189,21 +162,53 @@ export function LawBox() {
 
       {/* execute button */}
         <div className="w-full h-fit p-6">
-          <Button 
+          {
+            checks?.proposalExists ? 
+            <div className = "w-full flex flex-row gap-2"> 
+              <Button 
+                size={1} 
+                onClick={() => handleCastVote(1n)} 
+                statusButton={
+                  checks && 
+                  checks.authorised ? 
+                  status : 'disabled'
+                  }> 
+                  For
+              </Button>
+              <Button 
+                size={1} 
+                onClick={() => handleCastVote(0n)} 
+                statusButton={
+                  checks && 
+                  checks.authorised ? 
+                  status : 'disabled'
+                  }> 
+                  Against
+              </Button>
+              <Button 
+                size={1} 
+                onClick={() => handleCastVote(2n)} 
+                statusButton={
+                  checks && 
+                  checks.authorised ? 
+                  status : 'disabled'
+                  }> 
+                  Abstain
+              </Button>
+            </div>
+            :
+            <Button 
             size={1} 
-            onClick={handleExecute} 
-            statusButton={
+            onClick={handlePropose} 
+
+            statusButton={ 
               checks && 
-              checks.authorised && 
-              checks.delayPassed && 
-              checks.lawCompleted && 
-              checks.lawNotCompleted && 
-              checks.proposalPassed && 
-              checks.throttlePassed ? 
+              checks.authorised ? 
               status : 'disabled'
               }> 
-            Execute
+            Propose
           </Button>
+          }
         </div>
       </section>
     </main>

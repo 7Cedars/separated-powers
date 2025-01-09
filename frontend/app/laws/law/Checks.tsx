@@ -8,11 +8,13 @@ import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/reac
 import { useEffect } from "react";
 import { roleColour } from "@/context/ThemeContext"
 import { parseRole } from "@/utils/parsers";
+import { useRouter } from "next/navigation";
 
 
 export const Checks: React.FC = () => {
   const {status, error, checks, law: currentLaw, execute, fetchSimulation, fetchChecks} = useLaw(); 
   const law = useLawStore();
+  const router = useRouter();
   const organisation = useOrgStore();
   const action = useActionStore();
   const needCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needCompleted); 
@@ -28,11 +30,6 @@ export const Checks: React.FC = () => {
           <div className="text-left w-52">
             Checks
           </div> 
-          {/* <button onClick={() => fetchChecks("description", "0x0")}>
-            <ArrowPathIcon
-              className="w-4 h-4 text-slate-600"
-              />
-          </button> */}
         </div>
 
         {/* authorised block */}
@@ -41,7 +38,7 @@ export const Checks: React.FC = () => {
             { checks?.authorised ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
             {/* <XMarkIcon className="w-4 h-4 text-red-600"/> */}
             <div>
-              Account authorised
+            {checks?.authorised ? "Account authorised" : "Account not authorised"  } 
             </div>
           </div>
         </div>
@@ -57,6 +54,7 @@ export const Checks: React.FC = () => {
             <div className = "w-full flex flex-row px-2 py-1">
               <button 
                 className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[parseRole(law.allowedRole)]} disabled:opacity-50`}
+                onClick = {() => router.push('/proposals/proposal')}
                 disabled = { !action.upToDate }
                 >
                 <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1  px-2 py-1`}>
@@ -79,7 +77,7 @@ export const Checks: React.FC = () => {
             </div>
             <div className = "w-full flex flex-row px-2 py-1">
               <button 
-                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]} disabled:opacity-50`}
+                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[parseRole(needCompletedLaw?.allowedRole)]} disabled:opacity-50`}
                 onClick = {() => {setLaw(needCompletedLaw ? needCompletedLaw : law)}}
                 disabled = { !action.upToDate }
                 >
@@ -104,7 +102,7 @@ export const Checks: React.FC = () => {
             </div>
             <div className = "w-full flex flex-row px-2 py-1">
               <button 
-                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]} disabled:opacity-50`}
+                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[parseRole(needNotCompletedLaw?.allowedRole)]} disabled:opacity-50`}
                 onClick = {() => {setLaw(needNotCompletedLaw ? needNotCompletedLaw : law)}}
                 disabled = { !action.upToDate }
                 >

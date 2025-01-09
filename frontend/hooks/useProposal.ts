@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { separatedPowersAbi } from "../context/abi";
-import { Proposal, Status } from "../context/types"
+import { Organisation, Proposal, Status } from "../context/types"
 import { lawContracts } from "@/context/lawContracts";
 import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
@@ -8,6 +8,7 @@ import { useWaitForTransactionReceipt } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { publicClient } from "@/context/clients";
 import { useOrgStore } from "@/context/store";
+import { parseEventLogs, ParseEventLogsReturnType } from "viem";
 
 export const useProposal = () => {
   const [status, setStatus ] = useState<Status>("idle")
@@ -29,9 +30,42 @@ export const useProposal = () => {
 
 
   // Status //
-  const fetchProposalsState = async (proposals: Proposal[]) => {
+  const getProposals = async (organisation: Organisation) => {
+      if (publicClient) {
+        try {
+            if (organisation?.contractAddress) {
+              const logs = await publicClient.getContractEvents({ 
+                address: organisation.contractAddress as `0x${string}`,
+                abi: separatedPowersAbi, 
+                eventName: 'ProposalCreated',
+                fromBlock: 102000000n
+              })
+              const fetchedLogs = parseEventLogs({
+                          abi: separatedPowersAbi,
+                          eventName: 'ProposalCreated',
+                          logs
+                        })
+              const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
+              const fetchedProposals: Proposal[] = fetchedLogsTyped.map(log => log.args as Proposal)
+              const fetchedProposalsWithBlockNumber: Proposal[] = fetchedProposals.map(
+                (proposal, index) => ({ ...proposal, 
+                  blockNumber: Number(fetchedLogsTyped[index].blockNumber), 
+                  blockHash: fetchedLogsTyped[index].blockHash
+                }))
+              fetchedProposalsWithBlockNumber.sort((a: Proposal, b: Proposal) => a.blockNumber > b.blockNumber ? 1 : -1)
+              return fetchedProposalsWithBlockNumber
+            }
+        } catch (error) {
+          setStatus("error") 
+          setError(error)
+        }
+      }
+    }
+  
+  
+  const getProposalsState = async (proposals: Proposal[]) => {
     let proposal: Proposal
-    let proposalsWithState: Proposal[] = []
+    let state: number[] = []
 
     if (publicClient) {
       try {
@@ -44,16 +78,68 @@ export const useProposal = () => {
               args: [proposal.proposalId]
             })
             if (Number(fetchedState) < 5) 
-              proposalsWithState.push({...proposal, state: Number(fetchedState)}) // = 5 is a non-existent state
+              state.push(Number(fetchedState)) // = 5 is a non-existent state
           }
         } 
-        setProposals(proposalsWithState)
+        return state
       } catch (error) {
         setStatus("error") 
         setError(error)
       }
     }
   }
+
+  const getProposalsVotes = async (proposals: Proposal[]) => {
+    let proposal: Proposal
+    let votes: bigint[] = []
+
+    if (publicClient) {
+      try {
+        for await (proposal of proposals) {
+          if (proposal?.proposalId) {
+            const fetchedVotes = await readContract(wagmiConfig, {
+              abi: separatedPowersAbi,
+              address: organisation.contractAddress,
+              functionName: 'getProposalVotes', 
+              args: [proposal.proposalId]
+            })
+            console.log("@useProposal @fetchProposalsVote, return value: ", fetchedVotes)
+          }
+        } 
+        // return votes
+      } catch (error) {
+        setStatus("error") 
+        setError(error)
+      }
+    }
+  }
+
+  const fetchProposals = useCallback(
+    async (organisation: Organisation) => {
+      let proposals: Proposal[] | undefined;
+      let states: number[] | undefined; 
+      let votes: bigint[] | undefined;
+      let proposalsFull: Proposal[] | undefined;
+
+      setError(null)
+      setStatus("pending")
+
+      proposals = await getProposals(organisation)
+      if (proposals) {
+        states = await getProposalsState(proposals)
+        // const votes = await getProposalsVotes(proposals) 
+      } 
+      if (states) { // + votes later.. 
+        proposalsFull = proposals?.map((proposal, index) => {
+          return ( 
+            {...proposal, state: states[index]}
+          )
+        })
+      }
+
+      setProposals(proposalsFull)
+      setStatus("success") //NB note: after checking status, sets the status back to idle! 
+  }, [ ]) 
 
   // Actions // 
   const propose = useCallback( 
@@ -122,5 +208,5 @@ export const useProposal = () => {
       }
   }, [ ])
 
-  return {status, error, law, proposals, fetchProposalsState, propose, cancel, castVote}
+  return {status, error, law, proposals, fetchProposals, propose, cancel, castVote}
 }

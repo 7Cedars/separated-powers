@@ -215,13 +215,13 @@ export const useLaw = () => {
         results[6] = await checkLawNotCompleted(description, calldata)
 
         if (!results.find(result => {result == undefined})) setChecks({
-          delayPassed: results[0],
-          throttlePassed: results[1],
+          delayPassed: law.config.delayExecution == 0n ? true : results[0],
+          throttlePassed: law.config.throttleExecution == 0n ? true : results[1],
           authorised: results[2],
-          proposalExists: results[3],
-          proposalPassed: results[4],
-          lawCompleted: results[5],
-          lawNotCompleted: results[6]
+          proposalExists: law.config.quorum == 0n ? true : results[3],
+          proposalPassed: law.config.quorum == 0n ? true : results[4],
+          lawCompleted: law.config.needCompleted == '0x0000000000000000000000000000000000000000' ? true : results[5],
+          lawNotCompleted: law.config.needNotCompleted == '0x0000000000000000000000000000000000000000' ? true : results[6]
         })
         
         setStatus("idle") //NB note: after checking status, sets the status back to idle! 
@@ -269,5 +269,5 @@ export const useLaw = () => {
       }
   }, [ ])
 
-  return {status, error, law, simulation, checks, resetStatus, fetchSimulation, fetchChecks, execute}
+  return {status, error, law, simulation, checks, checkProposalExists, resetStatus, fetchSimulation, fetchChecks, execute}
 }
