@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { separatedPowersAbi } from "../context/abi";
-import { Organisation, Proposal, Status } from "../context/types"
-import { lawContracts } from "@/context/lawContracts";
+import { Organisation, Proposal, Status } from "../context/types";
 import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { useWaitForTransactionReceipt } from "wagmi";
@@ -82,31 +81,6 @@ export const useProposal = () => {
           }
         } 
         return state
-      } catch (error) {
-        setStatus("error") 
-        setError(error)
-      }
-    }
-  }
-
-  const getProposalsVotes = async (proposals: Proposal[]) => {
-    let proposal: Proposal
-    let votes: bigint[] = []
-
-    if (publicClient) {
-      try {
-        for await (proposal of proposals) {
-          if (proposal?.proposalId) {
-            const fetchedVotes = await readContract(wagmiConfig, {
-              abi: separatedPowersAbi,
-              address: organisation.contractAddress,
-              functionName: 'getProposalVotes', 
-              args: [proposal.proposalId]
-            })
-            console.log("@useProposal @fetchProposalsVote, return value: ", fetchedVotes)
-          }
-        } 
-        // return votes
       } catch (error) {
         setStatus("error") 
         setError(error)

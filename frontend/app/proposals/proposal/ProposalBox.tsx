@@ -1,66 +1,90 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { setLaw, useActionStore, setAction, useLawStore, useOrgStore } from "../../../context/store";
+import { setLaw, useActionStore, setAction, useLawStore, useOrgStore, useProposalStore } from "@/context/store";
 import { Button } from "@/components/Button";
 import Link from "next/link";
 import { GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { Law } from "@/context/types";
+import { Law, Proposal } from "@/context/types";
 import { TitleText, SectionText } from "@/components/StandardFonts";
 import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
-import { encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { parseParams, parseRole } from "../../../utils/parsers";
+import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
+import { parseInputValues, parseParams, parseRole } from "@/utils/parsers";
 import { InputType } from "@/context/types";
 import { StaticInput } from "./StaticInput";
 import { roleColour } from "@/context/ThemeContext"
 import { notUpToDate } from "@/context/store"
 import { useProposal } from "@/hooks/useProposal";
 
+// NB! the proposalBox can be requested using a proposal with only calldata (and without the original inputValues) -> coming from proposalList. 
+// or using only the original inputValues -> coming from law. NB: action DOES have calldata. 
+// so have to  
+
 export function ProposalBox() {
   const router = useRouter();
+  const proposal = useProposalStore();
   const action = useActionStore();
 
   const {simulation, law, checks, resetStatus, execute, checkProposalExists, fetchSimulation, fetchChecks} = useLaw();
-  const {status, error, proposals: proposalsWithState, fetchProposals, propose, cancel, castVote} = useProposal();
+  const {status, error, propose, castVote} = useProposal();
   const [jsxSimulation, setJsxSimulation] = useState<React.JSX.Element[]> ([]); 
-  console.log("@ProposalBox:", {status, checks, action})
+  const [inputValues, setInputValues] = useState<(InputType | InputType[])[]>([])
+  const description =  proposal?.description && proposal.description.length > 0 ? proposal.description 
+                    : action.description && action.description.length > 0 ? action.description
+                    : undefined  
+  const calldata =  proposal?.executeCalldata && proposal.executeCalldata.length > 0 ? proposal.executeCalldata 
+                    : action.callData && action.callData.length > 0 ? action.callData
+                    : undefined  
+  const { data: params, isLoading, isError } = useReadContract({
+    abi: lawAbi,
+    address: law.law,
+    functionName: 'getParams'
+  })
+  const dataTypes = params ? parseParams(params as string[]) : []
 
-  const handleSimulate = async () => { // handleSimulate
-      // event.preventDefault() 
-      console.log("@handleSimulate Called")
-      let lawCalldata: `0x${string}`
-      if (action.dataTypes && action.dataTypes.length > 0 && action.inputValues) {
-        lawCalldata = encodeAbiParameters(parseAbiParameters(action.dataTypes.toString()), action.inputValues);
-      } else {
-        lawCalldata = '0x0'
+  console.log("@ProposalBox:", {proposal, action, status, checks, dataTypes})
+
+  const handleSimulate = async () => { 
+      if (dataTypes && dataTypes.length > 0 && calldata && description) {
+        const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), calldata);
+        const valuesParsed = parseInputValues(values)
+        setInputValues(valuesParsed)
+
+        // resetting rendering output
+        setJsxSimulation([])
+        
+        // simulating law. 
+        fetchSimulation(
+          law.law as `0x${string}`,
+          calldata,
+          keccak256(toHex(description))
+        )
+
+        fetchChecks(description, calldata)
+
+        setAction({
+          dataTypes: dataTypes,
+          inputValues: inputValues,
+          description: description,
+          callData: calldata, 
+          upToDate: true
+        })
       }
-
-      // resetting rendering output
-      setJsxSimulation([])
-      
-      // simulating law. 
-      fetchSimulation(
-        law.law as `0x${string}`,
-        lawCalldata as `0x${string}`,
-        keccak256(toHex(action.description))
-      )
-
-      fetchChecks(action.description, action.callData)
   };
 
   const handlePropose = async () => {
     propose(
           law.law as `0x${string}`,
-          action.callData as `0x${string}`,
-          action.description
+          proposal.executeCalldata as `0x${string}`,
+          proposal.description as string
       )
   };
 
-  const handleCastVote = async (support: bigint) => {
-    const selectedProposal = checkProposalExists(action.description, action.callData)
+  const handleCastVote = async (support: bigint) => { 
+    const selectedProposal = description && calldata ? checkProposalExists(description, calldata) : undefined
     if (selectedProposal)
     castVote(
         BigInt(selectedProposal.proposalId),
@@ -70,7 +94,7 @@ export function ProposalBox() {
 
   useEffect(() => {
     if (simulation && simulation[0].length > 0) {
-      console.log("@useEffect, jsxSimulate triggered")
+      console.log("@useEffect, jsxSimulate triggered: ", simulation)
       let jsxElements: React.JSX.Element[] = []; 
       for (let i = 0; i < simulation[0].length; i++) {
         console.log("@useEffect building..", i)
@@ -93,10 +117,9 @@ export function ProposalBox() {
 
   // resetting lawBox when switching laws: 
   useEffect(() => {
-    console.log("startup set @proposalBox triggered")
+    console.log("startup set @proposalBox triggered:", {calldata, description})
     handleSimulate()
-
-  }, [law])
+  }, [, law, proposal ])
 
   return (
     <main className="w-full flex flex-col justify-start items-center">
@@ -113,8 +136,8 @@ export function ProposalBox() {
       {/* dynamic form */}
       <form action="" method="get" className="w-full">
         {
-          action.dataTypes ? action.dataTypes.map((dataType, index) => 
-            <StaticInput dataType = {dataType} values = {action.inputValues && action.inputValues[index] ? action.inputValues[index] : []} />)
+          dataTypes ? dataTypes.map((dataType, index) => 
+            <StaticInput dataType = {dataType} values = {inputValues && inputValues[index] ? inputValues[index] : []} />)
           :
           null
         }
@@ -126,7 +149,7 @@ export function ProposalBox() {
                 id="reason" 
                 rows={3} 
                 cols ={25} 
-                value={action.description}
+                value={description}
                 className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
                 placeholder="Describe reason for action here. This description needs to be unique for action to be valid."
                 disabled={true} 

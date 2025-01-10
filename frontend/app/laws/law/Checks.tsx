@@ -2,14 +2,12 @@
 
 import { Button } from "@/components/Button";
 import { setLaw, useActionStore, useLawStore, useOrgStore } from "@/context/store";
-import { Law, userActionsProps } from "@/context/types";
 import { useLaw } from "@/hooks/useLaw";
 import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
 import { roleColour } from "@/context/ThemeContext"
 import { parseRole } from "@/utils/parsers";
 import { useRouter } from "next/navigation";
-
 
 export const Checks: React.FC = () => {
   const {status, error, checks, law: currentLaw, execute, fetchSimulation, fetchChecks} = useLaw(); 

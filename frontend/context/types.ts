@@ -1,14 +1,11 @@
 import { ConnectedWallet } from '@privy-io/react-auth';
 
-export type Role = bigint;
 export type Status = "idle" | "pending" | "error" | "success"
 export type Vote = 0n | 1n | 2n  // = against, for, abstain  
 // 'string | number | bigint | boolean | ByteArray 
 export type InputType = number | boolean | string | `0x${string}` | undefined 
 export type DataType = "uint8" | "uint16" | "uint32" | "uint64" | "uint128" | "uint256" | "address" | "bytes" | "string" | "bytes32" | "bool" |
                        "uint8[]" | "uint16[]" | "uint32[]" | "uint64[]" | "uint128[]" | "uint256[]" | "address[]" | "bytes[]" | "string[]" | "bytes32[]" | "bool[]" | "unsupported" | "empty" 
-export type userActionsProps = { wallet: ConnectedWallet, isDisabled: boolean }
-export type ProposalViewProps = { proposal: Proposal, isDisabled: boolean} 
 
 export type Config = {
   delayExecution: bigint; 
@@ -19,6 +16,12 @@ export type Config = {
   throttleExecution: bigint;
   votingPeriod: bigint;
 }
+
+export type Role = {
+  selectedRole?: bigint, 
+  holders?: number,
+  addresses?: `0x${string}`[] 
+};
 
 export type Law = {
   law: `0x${string}`;
@@ -41,7 +44,7 @@ export type Organisation = {
 
 export type Action = {
   dataTypes: DataType[] | undefined;
-  inputValues: InputType[] | InputType[][] | undefined;
+  inputValues: (InputType | InputType[])[] | undefined;
   description: string;
   callData: `0x${string}`;
   upToDate: boolean;

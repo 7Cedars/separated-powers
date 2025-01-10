@@ -10,6 +10,8 @@ import React, { useState } from "react";
 import {ProposalBox} from "./ProposalBox";
 import {Checks} from "./Checks"; 
 import {Status} from "./Status"; 
+import {Votes} from "./Votes"; 
+import {Law} from "./Law";
 
 const Page: React.FC = () => {
   return (
@@ -23,17 +25,19 @@ const Page: React.FC = () => {
         </div>
 
         {/* right panel  */}
-        <div className="grow-0 w-96 flex flex-col gap-4 justify-start items-center ps-4"> 
+        <div className="grow-0 w-96 flex flex-col gap-2 justify-start items-center ps-4"> 
           <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-2 rounded-md">
             <Status /> 
           </div>
           <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-2 rounded-md">
             <Checks /> 
           </div>
-          {/* <Children />  */}
-          {/* <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md"> */}
-            {/* <Executions />  */}
-          {/* </div> */} 
+          <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-2 rounded-md">
+            <Votes /> 
+          </div>
+          <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-2 rounded-md">
+            <Law /> 
+          </div>
         </div>
         
       </section>

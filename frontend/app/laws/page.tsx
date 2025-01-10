@@ -12,7 +12,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {LawList} from "@/components/LawList";
+import {LawList} from "@/app/laws/LawList";
 import { usePathname } from 'next/navigation'
 
 export default function Page() {     

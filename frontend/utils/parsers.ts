@@ -58,6 +58,19 @@ export const parseParams = (params: string[]): DataType[]  => {
   return parsedParams
 }
 
+export const parseInputValues = (inputs: unknown): Array<InputType | InputType[]> => {
+  // very basic parser. Here necessary input checks can be added later.  
+  if (!isArray(inputs)) {
+    throw new Error('@parseInputValues: input not an array.');
+  }
+
+  const result = inputs.map(input => 
+    isArray(input) ? input as InputType[] : input as InputType 
+  )
+
+  return result 
+};
+
 export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataType): InputType => {
   // very basic parser. Here necessary input checks can be added later.  
   const errorMessage = 'Incorrect input data';

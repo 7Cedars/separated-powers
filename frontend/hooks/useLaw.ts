@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { lawAbi, separatedPowersAbi } from "../context/abi";
 import { CompletedProposal, Law, ProtocolEvent, Status } from "../context/types"
-import { lawContracts } from "@/context/lawContracts";
 import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { useWaitForTransactionReceipt } from "wagmi";

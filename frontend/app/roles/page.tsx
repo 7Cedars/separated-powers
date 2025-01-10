@@ -12,7 +12,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { lawContracts } from "@/context/lawContracts";
 import { useWriteContract } from "wagmi";
 import { agCoinsAbi } from "@/context/abi";
 import Link from "next/link";
@@ -20,7 +19,6 @@ import Link from "next/link";
 export default function Page() {
     const [value, setValue] = useState<string>('');  
     
-    const agCoinsContract = lawContracts.find((law: any) => law.contract === "AgCoins")
     const { writeContract, status, error } = useWriteContract()
 
     console.log("@cheat:", {status, error})
@@ -35,7 +33,7 @@ export default function Page() {
       <section className="w-full h-screen bg-white flex flex-col justify-center items-center text-center">
         How many agCoins do you want?
 
-        <input
+        {/* <input
             type="number"
             value={Number(value)}
             onChange={(e) => handleValueSet(e.target.value)}
@@ -55,7 +53,7 @@ export default function Page() {
               className="w-fit bg-white text-gray-800 border px-4 py-2 rounded-lg hover:bg-blue-200 disabled:bg-white transition duration-100"
             >
             {status === "success" ? "Success!" : "Gimme the coins!" }  
-          </button>
+          </button> */}
 
           <Link href="/" className="text-gray-800 m-6 underline">
               Back to dashboard

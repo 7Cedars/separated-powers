@@ -1,23 +1,41 @@
 "use client";
 
-import { setLaw, useActionStore, useLawStore, useOrgStore } from "@/context/store";
+import { setLaw, useActionStore, useLawStore, useOrgStore, useProposalStore } from "@/context/store";
 import { useLaw } from "@/hooks/useLaw";
 import { useProposal } from "@/hooks/useProposal";
 import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
+import { useReadContract } from 'wagmi'
+import { separatedPowersAbi } from "@/context/abi";
+import { Proposal } from "@/context/types";
 
 export const Status: React.FC = () => {
-  const {status, error, checks, law: currentLaw, execute, fetchSimulation, checkProposalExists, fetchChecks} = useLaw(); 
-  const {status: statusProposal, error: errorProposal, proposals: proposal, fetchProposalsState, propose, cancel, castVote} = useProposal();
+  const organisation = useOrgStore()
   const action = useActionStore();
-  const layout = `w-full flex flex-row justify-center items-center px-2 py-1 text-bold`
+  const proposal = useProposalStore(); 
+  const { checkProposalExists, } = useLaw(); 
+  const [selectedProposal, setSelectedProposal] = useState<Proposal>()
+  const layout = `w-full flex flex-row justify-center items-center px-2 py-1 text-bold rounded-md`
+  const { status: readContractStatus, data: proposalState } = useReadContract({
+    address: organisation.contractAddress,
+    abi: separatedPowersAbi,  
+    functionName: 'state',
+    args: [selectedProposal?.proposalId],
+  })
+  // I should set Action @proposalBox, and read action here. Then the lines below can go. 
+  const description =  proposal?.description && proposal.description.length > 0 ? proposal.description 
+  : action.description && action.description.length > 0 ? action.description
+  : undefined  
+  const calldata =  proposal?.executeCalldata && proposal.executeCalldata.length > 0 ? proposal.executeCalldata 
+    : action.callData && action.callData.length > 0 ? action.callData
+    : undefined  
 
   useEffect(() => {
-    const selectedProposal = checkProposalExists(action.description, action.callData)
-    if (selectedProposal) {
-      fetchProposalsState([selectedProposal])
-    }
+    const proposal = checkProposalExists(description as string, calldata as `0x${string}`)
+    setSelectedProposal(proposal)
   }, [])
+
+console.log({readContractStatus, proposalState})
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
@@ -30,23 +48,23 @@ export const Status: React.FC = () => {
         {/* authorised block */}
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
             { 
-              !proposal ? 
-                <div className={`${layout} text-slate-500`}> No Proposal Found </div>
+              !selectedProposal ? 
+                <div className={`${layout} text-slate-500 bg-slate-100`}> No Proposal Found </div>
               :
-              proposal && proposal[0].state == 0 ? 
-                <div className={`${layout} text-blue-500`}> Active </div>
+              proposalState == 0 ? 
+                <div className={`${layout} text-blue-500 bg-blue-100`}> Active </div>
               :
-              proposal && proposal[0].state == 1 ? 
-                <div className={`${layout} text-orange-500`}> Cancelled </div>
+              proposalState == 1 ? 
+                <div className={`${layout} text-orange-500 bg-orange-100`}> Cancelled </div>
               :
-              proposal && proposal[0].state == 2 ? 
-                <div className={`${layout} text-red-500`}> Defeated </div>
+              proposalState ==  2 ? 
+                <div className={`${layout} text-red-500 bg-red-100`}> Defeated </div>
               :
-              proposal && proposal[0].state == 3 ? 
-                <div className={`${layout} text-green-500`}> Succeeded </div>
+              proposalState ==  3 ? 
+                <div className={`${layout} text-green-500 bg-green-100`}> Succeeded </div>
               :
-              proposal && proposal[0].state == 4 ? 
-                <div className={`${layout} text-slate-500`}> Executed </div>
+              proposalState == 4 ? 
+                <div className={`${layout} text-slate-500 bg-slate-100`}> Executed </div>
               :
               null 
             }

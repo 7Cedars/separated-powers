@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Config, Proposal, Law, Organisation, Action } from '../context/types'
+import { Config, Proposal, Law, Organisation, Action, Role } from '../context/types'
 
 type OrgStore = Organisation; 
 const initialStateOrg: OrgStore = {
@@ -29,6 +29,26 @@ const initialStateLaw: LawStore = {
   allowedRole: 0n
 }
 
+type ProposalStore = Proposal;
+const initialStateProposal: ProposalStore = {
+  proposalId: 0,
+  targetLaw: `0x0`,
+  voteStart: 0n,
+  voteDuration: 0n,
+  voteEnd: 0n,
+  cancelled: false,
+  completed: false,
+  initiator: `0x0`,
+  againstVotes: 0n,
+  forVotes: 0n,
+  abstainVotes: 0n,
+  description: "",
+  executeCalldata: `0x0`,
+  state: 5,
+  blockNumber: 0,
+  blockHash: `0x0`
+}
+
 type ActionStore = Action;
 const initialStateAction: ActionStore = {
   dataTypes: [],
@@ -36,6 +56,13 @@ const initialStateAction: ActionStore = {
   description: '',
   callData: `0x0`, 
   upToDate: false
+}
+
+type RoleStore = Role;
+const initialStateRole: ActionStore = {
+  selectedRole: 999n, 
+  holders: 0,
+  addresses: []
 }
 
 // Organisation Store
@@ -54,8 +81,18 @@ export const useLawStore = create<LawStore>()(() => initialStateLaw);
 export const setLaw: typeof useLawStore.setState = (law) => {
   useLawStore.setState(law)
     }
-export const deleteLaw: typeof useOrgStore.setState = () => {
+export const deleteLaw: typeof useLawStore.setState = () => {
       useLawStore.setState(initialStateLaw)
+    }
+
+// Proposal Store
+export const useProposalStore = create<ProposalStore>()(() => initialStateProposal); 
+
+export const setProposal: typeof useProposalStore.setState = (proposal) => {
+    useProposalStore.setState(proposal)
+      }
+export const deleteProposal: typeof useProposalStore.setState = () => {
+    useProposalStore.setState(initialStateProposal)
     }
 
 // Action Store

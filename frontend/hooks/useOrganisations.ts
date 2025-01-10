@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { lawAbi, separatedPowersAbi } from "@/context/abi";
 import { Hex, Log, parseEventLogs, ParseEventLogsReturnType } from "viem"
 import { publicClient } from "@/context/clients";
-import { lawContracts } from "@/context/lawContracts";
 import { readContract } from "wagmi/actions";
 
 export const useOrganisations = () => {

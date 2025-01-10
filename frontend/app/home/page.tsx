@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useOrgStore, setLaw, useLawStore, deleteLaw  } from "../../context/store";
 import Link from "next/link";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
-import { LawList } from "@/components/LawList";
+import { LawList } from "@/app/laws/LawList";
 
 export default function Page() {
     const organisation = useOrgStore()
