@@ -12,7 +12,7 @@ import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { parseInputValues, parseParams, parseRole } from "@/utils/parsers";
+import { parseInputValues, parseParams, parseRole } from "@/context/parsers";
 import { InputType } from "@/context/types";
 import { StaticInput } from "./StaticInput";
 import { roleColour } from "@/context/ThemeContext"

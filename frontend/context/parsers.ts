@@ -1,5 +1,6 @@
 import { ChangeEvent } from "react";
 import {InputType, DataType} from "../context/types"
+import { type UseReadContractsReturnType } from 'wagmi'
 
 const isArray = (array: unknown): array is Array<unknown> => {
   // array.find(item => !isString(item)) 
@@ -130,6 +131,40 @@ export const parseRole = (role: bigint | undefined): number => {
   : Number(role)
 
   return returnValue
+}
+
+
+export const parseVoteData = (data: unknown[]): {votes: number[], holders: number} => {
+  if ( !data || !isArray(data)) {
+    throw new Error('@parseVoteData: data not an array.');
+  }
+  if (data.length != 2) {
+    throw new Error('@parseVoteData: data not correct length.');
+  }
+  const dataTypes = data.map(item => item as UseReadContractsReturnType) 
+  let votes: number[]
+  let holders: number 
+  
+  if (dataTypes[0] && 'result' in dataTypes[0]) {
+    if (
+      dataTypes[0].result == undefined || 
+      !isArray(dataTypes[0].result)
+    ) { 
+      votes = [0, 0, 0] 
+    } else {
+      votes = dataTypes[0].result.map(item => Number(item))
+    } 
+  } else {
+    votes = [0, 0, 0]
+  }
+
+  if ('result' in dataTypes[1]) {
+    holders = Number(dataTypes[1].result)
+  } else {
+    holders = 0
+  }
+
+  return {votes, holders}
 }
   
 

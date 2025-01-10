@@ -11,7 +11,6 @@
 // - if 'create proposal' is clicked, goes to ProposalCreate component / page.
 
 "use client";
-"use client";
 
 import React, { useState } from "react";
 import {ProposalList} from "./ProposalList";

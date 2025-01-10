@@ -17,12 +17,6 @@ export type Config = {
   votingPeriod: bigint;
 }
 
-export type Role = {
-  selectedRole?: bigint, 
-  holders?: number,
-  addresses?: `0x${string}`[] 
-};
-
 export type Law = {
   law: `0x${string}`;
   name?: string;
@@ -39,8 +33,16 @@ export type Organisation = {
   colourScheme: number;
   laws?: Law[];
   proposals?: Proposal[];
-  roles: Role[];
+  roles: bigint[];
 }
+
+export type Role = {
+  roleId: number, 
+  holders?: number,
+  laws?: Law[],
+  proposals?: Proposal[], 
+  addresses?: `0x${string}`[] 
+};
 
 export type Action = {
   dataTypes: DataType[] | undefined;

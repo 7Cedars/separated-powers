@@ -12,20 +12,12 @@ import { useOrgStore, assignOrg } from "@/context/store";
 import { useRouter } from "next/navigation";
 import { Button } from "../components/Button";
 import { useOrganisations } from "@/hooks/useOrganisations";
+import { colourScheme } from "@/context/ThemeContext"
 
 export default function Page() {
     const router = useRouter();
     const organisation = useOrgStore()
-
     const { fetchOrganisations, organisations } = useOrganisations()
-    const colourScheme = [
-        "from-indigo-500 to-emerald-500", 
-        "from-blue-500 to-red-500", 
-        "from-indigo-300 to-emerald-900",
-        "from-emerald-400 to-indigo-700 ",
-        "from-red-200 to-blue-400",
-        "from-red-800 to-blue-400"
-      ]
     
     console.log("organisations", organisations)
     console.log("organisation", organisation)
@@ -42,7 +34,8 @@ export default function Page() {
             <table className="w-full table-auto">
             <thead className="w-full">
                 <tr className="w-96 bg-slate-50 text-xs font-light text-slate-600 rounded-md border-b border-slate-300">
-                    <th className="text-left ps-6 py-2 font-light rounded-tl-md">Name</th>
+                    <th className=""></th>
+                    <th className="text-left  ps-4 py-2 font-light rounded-tl-md">Name</th>
                     <th className="text-right font-light">Laws</th>
                     <th className="text-right font-light">Proposals</th>
                     <th className="text-right font-light">Roles</th> 
@@ -51,9 +44,12 @@ export default function Page() {
             </thead>
             <tbody className="w-full text-sm text-right text-slate-600 bg-slate-50 divide-y divide-slate-300">
                 {
-                    organisations?.map((org) => (
+                    organisations?.map((org, index) => (
                         <tr key={org.name} className="text-sm text-right text-slate-900 h-16">
-                            <td className="text-left rounded-bl-md ps-2 py-2">
+                            <td className="w-6">
+                                <div className={`ms-4 h-6 w-6 rounded-full bg-gradient-to-bl ${colourScheme[index]}`}/>
+                            </td>
+                            <td className="text-left rounded-bl-md">
                                 <Button 
                                     size={1} align={0} showBorder={false} onClick={() => assignOrg(org)}>
                                     {org.name}
@@ -62,7 +58,7 @@ export default function Page() {
                             <td>{org.laws?.length}</td>
                             <td>{org.proposals?.length}</td>
                             <td>{org.roles?.length}</td>
-                            <td className="pe-2 rounded-br-md"> Arbitrum </td>
+                            <td className="pe-4 rounded-br-md"> Arbitrum </td>
                         </tr>
                     ))
                 }

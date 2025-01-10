@@ -66,7 +66,7 @@ export function LawList() {
         </Button>
         <button className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 ">
             <ArrowPathIcon
-              className="w-4 h-4 text-slate-600"
+              className="w-5 h-5 text-slate-800"
               />
         </button>
       </div>

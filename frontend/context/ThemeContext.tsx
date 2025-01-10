@@ -18,6 +18,15 @@ const roleColour = [ // this I should import from somewhere.
     "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
   ]
 
+const colourScheme = [
+    "from-indigo-500 to-emerald-500", 
+    "from-blue-500 to-red-500", 
+    "from-indigo-300 to-emerald-900",
+    "from-emerald-400 to-indigo-700 ",
+    "from-red-200 to-blue-400",
+    "from-red-800 to-blue-400"
+]
+
 interface ThemeContextProps {
     theme: string;
     setTheme: Dispatch<SetStateAction<string>>;
@@ -60,4 +69,4 @@ const useTheme = () => {
     return context;
 };
 
-export { roleColour, ThemeProvider, useTheme };
+export { roleColour, colourScheme, ThemeProvider, useTheme };

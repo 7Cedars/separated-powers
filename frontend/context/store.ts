@@ -59,9 +59,10 @@ const initialStateAction: ActionStore = {
 }
 
 type RoleStore = Role;
-const initialStateRole: ActionStore = {
-  selectedRole: 999n, 
+const initialStateRole: RoleStore = {
+  roleId: 999, 
   holders: 0,
+  laws: [],
   addresses: []
 }
 
@@ -108,4 +109,14 @@ export const deleteAction: typeof useActionStore.setState = () => {
 export const notUpToDate: typeof useActionStore.setState = () => {
   useActionStore.setState({...initialStateAction, upToDate: false})
 }
+
+// Role store 
+export const useRoleStore = create<RoleStore>()(() => initialStateRole);
+
+export const setRole: typeof useRoleStore.setState = (role) => {
+  useRoleStore.setState(role)
+    }
+export const deleteRole: typeof useRoleStore.setState = () => {
+  useRoleStore.setState(initialStateRole)
+    }
 
