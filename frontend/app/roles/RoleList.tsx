@@ -6,7 +6,7 @@ import { Button } from "@/components/Button";
 import Link from "next/link";
 import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { Law, Role, Status } from "@/context/types";
+import { Law, Roles, Status } from "@/context/types";
 import { parseRole } from "@/context/parsers";
 import { publicClient } from "@/context/clients";
 import { separatedPowersAbi } from "@/context/abi";
@@ -20,7 +20,7 @@ export function RoleList() {
 
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<any | null>(null)
-  const [roles, setRoles ] = useState<Role[]>([])
+  const [roles, setRoles ] = useState<Roles[]>([])
  
   // need to fetch number of role holders for each role. 
   console.log("@RoleList", {status, error, roles})
@@ -28,12 +28,10 @@ export function RoleList() {
   const fetchRoleHolders = useCallback(
     async (roleIds: bigint[]) => {
       let roleId: number; 
-      let rolesFetched: Role[] = []; 
+      let rolesFetched: Roles[] = []; 
       let lawsFetched: number[]; 
 
       const roleIdsParsed = roleIds.map(roleId => Number(roleId))
-
-      
 
       setError(null)
       setStatus("pending")
@@ -56,7 +54,7 @@ export function RoleList() {
             setError(error)
           }
       }
-      const rolesSorted = rolesFetched.sort((a: Role, b: Role) => a.roleId > b.roleId ? 1 : -1)
+      const rolesSorted = rolesFetched.sort((a: Roles, b: Roles) => a.roleId > b.roleId ? 1 : -1)
       setRoles(rolesSorted)
       setStatus("success")
   }, [ ]) 
@@ -92,7 +90,7 @@ export function RoleList() {
         </thead>
         <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
           {
-            roles?.map((role: Role) =>
+            roles?.map((role: Roles) =>
               <tr>
                 <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-60">
                  <Button

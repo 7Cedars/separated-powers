@@ -47,7 +47,7 @@ export default function Page() {
                     organisations?.map((org, index) => (
                         <tr key={org.name} className="text-sm text-right text-slate-900 h-16">
                             <td className="w-6">
-                                <div className={`ms-4 h-6 w-6 rounded-full bg-gradient-to-bl ${colourScheme[index]}`}/>
+                                <div className={`ms-4 h-6 w-6 rounded-md bg-gradient-to-bl ${colourScheme[index]}`}/>
                             </td>
                             <td className="text-left rounded-bl-md">
                                 <Button 

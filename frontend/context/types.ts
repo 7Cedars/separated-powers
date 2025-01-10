@@ -37,11 +37,18 @@ export type Organisation = {
 }
 
 export type Role = {
+  access: boolean,
+  account: `0x${string}`,
+  roleId: number,
+  since?: number
+}
+
+export type Roles = {
   roleId: number, 
   holders?: number,
   laws?: Law[],
-  proposals?: Proposal[], 
-  addresses?: `0x${string}`[] 
+  proposals?: Proposal[],
+  roles?: Role[]
 };
 
 export type Action = {
