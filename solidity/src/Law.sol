@@ -41,7 +41,8 @@ contract Law is ERC165, ILaw {
     ShortString public immutable name; // name of the law
     address public separatedPowers; // the address of the core governance protocol
     string public description; // description of the law
-    bytes4[8] public params; // hashes of data types needed for the lawCalldata. Saved as bytes4, encoded through the {DataType} function
+    bytes4[8] public inputParams; // hashes of data types needed for the lawCalldata. Saved as bytes4, encoded through the {DataType} function
+    bytes4[8] public stateVars; // hashes of data types needed for setting state variables. Saved as bytes4, encoded through the {DataType} function
 
     // optional parameters
     LawConfig public config;
@@ -79,16 +80,27 @@ contract Law is ERC165, ILaw {
             revert Law__OnlySeparatedPowers();
         }
         _executeChecks(initiator, lawCalldata, descriptionHash);
-        (targets, values, calldatas) = simulateLaw(initiator, lawCalldata, descriptionHash);
+        bytes memory stateChange;
+        (targets, values, calldatas, stateChange) = simulateLaw(initiator, lawCalldata, descriptionHash);
+        _changeStateVariables(stateChange);
     }
 
     /// note NB! this function needs to be overwritten by law implementations to include law specific logics. 
     /// @inheritdoc ILaw
-    function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) 
-        public 
+    function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) // NB. £bug: simulateLaw can change state of law _without_ checks having been run! 
+        public
+        view // CANNOT change state of law. 
         virtual
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) {
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange) {
             // Empty law logic. Needs to be overridden by law implementations   
+    }
+
+    //////////////////////////////////////////////////
+    //                 INTERNALS                    //
+    //////////////////////////////////////////////////
+
+    function _changeStateVariables(bytes memory stateChange) internal virtual {
+        // Empty function. Needs to be overridden by law implementations
     }
 
     /// @notice an internal function to check that the law is valid before execution.
@@ -163,8 +175,8 @@ contract Law is ERC165, ILaw {
         bytes4 param4, bytes4 param5, bytes4 param6, bytes4 param7
         ) {
             return (
-                params[0], params[1], params[2], params[3],
-                params[4], params[5], params[6], params[7]
+                inputParams[0], inputParams[1], inputParams[2], inputParams[3],
+                inputParams[4], inputParams[5], inputParams[6], inputParams[7]
        );
     }
     

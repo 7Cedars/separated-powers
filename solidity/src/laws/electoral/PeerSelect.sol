@@ -42,14 +42,14 @@ contract PeerSelect is Law {
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
         string[] memory paramArray = new string[](2);
-        params[0] = dataType("uint256");
-        params[1] = dataType("bool");
+        inputParams[0] = dataType("uint256");
+        inputParams[1] = dataType("bool");
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
-        public
+        public view
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         (uint256 index, bool revoke) = abi.decode(lawCalldata, (uint256, bool));
 
@@ -69,6 +69,6 @@ contract PeerSelect is Law {
             calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _electedSorted[index]);
         }
 
-        return (targets, values, calldatas);
+        return (targets, values, calldatas, '0x0');
     }
 }

@@ -69,7 +69,7 @@ contract DeployTest is TestSetupLaw {
 
         Law lawMock = new OpenAction("Mock Law", "This is a mock law contract", separatedPowers, ROLE_ONE, lawConfig);
 
-        lawMock.params(0); 
+        lawMock.inputParams(0); 
 
         (
             bytes4 param0,

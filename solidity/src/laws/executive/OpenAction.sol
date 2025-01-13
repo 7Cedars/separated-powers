@@ -34,17 +34,18 @@ contract OpenAction is Law {
         // inputParams[0] = "address[]";
         // inputParams[1] = "uint256[]";
         // inputParams[2] = "bytes[]"; 
-        params[0] = dataType("address[]");
-        params[1] = dataType("uint256[]");
-        params[2] = dataType("bytes[]");
+        inputParams[0] = dataType("address[]");
+        inputParams[1] = dataType("uint256[]");
+        inputParams[2] = dataType("bytes[]");
     }
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
     function simulateLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
         public
+        view
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // decode the calldata.
         // note: no check on decoded call data. If needed, this can be added.

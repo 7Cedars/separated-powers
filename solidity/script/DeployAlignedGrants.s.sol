@@ -129,7 +129,7 @@
 //         lawConfig.votingPeriod = 1200; // = number of blocks
 //         // setting up params
 //         uint8[] memory params = new uint8[](1);
-//         params[0] = uint8(uint256(keccak256("ShortString"));
+//         inputParams[0] = uint8(uint256(keccak256("ShortString"));
 //         // initiating law.
 //         vm.startBroadcast();
 //         law = new ProposalOnly(
@@ -189,7 +189,7 @@
 //         delete lawConfig;
 //         lawConfig.needCompleted = laws[6]; // NB! £todo all the law references need to be changed!
 //         // input params
-//         params[0] = uint8(uint256(keccak256("address"));
+//         inputParams[0] = uint8(uint256(keccak256("address"));
 //         // initiating law
 //         vm.startBroadcast();
 //         law = new ProposalOnly(
@@ -250,7 +250,7 @@
 //         lawConfig.succeedAt = 51; // =  two/thirds majority needed for
 //         lawConfig.votingPeriod = 1200; // = number of blocks
 //         // params
-//         params[0] = uint8(uint256(keccak256("address"));
+//         inputParams[0] = uint8(uint256(keccak256("address"));
 //         // initiating law
 //         vm.startBroadcast();
 //         law = new ProposalOnly(

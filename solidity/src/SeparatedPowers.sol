@@ -51,6 +51,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     uint256 constant DENOMINATOR = 100; // = 100%
 
     string public name; // name of the DAO.
+    string public uri; // a uri to metadata of the DAO.
     bool private _constituentLawsExecuted; // has the constitute function been called before?
 
     //////////////////////////////////////////////////////////////
@@ -70,8 +71,9 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
     /// @notice  Sets the value for {name} at the time of construction.
     ///
     /// @param name_ name of the contract
-    constructor(string memory name_) EIP712(name_, version()) {
+    constructor(string memory name_, string memory uri_) EIP712(name_, version()) {
         name = name_;
+        uri = uri_;
         _setRole(ADMIN_ROLE, msg.sender, true); // the account that initiates a SeparatedPowers contract is set to its admin.
 
         roles[ADMIN_ROLE].amountMembers = 1; // the number of admins at set up is 1.
@@ -427,6 +429,11 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         returns (uint256)
     {
         return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
+    }
+
+    /// @inheritdoc ISeparatedPowers
+    function setUri(string memory newUri) public virtual onlySeparatedPowers {
+        uri = newUri;
     }
 
     //////////////////////////////////////////////////////////////

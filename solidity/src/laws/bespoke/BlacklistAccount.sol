@@ -31,30 +31,24 @@ contract BlacklistAccount is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        params[0] = dataType("address");
-        params[1] = dataType("bool");
+        inputParams[0] = dataType("address");
+        inputParams[1] = dataType("bool");
+        stateVars[0] = dataType("address");
+        stateVars[1] = dataType("bool");
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
-        public
+        public view
         override
-        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
+        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal, bytes memory stateChange)
     {
         // retrieve the account that was revoked
-        (address account, bool blacklist) = abi.decode(lawCalldata, (address, bool)); // don't know if this is going to work...
+        (address account, bool blacklist) = abi.decode(lawCalldata, (address, bool));  
 
-        if (blacklist) {
-            if (blacklistedAccounts[account]) {
-                revert BlacklistAccount__AlreadyBlacklisted();
-            }
-            blacklistedAccounts[account] = true;
-            emit BlacklistAccount__Added(account);
-        } else {
-            if (!blacklistedAccounts[account]) {
-                revert BlacklistAccount__NotBlacklisted();
-            }
-            blacklistedAccounts[account] = false;
-            emit BlacklistAccount__Removed(account);
+        if (blacklist && blacklistedAccounts[account]) {
+            revert BlacklistAccount__AlreadyBlacklisted();
+        } else if (!blacklist && !blacklistedAccounts[account]) {
+            revert BlacklistAccount__NotBlacklisted();
         }
 
         // step 2: return data
@@ -63,6 +57,18 @@ contract BlacklistAccount is Law {
         bytes[] memory cal = new bytes[](1);
 
         tar[0] = address(1); // signals that separatedPowers should not execute anything else.
-        return (tar, val, cal);
+        return (tar, val, cal, lawCalldata);
+    }
+
+    function _changeStateVariables(bytes memory stateChange) internal override {
+        (address account, bool blacklist) = abi.decode(stateChange, (address, bool));
+
+        if (blacklist) {
+            blacklistedAccounts[account] = true;
+            emit BlacklistAccount__Added(account);
+        } else {
+            blacklistedAccounts[account] = false;
+            emit BlacklistAccount__Removed(account);
+        }
     }
 }

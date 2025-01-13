@@ -38,7 +38,7 @@ contract BespokeAction is Law {
         _targetContract = targetContract_;
         _targetFunction = targetFunction_;
         for (uint256 i = 0; i < params_.length; i++) {
-            params[i] = dataType(params_[i]);
+            inputParams[i] = dataType(params_[i]);
         }
     }
 
@@ -46,9 +46,10 @@ contract BespokeAction is Law {
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
+        view
         virtual
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         targets = new address[](1);
         values = new uint256[](1);

@@ -45,10 +45,11 @@ contract PresetAction is Law {
     /// @param lawCalldata the calldata of the law.
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
+        view
         virtual
         override
-        returns (address[] memory, uint256[] memory, bytes[] memory)
+        returns (address[] memory, uint256[] memory, bytes[] memory, bytes memory)
     {
-        return (targets, values, calldatas);
+        return (targets, values, calldatas, '0x0');
     }
 }

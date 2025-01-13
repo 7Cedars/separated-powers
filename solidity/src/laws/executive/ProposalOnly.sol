@@ -34,20 +34,22 @@ contract ProposalOnly is Law {
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         /// £todo: this should actually be a separate function 'encodeParams' with a revert if more than 8 params are entered.
         for (uint256 i = 0; i < params_.length; i++) {
-            params[i] = dataType(params_[i]);
+            inputParams[i] = dataType(params_[i]);
         }
     }
 
     /// @notice Execute the open action.
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
-        public
+        public 
+        view 
         virtual
         override
         returns (
             // return an empty array.
             address[] memory tar,
             uint256[] memory val,
-            bytes[] memory cal
+            bytes[] memory cal,
+            bytes memory stateChange 
         )
     {
         // at execution, send empty calldata to protocol. -- nothing gets done.

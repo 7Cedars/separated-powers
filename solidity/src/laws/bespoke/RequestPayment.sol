@@ -52,6 +52,8 @@ contract RequestPayment is Law {
         tokenId = tokenId_;
         amount = amount_;
         personalDelay = personalDelay_;
+        stateVars[0] = dataType("address");
+        stateVars[1] = dataType("uint48");
     }
 
     /// @notice execute the law.
@@ -60,24 +62,28 @@ contract RequestPayment is Law {
     /// @param descriptionHash the hash of the description of the law.
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
+        view
         virtual
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // check if initiator is not requesting payment too early.
         if (uint48(block.number) - lastPayment[initiator] < personalDelay) {
             revert RequestPayment__DelayNotPassed();
         }
-
-        // if check passes: have core Dao pay the request.
-        lastPayment[initiator] = uint48(block.number);
-
         targets = new address[](1);
         values = new uint256[](1);
         calldatas = new bytes[](1);
+        stateChange = abi.encode(initiator, uint48(block.number));
 
         targets[0] = erc1155Contract;
         calldatas[0] =
             abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, separatedPowers, initiator, amount, tokenId, "");
+    }
+
+    function _changeStateVariables(bytes memory stateChange) internal override {
+        (address initiator, uint48 blockNumber) = abi.decode(stateChange, (address, uint48)); // don't know if this is going to work...
+
+        lastPayment[initiator] = blockNumber;
     }
 }

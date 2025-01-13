@@ -57,13 +57,13 @@ contract TokensSelect is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-        params[0] = dataType("address[]");
+        inputParams[0] = dataType("address[]");
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
-        public
+        public view
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // step 0: retrieve accounts from calldata that need to be revoked from role prior to election. 
         (address[] memory revokees) = abi.decode(lawCalldata, (address[]));

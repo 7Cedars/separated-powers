@@ -39,29 +39,25 @@ contract NominateMe is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        // string[] memory paramArray = new string[](1);
-        // paramArray[0] = "bool";
-        params[0] = dataType("bool");
+        inputParams[0] = dataType("bool");
+        stateVars[0] = dataType("address");
+        stateVars[1] = dataType("bool");
     }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
+        view 
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // decode the calldata.
         (bool nominateMe) = abi.decode(lawCalldata, (bool));
-
+         
         // nominating //
         if (nominateMe) {
             if (nominees[initiator] != 0) {
                 revert NominateMe__NomineeAlreadyNominated();
             }
-            nominees[initiator] = uint48(block.timestamp);
-            nomineesSorted.push(initiator);
-            nomineesCount++;
-
-            emit NominateMe__NominationReceived(initiator);
         }
 
         // revoke nomination //
@@ -69,7 +65,24 @@ contract NominateMe is Law {
             if (nominees[initiator] == 0) {
                 revert NominateMe__NomineeNotNominated();
             }
+        }
 
+        targets = new address[](1);
+        values = new uint256[](1);
+        calldatas = new bytes[](1);
+        targets[0] = address(1);
+        stateChange = abi.encode(initiator, nominateMe); // encode the state
+    }
+
+    function _changeStateVariables(bytes memory stateChange) internal override {
+        (address initiator, bool nominateMe) = abi.decode(stateChange, (address, bool));
+
+        if (nominateMe) {
+            nominees[initiator] = uint48(block.timestamp);
+            nomineesSorted.push(initiator);
+            nomineesCount++;
+            emit NominateMe__NominationReceived(initiator);
+        } else  {
             nominees[initiator] = 0;
             for (uint256 i; i < nomineesSorted.length; i++) {
                 if (nomineesSorted[i] == initiator) {
@@ -81,10 +94,5 @@ contract NominateMe is Law {
             }
             emit NominateMe__NominationRevoked(initiator);
         }
-
-        targets = new address[](1);
-        values = new uint256[](1);
-        calldatas = new bytes[](1);
-        targets[0] = address(1);
     }
 }

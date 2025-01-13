@@ -185,4 +185,11 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     function hashProposal(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         external
         returns (uint256);
+
+    /// @dev allows to reset the URI of the protocol.
+    ///
+    /// @param uri new uri
+    ///
+    /// @dev this function can only be called from within the {SeperatedPowers} protocol.
+    function setUri(string memory uri) external;
 }

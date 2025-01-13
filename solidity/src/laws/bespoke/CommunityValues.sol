@@ -28,60 +28,48 @@ contract CommunityValues is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        params[0] = dataType("string");
-        params[1] = dataType("bool");
+        inputParams[0] = dataType("string");
+        inputParams[1] = dataType("bool");
+        stateVars[0] = dataType("string");
+        stateVars[1] = dataType("bool");
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
-        public
+        public view
         override
-        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal)
+        returns (address[] memory tar, uint256[] memory val, bytes[] memory cal, bytes memory stateChange)
     {
-        // retrieve the account that was revoked
-        (string memory value, bool addValue) = abi.decode(lawCalldata, (string, bool)); // don't know if this is going to work...
-
-        if (addValue) {
-            console.log("adding value");
-            _addCommunityValue(value);
-        } else {
-            console.log("removing value");
-            _removeCommunityValue(value);
-        }
-
-        // step 2: return data
+        // step 1: return data
         address[] memory tar = new address[](1);
         uint256[] memory val = new uint256[](1);
         bytes[] memory cal = new bytes[](1);
         tar[0] = address(1); // signals that separatedPowers should not execute anything else.
 
-        return (tar, val, cal);
+        return (tar, val, cal, lawCalldata);
     }
 
-    // add value
-    function _addCommunityValue(string memory value) internal {
-        values.push(value);
-        numberOfValues++;
+    function _changeStateVariables(bytes memory stateChange) internal override {
+        (string memory value, bool addValue) = abi.decode(stateChange, (string, bool)); // don't know if this is going to work...
 
-        emit CommunityValues__Added(value);
-    }
+        if (addValue) {
+            values.push(value);
+            numberOfValues++;
 
-    // remove value
-    // note: it works by searching for value. Not by index.
-    // because this way executeLaw always needs the short string + low chance on accidentally removing wrong value.
-    function _removeCommunityValue(string memory value) internal {
-        for (uint256 index; index < numberOfValues; index++) {
-            if (keccak256(bytes(values[index])) == keccak256(bytes(value))) {
-                values[index] = values[numberOfValues - 1];
-                values.pop();
-                numberOfValues--;
-                break;
+            emit CommunityValues__Added(value);
+        } else {
+            for (uint256 index; index < numberOfValues; index++) {
+                if (keccak256(bytes(values[index])) == keccak256(bytes(value))) {
+                    values[index] = values[numberOfValues - 1];
+                    values.pop();
+                    numberOfValues--;
+                    break;
+                }
+
+                if (index == numberOfValues - 1) {
+                    revert CommunityValues__ValueNotFound();
+                }
             }
-
-            if (index == numberOfValues - 1) {
-                revert CommunityValues__ValueNotFound();
-            }
+            emit CommunityValues__Removed(value);
         }
-
-        emit CommunityValues__Removed(value);
     }
 }

@@ -30,7 +30,7 @@ contract LawWithBlacklistCheck is Law {
     error LawWithBlacklistCheck__NoZeroAddress();
     error LawWithBlacklistCheck__AccountBlacklisted();
 
-    address public blacklistAccountLaw;
+    address public immutable blacklistAccountLaw;
 
     constructor(
         string memory name_,
