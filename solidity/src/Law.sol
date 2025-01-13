@@ -170,13 +170,23 @@ contract Law is ERC165, ILaw {
     //////////////////////////////////////////////////
     //           HELPER & VIEW FUNCTIONS            //
     //////////////////////////////////////////////////
-    function getParams() public view returns (
+    function getInputParams() public view returns (
         bytes4 param0, bytes4 param1, bytes4 param2, bytes4 param3, 
         bytes4 param4, bytes4 param5, bytes4 param6, bytes4 param7
         ) {
             return (
                 inputParams[0], inputParams[1], inputParams[2], inputParams[3],
                 inputParams[4], inputParams[5], inputParams[6], inputParams[7]
+       );
+    }
+
+    function getStateVars() public view returns (
+        bytes4 var0, bytes4 var1, bytes4 var2, bytes4 var3, 
+        bytes4 var4, bytes4 var5, bytes4 var6, bytes4 var7
+        ) {
+            return (
+                stateVars[0], stateVars[1], stateVars[2], stateVars[3],
+                stateVars[4], stateVars[5], stateVars[6], stateVars[7]
        );
     }
     

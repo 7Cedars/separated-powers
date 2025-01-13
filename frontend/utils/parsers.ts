@@ -167,6 +167,29 @@ export const parseVoteData = (data: unknown[]): {votes: number[], holders: numbe
   return {votes, holders}
 }
   
+// direct copy for now from loyal-customer-engagement project. Adapt as needed. 
+export const parseContractError = (rawReply: unknown): boolean | string  => {
+  if (typeof rawReply == null) {
+    return false
+  }
+  try {
+    String(rawReply)
+  } catch {
+    throw new Error('Incorrect or missing data at rawReply');
+  }
+
+  if (typeof rawReply === 'boolean') {
+    return rawReply
+  }
+
+  if (typeof rawReply !== 'boolean') {
+    return String(rawReply).split("\n")[1]
+  }
+
+  else {
+    return false 
+  }
+};
 
 
 

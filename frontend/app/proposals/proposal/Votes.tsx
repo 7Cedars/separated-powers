@@ -1,7 +1,7 @@
 "use client";
 
 import { separatedPowersAbi } from "@/context/abi";
-import { parseVoteData } from "@/context/parsers";
+import { parseVoteData } from "@/utils/parsers";
 import { setLaw, useActionStore, useLawStore, useOrgStore, useProposalStore } from "@/context/store";
 import { Proposal } from "@/context/types";
 import { useLaw } from "@/hooks/useLaw";

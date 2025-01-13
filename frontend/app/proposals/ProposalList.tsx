@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { Law, Proposal } from "@/context/types";
-import { parseRole } from "@/context/parsers";
+import { parseRole } from "@/utils/parsers";
 import { useProposal } from "@/hooks/useProposal";
 import { setProposal } from "@/context/store"
 

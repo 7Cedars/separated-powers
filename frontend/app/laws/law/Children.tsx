@@ -2,7 +2,7 @@ import { Button } from "@/components/Button";
 
 import {useLawStore, useOrgStore, setLaw, useActionStore} from "@/context/store";
 import { Law } from "@/context/types";
-import { roleColour } from "@/context/ThemeContext"
+import { roleColour } from "@/context/Theme"
 
 export function Children() {
   const organisation = useOrgStore();

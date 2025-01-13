@@ -44,6 +44,8 @@ arbSepoliaForkedTest :; forge test ${ARB_SEPOLIA_TEST_ARGS}
 
 anvilDeployAg :; forge script script/DeployAlignedGrants.s.sol:DeployAlignedGrants $(ANVIL_ARGS_0)
 anvilDeployBasic :; forge script script/DeployBasicDao.s.sol:DeployBasicDao $(ANVIL_ARGS_0)
+anvilDeployMocks :; forge script script/DeployMocks.s.sol:DeployMocks $(ANVIL_ARGS_0)
 
 arbSepoliaDeployBasic :; forge script script/DeployBasicDao.s.sol:DeployBasicDao $(ARB_SEPOLIA_DEPLOY_ARGS)
+arbSepoliaDeployMocks :; forge script script/DeployMocks.s.sol:DeployMocks $(ARB_SEPOLIA_DEPLOY_ARGS)
 optSepoliaDeploy :; forge script script/DeployAlignedGrants.s.sol:DeployAlignedGrants $(OPT_SEPOLIA_DEPLOY_ARGS)

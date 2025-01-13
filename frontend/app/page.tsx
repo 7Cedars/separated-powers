@@ -12,7 +12,7 @@ import { useOrgStore, assignOrg } from "@/context/store";
 import { useRouter } from "next/navigation";
 import { Button } from "../components/Button";
 import { useOrganisations } from "@/hooks/useOrganisations";
-import { colourScheme } from "@/context/ThemeContext"
+import { colourScheme } from "@/context/Theme"
 
 export default function Page() {
     const router = useRouter();
@@ -47,11 +47,11 @@ export default function Page() {
                     organisations?.map((org, index) => (
                         <tr key={org.name} className="text-sm text-right text-slate-900 h-16">
                             <td className="w-6">
-                                <div className={`ms-4 h-6 w-6 rounded-md bg-gradient-to-bl ${colourScheme[index]}`}/>
+                                <div className={`ms-4 h-6 w-6 rounded-md bg-gradient-to-bl ${colourScheme[index % colourScheme.length]}`}/>
                             </td>
                             <td className="text-left rounded-bl-md">
                                 <Button 
-                                    size={1} align={0} showBorder={false} onClick={() => assignOrg(org)}>
+                                    size={1} align={0} showBorder={false} onClick={() => assignOrg({...org, colourScheme: index % colourScheme.length})}>
                                     {org.name}
                                 </Button>
                             </td>

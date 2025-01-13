@@ -12,15 +12,16 @@ import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { parseInputValues, parseParams, parseRole } from "@/context/parsers";
+import { parseInputValues, parseParams, parseRole } from "@/utils/parsers";
 import { InputType } from "@/context/types";
 import { StaticInput } from "./StaticInput";
-import { roleColour } from "@/context/ThemeContext"
+import { roleColour } from "@/context/Theme"
 import { notUpToDate } from "@/context/store"
 import { useProposal } from "@/hooks/useProposal";
+import { SimulationBox } from "@/components/SimulationBox";
 
-// NB! the proposalBox can be requested using a proposal with only calldata (and without the original inputValues) -> coming from proposalList. 
-// or using only the original inputValues -> coming from law. NB: action DOES have calldata. 
+// NB! the proposalBox can be requested using a proposal with only calldata (and without the original paramValues) -> coming from proposalList. 
+// or using only the original paramValues -> coming from law. NB: action DOES have calldata. 
 // so have to  
 
 export function ProposalBox() {
@@ -30,8 +31,7 @@ export function ProposalBox() {
 
   const {simulation, law, checks, resetStatus, execute, checkProposalExists, fetchSimulation, fetchChecks} = useLaw();
   const {status, error, propose, castVote} = useProposal();
-  const [jsxSimulation, setJsxSimulation] = useState<React.JSX.Element[]> ([]); 
-  const [inputValues, setInputValues] = useState<(InputType | InputType[])[]>([])
+  const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([])
   const description =  proposal?.description && proposal.description.length > 0 ? proposal.description 
                     : action.description && action.description.length > 0 ? action.description
                     : undefined  
@@ -51,10 +51,7 @@ export function ProposalBox() {
       if (dataTypes && dataTypes.length > 0 && calldata && description) {
         const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), calldata);
         const valuesParsed = parseInputValues(values)
-        setInputValues(valuesParsed)
-
-        // resetting rendering output
-        setJsxSimulation([])
+        setParamValues(valuesParsed)
         
         // simulating law. 
         fetchSimulation(
@@ -67,7 +64,7 @@ export function ProposalBox() {
 
         setAction({
           dataTypes: dataTypes,
-          inputValues: inputValues,
+          paramValues: paramValues,
           description: description,
           callData: calldata, 
           upToDate: true
@@ -92,32 +89,8 @@ export function ProposalBox() {
       )
   };
 
-  useEffect(() => {
-    if (simulation && simulation[0].length > 0) {
-      console.log("@useEffect, jsxSimulate triggered: ", simulation)
-      let jsxElements: React.JSX.Element[] = []; 
-      for (let i = 0; i < simulation[0].length; i++) {
-        console.log("@useEffect building..", i)
-        jsxElements = [ 
-          ... jsxElements, 
-          <tr
-            key={i}
-            className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}
-          >
-            {/*  */}
-            <td className="ps-6 text-slate-500"> {simulation[0][i]} </td> 
-            <td className="text-slate-500"> {String(simulation[1][i])} </td>
-            <td className="pe-4 text-slate-500"> {simulation[2][i]} </td>
-          </tr>
-        ];
-      }
-      setJsxSimulation(jsxElements)
-    }  
-  }, [simulation])
-
   // resetting lawBox when switching laws: 
   useEffect(() => {
-    console.log("startup set @proposalBox triggered:", {calldata, description})
     handleSimulate()
   }, [, law, proposal ])
 
@@ -133,11 +106,11 @@ export function ProposalBox() {
         /> 
       </div>
 
-      {/* dynamic form */}
+      {/* static form */}
       <form action="" method="get" className="w-full">
         {
           dataTypes ? dataTypes.map((dataType, index) => 
-            <StaticInput dataType = {dataType} values = {inputValues && inputValues[index] ? inputValues[index] : []} />)
+            <StaticInput dataType = {dataType} values = {paramValues && paramValues[index] ? paramValues[index] : []} />)
           :
           null
         }
@@ -158,30 +131,7 @@ export function ProposalBox() {
         </div>
       </form>
 
-      {/* fetchSimulation output */}
-      <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 pt-2 px-6">
-        <div className="w-full text-xs text-center text-slate-500 border rounded-t-md border-b-0 border-slate-300 p-2">
-          Simulated output 
-        </div>
-        <div className="w-full h-fit border border-slate-300 overflow-scroll rounded-b-md">
-          <table className="table-auto w-full ">
-            <thead className="w-full">
-              <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
-                  <th className="ps-6 py-2 font-light"> Target contracts </th>
-                  <th className="font-light"> Value </th>
-                  <th className="font-light"> Calldata </th>
-              </tr>
-            </thead>
-              <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
-                { jsxSimulation.map(row => {return (row)} ) } 
-              </tbody>
-            </table>
-          </div>
-        
-        {/* Horizontal divider line  */}
-        {/* <div className="w-1/3 border-b border-slate-200 mt-6"/>  */}
-          
-      </div>
+      <SimulationBox /> 
 
       {/* execute button */}
         <div className="w-full h-fit p-6">

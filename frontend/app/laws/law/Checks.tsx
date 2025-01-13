@@ -5,8 +5,8 @@ import { setLaw, useActionStore, useLawStore, useOrgStore } from "@/context/stor
 import { useLaw } from "@/hooks/useLaw";
 import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
-import { roleColour } from "@/context/ThemeContext"
-import { parseRole } from "@/context/parsers";
+import { roleColour } from "@/context/Theme"
+import { parseRole } from "@/utils/parsers";
 import { useRouter } from "next/navigation";
 
 export const Checks: React.FC = () => {
@@ -65,7 +65,7 @@ export const Checks: React.FC = () => {
         }
 
         {/* Executed */}
-        {law.config.needCompleted != '0x0000000000000000000000000000000000000000'  ?  
+        {law.config.needCompleted != `0x${'0'.repeat(42)}`  ?  
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 justify-between items-center">
             { checks?.lawCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
@@ -90,7 +90,7 @@ export const Checks: React.FC = () => {
         }
 
         {/* Not executed */}
-        {law.config.needNotCompleted != '0x0000000000000000000000000000000000000000' ? 
+        {law.config.needNotCompleted != `0x${'0'.repeat(42)}` ? 
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 justify-between items-center">
             { checks?.lawNotCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}

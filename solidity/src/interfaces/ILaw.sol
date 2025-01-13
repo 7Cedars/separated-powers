@@ -50,6 +50,9 @@ interface ILaw is IERC165, LawErrors {
         external view 
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange);
 
-    /// @notice function to get the params of the law
-    function getParams() external view returns (bytes4 param0, bytes4 param1, bytes4 param2, bytes4 param3, bytes4 param4, bytes4 param5, bytes4 param6, bytes4 param7); 
+    /// @notice function to get the input params of the law
+    function getInputParams() external view returns (bytes4 param0, bytes4 param1, bytes4 param2, bytes4 param3, bytes4 param4, bytes4 param5, bytes4 param6, bytes4 param7); 
+
+    /// @notice function to get the state var types of the law
+    function getStateVars() external view returns (bytes4 var0, bytes4 var1, bytes4 var2, bytes4 var3, bytes4 var4, bytes4 var5, bytes4 var6, bytes4 var7); 
 }

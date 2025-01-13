@@ -6,11 +6,14 @@ import { lawAbi, separatedPowersAbi } from "@/context/abi";
 import { Hex, Log, parseEventLogs, ParseEventLogsReturnType } from "viem"
 import { publicClient } from "@/context/clients";
 import { readContract } from "wagmi/actions";
+import { supportedChains } from "@/context/chains";
+import { useChainId } from 'wagmi'
 
 export const useOrganisations = () => {
   const [status, setStatus ] = useState<Status>("idle")
   const [error, setError] = useState<any | null>(null)
   const [organisations, setOrganisations] = useState<Organisation[] | undefined>() 
+  const chainId = useChainId()
 
   // const fromBlock = 102000000n // this should be taken from a config file. £todo 
 
@@ -21,7 +24,7 @@ export const useOrganisations = () => {
           const logs = await publicClient.getContractEvents({ 
             abi: separatedPowersAbi, 
             eventName: 'SeparatedPowers__Initialized',
-            fromBlock: 102000000n
+            fromBlock: supportedChains[chainId].genesisBlock,
           })
           const fetchedLogs = parseEventLogs({
             abi: separatedPowersAbi,

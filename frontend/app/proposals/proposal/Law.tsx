@@ -3,7 +3,7 @@
 import { setLaw } from "@/context/store";
 import { useLaw } from "@/hooks/useLaw";
 import { useRouter } from 'next/navigation'
-import { roleColour } from "@/context/ThemeContext"
+import { roleColour } from "@/context/Theme"
 
 export const Law: React.FC = () => {
   const {law} = useLaw(); 

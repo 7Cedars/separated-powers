@@ -6,19 +6,22 @@ import { Button } from "@/components/Button";
 import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { Law, Role, Status } from "@/context/types";
-import { parseRole } from "@/context/parsers";
+import { parseRole } from "@/utils/parsers";
 import { publicClient } from "@/context/clients";
 import { separatedPowersAbi } from "@/context/abi";
 import { readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { setRole } from "@/context/store"
-import { roleColour } from "@/context/ThemeContext"
+import { roleColour } from "@/context/Theme"
 import { Hex, Log, parseEventLogs, ParseEventLogsReturnType } from "viem"
+import { useChainId } from 'wagmi'
+import { supportedChains } from "@/context/chains";
 
 export default function Page() {
   const organisation = useOrgStore();
   const role = useRoleStore();
   const router = useRouter();
+  const chainId = useChainId();
 
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<any | null>(null)
@@ -33,7 +36,7 @@ export default function Page() {
             address: organisation.contractAddress,
             abi: separatedPowersAbi, 
             eventName: 'RoleSet',
-            fromBlock: 102000000n,
+            fromBlock: supportedChains[chainId].genesisBlock,
             args: {
               roleId: role.roleId,
               access: true

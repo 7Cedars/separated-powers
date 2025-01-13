@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Config, Proposal, Law, Organisation, Action, Role } from '../context/types'
+import { Config, Proposal, Law, Organisation, Action, Role, Roles } from '../context/types'
 
 type OrgStore = Organisation; 
 const initialStateOrg: OrgStore = {
@@ -52,18 +52,19 @@ const initialStateProposal: ProposalStore = {
 type ActionStore = Action;
 const initialStateAction: ActionStore = {
   dataTypes: [],
-  inputValues: [],
+  paramValues: [],
   description: '',
   callData: `0x0`, 
   upToDate: false
 }
 
-type RoleStore = Role;
+type RoleStore = Roles;
 const initialStateRole: RoleStore = {
   roleId: 999, 
   holders: 0,
   laws: [],
-  addresses: []
+  proposals: [], 
+  roles: []
 }
 
 // Organisation Store

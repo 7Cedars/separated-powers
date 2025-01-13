@@ -6,6 +6,39 @@ export type Vote = 0n | 1n | 2n  // = against, for, abstain
 export type InputType = number | boolean | string | `0x${string}` | undefined 
 export type DataType = "uint8" | "uint16" | "uint32" | "uint64" | "uint128" | "uint256" | "address" | "bytes" | "string" | "bytes32" | "bool" |
                        "uint8[]" | "uint16[]" | "uint32[]" | "uint64[]" | "uint128[]" | "uint256[]" | "address[]" | "bytes[]" | "string[]" | "bytes32[]" | "bool[]" | "unsupported" | "empty" 
+export type LawSimulation = [
+      `0x${string}`[], 
+      bigint[], 
+      `0x${string}`[], 
+      `0x${string}`
+    ]
+
+export type ChainProps = {
+  name: string;
+  network: string; 
+  id: number;
+  genesisBlock: bigint; // block at which the first SeparatedPowers Protocol was deployed. 
+  rpc?: string;
+  nativeCurrency?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  blockExplorerUrl?: string;
+  iconUrl?: string;
+  mockErc20?: `0x${string}`;
+  mockErc721?: `0x${string}`;
+  mockErc1155?: `0x${string}`;
+  erc20s?: 
+    { name: string; 
+      symbol: string; 
+      decimals: number; 
+      address: `0x${string}`
+    }[];
+  erc721s?: `0x${string}`[];
+  erc1155s?: `0x${string}`[];
+}
+                      
 
 export type Config = {
   delayExecution: bigint; 
@@ -53,7 +86,7 @@ export type Roles = {
 
 export type Action = {
   dataTypes: DataType[] | undefined;
-  inputValues: (InputType | InputType[])[] | undefined;
+  paramValues: (InputType | InputType[])[] | undefined;
   description: string;
   callData: `0x${string}`;
   upToDate: boolean;

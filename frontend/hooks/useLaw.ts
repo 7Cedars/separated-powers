@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { lawAbi, separatedPowersAbi } from "../context/abi";
-import { CompletedProposal, Law, ProtocolEvent, Status } from "../context/types"
+import { CompletedProposal, Law, ProtocolEvent, Status, LawSimulation } from "../context/types"
 import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { useWaitForTransactionReceipt } from "wagmi";
@@ -22,12 +22,6 @@ type Checks = {
   throttlePassed?: boolean | undefined;
 }
 
-type LawSimulation = [
-  `0x${string}`[], 
-  bigint[], 
-  `0x${string}`[] 
-]
-
 export const useLaw = () => {
   const organisation = useOrgStore()
   const law = useLawStore()
@@ -37,7 +31,7 @@ export const useLaw = () => {
 
   const [status, setStatus ] = useState<Status>("idle")
   const [error, setError] = useState<any | null>(null)
-  const [simulation, setLawSimulation ] = useState<LawSimulation>()
+  const [simulation, setSimulation ] = useState<LawSimulation>()
   const [transactionHash, setTransactionHash ] = useState<`0x${string}` | undefined>()
   const {error: errorReceipt, status: statusReceipt} = useWaitForTransactionReceipt({
     confirmations: 2, 
@@ -238,7 +232,7 @@ export const useLaw = () => {
           functionName: 'simulateLaw', 
           args: [targetLaw, lawCalldata, description]
         })
-          setLawSimulation(result as LawSimulation)
+          setSimulation(result as LawSimulation)
           setStatus("success")
         } catch (error) {
           setStatus("error") 

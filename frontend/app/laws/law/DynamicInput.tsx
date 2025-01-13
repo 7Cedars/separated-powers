@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useEffect, useState } from "react";
-import { parseInput } from "@/context/parsers";
+import { parseInput } from "@/utils/parsers";
 import { DataType, InputType } from "@/context/types";
 import { 
  MinusIcon,

@@ -47,8 +47,8 @@ contract HelperConfig is Script {
     }
 
     function getArbSepoliaConfig() public returns (NetworkConfig memory) {
-        networkConfig.erc1155Mock = address(0);
-        networkConfig.erc20VotesMock = address(0);
+        networkConfig.erc1155Mock = 0x32205ae519CdDeEFB8Cb360C628eaF8159447b65;
+        networkConfig.erc20VotesMock = 0x96B8FDE7522cB57aD19478637033607732412B84;
         networkConfig.blocksPerHour = 300;
 
         return networkConfig;

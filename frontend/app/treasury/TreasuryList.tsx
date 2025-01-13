@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { Law, Role, Status } from "@/context/types";
-import { parseRole } from "@/context/parsers";
+import { parseRole } from "@/utils/parsers";
 import { publicClient } from "@/context/clients";
 import { separatedPowersAbi } from "@/context/abi";
 import { readContract } from "wagmi/actions";

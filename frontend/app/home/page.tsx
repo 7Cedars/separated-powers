@@ -5,7 +5,17 @@ import { useOrgStore, setLaw, useLawStore, deleteLaw  } from "../../context/stor
 import Link from "next/link";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { LawList } from "@/app/laws/LawList";
-import { colourScheme } from "@/context/ThemeContext"; 
+// import { colourScheme } from "@/context/ThemeContext"; 
+
+
+const colourScheme = [
+  "from-indigo-500 to-emerald-500", 
+  "from-blue-500 to-red-500", 
+  "from-indigo-300 to-emerald-900",
+  "from-emerald-400 to-indigo-700 ",
+  "from-red-200 to-blue-400",
+  "from-red-800 to-blue-400"
+]
 
 export default function Page() {
     const organisation = useOrgStore()
