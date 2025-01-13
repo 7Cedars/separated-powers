@@ -80,7 +80,7 @@ contract DeployTest is TestSetupLaw {
             bytes4 param5,
             bytes4 param6,
             bytes4 param7
-            ) = lawMock.getParams();
+            ) = lawMock.getInputParams();
         // assert(lengthParams > 0);
     }
 }

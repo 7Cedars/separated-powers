@@ -22,6 +22,7 @@ export default function Page() {
   const role = useRoleStore();
   const router = useRouter();
   const chainId = useChainId();
+  const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<any | null>(null)
@@ -36,7 +37,7 @@ export default function Page() {
             address: organisation.contractAddress,
             abi: separatedPowersAbi, 
             eventName: 'RoleSet',
-            fromBlock: supportedChains[chainId].genesisBlock,
+            fromBlock: supportedChain?.genesisBlock,
             args: {
               roleId: role.roleId,
               access: true

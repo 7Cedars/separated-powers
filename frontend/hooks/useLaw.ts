@@ -5,7 +5,6 @@ import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { useWaitForTransactionReceipt } from "wagmi";
 import { useLawStore, useOrgStore } from "@/context/store";
-import { useReadContracts } from "wagmi";
 import { useWallets } from "@privy-io/react-auth";
 import { publicClient } from "@/context/clients";
 import { readContract } from "wagmi/actions";
@@ -39,6 +38,8 @@ export const useLaw = () => {
   })
   const [checks, setChecks ] = useState<Checks>()
 
+  console.log("@useLaw", {wallets})
+
   useEffect(() => {
     if (statusReceipt === "success") setStatus("success")
     if (statusReceipt === "error") setStatus("error")
@@ -64,6 +65,7 @@ export const useLaw = () => {
                   functionName: 'canCallLaw', 
                   args: [wallets[0].address, law.law],
                 })
+          console.log("result @checkAccountAuthorised", {result})
           return result as boolean
         } catch (error) {
             setStatus("error") 
@@ -222,7 +224,7 @@ export const useLaw = () => {
   
   // Actions // 
   const fetchSimulation = useCallback( 
-    async (targetLaw: `0x${string}`, lawCalldata: `0x${string}`, description: string) => {
+    async (initiator: `0x${string}`, lawCalldata: `0x${string}`, description: string) => {
       setError(null)
       setStatus("pending")
       try {
@@ -230,7 +232,7 @@ export const useLaw = () => {
           abi: lawAbi,
           address: law.law,
           functionName: 'simulateLaw', 
-          args: [targetLaw, lawCalldata, description]
+          args: [initiator, lawCalldata, description]
         })
           setSimulation(result as LawSimulation)
           setStatus("success")

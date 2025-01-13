@@ -18,6 +18,7 @@ import { DynamicInput } from "@/app/laws/law/DynamicInput";
 import { roleColour } from "@/context/Theme"
 import { notUpToDate } from "@/context/store"
 import { SimulationBox } from "@/components/SimulationBox";
+import { useWallets } from "@privy-io/react-auth";
 
 export function LawBox() {
   const router = useRouter();
@@ -28,13 +29,15 @@ export function LawBox() {
         address: law.law,
         functionName: 'getInputParams'
       })
-  const dataTypes = parseParams(data as string[])
-  console.log("@lawbox:", {error, action, status, checks, dataTypes})
+  const dataTypes = data ? parseParams(data as string[]) : []
+  const {wallets} = useWallets();
+  console.log("@lawbox:", {error, action, status, checks, dataTypes, wallets, simulation})
 
-  const [paramValues, setParamValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(dataTypes[0].length)); // NB! String has to be converted to hex using toHex before being able to use as input.  
+  const [paramValues, setParamValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(dataTypes.length)); // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
 
   const handleChange = (input: InputType | InputType[], index: number) => {
+    console.log("@handleChange called:", {input, index, paramValues})
     const currentInput = paramValues 
     currentInput[index] = input
     setParamValues(currentInput)
@@ -47,7 +50,7 @@ export function LawBox() {
       console.log("@handleSimulate Called")
       let lawCalldata: `0x${string}`
       if (paramValues.length > 0 && paramValues) {
-        lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes[0].toString()), paramValues);
+        lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), paramValues);
       } else {
         lawCalldata = '0x0'
       }
@@ -61,7 +64,7 @@ export function LawBox() {
         })
         // simulating law. 
         fetchSimulation(
-          law.law as `0x${string}`,
+          wallets[0] ? wallets[0].address as `0x${string}` : '0x0', // needs to be wallet! 
           lawCalldata as `0x${string}`,
           keccak256(toHex(description))
         )
@@ -130,7 +133,7 @@ export function LawBox() {
       </form>
 
       {/* fetchSimulation output */}
-      <SimulationBox />
+      <SimulationBox simulation = {simulation} />
 
       {/* execute button */}
         <div className="w-full h-fit p-6">

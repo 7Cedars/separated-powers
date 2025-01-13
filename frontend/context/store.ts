@@ -32,21 +32,21 @@ const initialStateLaw: LawStore = {
 type ProposalStore = Proposal;
 const initialStateProposal: ProposalStore = {
   proposalId: 0,
-  targetLaw: `0x0`,
+  targetLaw: `0x`,
   voteStart: 0n,
   voteDuration: 0n,
   voteEnd: 0n,
   cancelled: false,
   completed: false,
-  initiator: `0x0`,
+  initiator: `0x`,
   againstVotes: 0n,
   forVotes: 0n,
   abstainVotes: 0n,
   description: "",
-  executeCalldata: `0x0`,
+  executeCalldata: `0x`,
   state: 5,
   blockNumber: 0,
-  blockHash: `0x0`
+  blockHash: `0x`
 }
 
 type ActionStore = Action;

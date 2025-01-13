@@ -18,6 +18,8 @@ export const Checks: React.FC = () => {
   const needCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needCompleted); 
   const needNotCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needNotCompleted); 
 
+  console.log({checks})
+
   useEffect(() => {
     fetchChecks("dummy string", "0x0")
   }, [])
@@ -34,7 +36,6 @@ export const Checks: React.FC = () => {
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
           <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
             { checks?.authorised ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
-            {/* <XMarkIcon className="w-4 h-4 text-red-600"/> */}
             <div>
             {checks?.authorised ? "Account authorised" : "Account not authorised"  } 
             </div>
@@ -64,8 +65,8 @@ export const Checks: React.FC = () => {
           : null
         }
 
-        {/* Executed */}
-        {law.config.needCompleted != `0x${'0'.repeat(42)}`  ?  
+      {/* Executed */}
+        {law.config.needCompleted != `0x${'0'.repeat(40)}`  ?  
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 justify-between items-center">
             { checks?.lawCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
@@ -90,7 +91,7 @@ export const Checks: React.FC = () => {
         }
 
         {/* Not executed */}
-        {law.config.needNotCompleted != `0x${'0'.repeat(42)}` ? 
+        {law.config.needNotCompleted != `0x${'0'.repeat(40)}` ? 
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 justify-between items-center">
             { checks?.lawNotCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}

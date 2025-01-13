@@ -14,8 +14,9 @@ export const useOrganisations = () => {
   const [error, setError] = useState<any | null>(null)
   const [organisations, setOrganisations] = useState<Organisation[] | undefined>() 
   const chainId = useChainId()
-
-  // const fromBlock = 102000000n // this should be taken from a config file. £todo 
+  const supportedChain = supportedChains.find(chain => chain.id == chainId)
+  console.log("@useOrganisation: ", {chainId})
+  // console.log("@useOrganisation, genesisBlock: ", supportedChains[chainId].genesisBlock)
 
   const getOrganisations = useCallback( 
     async () => {
@@ -24,7 +25,7 @@ export const useOrganisations = () => {
           const logs = await publicClient.getContractEvents({ 
             abi: separatedPowersAbi, 
             eventName: 'SeparatedPowers__Initialized',
-            fromBlock: supportedChains[chainId].genesisBlock,
+            fromBlock: supportedChain?.genesisBlock,
           })
           const fetchedLogs = parseEventLogs({
             abi: separatedPowersAbi,
@@ -53,7 +54,7 @@ export const useOrganisations = () => {
             const logs = await publicClient.getContractEvents({ 
               abi: lawAbi, 
               eventName: 'Law__Initialized',
-              fromBlock: 102000000n,
+              fromBlock: supportedChain?.genesisBlock,
               args: {
                 separatedPowers: organisation.contractAddress as `0x${string}`
               }
@@ -96,7 +97,7 @@ export const useOrganisations = () => {
               address: organisation.contractAddress as `0x${string}`,
               abi: separatedPowersAbi, 
               eventName: 'ProposalCreated',
-              fromBlock: 102000000n
+              fromBlock: supportedChain?.genesisBlock
             })
             const fetchedLogs = parseEventLogs({
                         abi: separatedPowersAbi,

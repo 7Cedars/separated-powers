@@ -4,26 +4,37 @@ import React, { useEffect, useState } from "react";
 import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
-import { parseParams } from "@/utils/parsers";
+import { parseParamValues, parseParams } from "@/utils/parsers";
+import { decodeAbiParameters, parseAbiParameters } from "viem";
+import { LawSimulation } from "@/context/types";
 
-export const SimulationBox = () => {
-  const {status, error, law, simulation, checks, resetStatus, execute, fetchSimulation, fetchChecks} = useLaw();
+type SimulationBoxProps = {
+  simulation: LawSimulation | undefined;
+};
+
+export const SimulationBox = ({simulation}: SimulationBoxProps) => {
+  const {status, error, law, checks, resetStatus, execute, fetchSimulation, fetchChecks} = useLaw();
   const [jsxSimulation, setJsxSimulation] = useState<React.JSX.Element[][]> ([]); 
-  const { data, isLoading, isError } = useReadContract({
+  const { data, isLoading, isError, error: stateVarsError } = useReadContract({
         abi: lawAbi,
         address: law.law,
         functionName: 'getStateVars'
       })
-  const dataTypes = parseParams(data as string[])
+  const dataTypes = parseParams(data ? data as string[] : [])
+
+  console.log("@SimulationBox:", {jsxSimulation, stateVarsError, data, dataTypes, simulation})
     
   useEffect(() => {
-    if (simulation && simulation[0].length > 0) {
+
+    let jsxElements0: React.JSX.Element[] = []; 
+    let jsxElements1: React.JSX.Element[] = []; 
+
+    if (simulation && simulation.length > 0) {
       console.log("@useEffect, jsxSimulate 0 triggered")
-      let jsxElements: React.JSX.Element[] = []; 
       for (let i = 0; i < simulation[0].length; i++) {
         console.log("@useEffect building..", i)
-        jsxElements = [ 
-          ... jsxElements, 
+        jsxElements0 = [ 
+          ... jsxElements0, 
           <tr
             key={i}
             className={`text-sm text-slate-800 h-16 p-2 overflow-x-scroll`}
@@ -35,60 +46,63 @@ export const SimulationBox = () => {
           </tr>
         ];
       }
-      setJsxSimulation([jsxElements])
     }  
   
-    if (simulation && simulation[1].length > 0) {
+    if (simulation) {
       console.log("@useEffect, jsxSimulate 1 triggered")
-      let jsxElements: React.JSX.Element[] = []; 
-      for (let i = 0; i < simulation[1].length; i++) {
-        console.log("@useEffect building..", i)
-        jsxElements = [ 
-          ... jsxElements, 
+        const stateVars = dataTypes.length > 0 ? decodeAbiParameters(parseAbiParameters(dataTypes.toString()), simulation[3]) : [];
+        const stateVarsParsed = parseParamValues(stateVars)
+        for (let i = 0; i < stateVarsParsed.length; i++) {
+        jsxElements1 = [ 
+          ... jsxElements1, 
           <tr
             key={i}
             className={`text-sm text-slate-800 h-16 p-2 overflow-x-scroll`}
           >
             {/*  */}
-            <td className="ps-6 text-left text-slate-500"> {dataTypes[1][i]} </td> 
-            <td className="text-center text-slate-500"> {String(simulation[0][i])} </td>
+            <td className="ps-6 text-left text-slate-500"> {dataTypes[i]} </td> 
+            <td className="text-left text-slate-500"> {String(stateVarsParsed[i])} </td>
             </tr>
         ];
       }
-      const sim = [...jsxSimulation, jsxElements]
-      setJsxSimulation(sim)
     }  
+    const sim = [jsxElements1, jsxElements0]
+    setJsxSimulation(sim)
   }, [simulation])
 
   // try to do without this. Don't know if it is actually necessary.. 
-  useEffect(() => {
-    setJsxSimulation([])
-  }, [])
+  // useEffect(() => {
+  //   setJsxSimulation([])
+  // }, [])
 
   return (
     <>
-    <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 pt-2 px-6">
-        <div className="w-full text-xs text-center text-slate-500 border rounded-t-md border-b-0 border-slate-300 p-2">
-          State variables to be saved in law 
-        </div>
-        <div className="w-full h-fit border border-slate-300 overflow-scroll rounded-b-md">
-          <table className="table-auto w-full ">
-            <thead className="w-full">
-              <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
-                  <th className="ps-6 py-2 font-light"> Data type </th>
-                  <th className="font-light"> Value </th>
-              </tr>
-            </thead>
-              <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
-                { jsxSimulation[1].map(row => {return (row)} ) } 
-              </tbody>
-            </table>
+    {dataTypes.length > 0 ? 
+      <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 pt-2 px-6">
+          <div className="w-full text-xs text-center text-slate-500 border rounded-t-md border-b-0 border-slate-300 p-2">
+            State variables to be saved in law 
           </div>
-      </div>
+          <div className="w-full h-fit border border-slate-300 overflow-scroll rounded-b-md">
+            <table className="table-auto w-full ">
+              <thead className="w-full">
+                <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
+                    <th className="ps-6 py-2 font-light"> Data type </th>
+                    <th className="font-light text-left"> Value </th>
+                </tr>
+              </thead>
+                <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
+                  { jsxSimulation[0] ? jsxSimulation[0].map(row => {return (row)} ) : null } 
+                </tbody>
+              </table>
+            </div>
+        </div>
+        : 
+        null
+      }
 
       <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 pt-2 px-6">
         <div className="w-full text-xs text-center text-slate-500 border rounded-t-md border-b-0 border-slate-300 p-2">
-          Data to be send to protocol 
+          Calldata to be send to protocol 
         </div>
         <div className="w-full h-fit border border-slate-300 overflow-scroll rounded-b-md">
           <table className="table-auto w-full ">
@@ -100,7 +114,7 @@ export const SimulationBox = () => {
               </tr>
             </thead>
               <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
-                { jsxSimulation[0].map(row => {return (row)} ) } 
+                { jsxSimulation[1] ? jsxSimulation[1].map(row => {return (row)} ) : null } 
               </tbody>
             </table>
           </div>

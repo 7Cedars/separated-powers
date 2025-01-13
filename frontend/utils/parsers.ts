@@ -59,10 +59,10 @@ export const parseParams = (params: string[]): DataType[]  => {
   return parsedParams
 }
 
-export const parseInputValues = (inputs: unknown): Array<InputType | InputType[]> => {
+export const parseParamValues = (inputs: unknown): Array<InputType | InputType[]> => {
   // very basic parser. Here necessary input checks can be added later.  
   if (!isArray(inputs)) {
-    throw new Error('@parseInputValues: input not an array.');
+    throw new Error('@parseParamValues: input not an array.');
   }
 
   const result = inputs.map(input => 
@@ -92,7 +92,7 @@ export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataT
   if (dataType.indexOf('bool') > -1) {
     console.log("@parser: ", event.target.value)
     try {
-      return Boolean(event.target.value)
+      return event.target.value == 'true'
     } catch {
       return errorMessage
     }

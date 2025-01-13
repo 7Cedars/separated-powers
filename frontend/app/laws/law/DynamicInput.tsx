@@ -8,6 +8,7 @@ import {
  PlusIcon
 } from '@heroicons/react/24/outline';
 import {notUpToDate} from "@/context/store"
+import { InputHTMLAttributes } from "react";
 
 type InputProps = {
   dataType: DataType;
@@ -38,7 +39,7 @@ export function DynamicInput({dataType, onChange}: InputProps) {
 
   const handleChange=({event, item}: {event:ChangeEvent<HTMLInputElement>, item: number}) => {
     const currentInput = parseInput(event, dataType)
-    console.log("@DynamicInput parsed output of @parseInput:", currentInput)
+    console.log("@DynamicInput parsed test output of @parseInput:", currentInput)
     if (currentInput == 'Incorrect input data') {
       setError(currentInput) 
     } else if(typeof onChange === 'function'){
@@ -50,7 +51,7 @@ export function DynamicInput({dataType, onChange}: InputProps) {
         onChange(inputArray)
       } else {
         console.log("@DynamicInput @handleChange non-array triggered")
-        currentArray[0] = currentInput
+        currentArray[0] =  currentInput
         setInputArray(currentArray)
         onChange(inputArray[0])
       }  
@@ -116,7 +117,7 @@ export function DynamicInput({dataType, onChange}: InputProps) {
                         type="radio" 
                         name={`input${item}`} 
                         id={`input${item}true`} 
-                        value={`true`} 
+                        value={'true'} 
                         className="min-w-0 text-base text-slate-600 placeholder:text-gray-400" 
                         onChange={(event) => handleChange({event, item})}
                       />
@@ -132,7 +133,7 @@ export function DynamicInput({dataType, onChange}: InputProps) {
                         type="radio" 
                         name={`input${item}`} 
                         id={`input${item}false`} 
-                        value={`false`} 
+                        value={'false'} 
                         className="min-w-0 text-base text-slate-600 placeholder:text-gray-400" 
                         onChange={(event) => handleChange({event, item})}
                       />

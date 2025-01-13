@@ -34,7 +34,7 @@ export function ProposalList() {
     if (organisation) {
       fetchProposals(organisation);
     }
-  }, [organisation, organisation?.proposals]);
+  }, []);
 
   return (
     <div className="w-full flex flex-col justify-start items-center">

@@ -17,17 +17,20 @@ export const supportedChains: ChainProps[] = [
     id: 421614,
     name: "Arbitrum Sepolia",
     network: "arbitrumSepolia",
+    blockExplorerUrl: "https://sepolia.arbiscan.io/",
     genesisBlock: 110000000n,
-    mockErc20: `0x96B8FDE7522cB57aD19478637033607732412B84`,
-    mockErc1155: `0x32205ae519CdDeEFB8Cb360C628eaF8159447b65`,
-    erc20s: [
+    mockErc20: 
       {
-        name: "USD Coin",
-        symbol: "USDC",
+        name: "Mock Erc20 Vote Coin",
+        symbol: "MOCK",
         decimals: 6,
-        address: `0xf3C3351D6Bd0098EEb33ca8f830FAf2a141Ea2E1`,
-      }
-    ], 
+        address: `0x96B8FDE7522cB57aD19478637033607732412B84`,
+      },
+    mockErc1155: {
+      name: "Mock Erc1155 Coin",
+      symbol: "MOCK",
+      address: `0x32205ae519CdDeEFB8Cb360C628eaF8159447b65`,
+      }, 
   },
 
 ]

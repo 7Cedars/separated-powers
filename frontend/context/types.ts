@@ -13,6 +13,25 @@ export type LawSimulation = [
       `0x${string}`
     ]
 
+export type Erc20 = {
+  name: string; 
+  symbol: string; 
+  decimals: number; 
+  address: `0x${string}`
+}
+
+export type Erc721 = {
+  name: string; 
+  symbol: string; 
+  address: `0x${string}`
+}
+
+export type Erc1155 = {
+  name: string; 
+  symbol: string; 
+  address: `0x${string}`
+}
+
 export type ChainProps = {
   name: string;
   network: string; 
@@ -26,17 +45,12 @@ export type ChainProps = {
   };
   blockExplorerUrl?: string;
   iconUrl?: string;
-  mockErc20?: `0x${string}`;
-  mockErc721?: `0x${string}`;
-  mockErc1155?: `0x${string}`;
-  erc20s?: 
-    { name: string; 
-      symbol: string; 
-      decimals: number; 
-      address: `0x${string}`
-    }[];
-  erc721s?: `0x${string}`[];
-  erc1155s?: `0x${string}`[];
+  mockErc20?: Erc20;
+  mockErc721?: Erc721;
+  mockErc1155?: Erc1155;
+  erc20s?: Erc20[];
+  erc721s?: Erc721[];
+  erc1155s?: Erc1155[];
 }
                       
 

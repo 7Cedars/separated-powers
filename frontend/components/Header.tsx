@@ -23,13 +23,14 @@ import {
   ChatBubbleBottomCenterIcon,
   BuildingLibraryIcon
 } from '@heroicons/react/24/outline';
-import { useConnectWallet, usePrivy } from "@privy-io/react-auth";
+import { useConnectWallet, useLogout, usePrivy } from "@privy-io/react-auth";
 import { useWallets } from "@privy-io/react-auth";
 
 export const Header = () => {
   const router = useRouter();
   const organisation = useOrgStore(); 
   const {connectWallet} = useConnectWallet();
+  const logout2 = useLogout();
   
   const path = usePathname()
   const {wallets } = useWallets();
@@ -37,6 +38,8 @@ export const Header = () => {
   const {ready, authenticated, login, logout} = usePrivy();
   const layoutIconBox: string = 'flex flex-row gap-2 align-middle items-center'
   const layoutIcons: string = 'h-4 w-4'
+
+  console.log("@Header:", {wallets})
 
   useEffect(() => {
     if (organisation.name == '') {
@@ -169,7 +172,7 @@ export const Header = () => {
 
         <div className="flex flex-row gap-2 min-w-40"> 
         { 
-          ready && wallets[0] && authenticated ? 
+          wallets[0] && authenticated ? 
           <Button 
               size = {0} 
               onClick={() => logout()}
@@ -181,7 +184,7 @@ export const Header = () => {
           : 
           <Button 
           size = {0} 
-          onClick={() => connectWallet()}
+          onClick={() => login()}
           >
             <div className={layoutIconBox}> 
               <b> Connect Wallet </b>       

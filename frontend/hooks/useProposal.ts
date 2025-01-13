@@ -6,8 +6,10 @@ import { wagmiConfig } from "@/context/wagmiConfig";
 import { useWaitForTransactionReceipt } from "wagmi";
 import { readContract } from "wagmi/actions";
 import { publicClient } from "@/context/clients";
-import { useOrgStore } from "@/context/store";
+import { useOrgStore, assignOrg } from "@/context/store";
 import { parseEventLogs, ParseEventLogsReturnType } from "viem";
+import { useChainId } from 'wagmi'
+import { supportedChains } from "@/context/chains";
 
 export const useProposal = () => {
   const [status, setStatus ] = useState<Status>("idle")
@@ -16,6 +18,8 @@ export const useProposal = () => {
   const [proposals, setProposals] = useState<Proposal[] | undefined>()
   const [law, setLaw ] = useState<`0x${string}` | undefined>()
   const [error, setError] = useState<any | null>(null)
+  const chainId = useChainId();
+  const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
   const {error: errorReceipt, status: statusReceipt} = useWaitForTransactionReceipt({
     confirmations: 2, 
@@ -37,7 +41,7 @@ export const useProposal = () => {
                 address: organisation.contractAddress as `0x${string}`,
                 abi: separatedPowersAbi, 
                 eventName: 'ProposalCreated',
-                fromBlock: 102000000n
+                fromBlock: supportedChain?.genesisBlock  // 
               })
               const fetchedLogs = parseEventLogs({
                           abi: separatedPowersAbi,
@@ -112,6 +116,7 @@ export const useProposal = () => {
       }
 
       setProposals(proposalsFull)
+      assignOrg({...organisation, proposals: proposalsFull})
       setStatus("success") //NB note: after checking status, sets the status back to idle! 
   }, [ ]) 
 

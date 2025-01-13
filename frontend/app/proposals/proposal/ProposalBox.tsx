@@ -12,7 +12,7 @@ import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { parseInputValues, parseParams, parseRole } from "@/utils/parsers";
+import { parseParamValues, parseParams, parseRole } from "@/utils/parsers";
 import { InputType } from "@/context/types";
 import { StaticInput } from "./StaticInput";
 import { roleColour } from "@/context/Theme"
@@ -32,25 +32,25 @@ export function ProposalBox() {
   const {simulation, law, checks, resetStatus, execute, checkProposalExists, fetchSimulation, fetchChecks} = useLaw();
   const {status, error, propose, castVote} = useProposal();
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([])
-  const description =  proposal?.description && proposal.description.length > 0 ? proposal.description 
-                    : action.description && action.description.length > 0 ? action.description
+  const description =  proposal?.description && proposal.description.length > 1 ? proposal.description 
+                    : action.description && action.description.length > 1 ? action.description
                     : undefined  
-  const calldata =  proposal?.executeCalldata && proposal.executeCalldata.length > 0 ? proposal.executeCalldata 
-                    : action.callData && action.callData.length > 0 ? action.callData
+  const calldata =  proposal?.executeCalldata && proposal.executeCalldata.length > 2 ? proposal.executeCalldata 
+                    : action.callData && action.callData.length > 2 ? action.callData
                     : undefined  
   const { data: params, isLoading, isError } = useReadContract({
     abi: lawAbi,
     address: law.law,
     functionName: 'getParams'
   })
-  const dataTypes = params ? parseParams(params as string[]) : []
+  const dataTypes = action.dataTypes ? action.dataTypes : params ? parseParams(params as string[]) : []
 
-  console.log("@ProposalBox:", {proposal, action, status, checks, dataTypes})
+  console.log("@ProposalBox:", {proposal, action, status, checks, dataTypes, description, calldata})
 
   const handleSimulate = async () => { 
       if (dataTypes && dataTypes.length > 0 && calldata && description) {
         const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), calldata);
-        const valuesParsed = parseInputValues(values)
+        const valuesParsed = parseParamValues(values)
         setParamValues(valuesParsed)
         
         // simulating law. 
@@ -62,21 +62,23 @@ export function ProposalBox() {
 
         fetchChecks(description, calldata)
 
-        setAction({
-          dataTypes: dataTypes,
-          paramValues: paramValues,
-          description: description,
-          callData: calldata, 
-          upToDate: true
-        })
+        if (!action.upToDate) {
+          setAction({
+            dataTypes: dataTypes,
+            paramValues: paramValues,
+            description: description,
+            callData: calldata, 
+            upToDate: true
+          })
+        }
       }
   };
 
   const handlePropose = async () => {
     propose(
           law.law as `0x${string}`,
-          proposal.executeCalldata as `0x${string}`,
-          proposal.description as string
+          calldata as `0x${string}`,
+          description as string
       )
   };
 
@@ -92,7 +94,7 @@ export function ProposalBox() {
   // resetting lawBox when switching laws: 
   useEffect(() => {
     handleSimulate()
-  }, [, law, proposal ])
+  }, [, law, proposal, action ])
 
   return (
     <main className="w-full flex flex-col justify-start items-center">
@@ -131,7 +133,7 @@ export function ProposalBox() {
         </div>
       </form>
 
-      <SimulationBox /> 
+      <SimulationBox simulation = {simulation}/> 
 
       {/* execute button */}
         <div className="w-full h-fit p-6">
