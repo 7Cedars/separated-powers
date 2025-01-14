@@ -30,26 +30,26 @@ export default function Page() {
     }, [, organisation])
 
     return (
-        <main className="w-full flex flex-col justify-center items-center border border-slate-300 rounded-md">
+        <main className="w-full flex flex-col justify-center items-center border border-slate-300 rounded-md overflow-hidden">
             <table className="w-full table-auto">
             <thead className="w-full">
-                <tr className="w-96 bg-slate-50 text-xs font-light text-slate-600 rounded-md border-b border-slate-300">
+                <tr className="w-96 bg-slate-50 text-xs font-light text-slate-600 border-b border-slate-300">
                     <th className=""></th>
-                    <th className="text-left  ps-4 py-2 font-light rounded-tl-md">Name</th>
+                    <th className="text-left ps-4 py-2 font-light ">Name</th>
                     <th className="text-right font-light">Laws</th>
                     <th className="text-right font-light">Proposals</th>
                     <th className="text-right font-light">Roles</th> 
-                    <th className="text-right font-light pe-2 rounded-tr-md">Chain</th>
+                    <th className="text-right font-light pe-2">Chain</th>
                 </tr>
             </thead>
             <tbody className="w-full text-sm text-right text-slate-600 bg-slate-50 divide-y divide-slate-300">
                 {
                     organisations?.map((org, index) => (
-                        <tr key={org.name} className="text-sm text-right text-slate-900 h-16">
+                        <tr key={index} className="text-sm text-right text-slate-900 h-16">
                             <td className="w-6">
-                                <div className={`ms-4 h-6 w-6 rounded-md bg-gradient-to-bl ${colourScheme[index % colourScheme.length]}`}/>
+                                <div className={`ms-4 h-6 w-6 bg-gradient-to-bl ${colourScheme[index % colourScheme.length]}`}/>
                             </td>
-                            <td className="text-left rounded-bl-md">
+                            <td className="text-left">
                                 <Button 
                                     size={1} align={0} showBorder={false} onClick={() => assignOrg({...org, colourScheme: index % colourScheme.length})}>
                                     {org.name}
@@ -58,7 +58,7 @@ export default function Page() {
                             <td>{org.laws?.length}</td>
                             <td>{org.proposals?.length}</td>
                             <td>{org.roles?.length}</td>
-                            <td className="pe-4 rounded-br-md"> Arbitrum </td>
+                            <td className="pe-4"> Arbitrum </td>
                         </tr>
                     ))
                 }

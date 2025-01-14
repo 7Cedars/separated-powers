@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { ThemeProvider } from "@/context/Theme";
 import { Providers } from "../context/Providers"
-import { Header } from "../components/Header";
+import { NavBars } from "../components/NavBars";
 // import { Footer } from "../components/Footer";
 import "./globals.css";
 
@@ -14,13 +14,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="h-dvh w-full flex justify-center items-start relative bg-slate-100">
+      <body className="h-dvh w-screen flex justify-center items-start relative bg-slate-100">
         <Providers>
           {/* <ThemeProvider> */}
-            <Header /> 
-            <div className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1 py-20 overflow-y-auto">
+            <NavBars > 
+            {/* <div className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1  py-20 px-2 overflow-y-auto"> */}
               {children}
-            </div>
+            </NavBars > 
             {/* <Footer />  */}
           {/* </ThemeProvider> */}
         </Providers>

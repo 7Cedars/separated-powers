@@ -21,10 +21,10 @@ body {
 }
 
 /* scrollbar changes layout */
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width: 0px;
   height: 0px;
-}
+} */
 
 ::-webkit-scrollbar-thumb {
   background: #888;

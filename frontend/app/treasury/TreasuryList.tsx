@@ -62,21 +62,22 @@ export function TreasuryList() {
         </button>
       </div>
       {/* table laws  */}
+      <div className="w-full h-full border border-slate-200 border-t-0 rounded-b-md overflow-x-scroll overflow-y-hidden">
       <table className="w-full table-auto border border-t-0">
       <thead className="w-full">
             <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
                 <th className="ps-6 py-2 font-light rounded-tl-md"> Token </th>
                 <th className="font-light"> Type </th>
-                <th className="font-light"> Holdings </th>
-                <th className="font-light text-right pe-8"> Address </th>
+                <th className="font-light text-center"> Holdings </th>
+                <th className="font-light text-right ps-2 pe-8"> Address </th>
             </tr>
         </thead>
-        <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
-            <tr>
-              <td className="text-left rounded-bl-md ps-6 px-2 py-4 w-60"> Mock Erc20 Vote Coin </td>
-              <td className="text-left text-slate-500">ERC 20</td>
+        <tbody className="w-full h-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
+            <tr className={`text-sm text-left text-slate-500 h-16 overflow-x-scroll`}>
+              <td className="text-left rounded-bl-md ps-6 px-2 min-w-48"> Mock Erc20 Vote Coin </td>
+              <td className="text-left text-slate-500 min-w-24">ERC 20</td>
               <td className="text-center pe-8 text-slate-500">{balances.length > 0 ?  balances[0] : 0}</td>
-              <td className="pe-4 text-right pe-8 text-slate-500">
+              <td className="pe-4 text-left pe-8 text-slate-500">
                   <Link
                     href={`${supportedChain?.blockExplorerUrl}/address/${supportedChain?.mockErc20?.address}#code`}
                     className="w-full p-2"
@@ -92,14 +93,29 @@ export function TreasuryList() {
                   </Link>
                 </td>
             </tr> 
-            <tr>
-              <td className="text-left rounded-bl-md ps-6 px-2 py-4 w-60"> Mock Erc1155 Coin </td>
-              <td className="text-left text-slate-500">ERC 1155</td>
+            <tr className={`text-sm text-left text-slate-500 h-16 p-2 overflow-x-scroll`}>
+              <td className="text-left rounded-bl-md ps-6 px-2 py-4 min-w-48"> Mock Erc1155 Coin </td>
+              <td className="text-left text-slate-500 min-w-24">ERC 1155</td>
               <td className="text-center pe-8 text-slate-500">{balances.length > 1 ?  balances[1] : 0}</td>
-              <td className="pe-4 text-right pe-8 text-slate-500">{supportedChain?.mockErc1155?.address}</td>
+              <td className="pe-4 text-left pe-8 text-slate-500">
+                  <Link
+                    href={`${supportedChain?.blockExplorerUrl}/address/${supportedChain?.mockErc1155?.address}#code`}
+                    className="w-full p-2"
+                  >
+                  <div className="flex flex-row gap-1 items-center justify-end px-2">
+                    <div className="text-left text-sm text-slate-500 w-fit">
+                    { supportedChain?.mockErc1155?.address }
+                    </div> 
+                      <ArrowUpRightIcon
+                        className="w-4 h-4 text-slate-500"
+                        />
+                    </div>
+                  </Link>
+              </td>
             </tr> 
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

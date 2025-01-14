@@ -101,9 +101,6 @@ export default function Page() {
       fetchRoleInfo()
     }, [])
 
-  // step 4: parse data
-  // step 5: render. 
-
   return (
     <div className={`w-full flex flex-col justify-start items-center ${roleColour[parseRole(BigInt(role.roleId))]} rounded-md`}>
       {/* table banner  */}

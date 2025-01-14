@@ -84,7 +84,7 @@ export function RoleList() {
       <thead className="w-full">
             <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
                 <th className="ps-6 py-2 font-light rounded-tl-md"> Role </th>
-                <th className="font-light"> Holders </th>
+                <th className="font-light text-center"> Holders </th>
                 <th className="font-light text-right pe-8"> Laws </th>
             </tr>
         </thead>
@@ -92,7 +92,7 @@ export function RoleList() {
           {
             roles?.map((role: Roles) =>
               <tr>
-                <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-60">
+                <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-fit">
                  <Button
                     showBorder={false}
                     role={parseRole(BigInt(role.roleId))}
@@ -109,7 +109,7 @@ export function RoleList() {
                   }
                   </Button>
                 </td>
-                <td className="pe-4 text-left text-slate-500">{role.roleId == 4294967295 ? 'n/a' : role.holders}</td>
+                <td className="pe-4 text-left text-slate-500 text-center">{role.roleId == 4294967295 ? 'n/a' : role.holders}</td>
                 <td className="pe-4 text-right pe-8 text-slate-500">{role.laws?.length} </td>
               </tr> 
             )

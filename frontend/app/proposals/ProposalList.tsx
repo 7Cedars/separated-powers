@@ -39,7 +39,7 @@ export function ProposalList() {
   return (
     <div className="w-full flex flex-col justify-start items-center">
       {/* table banner  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-4 px-6 rounded-t-md">
+      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-4 px-6 rounded-t-md overflow-y-scroll">
         <div className="text-slate-900 text-center font-bold text-lg">
           Proposals
         </div>
@@ -54,6 +54,7 @@ export function ProposalList() {
         </Button>
         {organisation?.roles.map((role) => {
           return role != 0n && role != 4294967295n ? (
+            <div className="flex flex-row w-full min-w-16 h-10">
             <Button
               size={0}
               showBorder={false}
@@ -63,6 +64,7 @@ export function ProposalList() {
             >
               Role {role}
             </Button>
+            </div>
           ) : null;
         })}
         <Button
@@ -81,9 +83,10 @@ export function ProposalList() {
         </button>
       </div>
       {/* table laws  */}
-      <table className="w-full table-auto border border-t-0">
+      <div className="w-full border border-slate-200 border-t-0 rounded-b-md overflow-scroll">
+      <table className="w-full table-auto">
       <thead className="w-full">
-            <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
+            <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 border-b border-slate-200">
                 <th className="ps-6 py-2 font-light rounded-tl-md"> Block </th>
                 <th className="font-light"> Law name </th>
                 <th className="font-light"> Reason </th>
@@ -91,7 +94,7 @@ export function ProposalList() {
                 <th className="font-light"> Role </th>
             </tr>
         </thead>
-        <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
+        <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
           {
             proposalsWithState?.map((proposal: Proposal, i) => {
               const law = organisation?.laws?.find(law => law.law == proposal.targetLaw)
@@ -100,9 +103,9 @@ export function ProposalList() {
              
                 <tr
                   key={i}
-                  className={`text-sm text-left text-slate-800 h-16 p-2`}
+                  className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}
                 >
-                  <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-60">
+                  <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-fit">
                     <Button
                       showBorder={false}
                       role={parseRole(law.allowedRole)}
@@ -116,9 +119,9 @@ export function ProposalList() {
                       {proposal.blockNumber}
                     </Button>
                   </td>
-                  <td className="pe-4 text-slate-500">{law.name}</td>
-                  <td className="pe-4 text-slate-500">{proposal.description}</td>
-                  <td className="pe-4 text-slate-500">{proposal.state}</td>
+                  <td className="pe-4 text-slate-500 min-w-60">{law.name}</td>
+                  <td className="pe-4 text-slate-500 min-w-48">{proposal.description}</td>
+                  <td className="pe-4 text-slate-500 text-center">{proposal.state}</td>
                   <td className="pe-4 min-w-20 text-slate-500"> { 
                     law.allowedRole == 0n ? 
                       "Admin"
@@ -136,6 +139,7 @@ export function ProposalList() {
           )}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
