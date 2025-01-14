@@ -5,9 +5,13 @@ import { setLaw, useActionStore, useLawStore, useOrgStore } from "@/context/stor
 import { useLaw } from "@/hooks/useLaw";
 import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
-import { roleColour } from "@/context/Theme"
 import { parseRole } from "@/utils/parsers";
 import { useRouter } from "next/navigation";
+
+const roleColour = [  
+  "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
+  "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
+]
 
 export const Checks: React.FC = () => {
   const {status, error, checks, law: currentLaw, execute, fetchSimulation, fetchChecks} = useLaw(); 
@@ -31,6 +35,8 @@ export const Checks: React.FC = () => {
             Checks
           </div> 
         </div>
+
+        <div className = "w-full flex flex-col lg:max-h-96 lg:overflow-hidden max-h-48 overflow-y-scroll divide-y divide-slate-300">
 
         {/* authorised block */}
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
@@ -149,6 +155,8 @@ export const Checks: React.FC = () => {
         </div>
         : null
         }
+      
+      </div>
     </section>
   )
 }

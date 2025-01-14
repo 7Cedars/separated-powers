@@ -5,8 +5,6 @@ import { useOrgStore, setLaw, useLawStore, deleteLaw  } from "../../context/stor
 import Link from "next/link";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { LawList } from "@/app/laws/LawList";
-// import { colourScheme } from "@/context/ThemeContext"; 
-
 
 const colourScheme = [
   "from-indigo-500 to-emerald-500", 
@@ -29,15 +27,15 @@ export default function Page() {
         {/**/}
 
         {/* main body  */}
-        <section className="w-full flex flex-row">
+        <section className="w-full lg:max-w-full flex max-w-2xl flex lg:flex-row flex-col-reverse">
 
           {/* left panel  */}
           <LawList /> 
 
           {/* right panel  */}
-          <div className="w-96 flex flex-col gap-4 justify-start items-center ps-4">
+          <div className="flex mt-2 lg:w-96 lg:flex-col lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-start items-center overflow-y-scroll scroll-snap-y">
             {/* My proposals  */}
-            <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 mt-2 rounded-md"> 
+            <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md"> 
               <Link
                 href="/proposals"
                 className="w-full border-b border-slate-300 p-2"

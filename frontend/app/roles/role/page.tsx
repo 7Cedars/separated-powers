@@ -12,10 +12,14 @@ import { separatedPowersAbi } from "@/context/abi";
 import { readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { setRole } from "@/context/store"
-import { roleColour } from "@/context/Theme"
 import { Hex, Log, parseEventLogs, ParseEventLogsReturnType } from "viem"
 import { useChainId } from 'wagmi'
 import { supportedChains } from "@/context/chains";
+
+const roleColour = [  
+  "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
+  "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
+]
 
 export default function Page() {
   const organisation = useOrgStore();
@@ -102,9 +106,9 @@ export default function Page() {
     }, [])
 
   return (
-    <div className={`w-full flex flex-col justify-start items-center ${roleColour[parseRole(BigInt(role.roleId))]} rounded-md`}>
+    <div className={`w-full overflow-hidden`}>
       {/* table banner  */}
-      <div className={`w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-4 px-6 ${roleColour[parseRole(BigInt(role.roleId))]} border-b-slate-300 rounded-t-md`}>
+      <div className={`w-full flex flex-row gap-3 justify-between items-center bg-slate-50 slate-300 mt-2 py-4 px-6 border rounded-t-md ${roleColour[parseRole(BigInt(role.roleId))]} border-b-slate-300`}>
         <div className="text-slate-900 text-center font-bold text-lg">
         { 
           role.roleId == 0 ? "Admin"
@@ -114,7 +118,8 @@ export default function Page() {
         </div>
       </div>
       {/* table laws  */}
-      <table className={`w-full table-auto border border-t-0 ${roleColour[parseRole(BigInt(role.roleId))]}`}>
+      <div className={`w-full border ${roleColour[parseRole(BigInt(role.roleId))]} border-t-0 rounded-b-md overflow-scroll`}>
+      <table className={`w-full table-auto`}>
       <thead className="w-full">
             <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
                 <th className="ps-6 py-2 font-light rounded-tl-md"> Address / ENS </th>
@@ -123,17 +128,18 @@ export default function Page() {
                 <th className="font-light text-right pe-8"> Proposals </th> */}
             </tr>
         </thead>
-        <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
+        <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
           {
             roleInfo?.map((role: Role) =>
-              <tr>
-                <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-6 py-2 w-60">{role.account}</td>
+              <tr className="text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll">
+                <td className="ps-6 pe-4 text-slate-500 min-w-60">{role.account}</td>
                 <td className="pe-8 text-right text-slate-500">{role.since}</td>
               </tr> 
             )
           }
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

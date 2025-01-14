@@ -28,7 +28,7 @@ import { useWallets } from "@privy-io/react-auth";
 
 const layoutIconBox: string = 'flex flex-row md:gap-2 gap-0 align-middle items-center'
 const layoutIcons: string = 'h-5 w-5'
-const layoutText: string = 'md:opacity-100 md:text-sm text-[0px] md:w-fit w-0 opacity-0'
+const layoutText: string = 'lg:opacity-100 lg:text-sm text-[0px] lg:w-fit w-0 opacity-0'
 
 const NavigationBar = () => {
   const router = useRouter();
@@ -212,7 +212,7 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
   return (
     <>
       <Header />
-      <main className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1  py-20 px-2 overflow-y-auto">
+      <main className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1 py-20 px-2 overflow-y-auto">
         {props.children}
       </main>
       <Footer />

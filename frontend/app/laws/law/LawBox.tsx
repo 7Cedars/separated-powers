@@ -15,10 +15,14 @@ import { encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem"
 import { parseParams, parseRole } from "@/utils/parsers";
 import { InputType } from "@/context/types";
 import { DynamicInput } from "@/app/laws/law/DynamicInput";
-import { roleColour } from "@/context/Theme"
 import { notUpToDate } from "@/context/store"
 import { SimulationBox } from "@/components/SimulationBox";
 import { useWallets } from "@privy-io/react-auth";
+
+const roleColour = [  
+  "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
+  "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
+]
 
 export function LawBox() {
   const router = useRouter();
@@ -86,10 +90,10 @@ export function LawBox() {
   }, [law])
 
   return (
-    <main className="w-full flex flex-col justify-start items-center">
-      <section className={`w-full flex flex-col justify-start items-center bg-slate-50 border ${roleColour[parseRole(law.allowedRole)]} mt-2 rounded-md overflow-hidden`} >
+    <main className="w-full h-full">
+      <section className={`w-full h-full bg-slate-50 border ${roleColour[parseRole(law.allowedRole)]} rounded-md overflow-hidden`} >
       {/* title  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center border-b border-slate-300 py-4 ps-6 pe-2">
+      <div className="w-full flex flex-row justify-between items-center border-b border-slate-300 py-4 ps-6 pe-2">
         <SectionText
           text={law?.name}
           subtext={law?.description}
@@ -103,16 +107,16 @@ export function LawBox() {
           dataTypes.map((dataType, index) => 
             <DynamicInput dataType = {dataType} values = {paramValues[index]} onChange = {(input)=> {handleChange(input, index)}}/>)
         }
-        <div className="w-full mt-4 flex flex-row justify-center items-start gap-y-4 px-6 pb-4 min-h-24">
+        <div className="w-full mt-4 flex flex-row justify-center items-start px-6 pb-4 min-h-24">
           <label htmlFor="reason" className="block min-w-20 text-sm/6 font-medium text-slate-600 pb-1">Reason</label>
-          <div className="w-full flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+          <div className="grow flex items-center rounded-md bg-white pl-3 outline outline-1 outline-slate-300">
               <textarea 
                 name="reason" 
                 id="reason" 
                 rows={3} 
                 cols ={25} 
-                className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
-                placeholder="Describe reason for action here. This description needs to be unique for action to be valid."
+                className="min-w-0 p-1 text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0" 
+                placeholder="Describe reason for action here."
                 onChange={(event) => {{
                   setDescription(event.target.value); 
                   resetStatus(); 

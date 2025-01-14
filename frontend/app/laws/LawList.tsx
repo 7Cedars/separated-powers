@@ -29,22 +29,24 @@ export function LawList() {
   return (
     <div className="w-full flex flex-col justify-start items-center">
       {/* table banner  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-4 px-6 rounded-t-md overflow-y-scroll">
-        <div className="text-slate-900 text-center font-bold text-lg">
+      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-2 px-2 rounded-t-md overflow-y-scroll">
+        <div className="text-slate-900 text-center font-bold text-lg ps-4">
           Laws
         </div>
-        <Button
-          size={0}
-          showBorder={false}
-          role={0}
-          onClick={() => handleRoleSelection(0)}
-          selected={!deselectedRoles.includes(0)}
-        >
-          Admin
-        </Button>
+        <div className="flex flex-row w-full min-w-16 h-8">
+          <Button
+            size={0}
+            showBorder={false}
+            role={0}
+            onClick={() => handleRoleSelection(0)}
+            selected={!deselectedRoles.includes(0)}
+          >
+            Admin
+          </Button>
+        </div>
         {organisation?.roles.map((role) => {
           return role != 0n && role != 4294967295n ? (
-            <div className="flex flex-row w-full min-w-16 h-10">
+            <div className="flex flex-row w-full min-w-16 h-8">
             <Button
               size={0}
               showBorder={false}
@@ -57,15 +59,17 @@ export function LawList() {
             </div>
           ) : null;
         })}
-        <Button
-          size={0}
-          showBorder={false}
-          role={6}
-          onClick={() => handleRoleSelection(4294967295)}
-          selected={!deselectedRoles.includes(4294967295)}
-        >
-          Public
-        </Button>
+        <div className="flex flex-row w-full min-w-16 h-8">
+          <Button
+            size={0}
+            showBorder={false}
+            role={6}
+            onClick={() => handleRoleSelection(4294967295)}
+            selected={!deselectedRoles.includes(4294967295)}
+          >
+            Public
+          </Button>
+        </div>
         <button className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 ">
             <ArrowPathIcon
               className="w-5 h-5 text-slate-800"

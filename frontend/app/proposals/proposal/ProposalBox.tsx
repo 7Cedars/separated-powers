@@ -15,10 +15,14 @@ import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters
 import { parseParamValues, parseParams, parseRole } from "@/utils/parsers";
 import { InputType } from "@/context/types";
 import { StaticInput } from "./StaticInput";
-import { roleColour } from "@/context/Theme"
 import { notUpToDate } from "@/context/store"
 import { useProposal } from "@/hooks/useProposal";
 import { SimulationBox } from "@/components/SimulationBox";
+
+const roleColour = [  
+  "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
+  "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
+]
 
 // NB! the proposalBox can be requested using a proposal with only calldata (and without the original paramValues) -> coming from proposalList. 
 // or using only the original paramValues -> coming from law. NB: action DOES have calldata. 
@@ -126,7 +130,7 @@ export function ProposalBox() {
                 cols ={25} 
                 value={description}
                 className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
-                placeholder="Describe reason for action here. This description needs to be unique for action to be valid."
+                placeholder="Describe reason for action here."
                 disabled={true} 
                 />
             </div>
