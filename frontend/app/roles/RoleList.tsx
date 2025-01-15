@@ -75,7 +75,7 @@ export function RoleList() {
           onClick = {() => fetchRoleHolders(organisation.roles)}
           >
             <ArrowPathIcon
-              className="w-5 h-5 text-slate-800"
+              className="w-4 h-4 text-slate-800"
               />
         </button>
       </div>

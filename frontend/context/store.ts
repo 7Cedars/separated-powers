@@ -8,7 +8,8 @@ const initialStateOrg: OrgStore = {
   colourScheme: 0,
   laws: [],
   proposals: [],
-  roles: []
+  roles: [],
+  deselectedRoles: []
 }
 
 type LawStore = Law;
@@ -64,7 +65,7 @@ const initialStateRole: RoleStore = {
   holders: 0,
   laws: [],
   proposals: [], 
-  roles: []
+  roles: [],
 }
 
 // Organisation Store

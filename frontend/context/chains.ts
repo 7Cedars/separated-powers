@@ -17,7 +17,7 @@ export const supportedChains: ChainProps[] = [
     id: 421614,
     name: "Arbitrum Sepolia",
     network: "arbitrumSepolia",
-    blockExplorerUrl: "https://sepolia.arbiscan.io/",
+    blockExplorerUrl: "https://sepolia.arbiscan.io",
     genesisBlock: 110000000n,
     mockErc20: 
       {

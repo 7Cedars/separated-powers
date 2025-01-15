@@ -36,25 +36,25 @@ export function ProposalBox() {
   const {simulation, law, checks, resetStatus, execute, checkProposalExists, fetchSimulation, fetchChecks} = useLaw();
   const {status, error, propose, castVote} = useProposal();
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([])
-  const description =  proposal?.description && proposal.description.length > 1 ? proposal.description 
-                    : action.description && action.description.length > 1 ? action.description
-                    : undefined  
-  const calldata =  proposal?.executeCalldata && proposal.executeCalldata.length > 2 ? proposal.executeCalldata 
-                    : action.callData && action.callData.length > 2 ? action.callData
-                    : undefined  
-  const { data: params, isLoading, isError } = useReadContract({
+  const [description, setDescription] = useState<string>()
+  const [calldata, setCalldata] = useState<`0x${string}`>()
+
+
+  const { data: params, isLoading, isError, error: paramsError } = useReadContract({
     abi: lawAbi,
     address: law.law,
-    functionName: 'getParams'
+    functionName: 'getInputParams'
   })
-  const dataTypes = action.dataTypes ? action.dataTypes : params ? parseParams(params as string[]) : []
+  const dataTypes = action.dataTypes && action.dataTypes.length > 0 ? action.dataTypes : params ? parseParams(params as string[]) : []
 
-  console.log("@ProposalBox:", {proposal, action, status, checks, dataTypes, description, calldata})
+  console.log("@ProposalBox:", {proposal, action, status, checks, dataTypes, description, calldata, params, paramValues, paramsError})
 
-  const handleSimulate = async () => { 
+  const handleSimulate = async () => {
+      console.log("@handleSimulate:", {description, dataTypes, calldata})
       if (dataTypes && dataTypes.length > 0 && calldata && description) {
         const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), calldata);
         const valuesParsed = parseParamValues(values)
+        console.log("@handleSimulate:", {values, valuesParsed})
         setParamValues(valuesParsed)
         
         // simulating law. 
@@ -95,10 +95,25 @@ export function ProposalBox() {
       )
   };
 
-  // resetting lawBox when switching laws: 
   useEffect(() => {
-    handleSimulate()
-  }, [, law, proposal, action ])
+      handleSimulate()  
+  }, [description, calldata])
+
+  useEffect(() => {
+    if (proposal?.description && proposal.description.length > 1 && proposal?.executeCalldata && proposal.executeCalldata.length > 2) {
+      setDescription(proposal.description)
+      setCalldata(proposal.executeCalldata)
+    } else {
+      setDescription(action.description)
+      setCalldata(action.callData)
+    }
+    // const description =   ? proposal.description 
+    // : action.description && action.description.length > 1 ? action.description
+    // : undefined  
+    // const calldata =  proposal?.executeCalldata && proposal.executeCalldata.length > 2 ? proposal.executeCalldata 
+    //     : action.callData && action.callData.length > 2 ? action.callData
+    //     : undefined  
+  }, [proposal, action])
 
   return (
     <main className="w-full flex flex-col justify-start items-center">

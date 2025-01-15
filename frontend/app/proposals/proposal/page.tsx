@@ -25,7 +25,7 @@ const Page: React.FC = () => {
         </div>
 
         {/* right panel  */}
-        <div className="flex flex-col flex-wrap lg:flex-nowrap lg:max-h-full max-h-52 lg:w-96 lg:my-6 my-0 lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-y-scroll scroll-snap-y"> 
+        <div className="flex flex-col flex-wrap lg:flex-nowrap lg:max-h-full max-h-52 lg:w-96 lg:my-6 my-0 lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-scroll scroll-snap-x"> 
       
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72">
             <Law /> 

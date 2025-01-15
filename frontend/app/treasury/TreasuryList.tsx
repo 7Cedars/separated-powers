@@ -57,7 +57,7 @@ export function TreasuryList() {
           onClick = {() => refetch()}
           >
             <ArrowPathIcon
-              className="w-5 h-5 text-slate-800"
+              className="w-4 h-4 text-slate-800"
               />
         </button>
       </div>
@@ -98,8 +98,8 @@ export function TreasuryList() {
               <td className="text-left text-slate-500 min-w-24">ERC 1155</td>
               <td className="text-center pe-8 text-slate-500">{balances.length > 1 ?  balances[1] : 0}</td>
               <td className="pe-4 text-left pe-8 text-slate-500">
-                  <Link
-                    href={`${supportedChain?.blockExplorerUrl}/address/${supportedChain?.mockErc1155?.address}#code`}
+                  <a
+                    href={`${supportedChain?.blockExplorerUrl}/address/${supportedChain?.mockErc1155?.address}#code`} target="_blank" rel="noopener noreferrer"
                     className="w-full p-2"
                   >
                   <div className="flex flex-row gap-1 items-center justify-end px-2">
@@ -110,7 +110,7 @@ export function TreasuryList() {
                         className="w-4 h-4 text-slate-500"
                         />
                     </div>
-                  </Link>
+                  </a>
               </td>
             </tr> 
         </tbody>

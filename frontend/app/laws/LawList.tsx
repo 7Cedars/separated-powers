@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { setLaw, useOrgStore } from "../../context/store";
+import { setLaw, useOrgStore, assignOrg} from "../../context/store";
 import { Button } from "@/components/Button";
 import Link from "next/link";
 import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
@@ -12,19 +12,21 @@ import { Law } from "@/context/types";
 export function LawList() {
   const organisation = useOrgStore();
   const router = useRouter();
-  const [deselectedRoles, setDeselectedRoles] = useState<number[]>([]);
 
-  const handleRoleSelection = (role: number) => {
-    const index = deselectedRoles.indexOf(role);
+  const handleRoleSelection = (role: bigint) => {
+    const index = organisation?.deselectedRoles?.indexOf(role);
+    console.log("@handleRoleSelection", {index, role, organisation});
+
     if (index == -1) {
-      setDeselectedRoles([...deselectedRoles, role]);
-    } else {
-      const updatedRoles = deselectedRoles.toSpliced(index, 1);
-      setDeselectedRoles(updatedRoles);
+      assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? [...organisation?.deselectedRoles, role as bigint] : [role as bigint]})
+    } else if (index == 0) {
+      assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? organisation?.deselectedRoles.slice(1) : []})
+    } else if (index) {
+      assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? organisation?.deselectedRoles.toSpliced(index) : []})
     }
   };
 
-  console.log("deselectedRoles", deselectedRoles);
+  console.log("deselectedRoles", organisation?.deselectedRoles);
 
   return (
     <div className="w-full flex flex-col justify-start items-center">
@@ -38,8 +40,8 @@ export function LawList() {
             size={0}
             showBorder={false}
             role={0}
-            onClick={() => handleRoleSelection(0)}
-            selected={!deselectedRoles.includes(0)}
+            onClick={() => handleRoleSelection(0n)}
+            selected={!organisation?.deselectedRoles?.includes(0n)}
           >
             Admin
           </Button>
@@ -51,8 +53,8 @@ export function LawList() {
               size={0}
               showBorder={false}
               role={Number(role)}
-              selected={!deselectedRoles.includes(Number(role))}
-              onClick={() => handleRoleSelection(Number(role))}
+              selected={!organisation?.deselectedRoles?.includes(BigInt(role))}
+              onClick={() => handleRoleSelection(BigInt(role))}
             >
               Role {role}
             </Button>
@@ -64,15 +66,15 @@ export function LawList() {
             size={0}
             showBorder={false}
             role={6}
-            onClick={() => handleRoleSelection(4294967295)}
-            selected={!deselectedRoles.includes(4294967295)}
+            onClick={() => handleRoleSelection(4294967295n)}
+            selected={!organisation?.deselectedRoles?.includes(4294967295n)}
           >
             Public
           </Button>
         </div>
         <button className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 ">
             <ArrowPathIcon
-              className="w-5 h-5 text-slate-800"
+              className="w-4 h-4 text-slate-800"
               />
         </button>
       </div>
@@ -90,7 +92,7 @@ export function LawList() {
         <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
           {
             organisation?.laws?.map((law: Law) =>
-              law.allowedRole != undefined && !deselectedRoles.includes(Number(law.allowedRole)) ? 
+              law.allowedRole != undefined && !organisation?.deselectedRoles?.includes(BigInt(`${law.allowedRole}`) ) ? 
               (
               <tr
                 key={law.name}

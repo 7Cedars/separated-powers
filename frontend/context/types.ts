@@ -81,6 +81,7 @@ export type Organisation = {
   laws?: Law[];
   proposals?: Proposal[];
   roles: bigint[];
+  deselectedRoles?: bigint[];
 }
 
 export type Role = {
@@ -91,11 +92,11 @@ export type Role = {
 }
 
 export type Roles = {
-  roleId: number, 
-  holders?: number,
-  laws?: Law[],
-  proposals?: Proposal[],
-  roles?: Role[]
+  roleId: number;
+  holders?: number;
+  laws?: Law[];
+  proposals?: Proposal[];
+  roles?: Role[];
 };
 
 export type Action = {

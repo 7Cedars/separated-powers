@@ -1,10 +1,19 @@
 "use client";
  
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useOrgStore, setLaw, useLawStore, deleteLaw  } from "../../context/store";
 import Link from "next/link";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { LawList } from "@/app/laws/LawList";
+import { MyProposals } from "./MyProposals";
+import { Status } from "@/context/types";
+import { publicClient } from "@/context/clients";
+import { wagmiConfig } from "@/context/wagmiConfig";
+import { readContract } from "@wagmi/core";
+import { separatedPowersAbi } from "@/context/abi";
+import { useWallets } from "@privy-io/react-auth";
+import { MyRoles } from "./MyRoles";
+import { Transactions } from "./Transactions";
 
 const colourScheme = [
   "from-indigo-500 to-emerald-500", 
@@ -17,6 +26,43 @@ const colourScheme = [
 
 export default function Page() {
     const organisation = useOrgStore()
+    const {wallets} = useWallets()
+    const [status, setStatus] = useState<Status>()
+    const [error, setError] = useState<any | null>(null)
+    const [hasRoles, setHasRoles] = useState<{role: bigint; since: bigint}[]>([])
+
+    console.log("@Page", {status, error, hasRoles})
+
+    const fetchMyRoles = useCallback(
+      async (account: `0x${string}`, roles: bigint[]) => {
+        let role: bigint; 
+        let fetchedHasRole: {role: bigint; since: bigint}[] = []; 
+
+        if (publicClient) {
+          try {
+            for await (role of roles) {
+              const fetchedSince = await readContract(wagmiConfig, {
+                abi: separatedPowersAbi,
+                address: organisation.contractAddress,
+                functionName: 'hasRoleSince', 
+                args: [account, role]
+                })
+              console.log("@getRoleSince:" , {fetchedSince})
+              fetchedHasRole.push({role, since: fetchedSince as bigint})
+              }
+              setHasRoles(fetchedHasRole)
+          } catch (error) {
+            setStatus("error") 
+            setError(error)
+          }
+        }
+    }, [])
+
+    useEffect(() => {
+      if (wallets && wallets[0]) {
+        fetchMyRoles(wallets[0].address as `0x${string}`, organisation.roles)
+      }
+    }, [wallets?.[0]?.address, fetchMyRoles, organisation.roles])
  
     return (
       <main className="w-full h-full flex flex-col justify-center items-center">
@@ -27,73 +73,19 @@ export default function Page() {
         {/**/}
 
         {/* main body  */}
-        <section className="w-full lg:max-w-full flex max-w-2xl flex lg:flex-row flex-col-reverse">
+        <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-start items-start">
 
           {/* left panel  */}
+
           <LawList /> 
 
           {/* right panel  */}
-          <div className="flex mt-2 lg:w-96 lg:flex-col lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-start items-center overflow-y-scroll scroll-snap-y">
-            {/* My proposals  */}
-            <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md"> 
-              <Link
-                href="/proposals"
-                className="w-full border-b border-slate-300 p-2"
-              >
-              <div className="w-full flex flex-row gap-6 items-center justify-between px-2">
-                <div className="text-left text-sm text-slate-600 w-52">
-                  My proposals
-                </div> 
-                  <ArrowUpRightIcon
-                    className="w-5 h-5 text-slate-800"
-                    />
-                </div>
-              </Link>
-              <div className="w-full flex flex-col gap-3 justify-start items-center px-2 pb-4">
-                <div className = "text-sm text-slate-600">
-                  Here some dynamic text
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-col flex-wrap lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:my-2 my-0 lg:flex-col lg:overflow-hidden lg:ps-2 w-full flex-row gap-3 justify-center items-center overflow-y-hidden overflow-x-scroll scroll-snap-x">
+            <MyProposals hasRoles = {hasRoles}/> 
 
-            {/* Roles  */}
-            <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md"> 
-            <Link
-                href="/roles"
-                className="w-full border-b border-slate-300 p-2"
-              >
-              <div className="w-full flex flex-row gap-6 items-center justify-between px-2">
-                <div className="text-left text-sm text-slate-600 w-52">
-                  My roles
-                </div> 
-                  <ArrowUpRightIcon
-                    className="w-5 h-5 text-slate-800"
-                    />
-                </div>
-              </Link>
-              <div className="w-full flex flex-col gap-3 justify-start items-center px-2 pb-4">
-                <div className = "text-sm text-slate-600">
-                  Here some dynamic text
-                </div>
-              </div>
-            </div>
-            
+            <MyRoles hasRoles = {hasRoles}/>
 
-            {/* Notifications  */}
-            <div className="w-full flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md"> 
-              <div className="w-full border-b border-slate-300 p-2">
-                <div className="w-full flex flex-row gap-6 items-center justify-between px-2">
-                  <div className="text-left text-sm text-slate-600 w-52">
-                    Notifications
-                  </div>
-                </div>
-              </div>
-              <div className="w-full flex flex-col gap-3 justify-start items-center px-2 pb-4">
-                <div className = "text-sm text-slate-600">
-                  Here some dynamic text
-                </div>
-              </div>
-            </div>
+            <Transactions /> 
           </div>
         </section>
       </main>

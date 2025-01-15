@@ -134,7 +134,7 @@ const Header = () => {
             <div className="flex flex-row w-32 text-center h-10">
               <Button 
                 size = {0} 
-                onClick={() => deleteOrg({}) }
+                onClick={() =>router.push('/home') }
                 >
                   {organisation.name}
               </Button>
@@ -142,7 +142,7 @@ const Header = () => {
             :
             <Button 
               size = {0} 
-              onClick={() => deleteOrg({}) }
+              onClick={() => router.push('/') }
               >
                 <div className={"flex flex-row gap-1 justify-center items-center"}> 
                   <MagnifyingGlassIcon
