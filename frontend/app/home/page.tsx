@@ -65,21 +65,26 @@ export default function Page() {
     }, [wallets?.[0]?.address, fetchMyRoles, organisation.roles])
  
     return (
-      <main className="w-full h-full flex flex-col justify-center items-center">
+      <main className="w-full h-full flex flex-col justify-center items-center gap-3">
         {/* hero banner  */}
         <section className={`w-full h-[30vh] flex flex-col justify-center items-center text-center text-slate-50 text-5xl bg-gradient-to-bl ${colourScheme[organisation.colourScheme] } rounded-md`}> 
           {organisation?.name}
         </section>
-        {/**/}
-
+        
+        {/* Description + link to powers protocol deployment */}
+        
+        <section className="w-full h-fit flex flex-col justify-left items-center border border-slate-200 rounded-md bg-slate-50 lg:max-w-full max-w-2xl p-2">
+          <div className="w-full text-sm text-slate-500 text-left">
+          Optional description here. 
+          </div>
+        </section>
+        
         {/* main body  */}
-        <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-start items-start">
-
-          {/* left panel  */}
-
+        <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-end items-start -mt-2">
+          {/* left / bottom panel  */}
           <LawList /> 
 
-          {/* right panel  */}
+          {/* right / top panel  */}
           <div className="flex flex-col flex-wrap lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:my-2 my-0 lg:flex-col lg:overflow-hidden lg:ps-2 w-full flex-row gap-3 justify-center items-center overflow-y-hidden overflow-x-scroll scroll-snap-x">
             <MyProposals hasRoles = {hasRoles}/> 
 

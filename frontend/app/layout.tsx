@@ -14,14 +14,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="h-dvh w-screen flex justify-center items-start relative bg-slate-100">
+      <body className="h-dvh w-screen flex justify-center items-start relative bg-slate-100  overflow-y-auto">
         <Providers>
           {/* <ThemeProvider> */}
             <NavBars > 
             {/* <div className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1  py-20 px-2 overflow-y-auto"> */}
               {children}
             </NavBars > 
-            {/* <Footer />  */}
           {/* </ThemeProvider> */}
         </Providers>
       </body>

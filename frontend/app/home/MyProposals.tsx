@@ -35,10 +35,7 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
   }, []);
 
   return (
-    <div className="w-full h-full grow flex flex-col justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
-    {
-    authenticated ? 
-    <> 
+    <div className="w-full h-full grow flex flex-col justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80"> 
       <button
         onClick={() => 
           { 
@@ -58,6 +55,8 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
         </div>
       </button>
        {/* below should be a button */}
+       {
+      authenticated ? 
       <div className = "w-full h-full lg:h-48 flex flex-col gap-2 justify-start items-center overflow-y-scroll p-2 px-1">
         {
         proposalsWithState?.map((proposal: Proposal, i) => {
@@ -74,12 +73,15 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
                       }
                     }>
                     <div className ="w-full flex flex-col gap-1 text-sm text-slate-600 justify-center items-center">
-                      <div className = "w-full flex flex-row text-left">
+                      <div className = "w-full flex flex-row justify-between items-center text-left">
                         {/* need to get the timestamp.. */}
-                        Block: {proposal.blockNumber}   
+                        <p> Block: </p> 
+                        <p> {proposal.blockNumber}  </p>
                       </div>
-                      <div className = "w-full flex flex-row text-left">
-                        {`Law: ${law.name}`} 
+
+                      <div className = "w-full flex flex-row justify-between items-center text-left">
+                        <p> Law: </p> 
+                        <p> {law.name}  </p>
                       </div>
                     </div>
                 </button>
@@ -90,10 +92,10 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
         })
         }
       </div>
-    </>
-  : 
-  <div></div>
-
+    : 
+    <div className="w-full h-full flex flex-col justify-center text-sm text-slate-500 items-center p-3">
+      Connect your wallet to see your proposals. 
+    </div>
     }
     </div>
   )

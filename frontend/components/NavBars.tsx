@@ -29,18 +29,18 @@ import { useWallets } from "@privy-io/react-auth";
 const layoutIconBox: string = 'flex flex-row md:gap-2 gap-0 align-middle items-center'
 const layoutIcons: string = 'h-5 w-5'
 const layoutText: string = 'lg:opacity-100 lg:text-sm text-[0px] lg:w-fit w-0 opacity-0'
+const layoutButton: string = `w-full h-full flex flex-row justify-center items-center rounded-md border aria-selected:bg-slate-200 md:hover:border-slate-600 text-sm aria-selected:text-slate-700 text-slate-500 border-transparent`
 
 const NavigationBar = () => {
   const router = useRouter();
   const path = usePathname()
 
   return (
-    <div className="w-full flex flex-row gap-1 justify-center items-center px-2"> 
-            <Button 
-              size = {0} 
+    <div className="w-full h-full flex flex-row gap-1 justify-center items-center px-2 py-1 md:py-0"> 
+            <button 
               onClick={() => router.push('/home')}
-              selected={path == `/home`} 
-              showBorder={false}
+              aria-selected={path == `/home`} 
+              className={layoutButton}
               >
                 <div className={layoutIconBox}> 
                   <HomeIcon
@@ -48,13 +48,12 @@ const NavigationBar = () => {
                   />
                   <p className={layoutText}> Home </p>
                 </div> 
-            </Button>
+            </button>
 
-            <Button 
-              size = {0} 
+            <button 
               onClick={() => router.push('/laws')}
-              selected={path == `/laws`} 
-              showBorder={false}
+              aria-selected={path == `/laws`} 
+              className={layoutButton}
               >
                 <div className={layoutIconBox}> 
                   <BookOpenIcon
@@ -62,13 +61,12 @@ const NavigationBar = () => {
                   />
                   <p className={layoutText}> Laws </p>      
                 </div> 
-            </Button>
+            </button>
 
-            <Button 
-              size = {0} 
+            <button 
               onClick={() => router.push('/proposals')}
-              selected={path == `/proposals`} 
-              showBorder={false}
+              aria-selected={path == `/proposals`} 
+              className={layoutButton}
               >
                 <div className={layoutIconBox}> 
                   <ChatBubbleBottomCenterIcon
@@ -76,13 +74,12 @@ const NavigationBar = () => {
                   />
                   <p className={layoutText}> Proposals </p>      
                 </div> 
-            </Button>
+            </button>
 
-            <Button 
-              size = {0} 
+            <button 
               onClick={() => router.push('/roles')}
-              selected={path == `/roles`} 
-              showBorder={false}
+              aria-selected={path == `/roles`} 
+              className={layoutButton}
               >
                 <div className={layoutIconBox}> 
                   <IdentificationIcon
@@ -90,13 +87,12 @@ const NavigationBar = () => {
                   />
                   <p className={layoutText}> Roles </p>
                 </div> 
-            </Button>
+            </button>
 
-            <Button 
-              size = {0} 
+            <button 
               onClick={() => router.push('/treasury')}
-              selected={path == `/treasury`} 
-              showBorder={false}
+              aria-selected={path == `/treasury`} 
+              className={layoutButton}
               >
                 <div className={layoutIconBox}> 
                   <BuildingLibraryIcon
@@ -104,7 +100,7 @@ const NavigationBar = () => {
                   />
                   <p className={layoutText}> Treasury </p>
                 </div> 
-            </Button>
+            </button>
           </div>
   )
 }
@@ -122,8 +118,8 @@ const Header = () => {
         <Button size = {0} onClick={() => router.push('/')} showBorder={true}>  
           <Image 
             src='/logo.png' 
-            width={30}
-            height={30}
+            width={28}
+            height={28}
             alt="Logo Separated Powers"
             >
           </Image>
@@ -191,7 +187,7 @@ const Header = () => {
 
 const Footer = () => {  
   return (
-     <header className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:opacity-0 opacity-100 w-full text-sm px-4 py-2">
+     <header className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:opacity-0 opacity-100 w-full text-sm px-4">
         {NavigationBar()}  
     </header>
   )
@@ -208,13 +204,12 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
     }
   }, [organisation]);
 
-
   return (
     <>
       <Header />
-      <main className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1 py-20 px-2 overflow-y-auto">
-        {props.children}
-      </main>
+        <main className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1 py-16 px-2 overflow-y-auto">
+          {props.children}
+        </main>
       <Footer />
     </>
 
