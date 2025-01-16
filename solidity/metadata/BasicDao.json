@@ -1,0 +1,19 @@
+{
+  "icon": "",
+  "banner": "",
+  "description": "A basic implementation of the Powers Protocol. There are four roles: admin, 1, 2 and public. Each role is selected in a different way, and they check each other's power to execute actions.",
+  "attributes": [
+    {
+      "trait_type": "optional trait 1",
+      "value": "none"
+    },
+    {
+      "trait_type": "optional trait 2",
+      "value": "none"
+    },
+    {
+      "trait_type": "optional trait 3",
+      "value": "none"
+    }
+  ]
+}

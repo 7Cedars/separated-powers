@@ -48,4 +48,6 @@ anvilDeployMocks :; forge script script/DeployMocks.s.sol:DeployMocks $(ANVIL_AR
 
 arbSepoliaDeployBasic :; forge script script/DeployBasicDao.s.sol:DeployBasicDao $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaDeployMocks :; forge script script/DeployMocks.s.sol:DeployMocks $(ARB_SEPOLIA_DEPLOY_ARGS)
+arbSepoliaVerifyContract :; forge verify-contract --verifier etherscan --chain-id 421614 --etherscan-api-key $(ARBISCAN_API_KEY) --verifier-url https://api-sepolia.arbiscan.io/api 0x9478aB247F91EAcbcaA1D120d5e35240d294AcA9 src/laws/electoral/NominateMe.sol:NominateMe --watch
+
 optSepoliaDeploy :; forge script script/DeployAlignedGrants.s.sol:DeployAlignedGrants $(OPT_SEPOLIA_DEPLOY_ARGS)

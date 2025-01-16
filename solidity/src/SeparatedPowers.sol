@@ -1,5 +1,17 @@
 // SPDX-License-Identifier: MIT
 
+///////////////////////////////////////////////////////////////////////////////
+/// This program is free software: you can redistribute it and/or modify    ///
+/// it under the terms of the MIT Public License.                           ///
+///                                                                         ///
+/// This is a Proof Of Concept and is not intended for production use.      ///
+/// Tests are incomplete and it contracts have not been audited.            ///
+///                                                                         ///
+/// It is distributed in the hope that it will be useful and insightful,    ///
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
+///////////////////////////////////////////////////////////////////////////////
+
 /// @title Separated Powers Protocol v.0.2
 /// @notice Separated Powers is a Role Restricted Governance Protocol. It provides a flexible, decentralised, efficient and secure governance engine for DAOs.
 ///
@@ -33,9 +45,6 @@ import { ISeparatedPowers } from "./interfaces/ISeparatedPowers.sol";
 import { ERC165Checker } from "../lib/openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
 import { Address } from "../lib/openzeppelin-contracts/contracts/utils/Address.sol";
 import { EIP712 } from "../lib/openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
-
-// £NB ONLY FOR TESTING DO NOT USE IN PRODUCTION
-import { console } from "lib/forge-std/src/console.sol";
 
 contract SeparatedPowers is EIP712, ISeparatedPowers {
     //////////////////////////////////////////////////////////////

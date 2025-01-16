@@ -1,24 +1,31 @@
 // SPDX-License-Identifier: MIT
 
+///////////////////////////////////////////////////////////////////////////////
+/// This program is free software: you can redistribute it and/or modify    ///
+/// it under the terms of the MIT Public License.                           ///
+///                                                                         ///
+/// This is a Proof Of Concept and is not intended for production use.      ///
+/// Tests are incomplete and it contracts have not been audited.            ///
+///                                                                         ///
+/// It is distributed in the hope that it will be useful and insightful,    ///
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
+///////////////////////////////////////////////////////////////////////////////
+
 // note that natspecs are wip.
 
 /// @notice This contract ....
 ///
 
+
+
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
-import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import { NominateMe } from "./NominateMe.sol";
-import "@openzeppelin/contracts/utils/ShortStrings.sol";
-
-/// ONLY FOR TESTING PURPOSES
-import "forge-std/Test.sol";
 
 contract PeerSelect is Law {
-    using ShortStrings for *;
-
     error PeerSelect__MaxRoleHoldersReached();
 
     uint256 public immutable MAX_ROLE_HOLDERS;
@@ -34,13 +41,11 @@ contract PeerSelect is Law {
         address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
-        address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
-        NOMINEES = nominees_;
         string[] memory paramArray = new string[](2);
         inputParams[0] = dataType("uint256");
         inputParams[1] = dataType("bool");

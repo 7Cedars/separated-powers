@@ -18,9 +18,7 @@ import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
 import { OpenAction } from "../src/laws/executive/OpenAction.sol";
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 
-// // mock & config
-// import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
-// import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+// config
 import { HelperConfig } from "./HelperConfig.s.sol";
 
 /// @notice core script to deploy a dao
@@ -39,7 +37,7 @@ contract DeployBasicDao is Script {
 
         // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao 1.8", "");
+        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao 1.8", "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreicipqz46fivyta6mnizu3ly7hrulnlp6skzyrd7dddgnakwl5ulre");
         vm.stopBroadcast();
 
         initiateConstitution(
@@ -64,7 +62,7 @@ contract DeployBasicDao is Script {
 
         vm.startBroadcast();
         law = new NominateMe(
-            "0: Nominate self for role 2", // max 31 chars
+            "Nominate self for role 2", // max 31 chars
             "Anyone can nominate themselves for role 2.",
             dao_,
             type(uint32).max, // access role = public access
@@ -76,7 +74,7 @@ contract DeployBasicDao is Script {
         vm.startBroadcast();
         lawConfig.throttleExecution = 500; 
         law = new DelegateSelect(
-            "1: Call role 2 election", // max 31 chars
+            "Call role 2 election", // max 31 chars
             "Anyone can call (and pay for) an election to assign accounts to role 2. Address can be added to revoke roles. The nominated accounts with most delegated vote tokens will be assigned to role 2. The law can only be called once every 500 blocks.",
             dao_, // separated powers protocol.
             type(uint32).max, // public access
@@ -90,17 +88,6 @@ contract DeployBasicDao is Script {
         laws.push(address(law));
         delete lawConfig;
 
-        vm.startBroadcast();
-        law = new NominateMe(
-            "2: Nominees for role 1", // max 31 chars
-            "Anyone can nominate themselves for role 1.",
-            dao_,
-            type(uint32).max, // access role = public access
-            lawConfig
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-
         // setup
         lawConfig.quorum = 20; // = Only 20% quorum needed
         lawConfig.succeedAt = 66; // = but at least 2/3 majority needed for assigning and revoking members.
@@ -108,12 +95,11 @@ contract DeployBasicDao is Script {
         // initiate law
         vm.startBroadcast();
         law = new PeerSelect(
-            "3: Elect an account for role 1", // max 31 chars
+            "(De)select an account for role 1", // max 31 chars
             "Propose to (de)select an account for role 1.",
             dao_,
             1, // access role
             lawConfig,
-            laws[2], // nominateMe
             15, // max amount of seniors
             2 // role id to be assigned
         );
@@ -137,7 +123,7 @@ contract DeployBasicDao is Script {
         // initiating law
         vm.startBroadcast();
         law = new ProposalOnly(
-            "4: Role 2 proposes actions",
+            "Propose an action",
             "Accounts with role 2 can propose new actions to be executed. They cannot implement them.",
             dao_,
             2, // access role
@@ -150,7 +136,7 @@ contract DeployBasicDao is Script {
 
         vm.startBroadcast();
         law = new ProposalOnly(
-            "5: Veto actions",
+            "Veto an action",
             "The admin can veto any proposed action.",
             dao_,
             0, // access role
@@ -164,13 +150,13 @@ contract DeployBasicDao is Script {
         lawConfig.quorum = 51; // = 51 majority of seniors need to vote.
         lawConfig.succeedAt = 66; // =  two/thirds majority FOR vote needed to pass.
         lawConfig.votingPeriod = 50_400; // = duration in number of blocks to vote, about one week.
-        lawConfig.needCompleted = laws[4]; // needs the proposal by Delegates to be completed.
+        lawConfig.needCompleted = laws[3]; // needs the proposal by Delegates to be completed.
         lawConfig.delayExecution = 25_200; // = duration in number of blocks (= half a week).
-        lawConfig.needNotCompleted = laws[5]; // needs the admin NOT to have cast a veto.
+        lawConfig.needNotCompleted = laws[4]; // needs the admin NOT to have cast a veto.
         // initiate law
         vm.startBroadcast();
         law = new OpenAction(
-            "6: Execute an action",
+            "Execute an action",
             "Accounts with role 1 can execute actions that accounts with role 2 proposed and passed the proposal vote. They can only be execute if Admin did not cast a veto.",
             dao_, // separated powers
             1, // access role
@@ -198,7 +184,7 @@ contract DeployBasicDao is Script {
         // initiate law
         vm.startBroadcast();
         law = new PresetAction(
-            "7: Assign accounts to role 1",
+            "Assign accounts to role 1",
             "The admin can assign the initial group of role 1 holders. This law can only be executed once.",
             dao_, // separated powers
             0, // access role = ADMIN

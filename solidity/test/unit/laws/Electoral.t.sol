@@ -333,7 +333,7 @@ contract DelegateSelectTest is TestSetupLaws {
         address nominateMe = laws[3];
         address delegateSelect = laws[7];
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
-        bytes memory lawCalldataElect = abi.encode(new address[](0)); // no addresses to delete
+        bytes memory lawCalldataElect = abi.encode();  // empty calldata
         bytes memory expectedCalldata =
             abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
