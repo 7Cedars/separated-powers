@@ -4,11 +4,11 @@ import React, { useEffect, useState } from "react";
 import { setLaw, useActionStore, setAction, useLawStore, useOrgStore } from "../../../context/store";
 import { Button } from "@/components/Button";
 import Link from "next/link";
-import { GiftIcon } from "@heroicons/react/24/outline";
+import { ArrowUpRightIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { DataType, Law } from "@/context/types";
 import { TitleText, SectionText } from "@/components/StandardFonts";
-import { useReadContract, useReadContracts } from 'wagmi'
+import { useChainId, useReadContract, useReadContracts } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
@@ -18,6 +18,7 @@ import { DynamicInput } from "@/app/laws/law/DynamicInput";
 import { notUpToDate } from "@/context/store"
 import { SimulationBox } from "@/components/SimulationBox";
 import { useWallets } from "@privy-io/react-auth";
+import { supportedChains } from "@/context/chains";
 
 const roleColour = [  
   "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
@@ -39,6 +40,8 @@ export function LawBox() {
 
   const [paramValues, setParamValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(dataTypes.length)); // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
+  const chainId = useChainId();
+  const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     console.log("@handleChange called:", {input, index, paramValues})
@@ -93,12 +96,25 @@ export function LawBox() {
     <main className="w-full h-full">
       <section className={`w-full h-full bg-slate-50 border ${roleColour[parseRole(law.allowedRole)]} rounded-md overflow-hidden`} >
       {/* title  */}
-      <div className="w-full flex flex-row justify-between items-center border-b border-slate-300 py-4 ps-6 pe-2">
+      <div className="w-full flex flex-col gap-2 justify-between items-center border-b border-slate-300 py-4 ps-6 pe-2">
         <SectionText
           text={law?.name}
           subtext={law?.description}
           size = {0}
         /> 
+         <a
+            href={`${supportedChain?.blockExplorerUrl}/address/${law.law}#code`} target="_blank" rel="noopener noreferrer"
+            className="w-full"
+          >
+          <div className="flex flex-row gap-1 items-center justify-start">
+            <div className="text-left text-sm text-slate-500 break-all w-fit">
+              {law.law }
+            </div> 
+              <ArrowUpRightIcon
+                className="w-4 h-4 text-slate-500"
+                />
+            </div>
+          </a>
       </div>
 
       {/* dynamic form */}
@@ -107,15 +123,15 @@ export function LawBox() {
           dataTypes.map((dataType, index) => 
             <DynamicInput dataType = {dataType} values = {paramValues[index]} onChange = {(input)=> {handleChange(input, index)}}/>)
         }
-        <div className="w-full mt-4 flex flex-row justify-center items-start px-6 pb-4 min-h-24">
-          <label htmlFor="reason" className="block min-w-20 text-sm/6 font-medium text-slate-600 pb-1">Reason</label>
-          <div className="grow flex items-center rounded-md bg-white pl-3 outline outline-1 outline-slate-300">
+        <div className="w-full mt-4 flex flex-row justify-center items-start px-3 pb-4 min-h-24">
+          <label htmlFor="reason" className="text-sm text-slate-600 pb-1 pe-8 ps-3">Reason</label>
+          <div className="w-full flex items-center text-md justify-start rounded-md bg-white pl-3 outline outline-1 outline-slate-300">
               <textarea 
                 name="reason" 
                 id="reason" 
-                rows={3} 
-                cols ={25} 
-                className="min-w-0 p-1 text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0" 
+                rows={15} 
+                cols ={60} 
+                className="min-w-0 p-1 w-full text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0" 
                 placeholder="Describe reason for action here."
                 onChange={(event) => {{
                   setDescription(event.target.value); 

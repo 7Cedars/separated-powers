@@ -17,7 +17,7 @@ import { colourScheme } from "@/context/Theme"
 export default function Page() {
     const router = useRouter();
     const organisation = useOrgStore()
-    const { fetchOrganisations, organisations } = useOrganisations()
+    const { fetchOrganisations, organisations, status } = useOrganisations()
     
     console.log("organisations", organisations)
     console.log("organisation", organisation)
@@ -26,8 +26,8 @@ export default function Page() {
     }, [organisation])
 
     useEffect(() => {
-        if (!organisations) fetchOrganisations()
-    }, [, organisation])
+        if (status == 'idle') fetchOrganisations()
+    }, [status])
 
     return (
         <main className="w-full flex flex-col justify-center items-center border border-slate-300 rounded-md overflow-hidden">

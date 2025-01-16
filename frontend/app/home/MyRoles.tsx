@@ -33,7 +33,7 @@ export function MyRoles({hasRoles}: MyRolesProps ) {
   const myRoles = hasRoles.filter(hasRole => hasRole.since != 0n)
 
   return (
-    <div className="w-full h-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
+    <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
       <div className="w-full h-full flex flex-col gap-0 justify-start items-center"> 
         <button
           onClick={() => router.push('/roles') } 

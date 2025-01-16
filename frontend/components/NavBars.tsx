@@ -115,7 +115,13 @@ const Header = () => {
     <header className="absolute grow w-screen top-0 h-fit py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
     <section className="grow flex flex-row gap-1 justify-between px-2 max-w-screen-lg">
       <div className="flex flex-row gap-1 max-w-96 min-w-48"> 
-        <Button size = {0} onClick={() => router.push('/')} showBorder={true}>  
+        <Button size = {0} onClick={
+            () => {
+              router.push('/')
+              deleteOrg({})
+            }
+            
+            } showBorder={true}>  
           <Image 
             src='/logo.png' 
             width={28}

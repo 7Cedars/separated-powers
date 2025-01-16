@@ -1,11 +1,38 @@
 import { ChangeEvent } from "react";
-import {InputType, DataType} from "../context/types"
+import {InputType, DataType, Metadata, Attribute} from "../context/types"
 import { type UseReadContractsReturnType } from 'wagmi'
 
 const isArray = (array: unknown): array is Array<unknown> => {
   // array.find(item => !isString(item)) 
   return array instanceof Array;
 };
+
+const isString = (text: unknown): text is string => {
+  return typeof text === 'string' || text instanceof String;
+};
+
+const isNumber = (number: unknown): number is number => {
+  return typeof number === 'number' || number instanceof Number;
+};
+
+const isBigInt = (number: unknown): number is BigInt => {
+  return typeof number === 'bigint';
+};
+
+const isBoolean = (bool: unknown): bool is boolean => {
+  // array.find(item => !isString(item)) 
+  return typeof bool === 'boolean' || bool instanceof Boolean;
+};
+
+const isValidUrl = (urlString: string) => {
+  try { 
+    return Boolean(new URL(urlString)); 
+  }
+  catch(e){ 
+    return false; 
+  }
+}
+
 
 export const parseParams = (params: string[]): DataType[]  => {
   if (!isArray(params)) {
@@ -71,6 +98,65 @@ export const parseParamValues = (inputs: unknown): Array<InputType | InputType[]
 
   return result 
 };
+
+const parseDescription = (description: unknown): string => {
+  if (!isString(description)) {
+    throw new Error(`Incorrect description, not a string: ${description}`);
+  }
+  // here can additional checks later. For instance length, characters, etc. 
+  return description as string;
+};
+
+const parseTraitType = (description: unknown): string => {
+  if (!isString(description)) {
+    throw new Error(`Incorrect trait type, not a string: ${description}`);
+  }
+  // here can additional checks later. 
+
+  return description as string;
+};
+
+
+const parseTraitValue = (traitValue: unknown): string | number => {
+  if (!isString(traitValue) && !isNumber(traitValue)) {
+    throw new Error(`Incorrect trait value, not a string or number or boolean: ${traitValue}`);
+  }
+  // here can additional checks later. 
+  if (isString(traitValue)) return traitValue as string;
+  return traitValue as number;
+};
+
+
+export const parseAttributes = (attributes: unknown): Attribute[]  => {
+  if (!isArray(attributes)) {
+    throw new Error(`Incorrect attributes, not an array: ${attributes}`);
+  }
+
+  try { 
+    const parsedAttributes = attributes.map((attribute: unknown) => {
+      if ( !attribute || typeof attribute !== 'object' ) {
+        throw new Error('Incorrect or missing data at attribute');
+      }
+
+      if (
+        'trait_type' in attribute &&
+        'value' in attribute
+        ) { return ({
+            trait_type: parseTraitType(attribute.trait_type),
+            value: parseTraitValue(attribute.value)
+          })
+        }
+        throw new Error('Incorrect data at Metadata: some fields are missing or incorrect');
+    })
+
+    return parsedAttributes as Attribute[] 
+
+  } catch {
+    throw new Error('Incorrect data at Metadata: Parser caught error');
+  }
+};
+
+
 
 export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataType): InputType => {
   // very basic parser. Here necessary input checks can be added later.  
@@ -191,7 +277,40 @@ export const parseContractError = (rawReply: unknown): boolean | string  => {
   }
 };
 
+export const parseUri = (uri: unknown): string => {
+  if (!isString(uri)) {
+    throw new Error(`Incorrect uri, not a string: ${uri}`);
+  }
+  
+  if (!isValidUrl(uri)) {
+    throw new Error(`Incorrect uri, not a uri: ${uri}`);
+  }
+  // here can additional checks later. 
 
+  return uri as string;
+};
+
+export const parseMetadata = (metadata: unknown): Metadata => {
+  if ( !metadata || typeof metadata !== 'object' ) {
+    throw new Error('Incorrect or missing data');
+  }
+
+  if ( 
+    'icon' in metadata &&   
+    'banner' in metadata &&   
+    'description' in metadata &&     
+    'attributes' in metadata 
+    ) { 
+        return ({
+          icon: metadata.icon as string,
+          banner: metadata.banner as string,
+          description: parseDescription(metadata.description),
+          attributes: parseAttributes(metadata.attributes)
+        })
+       }
+      
+    throw new Error('Incorrect data at program Metadata: some fields are missing or incorrect');
+};
 
 
 // Info: supported dataType Signatures: 

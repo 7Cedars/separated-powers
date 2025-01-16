@@ -53,11 +53,11 @@ contract OpenAction is Law {
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
-    function simulateLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 /*descriptionHash*/)
         public
         view
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory /*stateChange*/)
     {
         // decode the calldata.
         // note: no check on decoded call data. If needed, this can be added.

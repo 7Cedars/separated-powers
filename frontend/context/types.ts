@@ -13,6 +13,18 @@ export type LawSimulation = [
       `0x${string}`
     ]
 
+export type Attribute = {  
+  trait_type: string | number ;  
+  value: string;
+}
+
+export type Metadata = { 
+  icon: string; 
+  banner: string;
+  description: string; 
+  attributes: Attribute[]
+}
+
 export type Erc20 = {
   name: string; 
   symbol: string; 

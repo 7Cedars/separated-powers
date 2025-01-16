@@ -59,9 +59,9 @@ contract BlacklistAccount is Law {
         }
 
         // step 2: return data
-        address[] memory tar = new address[](1);
-        uint256[] memory val = new uint256[](1);
-        bytes[] memory cal = new bytes[](1);
+        tar = new address[](1);
+        val = new uint256[](1);
+        cal = new bytes[](1);
 
         tar[0] = address(1); // signals that separatedPowers should not execute anything else.
         return (tar, val, cal, lawCalldata);

@@ -63,7 +63,7 @@ export function Transactions() {
   }, [])
 
   return (
-    <div className="w-full h-full grow flex flex-col justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
+    <div className="w-full grow flex flex-col justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
     {
     <div className="w-full h-full flex flex-col gap-0 justify-start items-center"> 
       <div className="w-full border-b border-slate-300">
@@ -74,7 +74,7 @@ export function Transactions() {
         </div>
       </div>
        {/* below should be a button */}
-      <div className = "w-full h-full lg:h-48 flex flex-col gap-0 justify-start items-center overflow-y-scroll py-1 divide-y divide-slate-300">
+      <div className = "w-full h-full max-h-full lg:max-h-48 flex flex-col gap-0 justify-start items-center overflow-y-scroll py-1 divide-y divide-slate-300">
       {
         transactions && transactions.length > 0 ? transactions.map((transaction: Log, i) =>
           <div className = {"w-full flex flex-col gap-1 justify-between items-center p-3"}>
@@ -107,7 +107,7 @@ export function Transactions() {
           </div>
           )
           :
-          <div className = "w-full flex flex-row gap-1 text-sm text-slate-600 justify-between items-center p-3">
+          <div className = "w-full flex flex-row gap-1 text-sm text-slate-500 justify-center items-center text-center p-3">
             No transactions found
           </div>
         }

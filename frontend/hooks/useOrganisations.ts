@@ -125,22 +125,34 @@ export const useOrganisations = () => {
     }
   }
 
+  
+
   const fetchOrganisations = useCallback(
     async () => {
       setStatus("pending")
 
+      let localStore = localStorage.getItem("powersProtocol_savedOrgs")
+      const saved: Organisation[] = localStore ? JSON.parse(localStore) : []
+      console.log("@useOrganisation: ", {saved, localStore})
+          
       let orgsWithLaws: Organisation[] | undefined
       let orgsWithProposals: Organisation[] | undefined 
 
       const fetchedOrganisations = await getOrganisations()
-      if (fetchedOrganisations) {
+      if (fetchedOrganisations && saved.length == 0) {
         orgsWithLaws = await fetchLaws(fetchedOrganisations)
       }
       if (orgsWithLaws) {
         orgsWithProposals = await fetchProposals(orgsWithLaws)
       }
-      if (orgsWithProposals) {
+      if (orgsWithProposals && saved.length == 0) {
         setOrganisations(orgsWithProposals)
+        localStorage.setItem("powersProtocol_savedOrgs", JSON.stringify(orgsWithProposals, (key, value) =>
+          typeof value === "bigint" ? Number(value) : value,
+        ));
+
+      } else if (saved.length > 0) {
+        setOrganisations(saved)
       }
       setStatus("success")
     }, [ ])

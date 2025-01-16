@@ -33,7 +33,7 @@ contract DeployBasicDao is Script {
         returns (address payable dao, address[] memory constituentLaws, HelperConfig.NetworkConfig memory config)
     {
         HelperConfig helperConfig = new HelperConfig();
-        HelperConfig.NetworkConfig memory config = helperConfig.getConfigByChainId(block.chainid);
+        config = helperConfig.getConfigByChainId(block.chainid);
 
         // Initiating Dao.
         vm.startBroadcast();
@@ -95,7 +95,7 @@ contract DeployBasicDao is Script {
         // initiate law
         vm.startBroadcast();
         law = new PeerSelect(
-            "(De)select an account for role 1", // max 31 chars
+            "(De)select account for role 1", // max 31 chars
             "Propose to (de)select an account for role 1.",
             dao_,
             1, // access role

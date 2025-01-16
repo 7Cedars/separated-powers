@@ -67,7 +67,7 @@ export const SectionText = ({
       <div className={`text-start font-bold break-words ${appearanceTitle[size]}`}>
         {text}
       </div>
-      <div className={`text-start text-slate-400 break-words ${appearanceSubtitle[size]}` }>
+      <div className={`text-start text-slate-500 break-words ${appearanceSubtitle[size]}` }>
         {subtext}
       </div>
     </div>

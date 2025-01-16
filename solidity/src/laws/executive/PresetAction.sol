@@ -54,8 +54,7 @@ contract PresetAction is Law {
     }
 
     /// @notice execute the law.
-    /// @param lawCalldata the calldata of the law.
-    function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator*/ bytes memory /*lawCalldata*/ , bytes32 /*descriptionHash*/)
         public
         view
         virtual

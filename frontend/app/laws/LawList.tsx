@@ -31,8 +31,8 @@ export function LawList() {
   return (
     <div className="w-full flex flex-col justify-start items-center">
       {/* table banner  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-2 px-2 rounded-t-md overflow-y-scroll">
-        <div className="text-slate-900 text-center font-bold text-lg ps-4">
+      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-2 px-4 rounded-t-md overflow-y-scroll">
+        <div className="text-slate-900 text-center font-bold text-lg">
           Laws
         </div>
         <div className="flex flex-row w-full min-w-16 h-8">
@@ -72,11 +72,11 @@ export function LawList() {
             Public
           </Button>
         </div>
-        <button className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 ">
+        {/* <button className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 ">
             <ArrowPathIcon
               className="w-4 h-4 text-slate-800"
               />
-        </button>
+        </button> */}
       </div>
       {/* table laws  */}
       <div className="w-full border border-slate-200 border-t-0 rounded-b-md overflow-scroll">
@@ -84,7 +84,7 @@ export function LawList() {
       <table className="w-full table-auto"> 
       <thead className="w-full border-b border-slate-200">
             <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 ">
-                <th className="ps-6 py-2 font-light rounded-tl-md"> Name </th>
+                <th className="ps-4 py-2 font-light rounded-tl-md"> Name </th>
                 <th className="font-light"> Description </th>
                 <th className="font-light"> Role </th>
             </tr>

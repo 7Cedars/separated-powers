@@ -39,8 +39,8 @@ export function ProposalList() {
   return (
     <div className="w-full flex flex-col justify-start items-center">
       {/* table banner  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-2 px-2 rounded-t-md overflow-y-scroll">
-        <div className="text-slate-900 text-center font-bold text-lg ps-4">
+      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-2 px-6 rounded-t-md overflow-y-scroll">
+        <div className="text-slate-900 text-center font-bold text-lg">
           Proposals
         </div>
         <div className="flex flex-row w-full min-w-16 h-8"> 
@@ -80,11 +80,11 @@ export function ProposalList() {
             Public
           </Button>
         </div>
-        <button className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 ">
+        {/* <button className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 ">
             <ArrowPathIcon
               className="w-4 h-4 text-slate-800"
               />
-        </button>
+        </button> */}
       </div>
       {/* table laws  */}
       <div className="w-full border border-slate-200 border-t-0 rounded-b-md overflow-scroll">

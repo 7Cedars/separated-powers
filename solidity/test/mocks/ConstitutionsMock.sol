@@ -521,9 +521,9 @@ contract ConstitutionsMock is Test {
         address helen = makeAddr("helen");
 
         // call to set initial roles. Also used as dummy call data.
-        address[] memory targets = new address[](13);
-        uint256[] memory values = new uint256[](13);
-        bytes[] memory calldatas = new bytes[](13);
+        targets = new address[](13);
+        values = new uint256[](13);
+        calldatas = new bytes[](13);
         for (uint256 i = 0; i < targets.length; i++) {
             targets[i] = dao_;
         }
