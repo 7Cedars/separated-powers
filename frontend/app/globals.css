@@ -21,13 +21,13 @@ body {
 }
 
 /* scrollbar changes layout */
-/* ::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
-} */
+::-webkit-scrollbar {
+  width: 3px;
+  height: 6px;
+}
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #aaaaaa;
   border-radius: 5px;
 }
 

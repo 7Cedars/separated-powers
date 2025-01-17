@@ -203,6 +203,7 @@ const Footer = () => {
 export const NavBars = (props: PropsWithChildren<{}>) => {
   const organisation = useOrgStore();
   const router = useRouter();
+  const path = usePathname()
 
   useEffect(() => {
     if (organisation.name == '') {
@@ -212,15 +213,23 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
 
   return (
     <>
-      <Header />
-        <main className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1 py-16 px-2 overflow-y-auto">
+      {
+      path == '/' ? 
+      <>
+        <main className="w-full h-full grid grid-cols-1 overflow-y-scroll">
           {props.children}
         </main>
-      <Footer />
+      </>
+      : 
+        <>
+          <Header /> 
+          <main className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1 py-16 px-2 overflow-y-auto">
+            {props.children}
+          </main>
+        <Footer /> 
+        </>
+      }
     </>
-
   )
-
-
 }
 

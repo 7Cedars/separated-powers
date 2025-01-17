@@ -110,7 +110,7 @@ export default function Page() {
     return (
       <main className="w-full h-full flex flex-col justify-center items-center gap-3">
         {/* hero banner  */}
-        <section className={`w-full h-[30vh] flex flex-col justify-center items-center text-center text-slate-50 text-5xl bg-gradient-to-bl ${colourScheme[organisation.colourScheme] } rounded-md`}> 
+        <section className={`w-full min-h-[20vh] flex flex-col justify-center items-center text-center text-slate-50 text-5xl bg-gradient-to-bl ${colourScheme[organisation.colourScheme] } rounded-md`}> 
           {organisation?.name}
         </section>
         
