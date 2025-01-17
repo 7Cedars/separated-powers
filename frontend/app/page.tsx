@@ -68,7 +68,7 @@ export default function Page() {
         <main className="w-full grid grid-cols-1 gap-0 overflow-y-scroll snap-y snap-mandatory overflow-x-hidden">
             
             {/* section 1 */}
-            <section className="w-full h-[80vh] flex flex-col justify-center items-center bg-gradient-to-b from-indigo-900 via-blue-300 via-70% to-slate-100 snap-start snap-always"> 
+            <section className="w-full h-[80vh] flex flex-col justify-center items-center bg-gradient-to-b from-indigo-900 to-blue-500 snap-start snap-always"> 
             
                 {/* Title and subtitle */}
                 <section className="w-full h-fit flex flex-col justify-center items-center p-4 pt-20 pb-20">
@@ -82,11 +82,13 @@ export default function Page() {
                         Distribute power, increase security, transparency and efficiency with role restricted governance
                     </div>
                 </section> 
-                
+            </section>
+
+            <section className="w-full h-[80vh] flex flex-col justify-center items-center bg-gradient-to-b from-blue-500 via-70% to-slate-100 snap-start snap-always p-12">    
                 {/* scroll-snap-x overflow-y-hidden p-4 snap-always snap-center animate-loop-scroll */}
                 {/* use cases  */}
-                <section className="w-screen min-h-fit h-full h-full flex flex-row gap-6 justify-between items-start overflow-x-scroll snap-x snap-mandatory">
-                    <div className="min-w-[60vw] h-full flex flex-col snap-center snap-always gap-2" />
+                <section className="w-screen min-h-fit h-full h-full flex flex-row gap-12 justify-between items-start overflow-x-scroll snap-x snap-mandatory">
+                    <div className="min-w-[20vw] h-full flex flex-col snap-center snap-always gap-2" />
                     {
                         useCases.map((useCase, index) => (
                             <div className="min-w-[60vw] h-full flex flex-col justify-center items-center text-slate-50 snap-center snap-always gap-2" key={index}> 
@@ -117,18 +119,18 @@ export default function Page() {
                             </div> 
                         ))
                     }
-                    <div className="min-w-[60vw] h-full flex flex-col snap-center snap-always gap-2" />
+                    <div className="min-w-[20vw] h-full flex flex-col snap-center snap-always gap-2" />
                 </section>
             </section> 
 
             {/* section 2 */}
-            <section className = "w-full h-screen flex flex-col justify-start items-center snap-start"> 
+            <section className = "w-full min-w-[60vw] h-screen flex flex-col justify-start items-center snap-start"> 
                 <div className = "w-full flex flex-row justify-center items-center text-3xl text-slate-600 text-center text-pretty font-bold py-16 px-4">
                     Want to play around with a live demo?
                 </div>
                 {/* table with example orgs  */}
                 <section className="w-full h-full flex flex-col justify-start items-center">
-                    <div className="w-full flex flex-col justify-start items-center border border-slate-300 rounded-md overflow-hidden max-w-2xl">
+                    <div className="w-full flex flex-col justify-start items-center border border-slate-300 rounded-md overflow-hidden max-w-5xl">
                     <table className="w-full table-auto">
                     <thead className="w-full">
                         <tr className="min-w-96 bg-slate-50 text-xs font-light text-slate-600 border-b border-slate-300">
