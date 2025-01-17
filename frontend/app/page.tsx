@@ -88,18 +88,18 @@ export default function Page() {
                 {/* scroll-snap-x overflow-y-hidden p-4 snap-always snap-center animate-loop-scroll */}
                 {/* use cases  */}
                 <section className="w-screen min-h-fit h-full h-full flex flex-row gap-12 justify-between items-start overflow-x-scroll snap-x snap-mandatory">
-                    <div className="min-w-[20vw] h-full flex flex-col snap-center snap-always gap-2" />
+                    <div className="min-w-[20vw] h-full flex flex-col justify-center items-center snap-center snap-always gap-2" />
                     {
                         useCases.map((useCase, index) => (
                             <div className="min-w-[60vw] h-full flex flex-col justify-center items-center text-slate-50 snap-center snap-always gap-2" key={index}> 
-                                <div className="w-full h-fit text-center text-pretty text-lg sm:text-xl text-slate-200 py-4">
+                                <div className="w-full h-fit text-center text-pretty text-lg sm:text-2xl text-slate-200 py-4">
                                     {useCase.value}
                                 </div> 
-                                <div className="grow w-full h-full" style = {{position: 'relative'}}>
+                                <div className="grow w-full max-h-[60vw]" style = {{position: 'relative', width: '100%', height: '100%'}}>
                                     <Image 
                                         src={useCase.image} 
                                         className = "rounded-md" 
-                                        style={{objectFit: "contain"}}
+                                        style={{objectFit: "contain", objectPosition: "center"}}
                                         fill={true}
                                         alt="Screenshot Separated Powers"
                                         >
@@ -124,7 +124,7 @@ export default function Page() {
             </section> 
 
             {/* section 2 */}
-            <section className = "w-full min-w-[60vw] h-screen flex flex-col justify-start items-center snap-start"> 
+            <section className = "w-full min-w-[60vw] h-screen flex flex-col justify-start items-center snap-start px-4"> 
                 <div className = "w-full flex flex-row justify-center items-center text-3xl text-slate-600 text-center text-pretty font-bold py-16 px-4">
                     Want to play around with a live demo?
                 </div>
