@@ -191,6 +191,14 @@ const Header = () => {
   )
 }
 
+const NavigationSmallScreen = () => {  
+  return (
+     <header className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:opacity-0 opacity-100 w-full text-sm px-4">
+        {NavigationBar()}  
+    </header>
+  )
+}
+
 const Footer = () => {  
   return (
      <header className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:opacity-0 opacity-100 w-full text-sm px-4">
@@ -198,6 +206,7 @@ const Footer = () => {
     </header>
   )
 }
+
 
 
 export const NavBars = (props: PropsWithChildren<{}>) => {
@@ -226,7 +235,7 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
           <main className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1 py-16 px-2 overflow-y-auto">
             {props.children}
           </main>
-        <Footer /> 
+        <NavigationSmallScreen /> 
         </>
       }
     </>

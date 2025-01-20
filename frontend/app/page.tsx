@@ -21,8 +21,29 @@ const useCases = [
         image: "/lawList.png",
         imageNarrow: "/lawListNarrow.png", 
         detail: "Define tasks in external programmable contracts, called laws, and assign them to specific roles.",
-        examples: ["example 1", "example 2", "example 3"]
+        examples: ["example 1", "example 2", "example 3"] 
     }, 
+    {
+        value: "Cut the noise, while remaining transparent",
+        image: "/home.png", 
+        imageNarrow: "/homeNarrow.png", 
+        detail: "Each roles submits proposals, votes and executes within their role defined group, but open for all to see.",
+        examples: ["example 1", "example 2", "example 3"]
+    },
+    {
+        value: "Decentralise power by designating roles to diverse groups",
+        image: "/roles.png", 
+        imageNarrow: "/rolesNarrow.png", 
+        detail: "Create roles for builders, community leaders, token holders, and more.",
+        examples: ["example 1", "example 2", "example 3"]
+    },
+    {
+        value: "Fully composable to integrate with your favorite tools",
+        image: "/home.png", 
+        imageNarrow: "/homeNarrow.png", 
+        detail: "Separated Powers can be used in combination with existing governance tools like OpenZeppelin's Governor or Safe multiSig Wallets, laws integrate seamlessly with oracles and other (on or off-)chain tools.",
+        examples: ["example 1", "example 2", "example 3"]
+    },
     {
         value: "Use oracles to automate tasks seamlessly",
         image: "/proposal.png", 
@@ -38,17 +59,10 @@ const useCases = [
         examples: ["example 1", "example 2", "example 3"]
     }, 
     {
-        value: "Distribute power by designating roles to diverse groups",
-        image: "/roles.png", 
-        imageNarrow: "/rolesNarrow.png", 
-        detail: "Create roles for builders, community leaders, token holders, and more.",
-        examples: ["example 1", "example 2", "example 3"]
-    },
-    {
-        value: "Cut the noise, while remaining transparent",
+        value: "Further integrations coming soon",
         image: "/home.png", 
         imageNarrow: "/homeNarrow.png", 
-        detail: "Each roles submits proposals, votes and executes within their role defined group, but open for all to see.",
+        detail: "Modules to integrate separated powers directly with OpenZeppelin's Governor.sol, Hats protocol and Safe wallets are coming soon.",
         examples: ["example 1", "example 2", "example 3"]
     },
     // .... more can be added
@@ -73,7 +87,7 @@ export default function Page() {
         <main className="w-full grid grid-cols-1 gap-0 overflow-y-scroll snap-y snap-mandatory overflow-x-hidden">
             
             {/* section 1 */}
-            <section className="w-full h-[80vh] flex flex-col justify-center items-center bg-gradient-to-b from-indigo-900 to-blue-500 snap-start snap-always"> 
+            <section className="w-full h-[80vh] flex flex-col justify-center items-center bg-gradient-to-b from-indigo-900 to-blue-500 snap-start snap-always border-b-0 -m-1"> 
             
                 {/* Title and subtitle */}
                 <section className="w-full h-fit flex flex-col justify-center items-center p-4 pt-20 pb-20">
@@ -89,14 +103,13 @@ export default function Page() {
                 </section> 
             </section>
 
-            <section className="w-full h-[80vh] flex flex-col justify-center items-center bg-gradient-to-b from-blue-500 via-70% to-slate-100 snap-start snap-always p-12">    
-                {/* scroll-snap-x overflow-y-hidden p-4 snap-always snap-center animate-loop-scroll */}
+            <section className="w-full h-[80vh] flex flex-col justify-center items-center bg-gradient-to-b from-blue-500 to-slate-100 snap-start snap-always p-12">    
                 {/* use cases  */}
-                <section className="w-screen min-h-fit h-full h-full flex flex-row gap-12 justify-between items-start overflow-x-scroll snap-x snap-mandatory">
+                <section className="w-screen h-full flex flex-row gap-12 justify-between items-start overflow-x-scroll snap-x snap-mandatory">
                     <div className="min-w-[20vw] h-full flex flex-col justify-center items-center snap-center snap-always gap-2" />
                     {
                         useCases.map((useCase, index) => (
-                            <div className="min-w-[60vw] h-full flex flex-col justify-center items-center text-slate-50 snap-center snap-always" key={index}> 
+                            <div className="min-w-[60vw] w-full h-full flex flex-col justify-center items-center text-slate-50 snap-center snap-always" key={index}> 
                                 <div className="w-full h-fit text-center text-pretty text-lg sm:text-2xl text-slate-200 py-4">
                                     {useCase.value}
                                 </div> 
@@ -110,27 +123,19 @@ export default function Page() {
                                         >
                                     </Image>
                                  </div>
-                                 <div className="md:shrink md:w-0 md:max-h-0 grow w-full max-h-[60vw]" style = {{position: 'relative', width: '100%', height: '100%'}}>
-                                    <Image 
-                                        src={useCase.imageNarrow} 
-                                        className = "rounded-md" 
-                                        style={{objectFit: "contain", objectPosition: "center"}}
-                                        fill={true}
-                                        alt="Screenshot Separated Powers"
-                                        >
-                                    </Image>
+                                 <div className="md:shrink md:w-0 md:max-h-0 w-full h-full flex flex-col justify-center items-center" style = {{position: 'relative', width: '100%', height: '100%'}}>
+                                        <Image 
+                                            src={useCase.imageNarrow} 
+                                            className = "max-h-80 max-w-80 rounded-full overflow-hidden justify-self-center content-center" 
+                                            style={{objectFit: "cover", objectPosition: "center"}}
+                                            fill={true}
+                                            alt="Screenshot Separated Powers"
+                                            >
+                                        </Image>
                                  </div>
                                 <div className = "py-4 max-w-xl h-fit flex flex-row justify-between items-center text-md sm:text-lg text-slate-500 text-center text-pretty">
                                     {useCase.detail}
                                 </div> 
-                                {/* <div className = "px-4 w-full h-full flex flex-row justify-center items-center text-center text-slate-600">
-                                    See:
-                                    {useCase.examples.map((example, index) => (
-                                        <div className = "p-2" key={index}>
-                                            {example}
-                                        </div>
-                                    ))}
-                                </div> */}
                             </div> 
                         ))
                     }
@@ -145,40 +150,47 @@ export default function Page() {
                 </div>
                 {/* table with example orgs  */}
                 <section className="w-full h-full flex flex-col justify-start items-center">
-                    <div className="w-full flex flex-col justify-start items-center border border-slate-300 rounded-md overflow-hidden max-w-5xl">
-                    <table className="w-full table-auto">
-                    <thead className="w-full">
-                        <tr className="min-w-96 bg-slate-50 text-xs font-light text-slate-600 border-b border-slate-300">
-                            <th className=""></th>
-                            <th className="text-left ps-4 py-2 font-light ">Name</th>
-                            <th className="text-right font-light">Laws</th>
-                            <th className="text-right font-light">Proposals</th>
-                            <th className="text-right font-light">Roles</th> 
-                            <th className="text-right font-light pe-2">Chain</th>
-                        </tr>
-                    </thead>
-                    <tbody className="w-full text-sm text-right text-slate-600 bg-slate-50 divide-y divide-slate-300">
-                        {
-                            organisations?.map((org, index) => (
-                                <tr key={index} className="text-sm text-right text-slate-900 h-16">
-                                    <td className="w-6">
-                                        <div className={`ms-4 h-6 w-6 bg-gradient-to-bl ${colourScheme[index % colourScheme.length]} rounded-full`}/>
-                                    </td>
-                                    <td className="text-left">
-                                        <Button 
-                                            size={1} align={0} showBorder={false} onClick={() => assignOrg({...org, colourScheme: index % colourScheme.length})}>
-                                            {org.name}
-                                        </Button>
-                                    </td>
-                                    <td>{org.laws?.length}</td>
-                                    <td>{org.proposals?.length}</td>
-                                    <td>{org.roles?.length}</td>
-                                    <td className="pe-4"> Arbitrum </td>
+                    <div className="w-full flex flex-col justify-start items-center overflow-scroll max-w-5xl">
+                        <div className="w-full rounded-b-md overflow-scroll border border-slate-300 rounded-md bg-slate-50">
+                          <table className="w-full table-auto">
+                          <thead className="w-full">
+                                <tr className="w-96 text-xs font-light text-left text-slate-500 border-b border-slate-200">
+                                <th className=""></th>
+                                <th className="ps-3 py-2 font-light">Name</th>
+                                <th className="font-light text-center ">Laws</th>
+                                <th className="font-light text-center ">Proposals</th>
+                                <th className="font-light text-center ">Roles</th> 
+                                <th className="font-light text-right pe-4">Chain</th>
                                 </tr>
-                            ))
-                        }
-                    </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
+                              {
+                                organisations?.map((org, index) => {
+                                  return (
+                                    <tr
+                                      key={index}
+                                      className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}
+                                    >
+                                        <td className="min-w-12">
+                                            <div className={`ms-4 h-6 w-6 bg-gradient-to-bl ${colourScheme[index % colourScheme.length]} rounded-full`}/>
+                                        </td>
+                                        <td className="pe-4 text-slate-500 min-w-40">
+                                            <Button 
+                                                size={1} align={0} showBorder={false} onClick={() => assignOrg({...org, colourScheme: index % colourScheme.length})}>
+                                                {org.name}
+                                            </Button>
+                                        </td>
+                                        <td className="pe-4 text-slate-500 text-center min-w-12">{org.laws?.length}</td>
+                                        <td className="pe-4 text-slate-500 text-center min-w-12">{org.proposals?.length}</td>
+                                        <td className="pe-4 text-slate-500 text-center min-w-12">{org.roles?.length}</td>
+                                        <td className="pe-4 text-slate-500 text-right min-w-20"> Arbitrum Sepolia</td>
+                                    </tr>
+                                  )
+                                }
+                              )}
+                            </tbody>
+                          </table>
+                          </div>
                     </div> 
                 </section>
             </section> 

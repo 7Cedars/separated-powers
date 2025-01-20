@@ -30,9 +30,9 @@ pragma solidity 0.8.26;
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
 
-contract DirectSelect is Law {
-    error DirectSelect__AccountDoesNotHaveRole();
-    error DirectSelect__AccountAlreadyHasRole();
+contract SelfSelect is Law {
+    error SelfSelect__AccountDoesNotHaveRole();
+    error SelfSelect__AccountAlreadyHasRole();
 
     uint32 private immutable ROLE_ID;
 
@@ -46,7 +46,6 @@ contract DirectSelect is Law {
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         ROLE_ID = roleId_;
         inputParams[0] = dataType("bool");
-        inputParams[0] = dataType("address");
     }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
@@ -56,7 +55,7 @@ contract DirectSelect is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // step 1: decode the calldata.
-        (bool revoke, address account) = abi.decode(lawCalldata, (bool));
+        (bool revoke) = abi.decode(lawCalldata, (bool));
 
         // step 2: create & send return calldata conditional if it is an assign or revoke action.
         targets = new address[](1);
@@ -65,15 +64,15 @@ contract DirectSelect is Law {
 
         targets[0] = separatedPowers;
         if (revoke) {
-            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(account, ROLE_ID) == 0) {
-                revert DirectSelect__AccountDoesNotHaveRole();
+            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) == 0) {
+                revert SelfSelect__AccountDoesNotHaveRole();
             }
-            calldatas[0] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, account); // selector = revokeRole
+            calldatas[0] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, initiator); // selector = revokeRole
         } else {
-            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(account, ROLE_ID) != 0) {
-                revert DirectSelect__AccountAlreadyHasRole();
+            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) != 0) {
+                revert SelfSelect__AccountAlreadyHasRole();
             }
-            calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, account); // selector = assignRole
+            calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, initiator); // selector = assignRole
         }
     }
 }

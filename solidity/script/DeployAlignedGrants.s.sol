@@ -1,34 +1,130 @@
-// // SPDX-License-Identifier: MIT
-// pragma solidity 0.8.26;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.26;
 
-// import { Script, console, console2 } from "lib/forge-std/src/Script.sol";
+import "lib/forge-std/src/Script.sol";
 
-// // core contracts
-// import { SeparatedPowers } from "../src/SeparatedPowers.sol";
-// import { Law } from "../src/Law.sol";
-// import { ILaw } from "../src/interfaces/ILaw.sol";
-// import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
-// // dao
-// import { AlignedGrants } from "../src/daos/AlignedGrants.sol";
-// import { HelperConfig } from "./HelperConfig.s.sol";
+// core protocol
+import { SeparatedPowers } from "../src/SeparatedPowers.sol";
+import { Law } from "../src/Law.sol";
+import { ILaw } from "../src/interfaces/ILaw.sol";
+import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
 
-// // laws
-// import { DirectSelect } from "../src/laws/electoral/DirectSelect.sol";
-// import { DelegateSelect } from "../src/laws/electoral/DelegateSelect.sol";
-// import { RandomlySelect } from "../src/laws/electoral/RandomlySelect.sol";
-// import { TokensSelect } from "../src/laws/electoral/TokensSelect.sol";
-// import { NominateMe } from "../src/laws/electoral/NominateMe.sol";
+// laws
+import { NominateMe } from "../src/laws/electoral/NominateMe.sol";
+import { DelegateSelect } from "../src/laws/electoral/DelegateSelect.sol";
+import { DirectSelect } from "../src/laws/electoral/DirectSelect.sol";
+import { PeerSelect } from "../src/laws/electoral/PeerSelect.sol";
+import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
+import { OpenAction } from "../src/laws/executive/OpenAction.sol";
+import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 
-// import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
-// import { OpenAction } from "../src/laws/executive/OpenAction.sol";
-// import { PresetAction } from "../src/laws/executive/PresetAction.sol";
-// import { BespokeAction } from "../src/laws/executive/BespokeAction.sol";
+// config
+import { HelperConfig } from "./HelperConfig.s.sol";
 
-// import { ReinstateRole } from "../src/laws/bespoke/ReinstateRole.sol";
-// import { RevokeRole } from "../src/laws/bespoke/RevokeRole.sol";
-// import { RequestPayment } from "../src/laws/bespoke/RequestPayment.sol";
+contract DeployAlignedGrants is Script {
+  address[] laws;
 
-// contract DeployAlignedGrants is Script {
+    function run()
+        external
+        returns (address payable dao, address[] memory constituentLaws, HelperConfig.NetworkConfig memory config)
+    {
+        HelperConfig helperConfig = new HelperConfig();
+        config = helperConfig.getConfigByChainId(block.chainid);
+
+        // Initiating Dao.
+        vm.startBroadcast();
+        SeparatedPowers separatedPowers = new SeparatedPowers("Aligned Grants", "");
+        vm.stopBroadcast();
+
+        initiateConstitution(
+            payable(address(separatedPowers)), payable(config.erc1155Mock), payable(config.erc20VotesMock), payable(config.erc721Mock)
+        );
+
+        // constitute dao.
+        vm.startBroadcast();
+        separatedPowers.constitute(laws);
+        vm.stopBroadcast();
+
+        return (payable(address(separatedPowers)), laws, config);
+    }
+
+    function initiateConstitution(address payable dao_, address payable mock1155_, address payable mock20_, address payable mock721_, ) public {
+        Law law;
+        ILaw.LawConfig memory lawConfig;
+
+        //////////////////////////////////////////////////////////////
+        //              CHAPTER 1: ELECT ROLES                      //
+        //////////////////////////////////////////////////////////////
+
+        vm.startBroadcast();
+        law = new NftSelfSelect(
+            "Elect self for role 1", // max 31 chars
+            "Anyone who has a mock Erc721 token can (de)select themselves for role 1. See the treasury page for the contract where to mint one.",
+            dao_,
+            type(uint32).max, // access role = public access
+            lawConfig,
+            1, // role id
+            mock721_
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        vm.startBroadcast();
+        law = new NominateMe(
+            "Nominate self for role 2", // max 31 chars
+            "Anyone can nominate themselves for role 2.",
+            dao_,
+            type(uint32).max, // access role = public access
+            lawConfig
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        vm.startBroadcast();
+        law = new DelegateSelect(
+            "Call role 2 election", // max 31 chars
+            "An election is called by an oracle, as set by the admin. The nominated accounts with most delegated vote tokens are then assigned to role 2.",
+            dao_, // separated powers protocol.
+            9, // oracle role id designation. 
+            lawConfig, //  config file.
+            mock20_, // the tokens that will be used as votes in the election.
+            laws[1], // nominateMe
+            5, // maximum amount of delegates
+            2 // role id to be assigned
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        vm.startBroadcast();
+        law = new DelegateSelect(
+            "Call role 2 election", // max 31 chars
+            "An election is called by an oracle, as set by the admin. The nominated accounts with most delegated vote tokens are then assigned to role 2.",
+            dao_, // separated powers protocol.
+            9, // oracle role id designation. 
+            lawConfig, //  config file.
+            mock20_, // the tokens that will be used as votes in the election.
+            laws[1], // nominateMe
+            5, // maximum amount of delegates
+            2 // role id to be assigned
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        vm.startBroadcast();
+        law = new DirectSelect(
+            "Set Oracle", // max 31 chars
+            "The admin selects accounts for role 9, the oracle role.",
+            dao_, // separated powers protocol.
+            0, // admin. 
+            lawConfig, //  config file.
+            9 // role id to be assigned
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+}
 //     address[] laws;
 //     uint32[] constituentRoles;
 //     address[] constituentAccounts;

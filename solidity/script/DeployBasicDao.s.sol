@@ -37,7 +37,7 @@ contract DeployBasicDao is Script {
 
         // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao 1.8", "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreicipqz46fivyta6mnizu3ly7hrulnlp6skzyrd7dddgnakwl5ulre");
+        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao", "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreicipqz46fivyta6mnizu3ly7hrulnlp6skzyrd7dddgnakwl5ulre");
         vm.stopBroadcast();
 
         initiateConstitution(

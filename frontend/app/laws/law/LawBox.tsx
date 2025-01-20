@@ -96,7 +96,7 @@ export function LawBox() {
     <main className="w-full h-full">
       <section className={`w-full h-full bg-slate-50 border ${roleColour[parseRole(law.allowedRole)]} rounded-md overflow-hidden`} >
       {/* title  */}
-      <div className="w-full flex flex-col gap-2 justify-between items-center border-b border-slate-300 py-4 ps-6 pe-2">
+      <div className="w-full flex flex-col gap-2 justify-start items-start border-b border-slate-300 py-4 ps-6 pe-2">
         <SectionText
           text={law?.name}
           subtext={law?.description}
@@ -125,11 +125,11 @@ export function LawBox() {
         }
         <div className="w-full mt-4 flex flex-row justify-center items-start px-3 pb-4 min-h-24">
           <label htmlFor="reason" className="text-sm text-slate-600 pb-1 pe-8 ps-3">Reason</label>
-          <div className="w-full flex items-center text-md justify-start rounded-md bg-white pl-3 outline outline-1 outline-slate-300">
+          <div className="w-full h-fit flex items-center text-md justify-start rounded-md bg-white pl-3 outline outline-1 outline-slate-300">
               <textarea 
                 name="reason" 
                 id="reason" 
-                rows={15} 
+                rows={5} 
                 cols ={60} 
                 className="min-w-0 p-1 w-full text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0" 
                 placeholder="Describe reason for action here."

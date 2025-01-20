@@ -119,7 +119,7 @@ export function ProposalBox() {
     <main className="w-full flex flex-col justify-start items-center">
       <section className={`w-full flex flex-col justify-start items-center bg-slate-50 border ${roleColour[parseRole(law.allowedRole)]} mt-2 rounded-md overflow-hidden`} >
       {/* title  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center border-b border-slate-300 py-4 ps-6 pe-2">
+      <div className="w-full flex flex-row gap-3 justify-start items-start border-b border-slate-300 py-4 ps-6 pe-2">
         <SectionText
           text={`Proposal: ${law?.name}`}
           subtext={law?.description}
@@ -141,7 +141,7 @@ export function ProposalBox() {
               <textarea 
                 name="reason" 
                 id="reason" 
-                rows={3} 
+                rows={5} 
                 cols ={25} 
                 value={description}
                 className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
@@ -195,7 +195,7 @@ export function ProposalBox() {
             size={1} 
             onClick={handlePropose} 
 
-            statusButton={ 
+            statusButton={
               checks && 
               checks.authorised ? 
               status : 'disabled'
