@@ -6,8 +6,7 @@ import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/reac
 import { useEffect } from "react";
 
 export const Checks: React.FC = () => {
-  const {status, error, checks, law: currentLaw, execute, fetchSimulation, fetchChecks} = useLaw(); 
-  const organisation = useOrgStore();
+  const {checks, fetchChecks} = useLaw(); 
 
   useEffect(() => {
     fetchChecks("dummy string", "0x0")
@@ -25,7 +24,6 @@ export const Checks: React.FC = () => {
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
           <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
             { checks?.authorised ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
-            {/* <XMarkIcon className="w-4 h-4 text-red-600"/> */}
             <div>
             {checks?.authorised ? "Account authorised" : "Account not authorised"  } 
             </div>

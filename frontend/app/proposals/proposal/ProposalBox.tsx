@@ -1,23 +1,19 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { setLaw, useActionStore, setAction, useLawStore, useOrgStore, useProposalStore } from "@/context/store";
+import { useActionStore, setAction, useProposalStore } from "@/context/store";
 import { Button } from "@/components/Button";
-import Link from "next/link";
-import { GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { Law, Proposal } from "@/context/types";
-import { TitleText, SectionText } from "@/components/StandardFonts";
 import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
-import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
+import { decodeAbiParameters,  keccak256, parseAbiParameters, toHex } from "viem";
 import { parseParamValues, parseParams, parseRole } from "@/utils/parsers";
 import { InputType } from "@/context/types";
 import { StaticInput } from "./StaticInput";
-import { notUpToDate } from "@/context/store"
 import { useProposal } from "@/hooks/useProposal";
 import { SimulationBox } from "@/components/SimulationBox";
+import { SectionText } from "@/components/StandardFonts";
 
 const roleColour = [  
   "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
@@ -47,14 +43,10 @@ export function ProposalBox() {
   })
   const dataTypes = action.dataTypes && action.dataTypes.length > 0 ? action.dataTypes : params ? parseParams(params as string[]) : []
 
-  console.log("@ProposalBox:", {proposal, action, status, checks, dataTypes, description, calldata, params, paramValues, paramsError})
-
   const handleSimulate = async () => {
-      console.log("@handleSimulate:", {description, dataTypes, calldata})
       if (dataTypes && dataTypes.length > 0 && calldata && description) {
         const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), calldata);
         const valuesParsed = parseParamValues(values)
-        console.log("@handleSimulate:", {values, valuesParsed})
         setParamValues(valuesParsed)
         
         // simulating law. 
@@ -107,12 +99,6 @@ export function ProposalBox() {
       setDescription(action.description)
       setCalldata(action.callData)
     }
-    // const description =   ? proposal.description 
-    // : action.description && action.description.length > 1 ? action.description
-    // : undefined  
-    // const calldata =  proposal?.executeCalldata && proposal.executeCalldata.length > 2 ? proposal.executeCalldata 
-    //     : action.callData && action.callData.length > 2 ? action.callData
-    //     : undefined  
   }, [proposal, action])
 
   return (

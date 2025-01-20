@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { setLaw, useOrgStore } from "../../context/store";
+import {  useOrgStore } from "../../context/store";
 import { Button } from "@/components/Button";
-import Link from "next/link";
-import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { Law, Roles, Status } from "@/context/types";
+import { Roles, Status } from "@/context/types";
 import { parseRole } from "@/utils/parsers";
 import { publicClient } from "@/context/clients";
 import { separatedPowersAbi } from "@/context/abi";
@@ -21,9 +20,6 @@ export function RoleList() {
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<any | null>(null)
   const [roles, setRoles ] = useState<Roles[]>([])
- 
-  // need to fetch number of role holders for each role. 
-  console.log("@RoleList", {status, error, roles})
 
   const fetchRoleHolders = useCallback(
     async (roleIds: bigint[]) => {
@@ -45,7 +41,6 @@ export function RoleList() {
               functionName: 'getAmountRoleHolders', 
               args: [roleId]
             })
-            console.log("@fetchRoleHolders:" , {fetchedRoleHolders})
             const laws = organisation.laws?.filter(law => law.allowedRole == BigInt(roleId))
             rolesFetched.push({roleId, holders: Number(fetchedRoleHolders), laws})
             }

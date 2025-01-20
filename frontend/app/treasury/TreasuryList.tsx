@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import { setLaw, useOrgStore } from "../../context/store";
+import React from "react";
+import { useOrgStore } from "../../context/store";
 import { ArrowPathIcon, ArrowUpRightIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { supportedChains } from "@/context/chains";
@@ -42,8 +42,6 @@ export function TreasuryList() {
   if (isSuccess) {
     balances = data.map((item: any) => Number(item.result))
   }
-
-  console.log("@TreasuryList: ", {data})
 
   return (
     <div className="w-full flex flex-col justify-start items-center">

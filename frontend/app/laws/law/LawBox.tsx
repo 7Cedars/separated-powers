@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { setLaw, useActionStore, setAction, useLawStore, useOrgStore } from "../../../context/store";
+import { useActionStore, setAction } from "../../../context/store";
 import { Button } from "@/components/Button";
-import Link from "next/link";
 import { ArrowUpRightIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { DataType, Law } from "@/context/types";
-import { TitleText, SectionText } from "@/components/StandardFonts";
+import { SectionText } from "@/components/StandardFonts";
 import { useChainId, useReadContract, useReadContracts } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
@@ -36,7 +34,6 @@ export function LawBox() {
       })
   const dataTypes = data ? parseParams(data as string[]) : []
   const {wallets} = useWallets();
-  console.log("@lawbox:", {error, action, status, checks, dataTypes, wallets, simulation})
 
   const [paramValues, setParamValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(dataTypes.length)); // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
@@ -44,7 +41,6 @@ export function LawBox() {
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
   const handleChange = (input: InputType | InputType[], index: number) => {
-    console.log("@handleChange called:", {input, index, paramValues})
     const currentInput = paramValues 
     currentInput[index] = input
     setParamValues(currentInput)
@@ -54,7 +50,6 @@ export function LawBox() {
   
   const handleSimulate = async (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault() 
-      console.log("@handleSimulate Called")
       let lawCalldata: `0x${string}`
       if (paramValues.length > 0 && paramValues) {
         lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), paramValues);

@@ -14,6 +14,7 @@ import { Button } from "../components/Button";
 import { useOrganisations } from "@/hooks/useOrganisations";
 import { colourScheme } from "@/context/Theme"
 import Image from 'next/image'
+import { Footer } from "@/components/NavBars";
 
 const useCases = [
     {
@@ -72,9 +73,7 @@ export default function Page() {
     const router = useRouter();
     const organisation = useOrgStore()
     const { fetchOrganisations, organisations, status } = useOrganisations()
-    
-    console.log("organisations", organisations)
-    console.log("organisation", organisation)
+ 
     useEffect(() => {
         if (organisation.name != '') router.push('/home') 
     }, [organisation])
@@ -145,8 +144,11 @@ export default function Page() {
 
             {/* section 2 */}
             <section className = "w-full min-w-[60vw] h-screen flex flex-col justify-start items-center snap-start px-4"> 
-                <div className = "w-full flex flex-row justify-center items-center text-3xl text-slate-600 text-center text-pretty font-bold py-16 px-4">
+                <div className = "w-full flex flex-row justify-center items-center text-3xl text-slate-600 text-center text-pretty font-bold pt-16 px-4">
                     Want to play around with a live demo?
+                </div>
+                <div className = "w-full flex flex-row justify-center items-center text-xl text-slate-400 text-center text-pretty py-2 pb-16 px-4">
+                    The protocol and examples are proof of concepts. The are meant for testing purposes only. Do not use in production.
                 </div>
                 {/* table with example orgs  */}
                 <section className="w-full h-full flex flex-col justify-start items-center">
@@ -193,7 +195,9 @@ export default function Page() {
                           </div>
                     </div> 
                 </section>
-            </section> 
+            </section>
+
+            <Footer /> 
         </main>
     )
 }

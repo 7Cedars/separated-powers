@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { setLaw, useOrgStore, assignOrg} from "../../context/store";
 import { Button } from "@/components/Button";
-import Link from "next/link";
-import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { Law } from "@/context/types";
-
 
 export function LawList() {
   const organisation = useOrgStore();
@@ -15,7 +12,6 @@ export function LawList() {
 
   const handleRoleSelection = (role: bigint) => {
     const index = organisation?.deselectedRoles?.indexOf(role);
-    console.log("@handleRoleSelection", {index, role, organisation});
 
     if (index == -1) {
       assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? [...organisation?.deselectedRoles, role as bigint] : [role as bigint]})
@@ -25,8 +21,6 @@ export function LawList() {
       assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? organisation?.deselectedRoles.toSpliced(index) : []})
     }
   };
-
-  console.log("deselectedRoles", organisation?.deselectedRoles);
 
   return (
     <div className="w-full flex flex-col justify-start items-center">
@@ -72,11 +66,6 @@ export function LawList() {
             Public
           </Button>
         </div>
-        {/* <button className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 ">
-            <ArrowPathIcon
-              className="w-4 h-4 text-slate-800"
-              />
-        </button> */}
       </div>
       {/* table laws  */}
       <div className="w-full border border-slate-200 border-t-0 rounded-b-md overflow-scroll">

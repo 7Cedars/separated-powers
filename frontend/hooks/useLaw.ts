@@ -38,8 +38,6 @@ export const useLaw = () => {
   })
   const [checks, setChecks ] = useState<Checks>()
 
-  console.log("@useLaw", {wallets})
-
   useEffect(() => {
     if (statusReceipt === "success") setStatus("success")
     if (statusReceipt === "error") setStatus("error")
@@ -65,7 +63,6 @@ export const useLaw = () => {
                   functionName: 'canCallLaw', 
                   args: [wallets[0].address, law.law],
                 })
-          console.log("result @checkAccountAuthorised", {result})
           return result as boolean
         } catch (error) {
             setStatus("error") 
@@ -95,7 +92,6 @@ export const useLaw = () => {
                   functionName: 'state', 
                   args: [selectedProposal.proposalId],
                 })
-          console.log("state @checkProposalStatus", state)
           const result = Number(state) == 3
           return result 
         } catch (error) {
@@ -114,7 +110,6 @@ export const useLaw = () => {
         proposal.executeCalldata === calldata && 
         proposal.description === description
       ) 
-      console.log("selectedProposal @checkLawCompleted", selectedProposal)
       
       try { 
         if (selectedProposal) {
@@ -124,7 +119,6 @@ export const useLaw = () => {
                   functionName: 'state', 
                   args: [selectedProposal.proposalId],
                 })
-          console.log("state @checkLawCompleted", state)
           const result = Number(state) == 4
           return result as boolean
         } else {
@@ -144,7 +138,6 @@ export const useLaw = () => {
         proposal.executeCalldata === calldata && 
         proposal.description === description
       ) 
-      console.log("selectedProposal @checkLawNotCompleted", selectedProposal)
   
       try { 
         if (selectedProposal) {
@@ -154,7 +147,6 @@ export const useLaw = () => {
                   functionName: 'state', 
                   args: [selectedProposal.proposalId],
                 })
-          console.log("state @checkLawNotCompleted", state)
           const result = Number(state) != 4
           return result as boolean
         } else {
@@ -174,7 +166,6 @@ export const useLaw = () => {
       proposal.executeCalldata === calldata && 
       proposal.description === description
     ) 
-    console.log("selectedProposal @checkDelayedExecution", selectedProposal)
 
     const result = Number(selectedProposal?.voteEnd) + Number(law.config.delayExecution) < Number(blockNumber)
     return result as boolean

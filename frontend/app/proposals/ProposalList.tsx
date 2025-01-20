@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { assignOrg, setLaw, useOrgStore } from "@/context/store";
 import { Button } from "@/components/Button";
-import Link from "next/link";
-import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { Law, Proposal } from "@/context/types";
+import { Proposal } from "@/context/types";
 import { parseRole } from "@/utils/parsers";
 import { useProposal } from "@/hooks/useProposal";
 import { setProposal } from "@/context/store"
@@ -19,7 +17,6 @@ export function ProposalList() {
 
   const handleRoleSelection = (role: bigint) => {
     const index = organisation?.deselectedRoles?.indexOf(role);
-    console.log("@handleRoleSelection", {index, role, organisation});
 
     if (index == -1) {
       assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? [...organisation?.deselectedRoles, role as bigint] : [role as bigint]})
@@ -80,11 +77,6 @@ export function ProposalList() {
             Public
           </Button>
         </div>
-        {/* <button className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 ">
-            <ArrowPathIcon
-              className="w-4 h-4 text-slate-800"
-              />
-        </button> */}
       </div>
       {/* table laws  */}
       <div className="w-full border border-slate-200 border-t-0 rounded-b-md overflow-scroll">

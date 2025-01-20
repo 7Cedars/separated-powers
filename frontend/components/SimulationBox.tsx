@@ -21,8 +21,6 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
         functionName: 'getStateVars'
       })
   const dataTypes = parseParams(data ? data as string[] : [])
-
-  console.log("@SimulationBox:", {jsxSimulation, stateVarsError, data, dataTypes, simulation})
     
   useEffect(() => {
 
@@ -30,9 +28,7 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
     let jsxElements1: React.JSX.Element[] = []; 
 
     if (simulation && simulation.length > 0) {
-      console.log("@useEffect, jsxSimulate 0 triggered")
       for (let i = 0; i < simulation[0].length; i++) {
-        console.log("@useEffect building..", i)
         jsxElements0 = [ 
           ... jsxElements0, 
           <tr
@@ -49,7 +45,6 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
     }  
   
     if (simulation) {
-      console.log("@useEffect, jsxSimulate 1 triggered")
         const stateVars = dataTypes.length > 0 ? decodeAbiParameters(parseAbiParameters(dataTypes.toString()), simulation[3]) : [];
         const stateVarsParsed = parseParamValues(stateVars)
         for (let i = 0; i < stateVarsParsed.length; i++) {

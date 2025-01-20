@@ -15,8 +15,6 @@ export const useOrganisations = () => {
   const [organisations, setOrganisations] = useState<Organisation[] | undefined>() 
   const chainId = useChainId()
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
-  console.log("@useOrganisation: ", {chainId})
-  // console.log("@useOrganisation, genesisBlock: ", supportedChains[chainId].genesisBlock)
 
   const getOrganisations = useCallback( 
     async () => {
@@ -33,7 +31,6 @@ export const useOrganisations = () => {
             logs
           })
           const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
-          console.log("@getOrganisations", {fetchedLogsTyped})
           const fetchedOrganisations: Organisation[] = fetchedLogsTyped.map(log => log.args as Organisation)
           return fetchedOrganisations
         } catch (error) {
@@ -65,9 +62,7 @@ export const useOrganisations = () => {
               logs
             })
             const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
-            console.log("@fetchLaws", {fetchedLogsTyped})
             const fetchedLaws: Law[] = fetchedLogsTyped.map(log => log.args as Law)
-            console.log("@fetchLaws", {fetchedLaws})
 
             const rolesAll = fetchedLaws.map((law: Law) => law.allowedRole)
             const roles = [... new Set(rolesAll)] as bigint[]
@@ -133,7 +128,6 @@ export const useOrganisations = () => {
 
       let localStore = localStorage.getItem("powersProtocol_savedOrgs")
       const saved: Organisation[] = localStore ? JSON.parse(localStore) : []
-      console.log("@useOrganisation: ", {saved, localStore})
           
       let orgsWithLaws: Organisation[] | undefined
       let orgsWithProposals: Organisation[] | undefined 

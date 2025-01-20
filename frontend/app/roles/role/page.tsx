@@ -1,18 +1,15 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { setLaw, useOrgStore, useRoleStore } from "@/context/store";
-import { Button } from "@/components/Button";
-import { ArrowPathIcon, GiftIcon } from "@heroicons/react/24/outline";
+import {  useOrgStore, useRoleStore } from "@/context/store";
 import { useRouter } from "next/navigation";
-import { Law, Role, Status } from "@/context/types";
+import { Role, Status } from "@/context/types";
 import { parseRole } from "@/utils/parsers";
 import { publicClient } from "@/context/clients";
 import { separatedPowersAbi } from "@/context/abi";
 import { readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/context/wagmiConfig";
-import { setRole } from "@/context/store"
-import { Hex, Log, parseEventLogs, ParseEventLogsReturnType } from "viem"
+import { parseEventLogs, ParseEventLogsReturnType } from "viem"
 import { useChainId } from 'wagmi'
 import { supportedChains } from "@/context/chains";
 
@@ -32,8 +29,6 @@ export default function Page() {
   const [error, setError] = useState<any | null>(null)
   const [roleInfo, setRoleInfo ] = useState<Role[]>()
 
-  console.log("@role", {status, error, roleInfo})
-
   const getRolesSet = async () => {
       if (publicClient) {
         try {
@@ -47,16 +42,13 @@ export default function Page() {
               access: true
             },
           })
-          console.log("@role:", {logs})
           const fetchedLogs = parseEventLogs({
             abi: separatedPowersAbi,
             eventName: 'RoleSet',
             logs
           })
           const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
-          console.log("@role", {fetchedLogsTyped})
           const rolesSet: Role[] = fetchedLogsTyped.map(log => log.args as Role)
-          console.log("@role", {rolesSet})
           return rolesSet
         } catch (error) {
             setStatus("error") 
@@ -78,7 +70,6 @@ export default function Page() {
                 functionName: 'hasRoleSince', 
                 args: [role.account, role.roleId]
               })
-              console.log("@getRoleSince:" , {fetchedSince})
               rolesWithSince.push({...role, since: fetchedSince as number})
               }
               return rolesWithSince
@@ -106,7 +97,7 @@ export default function Page() {
     }, [])
 
   return (
-    <div className={`w-full overflow-hidden`}>
+    <main className={`w-full overflow-hidden`}>
       {/* table banner  */}
       <div className={`w-full flex flex-row gap-3 justify-between items-center bg-slate-50 slate-300 mt-2 py-4 px-6 border rounded-t-md ${roleColour[parseRole(BigInt(role.roleId))]} border-b-slate-300`}>
         <div className="text-slate-900 text-center font-bold text-lg">
@@ -140,7 +131,7 @@ export default function Page() {
         </tbody>
       </table>
       </div>
-    </div>
+    </main>
   );
 }
 

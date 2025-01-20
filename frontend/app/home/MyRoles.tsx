@@ -1,34 +1,15 @@
-import { Button } from "@/components/Button";
+"use client"
 
-import {useLawStore, useOrgStore, setLaw, useActionStore, setProposal} from "@/context/store";
-import { Law, Proposal } from "@/context/types";
-import { useProposal } from "@/hooks/useProposal";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { useEffect } from "react";
-import Link from "next/link";
+import { usePrivy } from "@privy-io/react-auth";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { parseRole } from "@/utils/parsers";
-
-const roleBgColour = [
-  "bg-blue-200",
-  "bg-red-200",
-  "bg-yellow-200",
-  "bg-purple-200",
-  "bg-green-200",
-  "bg-orange-200",
-  "bg-stone-200",
-  "bg-slate-200"
-]
 
 type MyRolesProps = {
   hasRoles: {role: bigint, since: bigint}[]
 }
 
 export function MyRoles({hasRoles}: MyRolesProps ) {
-  const organisation = useOrgStore();
-  const {wallets} = useWallets();
-  const {ready, authenticated, login, logout} = usePrivy();
+  const { authenticated } = usePrivy();
   const router = useRouter();
   const myRoles = hasRoles.filter(hasRole => hasRole.since != 0n)
 

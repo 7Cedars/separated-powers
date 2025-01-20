@@ -1,9 +1,7 @@
 "use client";
 
-import { setLaw, useActionStore, useLawStore, useOrgStore, useProposalStore } from "@/context/store";
+import { useActionStore, useOrgStore, useProposalStore } from "@/context/store";
 import { useLaw } from "@/hooks/useLaw";
-import { useProposal } from "@/hooks/useProposal";
-import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { useReadContract } from 'wagmi'
 import { separatedPowersAbi } from "@/context/abi";
@@ -34,8 +32,6 @@ export const Status: React.FC = () => {
     const proposal = checkProposalExists(description as string, calldata as `0x${string}`)
     setSelectedProposal(proposal)
   }, [])
-
-console.log({readContractStatus, proposalState})
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 

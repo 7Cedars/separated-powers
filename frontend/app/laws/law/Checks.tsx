@@ -1,9 +1,8 @@
 "use client";
 
-import { Button } from "@/components/Button";
 import { setLaw, useActionStore, useLawStore, useOrgStore } from "@/context/store";
 import { useLaw } from "@/hooks/useLaw";
-import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
 import { parseRole } from "@/utils/parsers";
 import { useRouter } from "next/navigation";
@@ -21,8 +20,6 @@ export const Checks: React.FC = () => {
   const action = useActionStore();
   const needCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needCompleted); 
   const needNotCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needNotCompleted); 
-
-  console.log({checks})
 
   useEffect(() => {
     fetchChecks("dummy string", "0x0")

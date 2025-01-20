@@ -1,12 +1,6 @@
-// This should become a single law page. Has the following 
-//   - should link to a LawLarge component / page. 
-//   - this page should have an additional navigation line (see tally.xyz for example.)
-//   - this page should have dynamic status bar on the right: showing checks. 
-//   - should have dynamic bar on right showing dependent laws.     
-
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {ProposalBox} from "./ProposalBox";
 import {Checks} from "./Checks"; 
 import {Status} from "./Status"; 

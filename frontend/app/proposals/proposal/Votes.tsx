@@ -2,11 +2,10 @@
 
 import { separatedPowersAbi } from "@/context/abi";
 import { parseVoteData } from "@/utils/parsers";
-import { setLaw, useActionStore, useLawStore, useOrgStore, useProposalStore } from "@/context/store";
+import { useActionStore, useOrgStore} from "@/context/store";
 import { Proposal } from "@/context/types";
 import { useLaw } from "@/hooks/useLaw";
-import { useProposal } from "@/hooks/useProposal";
-import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, XMarkIcon} from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { useReadContracts } from "wagmi";
 
@@ -45,8 +44,6 @@ export const Votes: React.FC = () => {
   const allVotes = votes.reduce((acc, current) => acc + current, init)
   const quorum = isSuccess ? Math.floor((parseVoteData(data).holders * 100) / Number(law.config.quorum)) : 0
   const threshold = isSuccess ? Math.floor((parseVoteData(data).holders * 100) / Number(law.config.succeedAt)) : 0
-
-  console.log("@Votes:", {action, selectedProposal, data, law, status})
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 

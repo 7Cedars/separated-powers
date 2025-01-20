@@ -1,32 +1,23 @@
 import { Button } from "@/components/Button";
 
-import {useLawStore, useOrgStore, setLaw, useActionStore, setProposal} from "@/context/store";
-import { Law, Proposal, Status } from "@/context/types";
-import { useProposal } from "@/hooks/useProposal";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { useOrgStore } from "@/context/store";
+import { Status } from "@/context/types";
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { publicClient } from "@/context/clients";
 import { separatedPowersAbi } from "@/context/abi";
 import { supportedChains } from "@/context/chains";
 import { Log, parseEventLogs, ParseEventLogsReturnType } from "viem";
 import { useChainId } from "wagmi";
-import { useRouter } from "next/navigation";
 
 export function Transactions() {
   const organisation = useOrgStore();
-  const {wallets} = useWallets();
-  const {ready, authenticated, login, logout} = usePrivy();
   const [status, setStatus] = useState<Status>();
   const [error, setError] = useState<any | null>(null);
   const [transactions, setTransactions] = useState<Log[]>([]); // for now, adapt later. 
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id === chainId)
-  const router = useRouter(); 
 
-  console.log("@Transactions: ", {transactions})
-  
   const fetchTransactions = useCallback(
     async () => {
       setError(null)

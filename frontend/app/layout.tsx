@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { ThemeProvider } from "@/context/Theme";
 import { Providers } from "../context/Providers"
-import { NavBars } from "../components/NavBars";
+import { Footer, NavBars } from "../components/NavBars";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="h-dvh w-screen flex justify-center items-start relative bg-slate-100 overflow-y-auto">
+      <body className="h-dvh w-screen flex flex-col justify-center items-start relative bg-slate-100 overflow-y-auto">
         <Providers>
           {/* <ThemeProvider> */}
             <NavBars > 
@@ -22,6 +22,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           {/* </ThemeProvider> */}
         </Providers>
       </body>
+      <Footer />
     </html>
   );
 }

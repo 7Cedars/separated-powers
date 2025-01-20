@@ -161,7 +161,6 @@ export const parseAttributes = (attributes: unknown): Attribute[]  => {
 export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataType): InputType => {
   // very basic parser. Here necessary input checks can be added later.  
   const errorMessage = 'Incorrect input data';
-  console.log("value @parseInput:", event.target.value)
   if ( !event.target.value && typeof event.target.value !== 'string' && typeof event.target.value !== 'number' && typeof event.target.value !== 'boolean' ) {
      throw new Error('@parseInput: Incorrect or missing data.');
   }
@@ -176,7 +175,6 @@ export const parseInput = (event: ChangeEvent<HTMLInputElement>, dataType: DataT
   }
 
   if (dataType.indexOf('bool') > -1) {
-    console.log("@parser: ", event.target.value)
     try {
       return event.target.value == 'true'
     } catch {

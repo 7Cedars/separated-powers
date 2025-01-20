@@ -1,8 +1,7 @@
 "use client";
  
 import React, { useCallback, useEffect, useState } from "react";
-import { useOrgStore, setLaw, useLawStore, deleteLaw  } from "../../context/store";
-import Link from "next/link";
+import { useOrgStore } from "../../context/store";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { LawList } from "@/app/laws/LawList";
 import { MyProposals } from "./MyProposals";
@@ -37,8 +36,6 @@ export default function Page() {
     const chainId = useChainId();
     const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
-    console.log("@Home", {status, error, hasRoles, description})
-
     const fetchMyRoles = useCallback(
       async (account: `0x${string}`, roles: bigint[]) => {
         let role: bigint; 
@@ -53,7 +50,6 @@ export default function Page() {
                 functionName: 'hasRoleSince', 
                 args: [account, role]
                 })
-              console.log("@getRoleSince:" , {fetchedSince})
               fetchedHasRole.push({role, since: fetchedSince as bigint})
               }
               setHasRoles(fetchedHasRole)
@@ -74,7 +70,6 @@ export default function Page() {
     const fetchMetaData = useCallback(
         async () => {
         setStatus("pending")
-        console.log("@fetchMetaData:" , "TRIGGERED")
 
         if (organisation.contractAddress) {
           const uri = await readContract(wagmiConfig, {
@@ -82,16 +77,13 @@ export default function Page() {
             address: organisation.contractAddress,
             functionName: 'uri'
           })
-          console.log("@fetchMetaData:" , {uri})
 
         if (uri) {
           try {
             const fetchedMetadata: unknown = await(
               await fetch(uri as string)
               ).json()
-              console.log("@fetchMetaData:" , {fetchedMetadata})
               const metadata = parseMetadata(fetchedMetadata)
-              console.log("@fetchMetaData:" , {metadata})
               setDescription(metadata.description)
             } catch (error) {
             setStatus("error") 

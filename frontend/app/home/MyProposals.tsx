@@ -1,11 +1,8 @@
-import { Button } from "@/components/Button";
-
-import {useLawStore, useOrgStore, setLaw, useActionStore, setProposal} from "@/context/store";
-import { Law, Proposal } from "@/context/types";
+import { useOrgStore, setProposal} from "@/context/store";
+import { Proposal } from "@/context/types";
 import { useProposal } from "@/hooks/useProposal";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useEffect } from "react";
-import Link from "next/link";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 
@@ -20,13 +17,10 @@ type MyProposalProps = {
 
 export function MyProposals({hasRoles}: MyProposalProps ) {
   const organisation = useOrgStore();
-  const {status, error, law, proposals: proposalsWithState, fetchProposals, propose, cancel, castVote} = useProposal();
-  const {wallets} = useWallets();
-  const {ready, authenticated, login, logout} = usePrivy();
+  const { proposals: proposalsWithState, fetchProposals } = useProposal();
+  const { authenticated } = usePrivy();
   const router = useRouter();
   const myRoles = hasRoles.filter(hasRole => hasRole.role > 0).map(hasRole => hasRole.role)
-
-  console.log("@myProposal: ", {myRoles})
 
   useEffect(() => {
     if (organisation) {
@@ -39,7 +33,7 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
       <button
         onClick={() => 
           { 
-            console.log("clicked") // here have to set deselectedRoles
+             // here have to set deselectedRoles
             router.push('/proposals')
           }
         } 

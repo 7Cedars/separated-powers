@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { parseInput } from "@/utils/parsers";
 import { DataType, InputType } from "@/context/types";
 import { 
@@ -8,7 +8,6 @@ import {
  PlusIcon
 } from '@heroicons/react/24/outline';
 import {notUpToDate} from "@/context/store"
-import { InputHTMLAttributes } from "react";
 
 type InputProps = {
   dataType: DataType;
@@ -20,10 +19,6 @@ export function DynamicInput({dataType, onChange}: InputProps) {
   const [inputArray, setInputArray] = useState<InputType[]>(new Array<InputType>(1))
   const [itemsArray, setItemsArray] = useState<number[]>([0])
   const [error, setError] = useState<String>()
-  const [test, setTest] = useState<Number>(0)
-
-  console.log("@DynamicInput", {error})
-  console.log("@DynamicInput", {inputArray})
 
   const inputType = 
     dataType.indexOf('uint') > -1 ? "number"
@@ -39,18 +34,15 @@ export function DynamicInput({dataType, onChange}: InputProps) {
 
   const handleChange=({event, item}: {event:ChangeEvent<HTMLInputElement>, item: number}) => {
     const currentInput = parseInput(event, dataType)
-    console.log("@DynamicInput parsed test output of @parseInput:", currentInput)
     if (currentInput == 'Incorrect input data') {
       setError(currentInput) 
     } else if(typeof onChange === 'function'){
       let currentArray = inputArray
       if (array) {  
-        console.log("@DynamicInput @handleChange array triggered")
         currentArray[item] = currentInput
         setInputArray(currentArray)
         onChange(inputArray)
       } else {
-        console.log("@DynamicInput @handleChange non-array triggered")
         currentArray[0] =  currentInput
         setInputArray(currentArray)
         onChange(inputArray[0])
@@ -63,7 +55,6 @@ export function DynamicInput({dataType, onChange}: InputProps) {
     event.preventDefault() 
 
     if (expand) {
-      console.log("@handleResizeArray: expand triggered")
       const newItemsArray = [...Array(itemsArray.length + 1).keys()]
       let newInputArray = new Array<InputType>(newItemsArray.length) 
       // currentInput = [...inputArray] 
