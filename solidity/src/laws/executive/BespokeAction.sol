@@ -50,7 +50,7 @@ contract BespokeAction is Law {
         _targetContract = targetContract_;
         _targetFunction = targetFunction_;
         for (uint256 i = 0; i < params_.length; i++) {
-            inputParams[i] = dataType(params_[i]);
+            inputParams[i] = _dataType(params_[i]);
         }
     }
 

@@ -46,7 +46,7 @@ contract ProposalOnly is Law {
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         /// £todo: this should actually be a separate function 'encodeParams' with a revert if more than 8 params are entered.
         for (uint256 i = 0; i < params_.length; i++) {
-            inputParams[i] = dataType(params_[i]);
+            inputParams[i] = _dataType(params_[i]);
         }
     }
 

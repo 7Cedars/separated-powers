@@ -64,7 +64,7 @@ contract TokensSelect is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-        stateVars[0] = dataType("address[]");
+        stateVars[0] = _dataType("address[]");
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)

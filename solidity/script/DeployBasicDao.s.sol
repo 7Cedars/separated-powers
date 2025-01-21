@@ -57,58 +57,7 @@ contract DeployBasicDao is Script {
         ILaw.LawConfig memory lawConfig;
 
         //////////////////////////////////////////////////////////////
-        //              CHAPTER 1: ELECT ROLES                      //
-        //////////////////////////////////////////////////////////////
-
-        vm.startBroadcast();
-        law = new NominateMe(
-            "Nominate self for role 2", // max 31 chars
-            "Anyone can nominate themselves for role 2.",
-            dao_,
-            type(uint32).max, // access role = public access
-            lawConfig
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-
-        vm.startBroadcast();
-        lawConfig.throttleExecution = 500; 
-        law = new DelegateSelect(
-            "Call role 2 election", // max 31 chars
-            "Anyone can call (and pay for) an election to assign accounts to role 2. Address can be added to revoke roles. The nominated accounts with most delegated vote tokens will be assigned to role 2. The law can only be called once every 500 blocks.",
-            dao_, // separated powers protocol.
-            type(uint32).max, // public access
-            lawConfig, //  config file.
-            mock20_, // the tokens that will be used as votes in the election.
-            laws[0], // nominateMe
-            3, // maximum amount of delegates
-            2 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-        delete lawConfig;
-
-        // setup
-        lawConfig.quorum = 20; // = Only 20% quorum needed
-        lawConfig.succeedAt = 66; // = but at least 2/3 majority needed for assigning and revoking members.
-        lawConfig.votingPeriod = 1200; // = number of blocks
-        // initiate law
-        vm.startBroadcast();
-        law = new PeerSelect(
-            "(De)select account for role 1", // max 31 chars
-            "Propose to (de)select an account for role 1.",
-            dao_,
-            1, // access role
-            lawConfig,
-            15, // max amount of seniors
-            2 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        laws.push(address(law)); // log address
-        delete lawConfig; // reset lawConfig before next usage.
-
-        //////////////////////////////////////////////////////////////
-        //              CHAPTER 2: EXECUTIVE ACTIONS                //
+        //              CHAPTER 1: EXECUTIVE ACTIONS                //
         //////////////////////////////////////////////////////////////
 
         // setting input params.
@@ -150,9 +99,9 @@ contract DeployBasicDao is Script {
         lawConfig.quorum = 51; // = 51 majority of seniors need to vote.
         lawConfig.succeedAt = 66; // =  two/thirds majority FOR vote needed to pass.
         lawConfig.votingPeriod = 50_400; // = duration in number of blocks to vote, about one week.
-        lawConfig.needCompleted = laws[3]; // needs the proposal by Delegates to be completed.
+        lawConfig.needCompleted = laws[0]; // needs the proposal by Delegates to be completed.
         lawConfig.delayExecution = 25_200; // = duration in number of blocks (= half a week).
-        lawConfig.needNotCompleted = laws[4]; // needs the admin NOT to have cast a veto.
+        lawConfig.needNotCompleted = laws[1]; // needs the admin NOT to have cast a veto.
         // initiate law
         vm.startBroadcast();
         law = new OpenAction(
@@ -196,5 +145,56 @@ contract DeployBasicDao is Script {
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
+
+         //////////////////////////////////////////////////////////////
+        //              CHAPTER 2: ELECT ROLES                      //
+        //////////////////////////////////////////////////////////////
+
+        vm.startBroadcast();
+        law = new NominateMe(
+            "Nominate self for role 2", // max 31 chars
+            "Anyone can nominate themselves for role 2.",
+            dao_,
+            type(uint32).max, // access role = public access
+            lawConfig
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        vm.startBroadcast();
+        lawConfig.throttleExecution = 500; 
+        law = new DelegateSelect(
+            "Call role 2 election", // max 31 chars
+            "Anyone can call (and pay for) an election to assign accounts to role 2. Address can be added to revoke roles. The nominated accounts with most delegated vote tokens will be assigned to role 2. The law can only be called once every 500 blocks.",
+            dao_, // separated powers protocol.
+            type(uint32).max, // public access
+            lawConfig, //  config file.
+            mock20_, // the tokens that will be used as votes in the election.
+            laws[4], // nominateMe
+            3, // maximum amount of delegates
+            2 // role id to be assigned
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        // setup
+        lawConfig.quorum = 20; // = Only 20% quorum needed
+        lawConfig.succeedAt = 66; // = but at least 2/3 majority needed for assigning and revoking members.
+        lawConfig.votingPeriod = 1200; // = number of blocks
+        // initiate law
+        vm.startBroadcast();
+        law = new PeerSelect(
+            "(De)select account for role 1", // max 31 chars
+            "Propose to (de)select an account for role 1.",
+            dao_,
+            1, // access role
+            lawConfig,
+            15, // max amount of seniors
+            2 // role id to be assigned
+        );
+        vm.stopBroadcast();
+        laws.push(address(law)); // log address
+        delete lawConfig; // reset lawConfig before next usage.
     }
 }

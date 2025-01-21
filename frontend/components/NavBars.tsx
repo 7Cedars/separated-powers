@@ -291,11 +291,13 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
         {/* <Footer /> */}
       </div>
       : 
-        <div className="w-full h-full grid grid-cols-1 overflow-y-scroll">
+        <div className="flex flex-col items-center justify-start items-start w-full h-full">
           <Header /> 
-          <main className="grow max-w-screen-lg max-h-screen h-fit grid grid-cols-1 py-16 px-2 justify-items-center overflow-y-auto border border-red-500">
+          <main className="grow max-w-screen-lg h-fit w-full flex flex-col gap-3 py-16 px-2 justify-center overflow-y-scroll border border-red-500">
             {props.children}
+            
           </main>
+          <div className = "w-full min-h-60 bg-blue-500"/> 
           <NavigationSmallScreen /> 
         </div>
       }

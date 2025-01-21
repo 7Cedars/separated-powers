@@ -53,7 +53,128 @@ contract DeployAlignedGrants is Script {
         ILaw.LawConfig memory lawConfig;
 
         //////////////////////////////////////////////////////////////
-        //              CHAPTER 1: ELECT ROLES                      //
+        //              CHAPTER 1: EXECUTIVE ACTIONS                //
+        //////////////////////////////////////////////////////////////
+        // setting up config file
+        lawConfig.quorum = 60; // = 60% quorum needed
+        lawConfig.succeedAt = 50; // = Simple majority vote needed.
+        lawConfig.votingPeriod = 1200; // = number of blocks
+        // setting up params
+        uint8[] memory inputParams = new uint8[](1);
+        inputParams[0] = "ShortString";
+        // initiating law.
+        vm.startBroadcast();
+        law = new ProposalOnly(
+                "Propose a value",
+                "Propose a new value to be added to the Dao. Subject to a vote and cannot be implemented.",
+                dao_,
+                1, // access role
+                lawConfig,
+                inputParams // input parameters
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        // setting up config file
+        delete lawConfig;
+        lawConfig.quorum = 30; // = 30% quorum needed
+        lawConfig.succeedAt = 66; // =  two/thirds majority needed for
+        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.needCompleted = laws[4];
+        // initiating law.
+        vm.startBroadcast();
+        law = new BespokeAction(
+                "Accept a value",
+                "Accept a proposed value and implement a new value that was proposed.",
+                dao_, // separated powers
+                2, // access role
+                lawConfig,
+                // bespoke configs for this law:
+                dao_, // target contract
+                AlignedGrants.addCoreValue.selector, // function selector
+                params // input parameters, same as law4.
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        // setting up config file
+        delete lawConfig;
+        lawConfig.quorum = 80; // = 80% quorum needed
+        lawConfig.succeedAt = 66; // =  two/thirds majority needed for
+        lawConfig.votingPeriod = 1200; // = number of blocks
+        // initiating law
+        vm.startBroadcast();
+        law = new RevokeRole(
+                "Whales -> revoke member", // max 31 chars
+                "Subject to a vote, whales can revoke a member's role",
+                dao_,
+                AlignedGrants(dao_).WHALE_ROLE(), // access role
+                lawConfig,
+                // bespoke configs for this law:
+                AlignedGrants(dao_).MEMBER_ROLE() // 3 // AlignedGrants.MEMBER_ROLE(): the roleId to be revoked.
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        // setting up config file
+        delete lawConfig;
+        lawConfig.needCompleted = laws[6]; // NB! £todo all the law references need to be changed!
+        // input params
+        inputParams[0] = uint8(uint256(keccak256("address"));
+        // initiating law
+        vm.startBroadcast();
+        law = new ProposalOnly(
+                "Member challenge role revoke",
+                "A members that had their role revoked can challenge this decision",
+                dao_,
+                AlignedGrants(dao_).MEMBER_ROLE(), // access role
+                lawConfig,
+                // bespoke configs for this law:
+                params
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        // setting up config file
+        delete lawConfig;
+        lawConfig.quorum = 20; // = 20% quorum needed
+        lawConfig.succeedAt = 67; // =  two/thirds majority needed for
+        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.needCompleted = laws[7]; // NB! £todo all the law references need to be changed!
+        //initiating law
+        vm.startBroadcast();
+        law = new ReinstateRole(
+                "Reinstate member",
+                "seniors can reinstated a member after it logged a challenge. This is done through a vote.",
+                dao_,
+                AlignedGrants(dao_).SENIOR_ROLE(), // access role
+                lawConfig,
+                // bespoke configs for this law:
+                AlignedGrants(dao_).MEMBER_ROLE()
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        delete lawConfig;
+        vm.startBroadcast();
+        law = new RequestPayment(
+                "Members request payment",
+                "Members can request a payment of 5_000 tokens every 30 days.",
+                dao_,
+                AlignedGrants(dao_).MEMBER_ROLE(), // access role
+                lawConfig, //  config
+                // bespoke configs for this law:
+                mock1155_, // token address.
+                0, // token id
+                5_000, // number of tokens
+                216_000 // number of blocks = 30 days
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+
+        //////////////////////////////////////////////////////////////
+        //              CHAPTER 2: ELECT ROLES                      //
         //////////////////////////////////////////////////////////////
 
         vm.startBroadcast();
@@ -88,7 +209,7 @@ contract DeployAlignedGrants is Script {
             9, // oracle role id designation. 
             lawConfig, //  config file.
             mock20_, // the tokens that will be used as votes in the election.
-            laws[1], // nominateMe
+            laws[xxx], // nominateMe // 
             5, // maximum amount of delegates
             2 // role id to be assigned
         );
@@ -96,17 +217,21 @@ contract DeployAlignedGrants is Script {
         laws.push(address(law));
         delete lawConfig;
 
+        
+        // setting config.
+        lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
+        lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
+        lawConfig.votingPeriod = 7200; // = duration in number of blocks to vote, about one day.
+        // 
         vm.startBroadcast();
-        law = new DelegateSelect(
-            "Call role 2 election", // max 31 chars
-            "An election is called by an oracle, as set by the admin. The nominated accounts with most delegated vote tokens are then assigned to role 2.",
+        law = new PeerSelect(
+            "Assign Role 3", // max 31 chars
+            "Role 3 are assigned by their peers through a majority vote.",
             dao_, // separated powers protocol.
-            9, // oracle role id designation. 
+            3, // role 3 id designation. 
             lawConfig, //  config file.
-            mock20_, // the tokens that will be used as votes in the election.
-            laws[1], // nominateMe
-            5, // maximum amount of delegates
-            2 // role id to be assigned
+            3, // maximum elected to role
+            3 // role id to be assigned
         );
         vm.stopBroadcast();
         laws.push(address(law));
@@ -125,98 +250,9 @@ contract DeployAlignedGrants is Script {
         laws.push(address(law));
         delete lawConfig;
 }
-//     address[] laws;
-//     uint32[] constituentRoles;
-//     address[] constituentAccounts;
 
-//     function run() external {
-//         HelperConfig helperConfig = new HelperConfig();
-//         HelperConfig.NetworkConfig memory config = helperConfig.getConfigByChainId(block.chainid);
 
-//         // deploy dao.
-//         vm.startBroadcast();
-//         AlignedGrants alignedGrants = new SeparatedPowers("Aligned Grants DAO");
-//         vm.stopBroadcast();
 
-//         // initiate constitution & get founders' roles list
-//         initiateConstitution(payable(address(alignedGrants)), payable(config.erc1155Mock));
-//         getFounders(payable(address(alignedGrants)));
-
-//         // constitute dao.
-//         vm.startBroadcast();
-//         alignedGrants.constitute(laws);
-//         vm.stopBroadcast();
-//     }
-
-//     function initiateConstitution(address payable dao_, address payable mock1155_) public {
-//         Law law;
-//         ILaw.LawConfig memory lawConfig;
-
-//         //////////////////////////////////////////////////////////////
-//         //              CHAPTER 1: ELECT ROLES                      //
-//         //////////////////////////////////////////////////////////////
-
-//         vm.startBroadcast();
-//         law = new DirectSelect(
-//                 "Anyone can become member", // max 31 chars
-//                 "Anyone can apply for a member role in the Aligned Grants Dao",
-//                 dao_,
-//                 type(uint32).max, // access role
-//                 lawConfig, //  config file.
-//                 // bespoke configs for this law:
-//                 AlignedGrants(dao_).MEMBER_ROLE()
-//             );
-//         vm.stopBroadcast();
-//         laws.push(address(law));
-
-//         vm.startBroadcast();
-//         law = new NominateMe(
-//                 "Nominees for WHALE_ROLE", // max 31 chars
-//                 "Anyone can nominate themselves for a role WHALE_ROLE",
-//                 dao_,
-//                 type(uint32).max, // access role
-//                 lawConfig
-//             );
-//         vm.stopBroadcast();
-//         laws.push(address(law));
-
-//         vm.startBroadcast();
-//         law = new TokensSelect(
-//                 "Members select WHALE_ROLE", // max 31 chars
-//                 "Members can call (and pay for) a whale election at any time. The nominated accounts with most tokens will be assigned the role.",
-//                 dao_,
-//                 AlignedGrants(dao_).MEMBER_ROLE(), // access role
-//                 lawConfig, //  config file.
-//                 // bespoke configs:
-//                 mock1155_,
-//                 laws[1],
-//                 15,
-//                 AlignedGrants(dao_).WHALE_ROLE() // 2 // AlignedGrants.WHALE_ROLE()
-//             );
-//         vm.stopBroadcast();
-//         laws.push(address(law));
-
-//         // setting up config file
-//         lawConfig.quorum = 30; // = 30% quorum needed
-//         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
-//         lawConfig.votingPeriod = 1200; // = number of blocks
-//         // initiating law.
-//         vm.startBroadcast();
-//         law = new DirectSelect(
-//                 "Seniors elect seniors", // max 31 chars
-//                 "Seniors can propose and vote to (de)select an account for the SENIOR_ROLE.",
-//                 dao_,
-//                 AlignedGrants(dao_).SENIOR_ROLE(), // access role
-//                 lawConfig,
-//                 // bespoke configs for this law:
-//                 AlignedGrants(dao_).SENIOR_ROLE() // 1 // AlignedGrants.SENIOR_ROLE()
-//             );
-//         vm.stopBroadcast();
-//         laws.push(address(law));
-
-//         //////////////////////////////////////////////////////////////
-//         //              CHAPTER 2: EXECUTIVE ACTIONS                //
-//         //////////////////////////////////////////////////////////////
 
 //         // setting up config file
 //         delete lawConfig;

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="h-dvh w-screen flex flex-col justify-center items-start relative bg-slate-100 overflow-y-auto">
+      <body className="h-dvh w-screen flex flex-col justify-start items-start relative bg-slate-100 overflow-hidden">
         <Providers>
           {/* <ThemeProvider> */}
             <NavBars > 
@@ -22,7 +22,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           {/* </ThemeProvider> */}
         </Providers>
       </body>
-      <Footer />
     </html>
   );
 }

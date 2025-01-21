@@ -14,7 +14,6 @@ import { Button } from "../components/Button";
 import { useOrganisations } from "@/hooks/useOrganisations";
 import { colourScheme } from "@/context/Theme"
 import Image from 'next/image'
-import { Footer } from "@/components/NavBars";
 
 const useCases = [
     {
@@ -196,8 +195,6 @@ export default function Page() {
                     </div> 
                 </section>
             </section>
-
-            <Footer /> 
         </main>
     )
 }

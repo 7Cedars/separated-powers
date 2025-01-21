@@ -19,17 +19,27 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
 
-contract BlacklistAccount is Law {
-    error BlacklistAccount__AlreadyBlacklisted();
-    error BlacklistAccount__NotBlacklisted();
+contract TokenArray is Law {
+    // the state vars that this law manages: community tokens.
 
-    // the state vars that this law manages: blacklisted accounts.
-    mapping(address => bool) public blacklistedAccounts; // description of short strings. have to be shorter than 31 characters.
+    enum TokenType {
+        Erc20,
+        Erc721,
+        Erc1155
+    }
 
-    event BlacklistAccount__Added(address account);
-    event BlacklistAccount__Removed(address account);
+    struct Token {
+        address tokenAddress;
+        TokenType tokenType;
+    }
+    string[] public tokens; 
+    uint256 public numberOfTokens;
+
+    error TokenArray__TokenNotFound(); 
+
+    event TokenArray__TokenAdded(string str);
+    event TokenArray__TokenRemoved(string str);
 
     constructor(
         string memory name_,
@@ -38,10 +48,13 @@ contract BlacklistAccount is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = dataType("address");
-        inputParams[1] = dataType("bool");
-        stateVars[0] = dataType("address");
-        stateVars[1] = dataType("bool");
+        inputParams[0] = _dataType("address");
+        inputParams[1] = _dataType("uint256");
+        inputParams[2] = _dataType("bool");
+
+        stateVars[0] = _dataType("address");
+        stateVars[1] = _dataType("uint256");
+        stateVars[2] = _dataType("bool");
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
@@ -49,33 +62,37 @@ contract BlacklistAccount is Law {
         override
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal, bytes memory stateChange)
     {
-        // retrieve the account that was revoked
-        (address account, bool blacklist) = abi.decode(lawCalldata, (address, bool));  
-
-        if (blacklist && blacklistedAccounts[account]) {
-            revert BlacklistAccount__AlreadyBlacklisted();
-        } else if (!blacklist && !blacklistedAccounts[account]) {
-            revert BlacklistAccount__NotBlacklisted();
-        }
-
-        // step 2: return data
+        // step 1: return data
         tar = new address[](1);
         val = new uint256[](1);
         cal = new bytes[](1);
-
         tar[0] = address(1); // signals that separatedPowers should not execute anything else.
+
         return (tar, val, cal, lawCalldata);
     }
 
     function _changeStateVariables(bytes memory stateChange) internal override {
-        (address account, bool blacklist) = abi.decode(stateChange, (address, bool));
+        (address tokenAddress, TokenType tokenType, bool add) = abi.decode(stateChange, (string, TokenType, bool)); // don't know if this is going to work...
 
-        if (blacklist) {
-            blacklistedAccounts[account] = true;
-            emit BlacklistAccount__Added(account);
+        if (add) {
+            tokens.push(Token({tokenAddress: tokenAddress, tokenType: tokenType}));
+            numberOfTokens++;
+            emit TokenArray__TokenAdded(str);
+
         } else {
-            blacklistedAccounts[account] = false;
-            emit BlacklistAccount__Removed(account);
+            for (uint256 index; index < numberOfTokens; index++) {
+                if (keccak256(bytes(tokens[index])) == tokenAddress) {
+                    tokens[index].tokenAddress = tokens[numberOfTokens - 1];
+                    tokens.pop();
+                    numberOfTokens--;
+                    break;
+                }
+
+                if (index == numberOfTokens - 1) {
+                    revert  TokenArray__TokenNotFound();
+                }
+            }
+            emit TokenArray__TokenRemoved(str);
         }
     }
 }

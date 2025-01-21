@@ -217,7 +217,7 @@ contract Law is ERC165, ILaw {
     }
 
     /// @notice an internal helper function for hashing data types
-    function dataType(string memory param) internal pure returns (bytes4) {
+    function _dataType(string memory param) internal pure returns (bytes4) {
         return bytes4(keccak256(bytes(param)));
     }
 }

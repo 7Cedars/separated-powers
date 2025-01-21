@@ -46,9 +46,9 @@ contract OpenAction is Law {
         // inputParams[0] = "address[]";
         // inputParams[1] = "uint256[]";
         // inputParams[2] = "bytes[]"; 
-        inputParams[0] = dataType("address[]");
-        inputParams[1] = dataType("uint256[]");
-        inputParams[2] = dataType("bytes[]");
+        inputParams[0] = _dataType("address[]");
+        inputParams[1] = _dataType("uint256[]");
+        inputParams[2] = _dataType("bytes[]");
     }
 
     /// @notice Execute the open action.

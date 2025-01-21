@@ -20,15 +20,15 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 
-contract CommunityValues is Law {
-    error CommunityValues__ValueNotFound();
+contract StringsArray is Law {
+    // the state vars that this law manages: community strings.
+    string[] public strings; 
+    uint256 public numberOfStrings;
 
-    // the state vars that this law manages: community values.
-    string[] public values; // array of strings: values
-    uint256 public numberOfValues;
+    error StringsArray__StringNotFound(); 
 
-    event CommunityValues__Added(string value);
-    event CommunityValues__Removed(string value);
+    event StringsArray__StringAdded(string str);
+    event StringsArray__StringRemoved(string str);
 
     constructor(
         string memory name_,
@@ -37,10 +37,10 @@ contract CommunityValues is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = dataType("string");
-        inputParams[1] = dataType("bool");
-        stateVars[0] = dataType("string");
-        stateVars[1] = dataType("bool");
+        inputParams[0] = _dataType("string");
+        inputParams[1] = _dataType("bool");
+        stateVars[0] = _dataType("string");
+        stateVars[1] = _dataType("bool");
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
@@ -58,27 +58,27 @@ contract CommunityValues is Law {
     }
 
     function _changeStateVariables(bytes memory stateChange) internal override {
-        (string memory value, bool addValue) = abi.decode(stateChange, (string, bool)); // don't know if this is going to work...
+        (string memory str, bool add) = abi.decode(stateChange, (string, bool)); // don't know if this is going to work...
 
-        if (addValue) {
-            values.push(value);
-            numberOfValues++;
+        if (add) {
+            strings.push(str);
+            numberOfStrings++;
+            emit StringsArray__StringAdded(str);
 
-            emit CommunityValues__Added(value);
         } else {
-            for (uint256 index; index < numberOfValues; index++) {
-                if (keccak256(bytes(values[index])) == keccak256(bytes(value))) {
-                    values[index] = values[numberOfValues - 1];
-                    values.pop();
-                    numberOfValues--;
+            for (uint256 index; index < numberOfStrings; index++) {
+                if (keccak256(bytes(strings[index])) == keccak256(bytes(str))) {
+                    strings[index] = strings[numberOfStrings - 1];
+                    strings.pop();
+                    numberOfStrings--;
                     break;
                 }
 
-                if (index == numberOfValues - 1) {
-                    revert CommunityValues__ValueNotFound();
+                if (index == numberOfStrings - 1) {
+                    revert  StringsArray__StringNotFound();
                 }
             }
-            emit CommunityValues__Removed(value);
+            emit StringsArray__StringRemoved(str);
         }
     }
 }

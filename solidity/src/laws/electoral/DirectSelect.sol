@@ -45,8 +45,8 @@ contract DirectSelect is Law {
         uint32 roleId_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         ROLE_ID = roleId_;
-        inputParams[0] = dataType("bool");
-        inputParams[0] = dataType("address");
+        inputParams[0] = _dataType("bool");
+        inputParams[0] = _dataType("address");
     }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
