@@ -19,7 +19,7 @@ contract DeployTest is TestSetupLaw {
     ILaw.LawConfig lawConfig;
 
     function testDeploy() public {
-        Law lawMock = new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
+        Law lawMock = new Law("Mock Law", "This is a mock law contract", payable(address(123)), ROLE_ONE, lawConfig);
 
         string memory lawMockName = lawMock.name().toString();
         string memory lawMockDescription = lawMock.description();
@@ -31,15 +31,15 @@ contract DeployTest is TestSetupLaw {
 
     function testDeployEmitsEvent() public {
         vm.expectEmit(false, false, false, false);
-        emit Law__Initialized(address(0), address(123), "Mock Law", "This is a mock law contract", ROLE_ONE, lawConfig);
-        new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
+        emit Law__Initialized(address(0), payable(address(123)), "Mock Law", "This is a mock law contract", ROLE_ONE, lawConfig);
+        new Law("Mock Law", "This is a mock law contract", payable(address(123)), ROLE_ONE, lawConfig);
     }
 
     function testLawReturnsEmptyValue() public {
         bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint.
         string memory description = "Executing a proposal vote";
 
-        Law lawMock = new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
+        Law lawMock = new Law("Mock Law", "This is a mock law contract", payable(address(123)), ROLE_ONE, lawConfig);
 
         vm.prank(address(123));
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
@@ -55,7 +55,7 @@ contract DeployTest is TestSetupLaw {
         string memory description = "Executing a proposal vote";
         address separatedPowers = address(123);
 
-        Law lawMock = new Law("Mock Law", "This is a mock law contract", separatedPowers, ROLE_ONE, lawConfig);
+        Law lawMock = new Law("Mock Law", "This is a mock law contract", payable(separatedPowers), ROLE_ONE, lawConfig);
 
         vm.prank(address(1)); // =! separatedPowers
         vm.expectRevert(Law__OnlySeparatedPowers.selector);
@@ -67,7 +67,7 @@ contract DeployTest is TestSetupLaw {
         string memory description = "Executing a proposal vote";
         address separatedPowers = address(123);
 
-        Law lawMock = new OpenAction("Mock Law", "This is a mock law contract", separatedPowers, ROLE_ONE, lawConfig);
+        Law lawMock = new OpenAction("Mock Law", "This is a mock law contract", payable(separatedPowers), ROLE_ONE, lawConfig);
 
         lawMock.inputParams(0); 
 

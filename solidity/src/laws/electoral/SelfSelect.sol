@@ -39,7 +39,7 @@ contract SelfSelect is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address separatedPowers_,
+        address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         uint32 roleId_

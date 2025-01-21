@@ -33,18 +33,18 @@ contract TokenArray is Law {
         address tokenAddress;
         TokenType tokenType;
     }
-    string[] public tokens; 
+    Token[] public tokens; 
     uint256 public numberOfTokens;
 
     error TokenArray__TokenNotFound(); 
 
-    event TokenArray__TokenAdded(string str);
-    event TokenArray__TokenRemoved(string str);
+    event TokenArray__TokenAdded(address indexed tokenAddress, TokenType tokenType);
+    event TokenArray__TokenRemoved(address indexed tokenAddress, TokenType tokenType);
 
     constructor(
         string memory name_,
         string memory description_,
-        address separatedPowers_,
+        address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
@@ -72,17 +72,17 @@ contract TokenArray is Law {
     }
 
     function _changeStateVariables(bytes memory stateChange) internal override {
-        (address tokenAddress, TokenType tokenType, bool add) = abi.decode(stateChange, (string, TokenType, bool)); // don't know if this is going to work...
+        (address tokenAddress, TokenType tokenType, bool add) = abi.decode(stateChange, (address, TokenType, bool)); // don't know if this is going to work...
 
         if (add) {
             tokens.push(Token({tokenAddress: tokenAddress, tokenType: tokenType}));
             numberOfTokens++;
-            emit TokenArray__TokenAdded(str);
+            emit TokenArray__TokenAdded(tokenAddress, tokenType);
 
         } else {
             for (uint256 index; index < numberOfTokens; index++) {
-                if (keccak256(bytes(tokens[index])) == tokenAddress) {
-                    tokens[index].tokenAddress = tokens[numberOfTokens - 1];
+                if (tokens[index].tokenAddress == tokenAddress) {
+                    tokens[index] = tokens[numberOfTokens - 1];
                     tokens.pop();
                     numberOfTokens--;
                     break;
@@ -92,7 +92,7 @@ contract TokenArray is Law {
                     revert  TokenArray__TokenNotFound();
                 }
             }
-            emit TokenArray__TokenRemoved(str);
+            emit TokenArray__TokenRemoved(tokenAddress, tokenType);
         }
     }
 }

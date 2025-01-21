@@ -20,12 +20,7 @@ import { ProposalOnly } from "../../src/laws/executive/ProposalOnly.sol";
 import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 import { PresetAction } from "../../src/laws/executive/PresetAction.sol";
 import { BespokeAction } from "../../src/laws/executive/BespokeAction.sol";
-// bespoke laws.
-import { BlacklistAccount } from "../../src/laws/bespoke/BlacklistAccount.sol";
-import { CommunityValues } from "../../src/laws/bespoke/CommunityValues.sol";
-import { LawWithBlacklistCheck } from "../../src/laws/bespoke/LawWithBlacklistCheck.sol";
-import { RequestPayment } from "../../src/laws/bespoke/RequestPayment.sol";
-
+ 
 contract ConstitutionsMock is Test {
     //////////////////////////////////////////////////////////////
     //                  FIRST CONSTITUTION                      //
@@ -441,47 +436,6 @@ contract ConstitutionsMock is Test {
         );
         laws[8] = address(law);
 
-        law = new BlacklistAccount(
-            "Blacklist account", // max 31 chars
-            "Blacklist an account.",
-            dao_,
-            1, // access role
-            lawConfig
-        );
-        laws[9] = address(law);
-
-        law = new CommunityValues(
-            "Community values", // max 31 chars
-            "Save and delete community values.",
-            dao_,
-            1, // access role
-            lawConfig
-        );
-        laws[10] = address(law);
-
-        law = new LawWithBlacklistCheck(
-            "Law with Blacklist", // max 31 chars
-            "A law that has a blacklist check added to the normal checks.",
-            dao_,
-            1, // access role
-            lawConfig,
-            laws[9]
-        );
-        laws[11] = address(law);
-
-        law = new RequestPayment(
-            "Request Payment", // max 31 chars
-            "Have members request payment every week.",
-            dao_,
-            1, // access role
-            lawConfig,
-            mock1155_, // address erc1155Contract_,
-            0, // uint256 tokenId_,
-            300, // uint256 amount_,
-            200 // uint48 personalDelay_
-        );
-        laws[12] = address(law);
-
         // get calldata
         (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
         // set config
@@ -502,7 +456,7 @@ contract ConstitutionsMock is Test {
             calldatasRoles
         );
         vm.stopBroadcast();
-        laws[13] = address(law);
+        laws[9] = address(law);
         delete lawConfig; // reset lawConfig
     }
 

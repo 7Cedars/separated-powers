@@ -18,12 +18,11 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
-import { Addresses } from "../state/Addresses.sol";
 
 abstract contract SelfDestruct is Law {
     /// @notice execute the law.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
-    function simulateLaw(address, initiator bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         view
         virtual
@@ -33,9 +32,9 @@ abstract contract SelfDestruct is Law {
       (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange) = super.simulateLaw(initiator, lawCalldata, descriptionHash);
 
       // creating new arrays 
-      targetsNew = new address[](targets.length + 1);
-      valuesNew = new uint256[](values.length + 1);
-      calldatasNew = new bytes[](calldatas.length + 1);
+      address[] memory targetsNew = new address[](targets.length + 1);
+      uint256[] memory valuesNew = new uint256[](values.length + 1);
+      bytes[] memory calldatasNew = new bytes[](calldatas.length + 1);
       
       // pasting in old arrays -- don't know if this works. We'll see through tests. 
       targetsNew = targets;

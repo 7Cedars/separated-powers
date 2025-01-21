@@ -39,7 +39,7 @@ contract DirectSelect is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address separatedPowers_,
+        address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         uint32 roleId_
@@ -56,7 +56,7 @@ contract DirectSelect is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // step 1: decode the calldata.
-        (bool revoke, address account) = abi.decode(lawCalldata, (bool));
+        (bool revoke, address account) = abi.decode(lawCalldata, (bool, address));
 
         // step 2: create & send return calldata conditional if it is an assign or revoke action.
         targets = new address[](1);

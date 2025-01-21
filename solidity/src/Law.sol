@@ -51,7 +51,7 @@ contract Law is ERC165, ILaw {
     // required parameters
     uint32 public allowedRole;
     ShortString public immutable name; // name of the law
-    address public separatedPowers; // the address of the core governance protocol
+    address payable public separatedPowers; // the address of the core governance protocol
     string public description; // description of the law
     bytes4[8] public inputParams; // hashes of data types needed for the lawCalldata. Saved as bytes4, encoded through the {DataType} function
     bytes4[8] public stateVars; // hashes of data types needed for setting state variables. Saved as bytes4, encoded through the {DataType} function
@@ -69,7 +69,7 @@ contract Law is ERC165, ILaw {
     constructor(
         string memory name_,
         string memory description_,
-        address separatedPowers_,
+        address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_
     ) {

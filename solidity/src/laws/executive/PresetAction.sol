@@ -41,7 +41,7 @@ contract PresetAction is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address separatedPowers_,
+        address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address[] memory targets_,

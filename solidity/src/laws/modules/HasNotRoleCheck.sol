@@ -25,7 +25,7 @@ abstract contract HasNotRoleCheck is Law {
     error HasNotRoleCheck__DoesHaveRole(); 
 
     function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal override {
-        (uint32 [] memory roles) = hasNotRoles()
+        (uint32[] memory roles) = hasNotRoles();
 
         for (uint32 i = 0; i < roles.length; i++) {
           uint48 since = SeparatedPowers(separatedPowers).hasRoleSince(initiator, roles[i]);
@@ -38,6 +38,6 @@ abstract contract HasNotRoleCheck is Law {
     }
 
     function hasNotRoles() internal view virtual returns (uint32[] memory) {
-        return [];
+        return new uint32[](0);
     }
 }

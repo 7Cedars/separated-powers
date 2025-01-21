@@ -24,7 +24,6 @@ contract AddressesMapping is Law {
     error AddressesMapping__AlreadyTrue();
     error AddressesMapping__AlreadyFalse();
 
-    // the state vars that this law manages: blacklisted accounts.
     mapping(address => bool) public addresses; //
 
     event AddressesMapping__Added(address account);
@@ -33,7 +32,7 @@ contract AddressesMapping is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address separatedPowers_,
+        address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
@@ -73,7 +72,7 @@ contract AddressesMapping is Law {
             addresses[account] = true;
             emit AddressesMapping__Added(account);
         } else {
-            blacklistedAccounts[account] = false;
+            addresses[account] = false;
             emit AddressesMapping__Removed(account);
         }
     }

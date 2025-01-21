@@ -213,7 +213,7 @@
 //             address(daoMock),
 //             1,
 //             lawConfig,
-//             address(123), // address erc1155Contract_,
+//             payable(address(123)), // address erc1155Contract_,
 //             0, // uint256 tokenId_,
 //             0, // uint256 amount_, // = zero amount
 //             200 // uint48 personalDelay_
