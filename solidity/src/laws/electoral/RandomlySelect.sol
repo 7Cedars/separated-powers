@@ -66,6 +66,7 @@ contract RandomlySelect is Law {
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public view
         override
+        virtual
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // setting up array for revoking & assigning roles.
@@ -96,7 +97,7 @@ contract RandomlySelect is Law {
                 calldatas[i + numberRevokees] =
                     abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
                 accountElects[i] = accountElect;
-            }
+            } 
         } else {
             uint256 pseudoRandomValue = uint256(keccak256(abi.encodePacked(block.number, descriptionHash)));
             // note: this is very inefficient, but I cannot add a getter function in NominateMe - so have to retrieve addresses one by one..

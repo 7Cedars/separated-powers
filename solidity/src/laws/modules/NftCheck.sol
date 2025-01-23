@@ -23,15 +23,15 @@ abstract contract NftCheck is Law {
     error Erc721Check__DoesNotOwnToken(); 
 
     /// @notice overrides the default simulateLaw function.
-    function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal override {
-        bool hasToken = ERC721(nftAddress()).balanceOf(initiator) > 0;
+    function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal virtual override {
+        bool hasToken = ERC721(_nftCheckAddress()).balanceOf(initiator) > 0;
         if (!hasToken) {
             revert Erc721Check__DoesNotOwnToken();
         }
         super._executeChecks(initiator, lawCalldata, descriptionHash);
     }
 
-    function nftAddress() internal view virtual returns (address) {
+    function _nftCheckAddress() internal view virtual returns (address) {
         return address(0);
     }
 }

@@ -28,4 +28,5 @@ contract Erc1155Mock is ERC1155 {
 
         _mint(msg.sender, COIN_ID, amount, "");
     }
+
 }

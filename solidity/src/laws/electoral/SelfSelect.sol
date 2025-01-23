@@ -52,6 +52,7 @@ contract SelfSelect is Law {
         public
         view 
         override
+        virtual 
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // step 1: decode the calldata.

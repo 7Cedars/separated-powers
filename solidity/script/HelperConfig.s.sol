@@ -6,13 +6,15 @@ import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
 import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";  
 
 contract HelperConfig is Script {
     error HelperConfig__InvalidChainId();
 
     struct NetworkConfig {
-        address erc1155Mock;
         address erc20VotesMock;
+        address erc721Mock;
+        address erc1155Mock;
         uint256 blocksPerHour; // a basic way of establishing time. As long as block times are fairly stable on a chain, this will work.
         address[] testAccounts; // an array of accounts that can be used in testing. This way you can take existing accounts (+ their balances) and use them in forked tests.
     }
@@ -55,24 +57,18 @@ contract HelperConfig is Script {
     }
 
     function getEthSepoliaConfig() public returns (NetworkConfig memory) {
-        networkConfig.erc1155Mock = address(0);
-        networkConfig.erc20VotesMock = address(0);
         networkConfig.blocksPerHour = 300;
 
         return networkConfig;
     }
 
     function getOptSepoliaConfig() public returns (NetworkConfig memory) {
-        networkConfig.erc1155Mock = address(0);
-        networkConfig.erc20VotesMock = address(0);
         networkConfig.blocksPerHour = 300;
 
         return networkConfig;
     }
 
     function getBaseSepoliaConfig() public returns (NetworkConfig memory) {
-        networkConfig.erc1155Mock = address(0);
-        networkConfig.erc20VotesMock = address(0);
         networkConfig.blocksPerHour = 300;
 
         return networkConfig;
@@ -85,12 +81,14 @@ contract HelperConfig is Script {
         }
         // if anvil is not deployed, deploy and save addresses.
         vm.startBroadcast();
-        ERC1155 erc1155Mock = new Erc1155Mock();
         ERC20Votes erc20VotesMock = new Erc20VotesMock();
+        Erc721Mock erc721Mock = new Erc721Mock();
+        Erc1155Mock erc1155Mock = new Erc1155Mock();
         vm.stopBroadcast();
 
-        networkConfig.erc1155Mock = address(erc1155Mock);
         networkConfig.erc20VotesMock = address(erc20VotesMock);
+        networkConfig.erc721Mock = address(erc721Mock);
+        networkConfig.erc1155Mock = address(erc1155Mock);
         networkConfig.blocksPerHour = 3600;
 
         address[] memory community = new address[](10);

@@ -22,12 +22,11 @@ import { SeparatedPowers } from "../../SeparatedPowers.sol";
 abstract contract ThrottlePerAccount is Law {
     error ThrottlePerAccount__DelayNotPassed(); 
 
-    uint48 public delay;
     address private initiatorSaved;
     mapping(address initiator => uint48 blockNumber) public lastTransaction;
 
     function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal override {
-        if (uint48(block.number) - lastTransaction[initiator] < delay) {
+        if (uint48(block.number) - lastTransaction[initiator] < _delay()) {
             revert ThrottlePerAccount__DelayNotPassed();
         }
         initiatorSaved = initiator;
@@ -39,5 +38,9 @@ abstract contract ThrottlePerAccount is Law {
         lastTransaction[initiatorSaved] = uint48(block.number);
 
         super._changeStateVariables(stateChange);
+    }
+
+    function _delay() internal view virtual returns (uint48) {
+        return 0; 
     }
 }

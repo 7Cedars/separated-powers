@@ -54,6 +54,7 @@ contract NominateMe is Law {
         public
         view 
         override
+        virtual
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // decode the calldata.

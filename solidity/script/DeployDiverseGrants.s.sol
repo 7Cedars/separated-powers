@@ -31,7 +31,7 @@ import {
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
 
-contract DeployAlignedGrants is Script {
+contract DeployDiverseGrants is Script {
   address[] laws;
 
     function run()
@@ -74,14 +74,15 @@ contract DeployAlignedGrants is Script {
         lawConfig.succeedAt = 50; // = Simple majority vote needed.
         lawConfig.votingPeriod = 1200; // = number of blocks
         // setting up params
-        string[] memory inputParams = new string[](2);
-        inputParams[0] = "string";
-        inputParams[1] = "bool";
+        string[] memory inputParams = new string[](3);
+        inputParams[0] = "address"; // grantee 
+        inputParams[1] = "address"; // grant Law address 
+        inputParams[2] = "uint256"; // amount 
         // initiating law.
         vm.startBroadcast();
         law = new ProposalOnly(
-                "Propose to add / remove value",
-                "Propose to add a new core value to or remove an existing from the Dao. Subject to a vote and cannot be implemented.",
+                "Make a grant proposal.",
+                "Any community member can make a grant proposal that will be voted on by community members. It has to specify the grant council it is aimed at. Input [0] = council no. input[1] = address to input[2] = tokenAddress input[3] = tokenId input[4] = amount",
                 dao_,
                 1, // access role
                 lawConfig,
@@ -92,15 +93,32 @@ contract DeployAlignedGrants is Script {
         delete lawConfig;
 
         // laws[1]
-        lawConfig.quorum = 30; // = 30% quorum needed
+        lawConfig.quorum = 80; // = 80% quorum needed
         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
         lawConfig.votingPeriod = 1200; // = number of blocks
-        lawConfig.needCompleted = laws[0];
+        // initiating law
+        vm.startBroadcast();
+        law = new AllocateResources(
+                "Revoke membership", // max 31 chars
+                "Subject to a vote, a member's role can be revoked and their access token burned.",
+                dao_, // separated powers
+                3, // access role
+                lawConfig, // bespoke configs for this law. 
+                mock721_ // the Erc721 token address. 
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        // laws[xxx] -- to be completed! 
+        lawConfig.quorum = 80; // = 30% quorum needed
+        lawConfig.succeedAt = 80; // =  two/thirds majority needed for
+        lawConfig.votingPeriod = 120; // = number of blocks
         // initiating law.
         vm.startBroadcast();
-        law = new StringsArray(
-                "Add and Remove values",
-                "Accept & implement a proposed decision to add or remove a value from the Dao.",
+        law = new PresetAction(
+                "Stop grant councils",
+                "The security Council can stop all grant councils.",
                 dao_, // separated powers
                 2, // access role
                 lawConfig // bespoke configs for this law
@@ -109,19 +127,18 @@ contract DeployAlignedGrants is Script {
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[2]
-        lawConfig.quorum = 80; // = 80% quorum needed
-        lawConfig.succeedAt = 66; // =  two/thirds majority needed for
+        // laws[xxx] -- to be completed! 
+        lawConfig.quorum = 50; // = 30% quorum needed
+        lawConfig.succeedAt = 51; // =  two/thirds majority needed for
         lawConfig.votingPeriod = 1200; // = number of blocks
-        // initiating law
+        // initiating law.
         vm.startBroadcast();
-        law = new RevokeMembership(
-                "Revoke membership", // max 31 chars
-                "Subject to a vote, a member's role can be revoked and their access token burned.",
+        law = new PresetAction(
+                "Restart grant councils",
+                "The security Council can restart all grant councils.",
                 dao_, // separated powers
-                3, // access role
-                lawConfig, // bespoke configs for this law. 
-                mock721_ // the Erc721 token address. 
+                2, // access role
+                lawConfig // bespoke configs for this law
             );
         vm.stopBroadcast();
         laws.push(address(law));

@@ -54,6 +54,7 @@ contract PeerSelect is Law {
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public view
         override
+        virtual
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         (uint256 index, bool revoke) = abi.decode(lawCalldata, (uint256, bool));

@@ -16,13 +16,12 @@
 /// 
 pragma solidity 0.8.26;
 
-import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Law } from "../../Law.sol";
 import { AddressesMapping } from "../state/AddressesMapping.sol";
 
 abstract contract BlacklistCheck is Law {
     /// @notice overrides the default simulateLaw function.
-
     error BlacklistCheck__Blacklisted(); 
 
     function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal override {
