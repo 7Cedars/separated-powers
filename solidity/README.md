@@ -83,7 +83,7 @@ Contracts have not been verified, but can be interacted with through [our bespok
 │    └── openZeppelin-contracts                 # openZeppelin contracts  
 |
 ├── script                                      # Deployment scripts  
-│    └── DeployAlignedGrants.s.sol              # Deploys the AgDao example implementation of SeparatedPowers. Also deploys laws that make up AgDao's governance. 
+│    └── DeployAlignedDao.s.sol              # Deploys the AgDao example implementation of SeparatedPowers. Also deploys laws that make up AgDao's governance. 
 |
 ├── src                                         # Protocol resources
 │    ├── implementations                        # AgDao example resources.

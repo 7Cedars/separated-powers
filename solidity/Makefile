@@ -42,7 +42,7 @@ OPT_SEPOLIA_DEPLOY_ARGS := --rpc-url $(OPT_SEPOLIA_RPC_URL) --account dev_2 --se
 anvilTest :; forge test $(ANVIL_ARGS_0)
 arbSepoliaForkedTest :; forge test ${ARB_SEPOLIA_TEST_ARGS}
 
-anvilDeployAg :; forge script script/DeployAlignedGrants.s.sol:DeployAlignedGrants $(ANVIL_ARGS_0)
+anvilDeployAg :; forge script script/DeployAlignedDao.s.sol:DeployAlignedDao $(ANVIL_ARGS_0)
 anvilDeployBasic :; forge script script/DeployBasicDao.s.sol:DeployBasicDao $(ANVIL_ARGS_0)
 anvilDeployMocks :; forge script script/DeployMocks.s.sol:DeployMocks $(ANVIL_ARGS_0)
 
@@ -50,4 +50,4 @@ arbSepoliaDeployBasic :; forge script script/DeployBasicDao.s.sol:DeployBasicDao
 arbSepoliaDeployMocks :; forge script script/DeployMocks.s.sol:DeployMocks $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaVerifyContract :; forge verify-contract --verifier etherscan --chain-id 421614 --etherscan-api-key $(ARBISCAN_API_KEY) --verifier-url https://api-sepolia.arbiscan.io/api 0x9478aB247F91EAcbcaA1D120d5e35240d294AcA9 src/laws/electoral/NominateMe.sol:NominateMe --watch
 
-optSepoliaDeploy :; forge script script/DeployAlignedGrants.s.sol:DeployAlignedGrants $(OPT_SEPOLIA_DEPLOY_ARGS)
+optSepoliaDeploy :; forge script script/DeployAlignedDao.s.sol:DeployAlignedDao $(OPT_SEPOLIA_DEPLOY_ARGS)

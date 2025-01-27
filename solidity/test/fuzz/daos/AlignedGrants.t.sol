@@ -9,7 +9,7 @@
 // import { ILaw } from "../../src/interfaces/ILaw.sol";
 
 // import { DeployMocks } from "../../script/DeployMocks.s.sol";
-// // import { DeployAlignedGrants } from "../../script/DeployAlignedGrants.s.sol";
+// // import { DeployAlignedDao } from "../../script/DeployAlignedDao.s.sol";
 // import { Erc1155Mock } from "../../test/mocks/Erc1155Mock.sol";
 // import { Erc20VotesMock } from "../../test/mocks/Erc20VotesMock.sol";
 

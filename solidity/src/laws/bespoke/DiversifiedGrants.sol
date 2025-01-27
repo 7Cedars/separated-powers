@@ -16,18 +16,26 @@
 
 pragma solidity 0.8.26;
 
+// protocol
 import { Law } from "../../Law.sol";
-import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
+
+// mocks 
+import { Erc721Mock } from "../../../test/mocks/Erc721Mock.sol";
+import { Erc1155Mock } from "../../../test/mocks/Erc1155Mock.sol";
+
+// laws 
+import { PresetAction } from "../executive/PresetAction.sol";
+import { SelfDestruct } from "../modules/SelfDestruct.sol";
 import { ThrottlePerAccount } from "../modules/ThrottlePerAccount.sol";
 import { NftCheck } from "../modules/NftCheck.sol";
 import { SelfSelect } from "../electoral/SelfSelect.sol";
+
+// open zeppelin contracts
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import { Erc721Mock } from "../../../test/mocks/Erc721Mock.sol";
-import { Erc1155Mock } from "../../../test/mocks/Erc1155Mock.sol";
-import { Create2 } from "lib/openzeppelin-contracts/contracts/utils/Create2.sol";
+import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 // possible to add more types later on. 
 enum TokenType {
@@ -122,7 +130,7 @@ contract Grant is Law {
 
 contract StartGrant is Law {
     error StartGrant__GrantAddressAlreadyExists();
-    error Grant__RequestAmountExceedsAvailableFunds();
+    error StartGrant__RequestAmountExceedsAvailableFunds();
 
     LawConfig public configNewGrants; // config for new grants. 
     
@@ -131,7 +139,8 @@ contract StartGrant is Law {
         string memory description_,
         address payable separatedPowers_,
         uint32 allowedRole_,
-        LawConfig memory config_ // this is the configuration for creating new grants, not of the grants themselves. 
+        LawConfig memory config_, // this is the configuration for creating new grants, not of the grants themselves. 
+        address proposals // the address where proposals should be made to proposals. 
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams[0] = _dataType("string"); // name
         inputParams[1] = _dataType("string"); // description
@@ -146,6 +155,7 @@ contract StartGrant is Law {
         configNewGrants.quorum = 80; 
         configNewGrants.succeedAt = 66; 
         configNewGrants.votingPeriod = 1200; 
+        configNewGrants.needCompleted = proposals; 
       }
    
     /// @notice execute the law.
@@ -235,8 +245,8 @@ contract StartGrant is Law {
         uint256 tokenType,
         uint256 tokenId,
         uint32 allowedRole
-        ) public view returns (address) {
-            Create2.computeAddress(bytes32(keccak256(abi.encodePacked(name, description))), keccak256(abi.encodePacked(
+        ) internal view returns (address) {
+            address grantAddress = Create2.computeAddress(bytes32(keccak256(abi.encodePacked(name, description))), keccak256(abi.encodePacked(
                 type(Grant).creationCode,
                 abi.encode(
                     // standard params
@@ -253,21 +263,9 @@ contract StartGrant is Law {
                     tokenId
                 )
             )));
+
+            return grantAddress;
         }
-    
-
-        //     string memory name_,
-        // string memory description_,
-        // address payable separatedPowers_,
-        // uint32 allowedRole_,
-        // LawConfig memory config_,
-
-        // uint48 duration_, 
-        // uint256 budget_,
-        // address tokenAddress_, 
-        // TokenType tokenType_,
-        // uint256 tokenId_ // only used with erc1155 funded grants
-
 
     function _deployGrant(
         string memory name, 
@@ -278,7 +276,7 @@ contract StartGrant is Law {
         uint256 tokenType,
         uint256 tokenId,
         uint32 allowedRole
-        ) internal returns (address grantAddress) {
+        ) internal {
             Grant newGrant = new Grant{salt: bytes32(keccak256(abi.encodePacked(name, description)))}(
                 // standard params
                 name,
@@ -293,8 +291,6 @@ contract StartGrant is Law {
                 TokenType(tokenType),
                 tokenId
             );
-
-        return address(newGrant);
     }
 }
 
@@ -340,3 +336,61 @@ contract stopGrant is Law {
         return (targets, values, calldatas, stateChange); 
     }
 }
+
+contract selfDestructPresetAction is PresetAction, SelfDestruct {
+    constructor(
+        string memory name_,
+        string memory description_,
+        address payable separatedPowers_,
+        uint32 allowedRole_,
+        LawConfig memory config_,
+        address[] memory targets_,
+        uint256[] memory values_,
+        bytes[] memory calldatas_
+    ) PresetAction(
+        name_, description_, separatedPowers_, allowedRole_, config_, targets_, values_, calldatas_
+    ) SelfDestruct() { }
+
+    function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+        public view
+        override (PresetAction, SelfDestruct)
+        virtual
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
+    {
+        return super.simulateLaw(initiator, lawCalldata, descriptionHash);
+    }
+}
+
+contract NftSelfSelect is SelfSelect, NftCheck {
+    address public erc721Token;
+    
+    constructor(
+        string memory name_,
+        string memory description_,
+        address payable separatedPowers_,
+        uint32 allowedRole_,
+        LawConfig memory config_,
+        uint32 roleId_, 
+        address erc721Token_
+    ) SelfSelect(name_, description_, separatedPowers_, allowedRole_, config_, roleId_) {
+        erc721Token = erc721Token_;
+    }
+
+    function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+        public view
+        override (Law, SelfSelect)
+        virtual
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
+    {
+        return super.simulateLaw(initiator, lawCalldata, descriptionHash);
+    }
+
+    function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal override (Law, NftCheck) {
+        super._executeChecks(initiator, lawCalldata, descriptionHash);
+    }
+
+    function _nftCheckAddress() internal view override returns (address) {
+        return erc721Token;
+    }
+
+} 

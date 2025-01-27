@@ -31,7 +31,7 @@ import {
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
 
-contract DeployAlignedGrants is Script {
+contract DeployAlignedDao is Script {
   address[] laws;
 
     function run()
