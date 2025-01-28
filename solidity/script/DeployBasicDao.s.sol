@@ -178,6 +178,17 @@ contract DeployBasicDao is Script {
         laws.push(address(law));
         delete lawConfig;
 
+        vm.startBroadcast();
+        law = new NominateMe(
+            "Nominate self for role 1", // max 31 chars
+            "Anyone can nominate themselves for role 1.",
+            dao_,
+            type(uint32).max, // access role = public access
+            lawConfig
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
         // setup
         lawConfig.quorum = 20; // = Only 20% quorum needed
         lawConfig.succeedAt = 66; // = but at least 2/3 majority needed for assigning and revoking members.
@@ -191,6 +202,7 @@ contract DeployBasicDao is Script {
             1, // access role
             lawConfig,
             15, // max amount of seniors
+            laws[6], // nominateMe
             2 // role id to be assigned
         );
         vm.stopBroadcast();

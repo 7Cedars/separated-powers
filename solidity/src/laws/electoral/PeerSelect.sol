@@ -42,10 +42,12 @@ contract PeerSelect is Law {
         uint32 allowedRole_,
         LawConfig memory config_,
         uint256 maxRoleHolders_,
+        address nominees_,
         uint32 roleId_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
+        NOMINEES = nominees_;
         string[] memory paramArray = new string[](2);
         inputParams[0] = _dataType("uint256");
         inputParams[1] = _dataType("bool");
@@ -72,9 +74,22 @@ contract PeerSelect is Law {
           if (_electedSorted.length >= MAX_ROLE_HOLDERS) {
             revert PeerSelect__MaxRoleHoldersReached();
           }
-            calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _electedSorted[index]);
+          address accountElect = NominateMe(NOMINEES).nomineesSorted(index);
+          calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
         }
 
-        return (targets, values, calldatas, '0x0');
+        return (targets, values, calldatas, lawCalldata);
+    }
+
+    function _changeStateVariables(bytes memory stateChange) internal override {
+        (uint256 index, bool revoke) = abi.decode(stateChange, (uint256, bool));
+
+        if (revoke) {
+            _electedSorted[index] = _electedSorted[_electedSorted.length - 1];
+            _electedSorted.pop();
+        } else {
+            address accountElect = NominateMe(NOMINEES).nomineesSorted(index);
+            _electedSorted.push(accountElect);
+        }
     }
 }

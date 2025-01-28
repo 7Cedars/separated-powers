@@ -18,14 +18,13 @@ import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
 import { BespokeAction } from "../src/laws/executive/BespokeAction.sol";
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
-
 import { 
-    Grant,
-    StartGrant, 
-    stopGrant, 
-    selfDestructPresetAction, 
-    NftSelfSelect
-    } from "../src/laws/bespoke/DiversifiedGrants.sol";
+    Members, 
+    RoleByKyc, 
+    DeployRoleByKyc, 
+    AiAgents, 
+    DeployBespokeAction
+    } from "../src/laws/bespoke/DiversifiedRoles.sol";
 // config   
 import { HelperConfig } from "./HelperConfig.s.sol";
 
@@ -67,23 +66,40 @@ contract DeployDiverseRoles is Script {
         //////////////////////////////////////////////////////////////
         //              CHAPTER 1: EXECUTIVE ACTIONS                //
         //////////////////////////////////////////////////////////////
-        // laws[0]
-        lawConfig.quorum = 60; // = 60% quorum needed
-        lawConfig.succeedAt = 50; // = Simple majority vote needed.
-        lawConfig.votingPeriod = 1200; // = number of blocks
-        // setting up params
-        string[] memory inputParams = new string[](3);
-        inputParams[0] = "address"; // grantee 
-        inputParams[1] = "address"; // grant Law address 
-        inputParams[2] = "uint256"; // amount 
+        // laws[0] 
+        // add or remove KYC data to address. (public in this case, just for testing purposes. 
         // initiating law.
         vm.startBroadcast();
-        // Note: the grant has its token pre specified.  
-        law = new ProposalOnly(
-                "Make a proposal to a grant.",
-                "Make a grant proposal that will be voted on by community members. It has to specify the grant address in the proposal. Input [0] = grantee address to transfer to. input[1] = grant address to transfer from.  input[2] =  quantity to transfer of token.",
+        law = new Members(
+                "Add KYC data to an account.",
+                "Add Know Your Customer (KYC) data to an account. This law is accessible for any one, for testing purposes only.",
                 dao_,
-                1, // access role
+                type(uint32).max, // access role = public. 
+                lawConfig 
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        // laws[1]
+        // propose new role filter. (Role 2) 
+        lawConfig.quorum = 70; // = 60% quorum needed
+        lawConfig.succeedAt = 60; // = Simple majority vote needed.
+        lawConfig.votingPeriod = 1200; // = number of blocks
+        // setting up params
+        string[] memory inputParams = new string[](6); // same as DeployRoleByKyc inputParams
+        inputParams[0] = "string"; // name
+        inputParams[1] = "string"; // description
+        inputParams[2] = "uint16[]"; // nationalities
+        inputParams[3] = "uint16[]"; // countries of residence
+        inputParams[4] = "int64"; // olderThan
+        inputParams[5] = "int64"; // youngerThan
+        // initiating law.
+        vm.startBroadcast();
+        law = new ProposalOnly(
+                "Propose to create role filter.",
+                "Make a proposal to create a role filter based on Know Your Customer (KYC) data to assign a specific role to a subsection of community members. Input [0] = grantee address to transfer to. Inputs: 0 = name; 1: description; 2: nationalities to select (IBAN code); 3: Country of Residence to select (IBAN code); 4: older than (in seconds); 5: younger than (in seconds);     ",
+                dao_,
+                2, // access role
                 lawConfig,
                 inputParams // input parameters
             );
@@ -91,91 +107,137 @@ contract DeployDiverseRoles is Script {
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[1]
-        lawConfig.quorum = 80; // = 80% quorum needed
-        lawConfig.succeedAt = 66; // =  two/thirds majority needed for
+        // laws[2]
+        // ok & implement new role self Select filter (Role 1) 
+        lawConfig.quorum = 5; // = 5% quorum needed
+        lawConfig.succeedAt = 51; // = Simple majority vote needed.
         lawConfig.votingPeriod = 1200; // = number of blocks
-        // initiating law
         vm.startBroadcast();
-        law = new StartGrant(
-                "Create a grant", // max 31 chars
-                "Subject to a vote, a grant can be created. The token, budget and duration are pre-specified, as well as the role Id that will govern the grant.",
-                dao_, // separated powers
+        law = new DeployRoleByKyc(
+                "Accept role filter.",
+                "Accept and implement a role filter based on Know Your Customer (KYC) data to assign a specific role to a subsection of community members. Input [0] = grantee address to transfer to. Inputs: 0 = name; 1: description; 2: nationalities to select (IBAN code); 3: Country of Residence to select (IBAN code); 4: older than (in seconds); 5: younger than (in seconds);     ",
+                dao_,
+                1, // access role
+                lawConfig,
+                laws[0]
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        // laws[3]
+        // propose new AiAgent (Role 2) 
+        lawConfig.quorum = 60; // = 60% quorum needed
+        lawConfig.succeedAt = 51; // = Simple majority vote needed.
+        lawConfig.votingPeriod = 1200; // = number of blocks
+        // setting up params
+        inputParams = new string[](4); // same as AiAgents inputParams
+        inputParams[0] = "string";  // name
+        inputParams[1] = "address"; // account
+        inputParams[2] = "string";  // uri
+        inputParams[3] = "bool";   // add
+        // initiating law.
+        vm.startBroadcast();
+        law = new ProposalOnly(
+                "Propose to add AI Agent.",
+                "Make a proposal to add an AI agent to the DAO. Inputs: 0 = name agent; 1: account of AI agent; 2: uri; 3: add? (false = remove entry)",
+                dao_,
                 2, // access role
-                lawConfig, // bespoke configs for this law. 
-                laws[0] // law from where proposals need to be made. 
+                lawConfig,
+                inputParams // input parameters
             );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[2] 
-        lawConfig.quorum = 40; // = 40% quorum needed
-        lawConfig.succeedAt = 80; // =  80 majority needed 
-        lawConfig.votingPeriod = 120; // = number of blocks for vote. 
-        // input params
-        inputParams = new string[](1);
-        inputParams[0] = "address"; 
-        // initiating law.
-        vm.startBroadcast();
-        law = new BespokeAction(
-                "Stop law",
-                "The security Council can stop any law.",
-                dao_, // separated powers
-                3, // access role
-                lawConfig, // bespoke configs for this law
-                dao_,
-                SeparatedPowers.revokeLaw.selector, 
-                inputParams 
-            );
-        vm.stopBroadcast();
-        laws.push(address(law));
-        delete lawConfig;
-
-        // laws[3] 
-        lawConfig.quorum = 50; // = 50% quorum needed
-        lawConfig.succeedAt = 66; // =  two/thirds majority needed for
+        // laws[4]
+        // ok & implement new AiAgent (Role 1) 
+        lawConfig.quorum = 5; // = 5% quorum needed
+        lawConfig.succeedAt = 51; // = Simple majority vote needed.
         lawConfig.votingPeriod = 1200; // = number of blocks
-        lawConfig.needCompleted = laws[2]; // NB! first a law needs to be stopped before it can be restarted! 
-        // This does mean that the reason given needs to be the same as when the law was stopped.  
-        // initiating law.
         vm.startBroadcast();
-        law = new BespokeAction(
-                "Restart law",
-                "The security Council can restart a law.",
-                dao_, // separated powers
-                3, // access role
-                lawConfig, // bespoke configs for this law
+        law = new AiAgents(
+                "Accept and add AI Agent.",
+                "Accept and add an AI agent to the DAO.",
                 dao_,
-                SeparatedPowers.adoptLaw.selector, 
-                inputParams // note: same inputParams as laws [2]
+                1, // access role
+                lawConfig
             );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
+
+        // laws[5]
+        // propose new bespoke action (Role 2)
+        lawConfig.quorum = 60; // = 60% quorum needed
+        lawConfig.succeedAt = 51; // = Simple majority vote needed.
+        lawConfig.votingPeriod = 1200; // = number of blocks
+        // setting up params
+        inputParams = new string[](6); // same as AiAgents inputParams
+        inputParams[0] = "string"; // name
+        inputParams[1] = "string"; // description
+        inputParams[2] = "uint32"; // allowedRole
+        inputParams[3] = "address"; // target contract
+        inputParams[4] = "bytes4"; // target function 
+        inputParams[5] = "string[]"; // params
+        // initiating law.
+        vm.startBroadcast();
+        law = new ProposalOnly(
+                "Propose new Bespoke Action.",
+                "Propose to deploy a new, role restricted, bespoke action. Inputs: 0 = name; 1: description; 2: allowed Role; 3: target contract; 4: target function; 5: input parameters.",
+                dao_,
+                2, // access role
+                lawConfig,
+                inputParams // input parameters
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        // laws [6]
+        // ok & implement new role restricted bespoke action (Admin)
+        vm.startBroadcast();
+        law = new DeployBespokeAction(
+                "Deploy bespoke action.",
+                "Accept and deploy bespoke action.",
+                dao_,
+                0, // access role = Admin. 
+                lawConfig
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
 
         //////////////////////////////////////////////////////////////
         //              CHAPTER 2: ELECT ROLES                      //
         //////////////////////////////////////////////////////////////
-        // laws[4]
-        vm.startBroadcast();
-        law = new NftSelfSelect(
-            "Elect self for role 1", // max 31 chars
-            "Anyone who has a mock Erc721 token can (de)select themselves for role 1. See the treasury page for the contract where to mint one.",
-            dao_,
-            type(uint32).max, // access role = public access
-            lawConfig,
-            1, // role id
-            mock721_
-        );
-        vm.stopBroadcast();
-        laws.push(address(law)); 
 
-        // laws[5]
+        // laws[7] 
+        // self select Role 1 (checks if age has been filled out, but accepts everyone.)
+        vm.startBroadcast();
+        law = new RoleByKyc(
+                "Claim community role.",
+                "Claim community role.",
+                dao_,
+                type(uint32).max, // access role = public. 
+                lawConfig, 
+                //// self select
+                1, // uint32 roleId_
+                //// filter 
+                new uint16[](0), // memory nationalities,
+                new uint16[](0), // uint16[] memory countryOfResidences, 
+                1, // int64 olderThan, // in seconds, set to minimum
+                type(int64).max, // int64 youngerThan // in seconds, set to maximum. 
+                laws[0] // address members
+            );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        // laws[8]
+        // NominateMe for Role 2 (allowedRole = Role 1)
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for role 2", // max 31 chars
-            "Anyone can nominate themselves for role 2.",
+            "Community members can nominate themselves for role 2.",
             dao_,
             type(uint32).max, // access role = public access
             lawConfig
@@ -183,150 +245,23 @@ contract DeployDiverseRoles is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[6]
-        vm.startBroadcast();
-        law = new DelegateSelect(
-            "Call role 2 election", // max 31 chars
-            "An election is called by an oracle, as set by the admin. The nominated accounts with most delegated vote tokens are then assigned to role 2.",
-            dao_, // separated powers protocol.
-            9, // oracle role id designation. 
-            lawConfig, //  config file.
-            mock20_, // the tokens that will be used as votes in the election.
-            laws[7], // nominateMe // 
-            10, // maximum amount of delegates
-            2 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-
-        // laws[7]: security council: peer select. - role 3 
-        lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
-        lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
-        lawConfig.votingPeriod = 7200; // = duration in number of blocks to vote, about one day.
-        // 
+        // laws[9]
+        // peer select Role 2 (allowedRole = Role 1)
         vm.startBroadcast();
         law = new PeerSelect(
-            "Assign Role 3", // max 31 chars
-            "Role 3 are assigned by their peers through a majority vote.",
-            dao_, // separated powers protocol.
-            3, // role 3 id designation. 
-            lawConfig, //  config file.
-            3, // maximum elected to role
-            3 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-        delete lawConfig;
-
-        // laws[8]: selfDestructPresetAction: assign initial accounts to security council. 
-        address[] memory targets = new address[](3);
-        uint256[] memory values = new uint256[](3);
-        bytes[] memory calldatas = new bytes[](3);
-        for (uint256 i = 0; i < targets.length; i++) {
-            targets[i] = dao_;
-        }
-        calldatas[0] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
-        calldatas[1] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
-        calldatas[2] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
-        vm.startBroadcast();
-        law = new selfDestructPresetAction( 
-            "Set initial roles 3", // max 31 chars
-            "The admin selects initial accounts for role 3. The law self destructs when executed.",
-            dao_, // separated powers protocol.
-            0, // admin. 
-            lawConfig, //  config file.
-            targets,
-            values, 
-            calldatas
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-        delete lawConfig;
-
-        // laws[9]: elect and revoke members to grant council A -- governance council votes.
-        lawConfig.quorum = 70; // = 70% quorum needed
-        lawConfig.succeedAt = 51; // =  simple majority sufficient
-        lawConfig.votingPeriod = 1200; // = number of blocks
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Elect and revoke role 4", // max 31 chars
-            "Elect and revoke members for role 4 (Grant council A)",
-            dao_, // separated powers protocol.
-            2, // governors. 
-            lawConfig, //  config file.
-            4 // role id to be assigned
-        );
-        vm.stopBroadcast();
-
-        // laws[10]: elect and revoke members to grant council B -- governance council votes.
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Elect and revoke role 5", // max 31 chars
-            "Elect and revoke members for role 5 (Grant council B)",
-            dao_, // separated powers protocol.
-            2, // governors. 
-            lawConfig, //  config file. // same as law[9]
-            5 // role id to be assigned
-        );
-        vm.stopBroadcast();
-
-        // laws[11]: elect and revoke members to grant council C -- governance council votes.
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Elect and revoke role 6", // max 31 chars
-            "Elect and revoke members for role 6 (Grant council C)",
-            dao_, // separated powers protocol.
-            2, // governors. 
-            lawConfig, //  config file. // same as law[9]
-            6 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        delete lawConfig; // here we delete the law config
-
-        // note at the moment not possible to resign form these roles. In reality there should be a law that allows for resignations. 
-
-        // laws[12]
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Set Oracle", // max 31 chars
-            "The admin selects accounts for role 9, the oracle role.",
-            dao_, // separated powers protocol.
-            0, // admin. 
-            lawConfig, //  config file.
-            9 // role id to be assigned
-        );
+                "Claim community role.",
+                "Claim community role.",
+                dao_,
+                type(uint32).max, // access role = public. 
+                lawConfig, 
+                //
+                15, // uint256 maxRoleHolders_,
+                laws[8], // address nominees_,
+                2 // uint32 roleId_
+            );
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[13]
-        targets = new address[](3);
-        values = new uint256[](3);
-        calldatas = new bytes[](3);
-        for (uint256 i = 0; i < targets.length; i++) {
-            targets[i] = dao_;
-        }
-        calldatas[0] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
-        calldatas[1] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
-        calldatas[2] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
-        vm.startBroadcast();
-        law = new selfDestructPresetAction( 
-            "Set initial accounts to role 3", // max 31 chars
-            "The admin selects initial accounts for role 3. The law self destructs when executed.",
-            dao_, // separated powers protocol.
-            0, // admin. 
-            lawConfig, //  config file.
-            targets,
-            values,
-            calldatas
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-        delete lawConfig;
+        // ... all other roles through dynamic self select. 
     }
 }

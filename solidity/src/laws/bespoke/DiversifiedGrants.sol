@@ -183,9 +183,9 @@ contract StartGrant is Law {
         // step 0: run additional checks
         // - if budget of grant does not exceed available funds. 
         if (TokenType(tokenType) == TokenType.ERC20 && budget >  ERC20(tokenAddress).balanceOf(separatedPowers)) {
-            revert Grant__RequestAmountExceedsAvailableFunds();
+            revert StartGrant__RequestAmountExceedsAvailableFunds();
         } else if (TokenType(tokenType) == TokenType.ERC1155 && budget > ERC1155(tokenAddress).balanceOf(separatedPowers, tokenId)) {
-            revert Grant__RequestAmountExceedsAvailableFunds();
+            revert StartGrant__RequestAmountExceedsAvailableFunds();
         }
 
         // step 1: calculate address at which grant will be created. 

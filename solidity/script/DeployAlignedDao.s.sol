@@ -26,7 +26,7 @@ import {
     ReinstateRole, 
     RequestPayment, 
     NftSelfSelect 
-    } from "../src/laws/bespoke/AlignedGrants.sol";
+    } from "../src/laws/bespoke/AlignedDao.sol";
 
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
@@ -232,6 +232,18 @@ contract DeployAlignedDao is Script {
         laws.push(address(law));
 
         // laws[9]
+        vm.startBroadcast();
+        law = new NominateMe(
+            "Nominate self for role 3", // max 31 chars
+            "Anyone can nominate themselves for role 3.",
+            dao_,
+            type(uint32).max, // access role = public access
+            lawConfig
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        // laws[10]
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 7200; // = duration in number of blocks to vote, about one day.
@@ -243,14 +255,15 @@ contract DeployAlignedDao is Script {
             dao_, // separated powers protocol.
             3, // role 3 id designation. 
             lawConfig, //  config file.
-            3, // maximum elected to role
+            3, // maximum elected to role,
+            laws[9], // nominateMe
             3 // role id to be assigned
         );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[10]
+        // laws[11]
         vm.startBroadcast();
         law = new DirectSelect(
             "Set Oracle", // max 31 chars

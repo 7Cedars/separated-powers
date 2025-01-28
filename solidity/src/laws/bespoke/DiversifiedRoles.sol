@@ -26,6 +26,7 @@ import { Erc1155Mock } from "../../../test/mocks/Erc1155Mock.sol";
 
 // laws 
 import { PresetAction } from "../executive/PresetAction.sol";
+import { BespokeAction } from "../executive/BespokeAction.sol";
 import { SelfDestruct } from "../modules/SelfDestruct.sol";
 import { ThrottlePerAccount } from "../modules/ThrottlePerAccount.sol";
 import { NftCheck } from "../modules/NftCheck.sol";
@@ -41,19 +42,19 @@ import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
  
 // NB: no checks on what kind of Erc20 token is used. This is just an example. 
 contract Members is Law {
-    error Members__MemberAlreadyExists();
-    error Members__MemberNonExistent();
+    error Members__MemberAlreadyExists(address account);
+    error Members__MemberNonExistent(address account);
 
     // see for country codes IBAN: https://www.iban.com/country-codes
     struct Member {
-        nationality uint16;
-        countryOfResidence uint16;
-        dateOfBirth int64; // NB: can also go into minus for before 1970.  https://en.wikipedia.org/wiki/Unix_time#:~:text=A%20signed%2032%2Dbit%20value,Tuesday%202038%2D01%2D19.
+        uint16 nationality;
+        uint16 countryOfResidence;
+        int64  dateOfBirth; // NB: can also go into minus for before 1970.  https://en.wikipedia.org/wiki/Unix_time#:~:text=A%20signed%2032%2Dbit%20value,Tuesday%202038%2D01%2D19.
     }
     mapping(address => Member) public members; 
 
-    event Members__MemberAdded(address account);
-    event Members__MemberRemoved(address account);
+    event Members__Added(address indexed account);
+    event Members__Removed(address indexed account);
 
     constructor(
         string memory name_,
@@ -63,8 +64,8 @@ contract Members is Law {
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams[0] = _dataType("address"); // account
-        inputParams[1] = _dataType("uint64");  // nationality
-        inputParams[2] = _dataType("uint64");  // country of residence 
+        inputParams[1] = _dataType("uint16");  // nationality
+        inputParams[2] = _dataType("uint16");  // country of residence 
         inputParams[3] = _dataType("int64"); // DoB
         inputParams[4] = _dataType("bool"); // add ? (if false: remove)  
       }
@@ -79,11 +80,11 @@ contract Members is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {   
         // step 0: decode law calldata
-        (address account, , , , bool add) = abi.decode(lawCalldata, (address, uint64, uint64, int64, bool));
+        (address account, , , , bool add) = abi.decode(lawCalldata, (address, uint16, uint16, int64, bool));
         
         // step 1: run additional checks 
         if (add && members[account].nationality != 0) {
-            revert Members__MemberAlreadyAdded(account);            
+            revert Members__MemberAlreadyExists(account);            
         } 
         if (!add && members[account].nationality == 0) {
             revert Members__MemberNonExistent(account);
@@ -105,7 +106,7 @@ contract Members is Law {
 
     // add or remove member from state mapping in law. 
     function _changeStateVariables(bytes memory stateChange) internal override {
-        (address account, uint64 nationality, uint64 countryOfResidence, int64 DoB, bool add) = abi.decode(lawCalldata, (address, uint64, uint64, int64, bool));
+        (address account, uint16 nationality, uint16 countryOfResidence, int64 DoB, bool add) = abi.decode(stateChange, (address, uint16, uint16, int64, bool));
 
         if (add) {
             members[account] = Member(nationality, countryOfResidence, DoB); 
@@ -120,6 +121,12 @@ contract Members is Law {
 contract RoleByKyc is SelfSelect {
     error RoleByKyc__NotEligible(); 
 
+    uint16[] public nationalities; 
+    uint16[] public countryOfResidences; 
+    int64 public olderThan; // in seconds 
+    int64 public youngerThan; // in seconds
+    address public members;
+
     constructor(
         // standard
         string memory name_,
@@ -128,14 +135,21 @@ contract RoleByKyc is SelfSelect {
         uint32 allowedRole_,
         LawConfig memory config_,
         // self select
-        uint32 roleId_
+        uint32 roleId_, 
         // filter 
-        uint16[] memory nationalities,
-        uint16[] memory countryOfResidences, 
-        int64 olderThan, // in seconds 
-        int64 youngerThan // in seconds
+        uint16[] memory nationalities_,
+        uint16[] memory countryOfResidences_, 
+        int64 olderThan_, // in seconds 
+        int64 youngerThan_, // in seconds
+        // members state law
+        address members_  
         ) 
-        SelfSelect(name_, description_, separatedPowers_, allowedRole_, config_, roleId_) { }
+        SelfSelect(name_, description_, separatedPowers_, allowedRole_, config_, roleId_) { 
+            nationalities = nationalities_;
+            countryOfResidences = countryOfResidences_;
+            olderThan = olderThan_;
+            youngerThan = youngerThan_;
+        }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
@@ -149,11 +163,12 @@ contract RoleByKyc is SelfSelect {
         bool residencyOk; 
         bool oldEnough; 
         bool youngEnough; 
+        (uint16 nationality, uint16 countryOfResidence, int64 DoB) = Members(members).members(initiator);
 
         // step 0: check nationalities  
         if (nationalities.length > 0) {
             for (uint i = 0; i < nationalities.length; i++) {
-                if (members[initiator].nationality == nationalities[i]) { nationalityOk = true; break; } 
+                if (nationality == nationalities[i]) { nationalityOk = true; break; } 
             }
         } else {
             nationalityOk = true; 
@@ -162,31 +177,29 @@ contract RoleByKyc is SelfSelect {
         // step 1: check country of residences
         if (countryOfResidences.length > 0) {
             for (uint i = 0; i < countryOfResidences.length; i++) {
-                if (members[initiator].countryOfResidence == countryOfResidences[i]) { residencyOk = true; break; } 
+                if (countryOfResidence == countryOfResidences[i]) { residencyOk = true; break; } 
             }
         } else {
             residencyOk = true;
         }
-
-        // step 2: check if individual is old enough
-        int64 DoB = members[initiator].DoB;
         
+        // step 2: check if individual is old enough
         if (olderThan > 0) { 
-            if (DoB < (block.timestamp - olderThan)) { ageOk = true; }
+            if (uint64(DoB) < (uint64(block.timestamp) - uint64(olderThan))) { oldEnough = true; }
         } else {
             oldEnough = true;
         }
 
         // step 3: check if individual is young enough
         if (youngerThan > 0) {
-            if (DoB > (block.timestamp - youngerThan)) { ageOk = true; }
+            if (uint64(DoB) > (uint64(block.timestamp) - uint64(youngerThan))) { youngEnough = true; }
         } else {
             youngEnough = true;
         }
 
         // step 4: revert if any of the checks fail
         if (!nationalityOk || !residencyOk || !oldEnough || !youngEnough) {
-            revert RoleByKyc__NotEligible(initiator);
+            revert RoleByKyc__NotEligible();
         }
         
         // step 5: call super
@@ -199,6 +212,7 @@ contract DeployRoleByKyc is Law {
     error DeployRoleByKyc__RequestAmountExceedsAvailableFunds();
 
     LawConfig public configNewGrants; // config for new grants. 
+    address public members;
     
     constructor(
         string memory name_,
@@ -206,15 +220,17 @@ contract DeployRoleByKyc is Law {
         address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_, // this is the configuration for creating new grants, not of the grants themselves. 
-        address proposals // the address where proposals should be made to proposals. 
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {        
+        address members_ // the address where account kyc are stored. - note: all on public blockchain..  
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams[0] = _dataType("string"); // name
         inputParams[1] = _dataType("string"); // description
-        inputParams[0] = _dataType("uint16[]"); // nationalities
-        inputParams[1] = _dataType("uint16[]"); // countries of residence
-        inputParams[0] = _dataType("int64"); // olderThan
-        inputParams[1] = _dataType("int64"); // youngerThan
+        inputParams[2] = _dataType("uint32"); // role to be assigned
+        inputParams[3] = _dataType("uint16[]"); // nationalities
+        inputParams[4] = _dataType("uint16[]"); // countries of residence
+        inputParams[5] = _dataType("int64"); // olderThan
+        inputParams[6] = _dataType("int64"); // youngerThan
         
+        members = members_;
         stateVars = inputParams; // Note: stateVars == inputParams.
       }
    
@@ -230,16 +246,17 @@ contract DeployRoleByKyc is Law {
         (
             string memory name, 
             string memory description, 
+            uint32 role,
             uint16[] memory nationalities,
             uint16[] memory countryOfResidences, 
             int64 olderThan, // in seconds 
             int64 youngerThan // in seconds
             ) = abi.decode(lawCalldata, (
-                string, string, uint16[], uint16[], int64, int64
+                string, string, uint32, uint16[], uint16[], int64, int64
                 ));
 
         // step 0: calculate address at which grant will be created. 
-        address contractAddress = _getContractAddress(name, description, nationalities, countryOfResidences, olderThan, youngerThan);
+        address contractAddress = _getContractAddress(name, description, role, nationalities, countryOfResidences, olderThan, youngerThan);
 
         // step 1: if address is already in use, revert.
         uint256 codeSize = contractAddress.code.length;
@@ -268,16 +285,17 @@ contract DeployRoleByKyc is Law {
         (
             string memory name, 
             string memory description, 
+            uint32 role,
             uint16[] memory nationalities,
             uint16[] memory countryOfResidences, 
             int64 olderThan, // in seconds 
             int64 youngerThan // in seconds
-            ) = abi.decode(lawCalldata, (
-                string, string, uint16[], uint16[], int64, int64
+            ) = abi.decode(stateChange, (
+                string, string, uint32, uint16[], uint16[], int64, int64
                 ));
 
         // stp 1: deploy new grant
-        _deployContract(name, description, nationalities, countryOfResidences, olderThan, youngerThan);      
+        _deployContract(name, description, role, nationalities, countryOfResidences, olderThan, youngerThan);      
     }
 
     /**
@@ -287,6 +305,7 @@ contract DeployRoleByKyc is Law {
     function _getContractAddress(
         string memory name, 
         string memory description, 
+        uint32 roleId,
         uint16[] memory nationalities,
         uint16[] memory countryOfResidences, 
         int64 olderThan, // in seconds 
@@ -299,13 +318,16 @@ contract DeployRoleByKyc is Law {
                     name,
                     description,
                     separatedPowers,
-                    SeparatedPowers.PUBLIC_ROLE(), // roleId = Public
+                    allowedRole,
                     configNewGrants,
+                    // self select
+                    roleId, 
                     // remaining params
                     nationalities,
                     countryOfResidences,
                     olderThan,
-                    youngerThan
+                    youngerThan,
+                    members
                 )
             )));
         }
@@ -313,12 +335,11 @@ contract DeployRoleByKyc is Law {
     function _deployContract(
         string memory name, 
         string memory description, 
-        uint48 duration,
-        uint256 budget,
-        address tokenAddress,   
-        uint256 tokenType,
-        uint256 tokenId,
-        uint32 allowedRole
+        uint32 roleId,
+        uint16[] memory nationalities,
+        uint16[] memory countryOfResidences, 
+        int64 olderThan, // in seconds 
+        int64 youngerThan // in seconds
         ) internal {
             RoleByKyc newFilter = new RoleByKyc{salt: bytes32(keccak256(abi.encodePacked(name, description)))}(
                 // standard params
@@ -327,11 +348,14 @@ contract DeployRoleByKyc is Law {
                 separatedPowers,
                 allowedRole,
                 configNewGrants,
+                // self select
+                roleId,
                 // remaining params
                 nationalities,
                 countryOfResidences,
                 olderThan,
-                youngerThan
+                youngerThan,
+                members
             );
     }
 }
@@ -342,11 +366,12 @@ contract AiAgents is Law {
     error AiAgents__AgentDoesNotExist();
 
     struct AiAgent {
-        bool agent; 
-        string name; 
+        string name;
+        address account; 
         string uri;
     }
-    mapping(address account => AiAgent) public aiAgents;
+    AiAgent[] public aiAgentsList;
+    uint256 public aiAgentsCount;
     
     event AiAgents__AgentAdded(address indexed account, string name, string uri);
     event AiAgents__AgentRemoved(address indexed account);
@@ -358,10 +383,10 @@ contract AiAgents is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("address"); // account
-        inputParams[1] = _dataType("string");  // name
+        inputParams[0] = _dataType("string");  // name
+        inputParams[1] = _dataType("address"); // account
         inputParams[2] = _dataType("string");  // uri
-        stateVars[0] = _dataType("bool"); // add
+        inputParams[3] = _dataType("bool");   // add
       }
    
     /// @notice execute the law.
@@ -374,15 +399,29 @@ contract AiAgents is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {   
         // step 0: decode law calldata
-        (address account, , , bool add) = abi.decode(lawCalldata, (address, string, string, bool));
+        (string memory name, address account, , bool add) = abi.decode(lawCalldata, (string, address, string, bool));
         
         // step 1: run additional checks 
-        if (add && aiAgents[account].agent) {
-            revert AiAgents__AgentAlreadyExists(account);            
-        } 
-        if (!add && !aiAgents[account].agent) {
-            revert AiAgents__AgentDoesNotExist(account);
-        } 
+        if (add) {
+            for (uint256 i = 0; i < aiAgentsCount; i++) {
+                if (aiAgentsList[i].account == account) {
+                    revert AiAgents__AgentAlreadyExists();
+                }
+            }
+        }
+
+        if (!add) {
+            bool agentFound;
+            for (uint256 i = 0; i < aiAgentsCount; i++) {
+                if (aiAgentsList[i].account == account) {
+                    agentFound = true; 
+                    break; 
+                }
+            }
+            if (!agentFound) {
+                revert AiAgents__AgentDoesNotExist();
+            }
+        }
 
         // step 2: create arrays 
         targets = new address[](1);
@@ -400,14 +439,161 @@ contract AiAgents is Law {
 
     // add or remove member from state mapping in law. 
     function _changeStateVariables(bytes memory stateChange) internal override {
-        (address account, string name, string uri, bool add) = abi.decode(lawCalldata, (address, string, string, bool));
+        (string memory name, address account, string memory uri, bool add) = abi.decode(stateChange, (string, address, string, bool));
 
         if (add) {
-            aiAgents[account] = AiAgent(true, name, uri); 
-            emit AiAgents__AgentAdded(account, name, uri);           
-        } else {
-            aiAgents[account] = AiAgent(false, "", "");
+            aiAgentsList.push(AiAgent(name, account, uri)); 
+            aiAgentsCount++; 
+            emit AiAgents__AgentAdded(account, name, uri);     
+        } 
+        
+        if (!add) {
+            for (uint256 i = 0; i < aiAgentsCount; i++) {
+                if (aiAgentsList[i].account == account) {
+                    aiAgentsList[i] = aiAgentsList[aiAgentsCount - 1];
+                    aiAgentsList.pop(); 
+                    aiAgentsCount--;
+                    break;
+                }
+            }
             emit AiAgents__AgentRemoved(account);
         }
+    }
+}
+
+contract DeployBespokeAction is Law {
+    error DeployBespokeAction__AddressOccupied();
+    error DeployBespokeAction__RequestAmountExceedsAvailableFunds();
+
+    LawConfig public configNewBespokeAction; // config for new grants. 
+    
+    constructor(
+        string memory name_,
+        string memory description_,
+        address payable separatedPowers_,
+        uint32 allowedRole_,
+        LawConfig memory config_ // this is the configuration for creating new grants, not of the grants themselves. 
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {        
+        inputParams[0] = _dataType("string"); // name
+        inputParams[1] = _dataType("string"); // description
+        inputParams[2] = _dataType("uint32"); // allowedRole
+        inputParams[3] = _dataType("address"); // target contract
+        inputParams[4] = _dataType("bytes4"); // target function 
+        inputParams[5] = _dataType("string[]"); // params
+        
+        stateVars = inputParams; // Note: stateVars == inputParams.
+      }
+   
+    /// @notice execute the law.
+    /// @param lawCalldata the calldata _without function signature_ to send to the function.
+    function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        view 
+        virtual
+        override
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
+    {   
+        (
+            string memory name, 
+            string memory description, 
+            uint32 allowedRole,
+            address targetContract,
+            bytes4  targetFunction,
+            string[] memory params
+            ) = abi.decode(lawCalldata, (
+                string, string, uint32, address, bytes4, string[]
+                )); 
+
+        // step 0: calculate address at which grant will be created. 
+        address contractAddress = _getContractAddress(name, description, allowedRole, targetContract, targetFunction, params);
+
+        // step 1: if address is already in use, revert.
+        uint256 codeSize = contractAddress.code.length;
+        if (codeSize > 0) {
+            revert DeployBespokeAction__AddressOccupied();
+        }
+
+        // step 3: create arrays
+        targets = new address[](1);
+        values = new uint256[](1);
+        calldatas = new bytes[](1);
+        stateChange = abi.encode("");
+
+        // step 4: fill out arrays with data
+        targets[0] = separatedPowers;
+        calldatas[0] = abi.encodeWithSelector(SeparatedPowers.adoptLaw.selector, contractAddress);
+        stateChange = lawCalldata;
+
+        // step 5: return data
+        return (targets, values, calldatas, stateChange);
+    }
+
+    function _changeStateVariables(bytes memory stateChange) internal override {
+
+        // step 0: decode data from stateChange
+        (
+            string memory name, 
+            string memory description, 
+            uint32 allowedRole,
+            address targetContract,
+            bytes4  targetFunction,
+            string[] memory params
+            ) = abi.decode(stateChange, (
+                string, string, uint32, address, bytes4, string[]
+                ));
+
+        // stp 1: deploy new grant
+        _deployContract(name, description, allowedRole, targetContract, targetFunction, params);   
+    }
+
+    /**
+     * calculate the counterfactual address of this account as it would be returned by createAccount()
+     * exact copy from SimpleAccountFactory.sol, except it takes loyaltyProgram as param
+     */
+    function _getContractAddress(
+        string memory name, 
+        string memory description, 
+        uint32 allowedRole,
+        address targetContract,
+        bytes4  targetFunction,
+        string[] memory params
+        ) internal view returns (address) {
+            Create2.computeAddress(bytes32(keccak256(abi.encodePacked(name, description))), keccak256(abi.encodePacked(
+                type(BespokeAction).creationCode,
+                abi.encode(
+                    // standard params
+                    name,
+                    description,
+                    separatedPowers,
+                    allowedRole,
+                    configNewBespokeAction,
+                    // remaining params
+                    targetContract,
+                    targetFunction,
+                    params
+                )
+            )));
+        }
+
+    function _deployContract(
+        string memory name, 
+        string memory description, 
+        uint32 allowedRole,
+        address targetContract,
+        bytes4  targetFunction,
+        string[] memory params
+        ) internal {
+            BespokeAction newBespokeAction = new BespokeAction{salt: bytes32(keccak256(abi.encodePacked(name, description)))}(
+                // standard params
+                name,
+                description,
+                separatedPowers,
+                allowedRole,
+                configNewBespokeAction,
+                // remaining params
+                targetContract,
+                targetFunction,
+                params
+            );
     }
 }
