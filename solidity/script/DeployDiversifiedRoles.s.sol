@@ -18,13 +18,13 @@ import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
 import { BespokeAction } from "../src/laws/executive/BespokeAction.sol";
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
-import { 
-    Members, 
-    RoleByKyc, 
-    DeployRoleByKyc, 
-    AiAgents, 
-    DeployBespokeAction
-    } from "../src/laws/bespoke/DiversifiedRoles.sol";
+
+import { Members } from "../src/laws/bespoke/diversifiedRoles/Members.sol";
+import { RoleByKyc } from "../src/laws/bespoke/diversifiedRoles/RoleByKyc.sol";
+import { RoleByKycFactory } from "../src/laws/bespoke/diversifiedRoles/RoleByKycFactory.sol";
+import { AiAgents } from "../src/laws/bespoke/diversifiedRoles/AiAgents.sol";
+import { BespokeActionFactory } from "../src/laws/bespoke/diversifiedRoles/BespokeActionFactory.sol";
+
 // config   
 import { HelperConfig } from "./HelperConfig.s.sol";
 
@@ -113,7 +113,7 @@ contract DeployDiverseRoles is Script {
         lawConfig.succeedAt = 51; // = Simple majority vote needed.
         lawConfig.votingPeriod = 1200; // = number of blocks
         vm.startBroadcast();
-        law = new DeployRoleByKyc(
+        law = new RoleByKycFactory(
                 "Accept role filter.",
                 "Accept and implement a role filter based on Know Your Customer (KYC) data to assign a specific role to a subsection of community members. Input [0] = grantee address to transfer to. Inputs: 0 = name; 1: description; 2: nationalities to select (IBAN code); 3: Country of Residence to select (IBAN code); 4: older than (in seconds); 5: younger than (in seconds);     ",
                 dao_,
@@ -197,7 +197,7 @@ contract DeployDiverseRoles is Script {
         // laws [6]
         // ok & implement new role restricted bespoke action (Admin)
         vm.startBroadcast();
-        law = new DeployBespokeAction(
+        law = new BespokeActionFactory(
                 "Deploy bespoke action.",
                 "Accept and deploy bespoke action.",
                 dao_,

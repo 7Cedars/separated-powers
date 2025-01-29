@@ -26,6 +26,7 @@ contract StringsArray is Law {
     uint256 public numberOfStrings;
 
     error StringsArray__StringNotFound(); 
+    error StringsArray__AlreadyAdded();
 
     event StringsArray__StringAdded(string str);
     event StringsArray__StringRemoved(string str);
@@ -64,7 +65,8 @@ contract StringsArray is Law {
             strings.push(str);
             numberOfStrings++;
             emit StringsArray__StringAdded(str);
-
+        } else if (numberOfStrings == 0) {
+            revert  StringsArray__StringNotFound();
         } else {
             for (uint256 index; index < numberOfStrings; index++) {
                 if (keccak256(bytes(strings[index])) == keccak256(bytes(str))) {

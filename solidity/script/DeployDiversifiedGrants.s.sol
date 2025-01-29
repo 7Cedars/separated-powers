@@ -19,13 +19,12 @@ import { BespokeAction } from "../src/laws/executive/BespokeAction.sol";
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
 
-import { 
-    Grant,
-    StartGrant, 
-    stopGrant, 
-    selfDestructPresetAction, 
-    NftSelfSelect
-    } from "../src/laws/bespoke/DiversifiedGrants.sol";
+import { Grant } from "../src/laws/bespoke/diversifiedGrants/Grant.sol";
+import { StartGrant } from "../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
+import { StopGrant } from "../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
+import { SelfDestructPresetAction } from "../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol";
+import { NftSelfSelect } from "../src/laws/bespoke/diversifiedGrants/NftSelfSelect.sol";
+
 // config   
 import { HelperConfig } from "./HelperConfig.s.sol";
 
@@ -245,7 +244,7 @@ contract DeployDiversifiedGrants is Script {
         calldatas[2] =
             abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
         vm.startBroadcast();
-        law = new selfDestructPresetAction( 
+        law = new SelfDestructPresetAction( 
             "Set initial roles 3", // max 31 chars
             "The admin selects initial accounts for role 3. The law self destructs when executed.",
             dao_, // separated powers protocol.

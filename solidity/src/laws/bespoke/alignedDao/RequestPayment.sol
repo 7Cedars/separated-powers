@@ -16,18 +16,14 @@
 
 pragma solidity 0.8.26;
 
-import { Law } from "../../Law.sol";
+import { Law } from "../../../Law.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
-import { ThrottlePerAccount } from "../modules/ThrottlePerAccount.sol";
-import { NftCheck } from "../modules/NftCheck.sol";
-import { SelfSelect } from "../electoral/SelfSelect.sol";
-import { Erc721Mock } from "../../../test/mocks/Erc721Mock.sol";
-import { Erc1155Mock } from "../../../test/mocks/Erc1155Mock.sol";
+import { ThrottlePerAccount } from "../../modules/ThrottlePerAccount.sol";
 
 // Bespoke law 2: Request Payment  
 contract RequestPayment is ThrottlePerAccount {
     address public erc1155; 
+    uint256 public tokenId;
     uint256 public amount;
     uint48 public delay; 
     
@@ -39,12 +35,14 @@ contract RequestPayment is ThrottlePerAccount {
         LawConfig memory config_, 
 
         address erc1155_,
+        uint256 tokenId_, 
         uint256 amount_,
         uint48 delay_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         amount = amount_; 
         delay = delay_;
         erc1155 = erc1155_;
+        tokenId = tokenId_;
     }
           /// @notice execute the law.
         /// @param lawCalldata the calldata _without function signature_ to send to the function.
@@ -59,7 +57,7 @@ contract RequestPayment is ThrottlePerAccount {
             values = new uint256[](1);
             calldatas = new bytes[](1);
             targets[0] = erc1155; 
-            calldatas[0] = abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, separatedPowers, initiator, 0, amount, "");
+            calldatas[0] = abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, separatedPowers, initiator, tokenId, amount, "");
         }
 
         function _delay() internal view override returns (uint48) {

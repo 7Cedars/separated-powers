@@ -16,17 +16,10 @@
 
 pragma solidity 0.8.26;
 
-import { Law } from "../../Law.sol";
-import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
-import { ThrottlePerAccount } from "../modules/ThrottlePerAccount.sol";
-import { NftCheck } from "../modules/NftCheck.sol";
-import { SelfSelect } from "../electoral/SelfSelect.sol";
-import { Erc721Mock } from "../../../test/mocks/Erc721Mock.sol";
-import { Erc1155Mock } from "../../../test/mocks/Erc1155Mock.sol";
+import { Law } from "../../../Law.sol";
+import { SeparatedPowers } from "../../../SeparatedPowers.sol";
+import { Erc721Mock } from "../../../../test/mocks/Erc721Mock.sol";
 
-
-// Bespoke law 1: ReinstateRole  
 contract ReinstateRole is Law {
     error ReinstateRole__IsAlreadyMember();
     uint32 constant ROLE_ID = 1; 

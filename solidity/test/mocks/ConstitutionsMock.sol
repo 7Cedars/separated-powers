@@ -20,7 +20,27 @@ import { ProposalOnly } from "../../src/laws/executive/ProposalOnly.sol";
 import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 import { PresetAction } from "../../src/laws/executive/PresetAction.sol";
 import { BespokeAction } from "../../src/laws/executive/BespokeAction.sol";
- 
+// state laws.
+import { StringsArray } from "../../src/laws/state/StringsArray.sol";
+import { TokensArray } from "../../src/laws/state/TokensArray.sol";
+import { AddressesMapping } from "../../src/laws/state/AddressesMapping.sol";
+// bespoke: aligned dao laws.
+import { NftSelfSelect } from "../../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
+import { RequestPayment } from "../../src/laws/bespoke/alignedDao/RequestPayment.sol";
+import { ReinstateRole } from "../../src/laws/bespoke/alignedDao/ReinstateRole.sol";
+import { RevokeMembership } from "../../src/laws/bespoke/alignedDao/RevokeMembership.sol";
+// bespoke: diversified grants laws.
+import { Grant } from "../../src/laws/bespoke/diversifiedGrants/Grant.sol";
+import { StartGrant } from "../../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
+import { StopGrant } from "../../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
+import { SelfDestructPresetAction } from "../../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol";
+// bespoke: diversified roles laws.
+import { RoleByKyc } from "../../src/laws/bespoke/diversifiedRoles/RoleByKyc.sol";
+import { AiAgents } from "../../src/laws/bespoke/diversifiedRoles/AiAgents.sol";
+import { BespokeActionFactory } from "../../src/laws/bespoke/diversifiedRoles/BespokeActionFactory.sol";
+import { Members } from "../../src/laws/bespoke/diversifiedRoles/Members.sol";
+import { RoleByKycFactory } from "../../src/laws/bespoke/diversifiedRoles/RoleByKycFactory.sol";
+
 contract ConstitutionsMock is Test {
     //////////////////////////////////////////////////////////////
     //                  FIRST CONSTITUTION                      //
@@ -123,13 +143,12 @@ contract ConstitutionsMock is Test {
         laws[5] = address(law);
         delete lawConfig;
 
-        // get calldata
-        (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
-        // set config
-        // setting the throttle to max means the law can only be called once.
+        (
+            address[] memory targetsRoles, 
+            uint256[] memory valuesRoles, 
+            bytes[] memory calldatasRoles
+            ) = _getRoles(dao_);
         lawConfig.throttleExecution = type(uint48).max - uint48(block.number);
-        // initiate law
-        vm.startBroadcast();
         law = new PresetAction(
             "Admin assigns initial roles",
             "The admin assigns initial roles. This law can only be used once.",
@@ -140,7 +159,6 @@ contract ConstitutionsMock is Test {
             valuesRoles,
             calldatasRoles
         );
-        vm.stopBroadcast();
         laws[6] = address(law);
         delete lawConfig;
     }
@@ -460,8 +478,232 @@ contract ConstitutionsMock is Test {
         delete lawConfig; // reset lawConfig
     }
 
+    //////////////////////////////////////////////////////////////
+    //          FIFTH CONSTITUTION: STATE LAWS                  //
+    //////////////////////////////////////////////////////////////
+    function initiateStateTestConstitution(address payable dao_, address payable mock1155_, address payable mock20_)
+        external
+        returns (address[] memory laws)
+    {
+        Law law;
+        laws = new address[](4); 
+        ILaw.LawConfig memory lawConfig;
+
+        // dummy params
+        string[] memory params = new string[](0);
+        // initiating law.
+        law = new AddressesMapping(
+            "Free Address Mapping", // max 31 chars
+            "Free address mapping without additional checks.",
+            dao_,
+            1, // access role
+            lawConfig // empty config file.  
+        );
+        laws[0] = address(law);
+
+        law = new StringsArray(
+            "Free String Array", // max 31 chars
+            "Save strings in an array. No additional checks.",
+            dao_,
+            1, // access role
+            lawConfig // empty config file. 
+        );
+        laws[1] = address(law);
+
+        law = new TokensArray(
+            "Free token Array", // max 31 chars
+            "Save tokens in an array. No additional checks.",
+            dao_,
+            1, // access role
+            lawConfig // empty config file. 
+        );
+        laws[2] = address(law);
+
+        (
+            address[] memory targetsRoles, 
+            uint256[] memory valuesRoles, 
+            bytes[] memory calldatasRoles
+            ) = _getRoles(dao_);
+        lawConfig.throttleExecution = type(uint48).max - uint48(block.number);
+        law = new PresetAction(
+            "Admin assigns initial roles",
+            "The admin assigns initial roles. This law can only be used once.",
+            dao_, // separated powers
+            0, // access role = ADMIN
+            lawConfig,
+            targetsRoles,
+            valuesRoles,
+            calldatasRoles
+        );
+        laws[3] = address(law);
+        delete lawConfig; // reset lawConfig
+    }
+
+    //////////////////////////////////////////////////////////////
+    //        SIXTH CONSTITUTION: test AlignedGrants            //
+    //////////////////////////////////////////////////////////////
+    function initiateAlignedDaoTestConstitution(
+        address payable dao_, 
+        address payable mock1155_, 
+        address payable mock20_, 
+        address payable mock721_
+        ) external returns (address[] memory laws) {
+            Law law;
+            laws = new address[](4); 
+            ILaw.LawConfig memory lawConfig;
+
+            // initiating law.
+            law = new NftSelfSelect(
+                "Free Address Mapping", // max 31 chars
+                "Free address mapping without additional checks.",
+                dao_,
+                type(uint32).max, // access role = public. 
+                lawConfig, // empty config file.  
+                1,
+                mock721_
+            );
+            laws[0] = address(law);
+
+            law = new RevokeMembership(
+                "Free token Array", // max 31 chars
+                "Save tokens in an array. No additional checks.",
+                dao_,
+                1, // access role
+                lawConfig, // empty config file. 
+                mock721_
+            );
+            laws[1] = address(law);
+
+            lawConfig.needCompleted = laws[1];
+            law = new ReinstateRole(
+                "Free String Array", // max 31 chars
+                "Save strings in an array. No additional checks.",
+                dao_,
+                1, // access role
+                lawConfig, 
+                mock721_ 
+            );
+            laws[2] = address(law);
+            delete lawConfig;
+
+            law = new RequestPayment(
+                "Free token Array", // max 31 chars
+                "Save tokens in an array. No additional checks.",
+                dao_,
+                1, // access role
+                lawConfig, // empty config file. 
+                mock1155_,
+                0, // tokenId
+                5000, // amount
+                100 // delay
+            );
+            laws[3] = address(law);
+        }
+
+    //////////////////////////////////////////////////////////////
+    //      SEVENTH CONSTITUTION: test Diversified Grants       //
+    //////////////////////////////////////////////////////////////
+    function initiateDiversifiedGrantsTestConstitution(
+        address payable dao_, 
+        address payable mock1155_
+        ) external returns (address[] memory laws) {
+            Law law;
+            laws = new address[](5); 
+            ILaw.LawConfig memory lawConfig;
+
+            // initiating law.
+            law = new Grant(
+                "Open Erc1155 Grant", // max 31 chars
+                "A test grant that anyone can apply to until it is empty or it expires.",
+                dao_,
+                type(uint32).max, // access role = public. 
+                lawConfig, // empty config file.  
+                // grant config
+                2700, // duration
+                5000, // budget
+                mock1155_,
+                Grant.TokenType.ERC1155,
+                0
+            );
+            laws[0] = address(law);
+
+            // A vote among role 1 holders is needed before proposal can be considered by dedicated grant council. 
+            lawConfig.quorum = 2; 
+            lawConfig.succeedAt = 51; 
+            lawConfig.votingPeriod = 1200; 
+            // grant input params. 
+            string[] memory inputParams = new string[](3);
+            inputParams[0] = "address";  // grantee address
+            inputParams[1] = "address";  // grant address = address(this). This is needed to make abuse of proposals across contracts impossible.
+            inputParams[2] = "uint256"; // quantity to transfer
+            // deploy law
+            law = new ProposalOnly(
+                "Proposals for grant requests", // max 31 chars
+                "Here anyone can make a proposal for a grant request.",
+                dao_,
+                1, // access role
+                lawConfig, // empty config file.
+                // bespoke configs for this law:
+                inputParams
+            );
+            laws[1] = address(law);
+            delete lawConfig;
+
+            // vote is needed to start a grant.
+            lawConfig.quorum = 66; 
+            lawConfig.succeedAt = 66; 
+            lawConfig.votingPeriod = 1200; 
+            // deploy law
+            law = new StartGrant(
+                "Start a grant", // max 31 chars
+                "Start a grant with a bespoke role restriction, token, budget and duration.",
+                dao_,
+                2, // access role
+                lawConfig, // empty config file. 
+                // start grant config
+                laws[1] // proposals that need to be completed before grant can be considered.
+            );
+            laws[2] = address(law);
+            delete lawConfig;
+
+            law = new StopGrant(
+                "Stop a grant", // max 31 chars
+                "Delete Grant that has either expired or has spent its budget.",
+                dao_,
+                2, // access role
+                lawConfig
+            );
+            laws[3] = address(law); 
+
+            (
+                address[] memory targetsRoles, 
+                uint256[] memory valuesRoles, 
+                bytes[] memory calldatasRoles
+                ) = _getRoles(dao_);
+            law = new SelfDestructPresetAction(
+                "Admin assigns initial roles",
+                "The admin assigns initial roles. This law will self destruct when used.",
+                dao_, // separated powers
+                0, // access role = ADMIN
+                lawConfig,
+                targetsRoles,
+                valuesRoles,
+                calldatasRoles
+            );
+            laws[4] = address(law);
+            delete lawConfig; // reset lawConfig
+        }
 
 
+    //////////////////////////////////////////////////////////////
+    //      EIGHT CONSTITUTION: test Diversified Roles          //
+    //////////////////////////////////////////////////////////////
+    // £todo
+
+    
+    //////////////////////////////////////////////////////////////
+    //                  INTERNAL HELPER FUNCTION                //
+    //////////////////////////////////////////////////////////////
     function _getRoles(address payable dao_)
         internal
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)

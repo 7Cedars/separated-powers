@@ -20,7 +20,7 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 
-contract TokenArray is Law {
+contract TokensArray is Law {
     // the state vars that this law manages: community tokens.
 
     enum TokenType {
@@ -36,10 +36,10 @@ contract TokenArray is Law {
     Token[] public tokens; 
     uint256 public numberOfTokens;
 
-    error TokenArray__TokenNotFound(); 
+    error TokensArray__TokenNotFound(); 
 
-    event TokenArray__TokenAdded(address indexed tokenAddress, TokenType tokenType);
-    event TokenArray__TokenRemoved(address indexed tokenAddress, TokenType tokenType);
+    event TokensArray__TokenAdded(address indexed tokenAddress, TokenType tokenType);
+    event TokensArray__TokenRemoved(address indexed tokenAddress, TokenType tokenType);
 
     constructor(
         string memory name_,
@@ -48,9 +48,9 @@ contract TokenArray is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("address");
-        inputParams[1] = _dataType("uint256");
-        inputParams[2] = _dataType("bool");
+        inputParams[0] = _dataType("address"); // tokenAddress
+        inputParams[1] = _dataType("uint256"); // tokenType
+        inputParams[2] = _dataType("bool"); // add
 
         stateVars[0] = _dataType("address");
         stateVars[1] = _dataType("uint256");
@@ -72,13 +72,17 @@ contract TokenArray is Law {
     }
 
     function _changeStateVariables(bytes memory stateChange) internal override {
+        // step 1: decode
         (address tokenAddress, TokenType tokenType, bool add) = abi.decode(stateChange, (address, TokenType, bool)); // don't know if this is going to work...
 
+        // step 2: change state
+        // note: address is not type checked. We trust the caller
         if (add) {
             tokens.push(Token({tokenAddress: tokenAddress, tokenType: tokenType}));
             numberOfTokens++;
-            emit TokenArray__TokenAdded(tokenAddress, tokenType);
-
+            emit TokensArray__TokenAdded(tokenAddress, tokenType);
+        } else if (numberOfTokens == 0) {
+            revert  TokensArray__TokenNotFound();
         } else {
             for (uint256 index; index < numberOfTokens; index++) {
                 if (tokens[index].tokenAddress == tokenAddress) {
@@ -89,10 +93,10 @@ contract TokenArray is Law {
                 }
 
                 if (index == numberOfTokens - 1) {
-                    revert  TokenArray__TokenNotFound();
+                    revert  TokensArray__TokenNotFound();
                 }
             }
-            emit TokenArray__TokenRemoved(tokenAddress, tokenType);
+            emit TokensArray__TokenRemoved(tokenAddress, tokenType);
         }
     }
 }

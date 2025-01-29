@@ -207,30 +207,62 @@ abstract contract TestSetupLaws is BaseSetup, ConstitutionsMock {
     }
 }
 
-// abstract contract TestSetupAlignedDao is BaseSetup, ConstitutionsMock {
-//     function setUpVariables() public override {
-//         super.setUpVariables();
+abstract contract TestSetupState is BaseSetup, ConstitutionsMock {
+    function setUpVariables() public override {
+        super.setUpVariables();
 
-//         // initiate constitution & get founders' roles list
-//         (address[] memory laws_) = constitutionsMock.initiateLawsTestConstitution(
-//             payable(address(daoMock)), payable(address(erc1155Mock)), payable(address(erc20VotesMock))
-//         );
-//         laws = laws_;
+        // initiate constitution & get founders' roles list
+        (address[] memory laws_) = constitutionsMock.initiateStateTestConstitution(
+            payable(address(daoMock)), payable(address(erc1155Mock)), payable(address(erc20VotesMock))
+        );
+        laws = laws_;
 
-//         // constitute daoMock.
-//         daoMock.constitute(laws);
+        // constitute daoMock.
+        daoMock.constitute(laws);
+        
+        // assign Roles
+        vm.roll(block.number + 4000);
+        daoMock.execute(
+            laws[laws.length - 1],
+            abi.encode(), // empty calldata
+            "assigning roles"
+        );
+        daoNames.push("DaoMock");
+    }
+}
 
-//         // testing...
-//         PresetAction presetAction = PresetAction(laws[laws.length - 1]);
-//         console.logAddress(presetAction.targets(0));
+abstract contract TestSetupAlignedDao is BaseSetup, ConstitutionsMock {
+    function setUpVariables() public override {
+        super.setUpVariables();
 
-//         // assign Roles
-//         vm.roll(block.number + 4000);
-//         daoMock.execute(
-//             laws[laws.length - 1],
-//             abi.encode(), // empty calldatatest/src/SeparatedPowers.sol
-//             "assigning roles"
-//         );
-//         daoNames.push("DaoMock");
-//     }
-// }
+        // initiate constitution & get founders' roles list
+        (address[] memory laws_) = constitutionsMock.initiateAlignedDaoTestConstitution(
+            payable(address(daoMock)), 
+            payable(address(erc1155Mock)), 
+            payable(address(erc20VotesMock)),
+            payable(address(erc721Mock))
+        );
+        laws = laws_;
+
+        // constitute daoMock.
+        daoMock.constitute(laws);
+        daoNames.push("AlignedDao");
+    }
+}
+
+abstract contract TestSetupDiversifiedGrants is BaseSetup, ConstitutionsMock {
+    function setUpVariables() public override {
+        super.setUpVariables();
+
+        // initiate constitution & get founders' roles list
+        (address[] memory laws_) = constitutionsMock.initiateDiversifiedGrantsTestConstitution(
+            payable(address(daoMock)), 
+            payable(address(erc1155Mock))
+        );
+        laws = laws_;
+
+        // constitute daoMock.
+        daoMock.constitute(laws);
+        daoNames.push("DiversifiedGrants");
+    }
+}

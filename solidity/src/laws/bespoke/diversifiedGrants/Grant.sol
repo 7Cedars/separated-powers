@@ -17,25 +17,12 @@
 pragma solidity 0.8.26;
 
 // protocol
-import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
-
-// mocks 
-import { Erc721Mock } from "../../../test/mocks/Erc721Mock.sol";
-import { Erc1155Mock } from "../../../test/mocks/Erc1155Mock.sol";
-
-// laws 
-import { PresetAction } from "../executive/PresetAction.sol";
-import { SelfDestruct } from "../modules/SelfDestruct.sol";
-import { ThrottlePerAccount } from "../modules/ThrottlePerAccount.sol";
-import { NftCheck } from "../modules/NftCheck.sol";
-import { SelfSelect } from "../electoral/SelfSelect.sol";
+import { Law } from "../../../Law.sol";
+import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 
 // open zeppelin contracts
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 // NB: no checks on what kind of Erc20 token is used. This is just an example. 
 contract Grant is Law {

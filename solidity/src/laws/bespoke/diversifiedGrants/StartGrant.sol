@@ -17,23 +17,13 @@
 pragma solidity 0.8.26;
 
 // protocol
-import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Law } from "../../../Law.sol";
+import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 
-// mocks 
-import { Erc721Mock } from "../../../test/mocks/Erc721Mock.sol";
-import { Erc1155Mock } from "../../../test/mocks/Erc1155Mock.sol";
-
-// laws 
-import { PresetAction } from "../executive/PresetAction.sol";
-import { SelfDestruct } from "../modules/SelfDestruct.sol";
-import { ThrottlePerAccount } from "../modules/ThrottlePerAccount.sol";
-import { NftCheck } from "../modules/NftCheck.sol";
-import { SelfSelect } from "../electoral/SelfSelect.sol";
+import { Grant } from "./Grant.sol";
 
 // open zeppelin contracts
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
@@ -91,9 +81,9 @@ contract StartGrant is Law {
 
         // step 0: run additional checks
         // - if budget of grant does not exceed available funds. 
-        if (TokenType(tokenType) == TokenType.ERC20 && budget >  ERC20(tokenAddress).balanceOf(separatedPowers)) {
+        if (Grant.TokenType(tokenType) == Grant.TokenType.ERC20 && budget >  ERC20(tokenAddress).balanceOf(separatedPowers)) {
             revert StartGrant__RequestAmountExceedsAvailableFunds();
-        } else if (TokenType(tokenType) == TokenType.ERC1155 && budget > ERC1155(tokenAddress).balanceOf(separatedPowers, tokenId)) {
+        } else if (Grant.TokenType(tokenType) == Grant.TokenType.ERC1155 && budget > ERC1155(tokenAddress).balanceOf(separatedPowers, tokenId)) {
             revert StartGrant__RequestAmountExceedsAvailableFunds();
         }
 
@@ -168,7 +158,7 @@ contract StartGrant is Law {
                     duration,
                     budget,
                     tokenAddress,
-                    TokenType(tokenType),
+                    Grant.TokenType(tokenType),
                     tokenId
                 )
             )));
@@ -197,7 +187,7 @@ contract StartGrant is Law {
                 duration,
                 budget,
                 tokenAddress,
-                TokenType(tokenType),
+                Grant.TokenType(tokenType),
                 tokenId
             );
     }

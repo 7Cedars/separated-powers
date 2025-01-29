@@ -21,12 +21,10 @@ import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 import { StringsArray } from "../src/laws/state/StringsArray.sol";
 import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
 
-import { 
-    RevokeMembership,
-    ReinstateRole, 
-    RequestPayment, 
-    NftSelfSelect 
-    } from "../src/laws/bespoke/AlignedDao.sol";
+import { RevokeMembership } from "../src/laws/bespoke/alignedDao/RevokeMembership.sol";
+import { ReinstateRole } from "../src/laws/bespoke/alignedDao/ReinstateRole.sol";
+import { RequestPayment } from "../src/laws/bespoke/alignedDao/RequestPayment.sol";
+import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
@@ -179,6 +177,7 @@ contract DeployAlignedDao is Script {
                 lawConfig, //  config
                 // bespoke configs for this law:
                 mock1155_, // token address.
+                0,
                 5_000, // number of tokens
                 2_000 // number of blocks = 30 days
             );
