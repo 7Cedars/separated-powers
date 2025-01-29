@@ -305,7 +305,7 @@ contract ConstitutionsMock is Test {
         returns (address[] memory laws)
     {
         Law law;
-        laws = new address[](14);
+        laws = new address[](10);
         ILaw.LawConfig memory lawConfig;
 
         // dummy call: mint coins at mock1155 contract.
@@ -459,6 +459,8 @@ contract ConstitutionsMock is Test {
         laws[9] = address(law);
         delete lawConfig; // reset lawConfig
     }
+
+
 
     function _getRoles(address payable dao_)
         internal

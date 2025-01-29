@@ -15,7 +15,7 @@ contract Erc20VotesMockTest is Test {
 
     function testDeploy() public {
         assertEq(erc20VotesMock.totalSupply(), 0);
-        assertEq(erc20VotesMock.name(), "Mock");
+        assertEq(erc20VotesMock.name(), "mock");
         assertEq(erc20VotesMock.symbol(), "MOCK");
     }
 
@@ -71,7 +71,7 @@ contract Erc721MockTest is Test {
 
         // act
         vm.prank(mockAddress);
-        erc721Mock.mintNFT(NftToMint);
+        erc721Mock.cheatMint(NftToMint);
 
         // assert owner after mint.
         assertEq(erc721Mock.balanceOf(mockAddress), 1);

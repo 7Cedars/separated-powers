@@ -125,10 +125,12 @@ abstract contract BaseSetup is Test, TestVariables, TestHelpers {
 
         // deploy mocks
         erc1155Mock = new Erc1155Mock();
-        erc721Mock = new Erc721Mock();
         erc20VotesMock = new Erc20VotesMock();
         daoMock = new DaoMock();
         constitutionsMock = new ConstitutionsMock();
+
+        vm.prank(address(daoMock));
+        erc721Mock = new Erc721Mock();
     }
 }
 
@@ -204,3 +206,31 @@ abstract contract TestSetupLaws is BaseSetup, ConstitutionsMock {
         daoNames.push("DaoMock");
     }
 }
+
+// abstract contract TestSetupAlignedDao is BaseSetup, ConstitutionsMock {
+//     function setUpVariables() public override {
+//         super.setUpVariables();
+
+//         // initiate constitution & get founders' roles list
+//         (address[] memory laws_) = constitutionsMock.initiateLawsTestConstitution(
+//             payable(address(daoMock)), payable(address(erc1155Mock)), payable(address(erc20VotesMock))
+//         );
+//         laws = laws_;
+
+//         // constitute daoMock.
+//         daoMock.constitute(laws);
+
+//         // testing...
+//         PresetAction presetAction = PresetAction(laws[laws.length - 1]);
+//         console.logAddress(presetAction.targets(0));
+
+//         // assign Roles
+//         vm.roll(block.number + 4000);
+//         daoMock.execute(
+//             laws[laws.length - 1],
+//             abi.encode(), // empty calldatatest/src/SeparatedPowers.sol
+//             "assigning roles"
+//         );
+//         daoNames.push("DaoMock");
+//     }
+// }

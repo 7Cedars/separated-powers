@@ -1,0 +1,76 @@
+// SPDX-License-Identifier: MIT
+
+///////////////////////////////////////////////////////////////////////////////
+/// This program is free software: you can redistribute it and/or modify    ///
+/// it under the terms of the MIT Public License.                           ///
+///                                                                         ///
+/// This is a Proof Of Concept and is not intended for production use.      ///
+/// Tests are incomplete and it contracts have not been audited.            ///
+///                                                                         ///
+/// It is distributed in the hope that it will be useful and insightful,    ///
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
+///////////////////////////////////////////////////////////////////////////////
+
+// note that natspecs are wip.
+
+pragma solidity 0.8.26;
+
+import { Law } from "../../Law.sol";
+import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { ThrottlePerAccount } from "../modules/ThrottlePerAccount.sol";
+import { NftCheck } from "../modules/NftCheck.sol";
+import { SelfSelect } from "../electoral/SelfSelect.sol";
+import { Erc721Mock } from "../../../test/mocks/Erc721Mock.sol";
+import { Erc1155Mock } from "../../../test/mocks/Erc1155Mock.sol";
+
+
+// Bespoke law 1: ReinstateRole  
+contract ReinstateRole is Law {
+    error ReinstateRole__IsAlreadyMember();
+    uint32 constant ROLE_ID = 1; 
+
+    address public erc721Token;
+
+    constructor(
+        string memory name_,
+        string memory description_,
+        address payable separatedPowers_,
+        uint32 allowedRole_,
+        LawConfig memory config_,
+        address erc721Token_
+    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+        inputParams[0] = _dataType("uint256");
+        inputParams[1] = _dataType("address");
+
+        erc721Token = erc721Token_;
+    }
+   
+    /// @notice execute the law.
+    /// @param lawCalldata the calldata _without function signature_ to send to the function.
+    function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        view
+        virtual
+        override
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
+    {   
+
+        (uint256 tokenId, address account) = abi.decode(lawCalldata, (uint256, address));
+        targets = new address[](2);
+        values = new uint256[](2);
+        calldatas = new bytes[](2);
+        stateChange = abi.encode("");
+
+        // action 0: revoke role member in Separated powers 
+        targets[0] = separatedPowers;
+        calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, account);
+
+        // action 1: burn the access token of the member, so they cannot become member again.
+        targets[1] = erc721Token;
+        calldatas[1] = abi.encodeWithSelector(Erc721Mock.mintNFT.selector, account);
+
+        return (targets, values, calldatas, stateChange);
+    }
+}

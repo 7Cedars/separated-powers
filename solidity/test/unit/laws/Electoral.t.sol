@@ -19,7 +19,7 @@ contract DirectSelectTest is TestSetupLaws {
         // prep: check if alice does NOT have role 3
         assertEq(daoMock.hasRoleSince(charlotte, ROLE_THREE), 0);
         address directSelect = laws[4];
-        bytes memory lawCalldata = abi.encode(false); // revoke
+        bytes memory lawCalldata = abi.encode(false, charlotte); // revoke
         bytes memory expectedCalldata =
             abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
 
@@ -36,7 +36,7 @@ contract DirectSelectTest is TestSetupLaws {
         // prep: check if alice does have role 3
         assertNotEq(daoMock.hasRoleSince(alice, ROLE_THREE), 0);
         address directSelect = laws[4];
-        bytes memory lawCalldata = abi.encode(false); // revoke
+        bytes memory lawCalldata = abi.encode(false, alice); // revoke
         abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, alice);
 
         // act & assert
@@ -49,7 +49,7 @@ contract DirectSelectTest is TestSetupLaws {
         // prep: check if alice does have role 3
         assertNotEq(daoMock.hasRoleSince(alice, ROLE_THREE), 0);
         address directSelect = laws[4];
-        bytes memory lawCalldata = abi.encode(true); // revoke
+        bytes memory lawCalldata = abi.encode(true, alice); // revoke
         bytes memory expectedCalldata = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_THREE, alice);
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
@@ -64,7 +64,7 @@ contract DirectSelectTest is TestSetupLaws {
         // prep: check if alice does have role 3
         assertEq(daoMock.hasRoleSince(charlotte, ROLE_THREE), 0);
         address directSelect = laws[4];
-        bytes memory lawCalldata = abi.encode(true); // revoke
+        bytes memory lawCalldata = abi.encode(true, charlotte); // revoke
         abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_THREE, charlotte);
 
         // act & assert

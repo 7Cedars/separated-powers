@@ -466,8 +466,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // prep
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         // check that mockAddress does NOT have ROLE_ONE
         assertEq(daoMock.hasRoleSince(mockAddress, ROLE_ONE), 0);
@@ -484,8 +484,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // prep
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         // act
         vm.prank(mockAddress);
@@ -501,8 +501,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // prep
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         // build return expected return data
         address[] memory tar = new address[](1);
@@ -538,8 +538,9 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // prep
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
+
         // execute action once...
         vm.prank(mockAddress);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
@@ -553,8 +554,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
     function testExecuteRevertsIfLawNotActive() public {
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         // revoke law
         vm.prank(address(daoMock));
@@ -631,8 +632,9 @@ contract ExecuteTest is TestSetupSeparatedPowers {
     function testExecuteRevertsIfLawChecksNotPassed() public {
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
+        
 
         address[] memory tar = new address[](0);
         uint256[] memory val = new uint256[](0);
@@ -655,9 +657,9 @@ contract ExecuteTest is TestSetupSeparatedPowers {
     function testIfReturnDataIsAddressOneNothingGetsExecuted() public {
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
-
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
+        
         address[] memory tar = new address[](1);
         uint256[] memory val = new uint256[](1);
         bytes[] memory cal = new bytes[](1);
@@ -683,8 +685,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
     function testExecuteRevertsWithIncorrectReturnArrayLengths() public {
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         address[] memory tar = new address[](1);
         uint256[] memory val = new uint256[](2);
