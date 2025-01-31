@@ -1,4 +1,4 @@
- // SPDX-License-Identifier: MIT
+    // SPDX-License-Identifier: MIT
 
 ///////////////////////////////////////////////////////////////////////////////
 /// This program is free software: you can redistribute it and/or modify    ///
@@ -22,7 +22,8 @@ import { Erc721Mock } from "../../../../test/mocks/Erc721Mock.sol";
 
 contract RevokeMembership is Law {
     error RevokeMembership__IsNotMember();
-    uint32 constant ROLE_ID = 1; 
+
+    uint32 constant ROLE_ID = 1;
 
     address public erc721Token;
 
@@ -39,24 +40,23 @@ contract RevokeMembership is Law {
 
         erc721Token = erc721Token_;
     }
-   
+
     /// @notice execute the law.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        view 
+        view
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
-    {   
-
+    {
         (uint256 tokenId, address account) = abi.decode(lawCalldata, (uint256, address));
         targets = new address[](2);
         values = new uint256[](2);
         calldatas = new bytes[](2);
         stateChange = abi.encode("");
 
-        // action 0: revoke role member in Separated powers 
+        // action 0: revoke role member in Separated powers
         targets[0] = separatedPowers;
         calldatas[0] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, account);
 

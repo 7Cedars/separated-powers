@@ -42,6 +42,14 @@ import { ERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
+////////////////////////////////////////////////
+//            ONLY FOR TESTING                //
+////////////////////////////////////////////////
+import { Test, console, console2 } from "lib/forge-std/src/Test.sol";
+////////////////////////////////////////////////
+//            ONLY FOR TESTING                //
+////////////////////////////////////////////////
+
 contract Law is ERC165, ILaw {
     using ShortStrings for *;
 
@@ -91,20 +99,29 @@ contract Law is ERC165, ILaw {
         if (msg.sender != separatedPowers) {
             revert Law__OnlySeparatedPowers();
         }
+        console.log("waypoint 0"); 
         _executeChecks(initiator, lawCalldata, descriptionHash);
+        console.log("waypoint 1"); 
         bytes memory stateChange;
+        console.log("waypoint 2");
         (targets, values, calldatas, stateChange) = simulateLaw(initiator, lawCalldata, descriptionHash);
+        console.log("waypoint 3");
         _changeStateVariables(stateChange);
     }
 
-    /// note NB! this function needs to be overwritten by law implementations to include law specific logics. 
+    /// note NB! this function needs to be overwritten by law implementations to include law specific logics.
     /// @inheritdoc ILaw
-    function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) // NB. £bug: simulateLaw can change state of law _without_ checks having been run! 
+    function simulateLaw(
+        address initiator,
+        bytes memory lawCalldata,
+        bytes32 descriptionHash // NB. £bug: simulateLaw can change state of law _without_ checks having been run!
+    )
         public
-        view // CANNOT change state of law. 
+        view // CANNOT change state of law.
         virtual
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange) {
-            // Empty law logic. Needs to be overridden by law implementations   
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
+    {
+        // Empty law logic. Needs to be overridden by law implementations
     }
 
     //////////////////////////////////////////////////
@@ -182,26 +199,49 @@ contract Law is ERC165, ILaw {
     //////////////////////////////////////////////////
     //           HELPER & VIEW FUNCTIONS            //
     //////////////////////////////////////////////////
-    function getInputParams() public view returns (
-        bytes4 param0, bytes4 param1, bytes4 param2, bytes4 param3, 
-        bytes4 param4, bytes4 param5, bytes4 param6, bytes4 param7
-        ) {
-            return (
-                inputParams[0], inputParams[1], inputParams[2], inputParams[3],
-                inputParams[4], inputParams[5], inputParams[6], inputParams[7]
-       );
+    function getInputParams()
+        public
+        view
+        returns (
+            bytes4 param0,
+            bytes4 param1,
+            bytes4 param2,
+            bytes4 param3,
+            bytes4 param4,
+            bytes4 param5,
+            bytes4 param6,
+            bytes4 param7
+        )
+    {
+        return (
+            inputParams[0],
+            inputParams[1],
+            inputParams[2],
+            inputParams[3],
+            inputParams[4],
+            inputParams[5],
+            inputParams[6],
+            inputParams[7]
+        );
     }
 
-    function getStateVars() public view returns (
-        bytes4 var0, bytes4 var1, bytes4 var2, bytes4 var3, 
-        bytes4 var4, bytes4 var5, bytes4 var6, bytes4 var7
-        ) {
-            return (
-                stateVars[0], stateVars[1], stateVars[2], stateVars[3],
-                stateVars[4], stateVars[5], stateVars[6], stateVars[7]
-       );
+    function getStateVars()
+        public
+        view
+        returns (bytes4 var0, bytes4 var1, bytes4 var2, bytes4 var3, bytes4 var4, bytes4 var5, bytes4 var6, bytes4 var7)
+    {
+        return (
+            stateVars[0],
+            stateVars[1],
+            stateVars[2],
+            stateVars[3],
+            stateVars[4],
+            stateVars[5],
+            stateVars[6],
+            stateVars[7]
+        );
     }
-    
+
     /// @notice implements ERC165
     function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(ILaw).interfaceId || super.supportsInterface(interfaceId);

@@ -12,7 +12,6 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-
 ///
 /// @notice Types used in the SeparatedPowers protocol. Code derived from OpenZeppelin's Governor.sol contract.
 ///
@@ -52,7 +51,8 @@ interface SeparatedPowersTypes {
         Cancelled,
         Defeated,
         Succeeded,
-        Completed
+        Completed,
+        NonExistent
     }
 
     /// @notice Supported vote types. Matches Governor Bravo ordering.

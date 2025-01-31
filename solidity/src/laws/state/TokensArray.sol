@@ -33,10 +33,11 @@ contract TokensArray is Law {
         address tokenAddress;
         TokenType tokenType;
     }
-    Token[] public tokens; 
+
+    Token[] public tokens;
     uint256 public numberOfTokens;
 
-    error TokensArray__TokenNotFound(); 
+    error TokensArray__TokenNotFound();
 
     event TokensArray__TokenAdded(address indexed tokenAddress, TokenType tokenType);
     event TokensArray__TokenRemoved(address indexed tokenAddress, TokenType tokenType);
@@ -58,7 +59,8 @@ contract TokensArray is Law {
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
+        public
+        view
         override
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal, bytes memory stateChange)
     {
@@ -78,11 +80,11 @@ contract TokensArray is Law {
         // step 2: change state
         // note: address is not type checked. We trust the caller
         if (add) {
-            tokens.push(Token({tokenAddress: tokenAddress, tokenType: tokenType}));
+            tokens.push(Token({ tokenAddress: tokenAddress, tokenType: tokenType }));
             numberOfTokens++;
             emit TokensArray__TokenAdded(tokenAddress, tokenType);
         } else if (numberOfTokens == 0) {
-            revert  TokensArray__TokenNotFound();
+            revert TokensArray__TokenNotFound();
         } else {
             for (uint256 index; index < numberOfTokens; index++) {
                 if (tokens[index].tokenAddress == tokenAddress) {
@@ -93,7 +95,7 @@ contract TokensArray is Law {
                 }
 
                 if (index == numberOfTokens - 1) {
-                    revert  TokensArray__TokenNotFound();
+                    revert TokensArray__TokenNotFound();
                 }
             }
             emit TokensArray__TokenRemoved(tokenAddress, tokenType);

@@ -17,8 +17,6 @@
 /// @notice This contract ....
 ///
 
-
-
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
@@ -49,14 +47,15 @@ contract PeerSelect is Law {
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
         string[] memory paramArray = new string[](2);
-        inputParams[0] = _dataType("uint256");
-        inputParams[1] = _dataType("bool");
+        inputParams[0] = _dataType("uint256"); // index
+        inputParams[1] = _dataType("bool"); // revoke
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
-        override
+        public
+        view
         virtual
+        override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         (uint256 index, bool revoke) = abi.decode(lawCalldata, (uint256, bool));
@@ -71,11 +70,11 @@ contract PeerSelect is Law {
         }
 
         if (!revoke) {
-          if (_electedSorted.length >= MAX_ROLE_HOLDERS) {
-            revert PeerSelect__MaxRoleHoldersReached();
-          }
-          address accountElect = NominateMe(NOMINEES).nomineesSorted(index);
-          calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
+            if (_electedSorted.length >= MAX_ROLE_HOLDERS) {
+                revert PeerSelect__MaxRoleHoldersReached();
+            }
+            address accountElect = NominateMe(NOMINEES).nomineesSorted(index);
+            calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
         }
 
         return (targets, values, calldatas, lawCalldata);

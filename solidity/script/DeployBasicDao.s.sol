@@ -37,7 +37,10 @@ contract DeployBasicDao is Script {
 
         // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Basic Dao", "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreicipqz46fivyta6mnizu3ly7hrulnlp6skzyrd7dddgnakwl5ulre");
+        SeparatedPowers separatedPowers = new SeparatedPowers(
+            "Basic Dao",
+            "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreicipqz46fivyta6mnizu3ly7hrulnlp6skzyrd7dddgnakwl5ulre"
+        );
         vm.stopBroadcast();
 
         initiateConstitution(
@@ -60,8 +63,8 @@ contract DeployBasicDao is Script {
         //              CHAPTER 1: EXECUTIVE ACTIONS                //
         //////////////////////////////////////////////////////////////
 
-        // setting input params.
-        string[] memory paramsAction = new string[](3); 
+        // law[0]
+        string[] memory paramsAction = new string[](3);
         paramsAction[0] = "address[]"; // targets
         paramsAction[1] = "uint256[]"; // values
         paramsAction[2] = "bytes[]"; // calldatas
@@ -83,6 +86,7 @@ contract DeployBasicDao is Script {
         laws.push(address(law));
         delete lawConfig;
 
+        // law[1]
         vm.startBroadcast();
         law = new ProposalOnly(
             "Veto an action",
@@ -95,13 +99,15 @@ contract DeployBasicDao is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
+        // law[2]
         // setting config.
         lawConfig.quorum = 51; // = 51 majority of seniors need to vote.
         lawConfig.succeedAt = 66; // =  two/thirds majority FOR vote needed to pass.
         lawConfig.votingPeriod = 50_400; // = duration in number of blocks to vote, about one week.
         lawConfig.needCompleted = laws[0]; // needs the proposal by Delegates to be completed.
-        lawConfig.delayExecution = 25_200; // = duration in number of blocks (= half a week).
         lawConfig.needNotCompleted = laws[1]; // needs the admin NOT to have cast a veto.
+        lawConfig.delayExecution = 25_200; // = duration in number of blocks (= half a week).
+       
         // initiate law
         vm.startBroadcast();
         law = new OpenAction(
@@ -115,7 +121,7 @@ contract DeployBasicDao is Script {
         laws.push(address(law));
         delete lawConfig;
 
-        // set calldata
+        // law[3]
         address[] memory targets = new address[](3);
         uint256[] memory values = new uint256[](3);
         bytes[] memory calldatas = new bytes[](3);
@@ -146,10 +152,11 @@ contract DeployBasicDao is Script {
         laws.push(address(law));
         delete lawConfig;
 
-         //////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////
         //              CHAPTER 2: ELECT ROLES                      //
         //////////////////////////////////////////////////////////////
 
+        // law[4]
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for role 2", // max 31 chars
@@ -161,8 +168,9 @@ contract DeployBasicDao is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
+        // law[5]
         vm.startBroadcast();
-        lawConfig.throttleExecution = 500; 
+        lawConfig.throttleExecution = 500;
         law = new DelegateSelect(
             "Call role 2 election", // max 31 chars
             "Anyone can call (and pay for) an election to assign accounts to role 2. Address can be added to revoke roles. The nominated accounts with most delegated vote tokens will be assigned to role 2. The law can only be called once every 500 blocks.",
@@ -178,6 +186,7 @@ contract DeployBasicDao is Script {
         laws.push(address(law));
         delete lawConfig;
 
+        // law[6]
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for role 1", // max 31 chars
@@ -189,7 +198,7 @@ contract DeployBasicDao is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // setup
+        // law[7]
         lawConfig.quorum = 20; // = Only 20% quorum needed
         lawConfig.succeedAt = 66; // = but at least 2/3 majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 1200; // = number of blocks

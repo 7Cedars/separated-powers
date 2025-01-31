@@ -42,10 +42,6 @@ contract OpenAction is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        // string[] memory inputParams = new string[](3);
-        // inputParams[0] = "address[]";
-        // inputParams[1] = "uint256[]";
-        // inputParams[2] = "bytes[]"; 
         inputParams[0] = _dataType("address[]");
         inputParams[1] = _dataType("uint256[]");
         inputParams[2] = _dataType("bytes[]");
@@ -53,11 +49,16 @@ contract OpenAction is Law {
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
-    function simulateLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 /*descriptionHash*/)
+    function simulateLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 /*descriptionHash*/ )
         public
         view
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory /*stateChange*/)
+        returns (
+            address[] memory targets,
+            uint256[] memory values,
+            bytes[] memory calldatas,
+            bytes memory /*stateChange*/
+        )
     {
         // decode the calldata.
         // note: no check on decoded call data. If needed, this can be added.

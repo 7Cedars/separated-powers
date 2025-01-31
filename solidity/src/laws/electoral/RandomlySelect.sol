@@ -64,18 +64,19 @@ contract RandomlySelect is Law {
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
-        override
+        public
+        view
         virtual
+        override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // setting up array for revoking & assigning roles.
-        
+
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
         uint256 numberRevokees = electedAccounts.length;
         uint256 arrayLength =
             numberNominees < MAX_ROLE_HOLDERS ? numberRevokees + numberNominees : numberRevokees + MAX_ROLE_HOLDERS;
-        address[] memory accountElects = 
+        address[] memory accountElects =
             new address[](numberNominees < MAX_ROLE_HOLDERS ? numberNominees : MAX_ROLE_HOLDERS);
 
         targets = new address[](arrayLength);
@@ -86,7 +87,7 @@ contract RandomlySelect is Law {
         }
 
         // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts.
-        for (uint256 i; i < numberRevokees; i++) { 
+        for (uint256 i; i < numberRevokees; i++) {
             calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, electedAccounts[i]);
         }
 
@@ -97,7 +98,7 @@ contract RandomlySelect is Law {
                 calldatas[i + numberRevokees] =
                     abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
                 accountElects[i] = accountElect;
-            } 
+            }
         } else {
             uint256 pseudoRandomValue = uint256(keccak256(abi.encodePacked(block.number, descriptionHash)));
             // note: this is very inefficient, but I cannot add a getter function in NominateMe - so have to retrieve addresses one by one..

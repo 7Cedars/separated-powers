@@ -68,9 +68,10 @@ contract TokensSelect is Law {
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
-        override
+        public
+        view
         virtual
+        override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // step 1: setting up array for revoking & assigning roles.
@@ -78,7 +79,7 @@ contract TokensSelect is Law {
         uint256 numberElected = electedAccounts.length;
         uint256 arrayLength =
             numberNominees < MAX_ROLE_HOLDERS ? numberElected + numberNominees : numberElected + MAX_ROLE_HOLDERS;
-        address[] memory accountElects = 
+        address[] memory accountElects =
             new address[](numberNominees < MAX_ROLE_HOLDERS ? numberNominees : MAX_ROLE_HOLDERS);
 
         targets = new address[](arrayLength);

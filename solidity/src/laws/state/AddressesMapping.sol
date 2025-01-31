@@ -18,7 +18,7 @@
 ///
 pragma solidity 0.8.26;
 
-import { Law } from "../../Law.sol"; 
+import { Law } from "../../Law.sol";
 
 contract AddressesMapping is Law {
     error AddressesMapping__AlreadyTrue();
@@ -43,12 +43,13 @@ contract AddressesMapping is Law {
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
+        public
+        view
         override
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal, bytes memory stateChange)
     {
         // retrieve the account that was revoked
-        (address account, bool add) = abi.decode(lawCalldata, (address, bool));  
+        (address account, bool add) = abi.decode(lawCalldata, (address, bool));
 
         if (add && addresses[account]) {
             revert AddressesMapping__AlreadyTrue();

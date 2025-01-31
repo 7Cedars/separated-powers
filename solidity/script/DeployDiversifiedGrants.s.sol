@@ -23,9 +23,10 @@ import { Grant } from "../src/laws/bespoke/diversifiedGrants/Grant.sol";
 import { StartGrant } from "../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
 import { StopGrant } from "../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
 import { SelfDestructPresetAction } from "../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol";
-import { NftSelfSelect } from "../src/laws/bespoke/diversifiedGrants/NftSelfSelect.sol";
+// borrowing one law from another bespoke folder. Not ideal, but ok for now.
+import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 
-// config   
+// config
 import { HelperConfig } from "./HelperConfig.s.sol";
 
 contract DeployDiversifiedGrants is Script {
@@ -48,7 +49,10 @@ contract DeployDiversifiedGrants is Script {
         vm.stopBroadcast();
 
         initiateConstitution(
-            payable(address(separatedPowers)), payable(config.erc1155Mock), payable(config.erc20VotesMock), payable(address(erc721Mock))
+            payable(address(separatedPowers)),
+            payable(config.erc1155Mock),
+            payable(config.erc20VotesMock),
+            payable(address(erc721Mock))
         );
 
         // constitute dao.
@@ -59,7 +63,12 @@ contract DeployDiversifiedGrants is Script {
         return (payable(address(separatedPowers)), laws, config);
     }
 
-    function initiateConstitution(address payable dao_, address payable mock20_, address payable mock721_, address payable mock1155_) public {
+    function initiateConstitution(
+        address payable dao_,
+        address payable mock20_,
+        address payable mock721_,
+        address payable mock1155_
+    ) public {
         Law law;
         ILaw.LawConfig memory lawConfig;
 
@@ -72,20 +81,20 @@ contract DeployDiversifiedGrants is Script {
         lawConfig.votingPeriod = 1200; // = number of blocks
         // setting up params
         string[] memory inputParams = new string[](3);
-        inputParams[0] = "address"; // grantee 
-        inputParams[1] = "address"; // grant Law address 
-        inputParams[2] = "uint256"; // amount 
+        inputParams[0] = "address"; // grantee
+        inputParams[1] = "address"; // grant Law address
+        inputParams[2] = "uint256"; // amount
         // initiating law.
         vm.startBroadcast();
-        // Note: the grant has its token pre specified.  
+        // Note: the grant has its token pre specified.
         law = new ProposalOnly(
-                "Make a proposal to a grant.",
-                "Make a grant proposal that will be voted on by community members. It has to specify the grant address in the proposal. Input [0] = grantee address to transfer to. input[1] = grant address to transfer from.  input[2] =  quantity to transfer of token.",
-                dao_,
-                1, // access role
-                lawConfig,
-                inputParams // input parameters
-            );
+            "Make a proposal to a grant.",
+            "Make a grant proposal that will be voted on by community members. It has to specify the grant address in the proposal. Input [0] = grantee address to transfer to. input[1] = grant address to transfer from.  input[2] =  quantity to transfer of token.",
+            dao_,
+            1, // access role
+            lawConfig,
+            inputParams // input parameters
+        );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
@@ -97,58 +106,58 @@ contract DeployDiversifiedGrants is Script {
         // initiating law
         vm.startBroadcast();
         law = new StartGrant(
-                "Create a grant", // max 31 chars
-                "Subject to a vote, a grant can be created. The token, budget and duration are pre-specified, as well as the role Id that will govern the grant.",
-                dao_, // separated powers
-                2, // access role
-                lawConfig, // bespoke configs for this law. 
-                laws[0] // law from where proposals need to be made. 
-            );
+            "Create a grant", // max 31 chars
+            "Subject to a vote, a grant can be created. The token, budget and duration are pre-specified, as well as the role Id that will govern the grant.",
+            dao_, // separated powers
+            2, // access role
+            lawConfig, // bespoke configs for this law.
+            laws[0] // law from where proposals need to be made.
+        );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[2] 
+        // laws[2]
         lawConfig.quorum = 40; // = 40% quorum needed
-        lawConfig.succeedAt = 80; // =  80 majority needed 
-        lawConfig.votingPeriod = 120; // = number of blocks for vote. 
+        lawConfig.succeedAt = 80; // =  80 majority needed
+        lawConfig.votingPeriod = 120; // = number of blocks for vote.
         // input params
         inputParams = new string[](1);
-        inputParams[0] = "address"; 
+        inputParams[0] = "address";
         // initiating law.
         vm.startBroadcast();
         law = new BespokeAction(
-                "Stop law",
-                "The security Council can stop any law.",
-                dao_, // separated powers
-                3, // access role
-                lawConfig, // bespoke configs for this law
-                dao_,
-                SeparatedPowers.revokeLaw.selector, 
-                inputParams 
-            );
+            "Stop law",
+            "The security Council can stop any law.",
+            dao_, // separated powers
+            3, // access role
+            lawConfig, // bespoke configs for this law
+            dao_,
+            SeparatedPowers.revokeLaw.selector,
+            inputParams
+        );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[3] 
+        // laws[3]
         lawConfig.quorum = 50; // = 50% quorum needed
         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
         lawConfig.votingPeriod = 1200; // = number of blocks
-        lawConfig.needCompleted = laws[2]; // NB! first a law needs to be stopped before it can be restarted! 
-        // This does mean that the reason given needs to be the same as when the law was stopped.  
+        lawConfig.needCompleted = laws[2]; // NB! first a law needs to be stopped before it can be restarted!
+        // This does mean that the reason given needs to be the same as when the law was stopped.
         // initiating law.
         vm.startBroadcast();
         law = new BespokeAction(
-                "Restart law",
-                "The security Council can restart a law.",
-                dao_, // separated powers
-                3, // access role
-                lawConfig, // bespoke configs for this law
-                dao_,
-                SeparatedPowers.adoptLaw.selector, 
-                inputParams // note: same inputParams as laws [2]
-            );
+            "Restart law",
+            "The security Council can restart a law.",
+            dao_, // separated powers
+            3, // access role
+            lawConfig, // bespoke configs for this law
+            dao_,
+            SeparatedPowers.adoptLaw.selector,
+            inputParams // note: same inputParams as laws [2]
+        );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
@@ -168,7 +177,7 @@ contract DeployDiversifiedGrants is Script {
             mock721_
         );
         vm.stopBroadcast();
-        laws.push(address(law)); 
+        laws.push(address(law));
 
         // laws[5]
         vm.startBroadcast();
@@ -188,10 +197,10 @@ contract DeployDiversifiedGrants is Script {
             "Call role 2 election", // max 31 chars
             "An election is called by an oracle, as set by the admin. The nominated accounts with most delegated vote tokens are then assigned to role 2.",
             dao_, // separated powers protocol.
-            9, // oracle role id designation. 
+            9, // oracle role id designation.
             lawConfig, //  config file.
             mock20_, // the tokens that will be used as votes in the election.
-            laws[7], // nominateMe // 
+            laws[7], // nominateMe //
             10, // maximum amount of delegates
             2 // role id to be assigned
         );
@@ -210,17 +219,17 @@ contract DeployDiversifiedGrants is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[8]: security council: peer select. - role 3 
+        // laws[8]: security council: peer select. - role 3
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 7200; // = duration in number of blocks to vote, about one day.
-        // 
+        //
         vm.startBroadcast();
         law = new PeerSelect(
             "Assign Role 3", // max 31 chars
             "Role 3 are assigned by their peers through a majority vote.",
             dao_, // separated powers protocol.
-            3, // role 3 id designation. 
+            3, // role 3 id designation.
             lawConfig, //  config file.
             3, // maximum elected to role
             laws[7], // nominateMe
@@ -230,7 +239,7 @@ contract DeployDiversifiedGrants is Script {
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[9]: selfDestructPresetAction: assign initial accounts to security council. 
+        // laws[9]: selfDestructPresetAction: assign initial accounts to security council.
         address[] memory targets = new address[](3);
         uint256[] memory values = new uint256[](3);
         bytes[] memory calldatas = new bytes[](3);
@@ -244,14 +253,14 @@ contract DeployDiversifiedGrants is Script {
         calldatas[2] =
             abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
         vm.startBroadcast();
-        law = new SelfDestructPresetAction( 
+        law = new SelfDestructPresetAction(
             "Set initial roles 3", // max 31 chars
             "The admin selects initial accounts for role 3. The law self destructs when executed.",
             dao_, // separated powers protocol.
-            0, // admin. 
+            0, // admin.
             lawConfig, //  config file.
             targets,
-            values, 
+            values,
             calldatas
         );
         vm.stopBroadcast();
@@ -267,7 +276,7 @@ contract DeployDiversifiedGrants is Script {
             "Elect and revoke role 4", // max 31 chars
             "Elect and revoke members for role 4 (Grant council A)",
             dao_, // separated powers protocol.
-            2, // governors. 
+            2, // governors.
             lawConfig, //  config file.
             4 // role id to be assigned
         );
@@ -279,7 +288,7 @@ contract DeployDiversifiedGrants is Script {
             "Elect and revoke role 5", // max 31 chars
             "Elect and revoke members for role 5 (Grant council B)",
             dao_, // separated powers protocol.
-            2, // governors. 
+            2, // governors.
             lawConfig, //  config file. // same as law[9]
             5 // role id to be assigned
         );
@@ -291,14 +300,14 @@ contract DeployDiversifiedGrants is Script {
             "Elect and revoke role 6", // max 31 chars
             "Elect and revoke members for role 6 (Grant council C)",
             dao_, // separated powers protocol.
-            2, // governors. 
+            2, // governors.
             lawConfig, //  config file. // same as law[9]
             6 // role id to be assigned
         );
         vm.stopBroadcast();
         delete lawConfig; // here we delete the law config
 
-        // note at the moment not possible to resign form these roles. In reality there should be a law that allows for resignations. 
+        // note at the moment not possible to resign form these roles. In reality there should be a law that allows for resignations.
 
         // laws[13]
         vm.startBroadcast();
@@ -306,7 +315,7 @@ contract DeployDiversifiedGrants is Script {
             "Set Oracle", // max 31 chars
             "The admin selects accounts for role 9, the oracle role.",
             dao_, // separated powers protocol.
-            0, // admin. 
+            0, // admin.
             lawConfig, //  config file.
             9 // role id to be assigned
         );

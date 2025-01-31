@@ -172,7 +172,7 @@ contract RandomlySelectTest is TestSetupLaws {
         assertEq(calldatasOut[0], expectedCalldata);
     }
 
-    function testAssignRandomRolesWithManyNominees() public { 
+    function testAssignRandomRolesWithManyNominees() public {
         // prep -- nominate all users
         address nominateMe = laws[3];
         address randomlySelect = laws[5];
@@ -312,7 +312,7 @@ contract TokenSelectTest is TestSetupLaws {
         revokees[0] = users[0];
         revokees[1] = users[1];
         revokees[2] = users[2];
-        bytes memory lawCalldataElect2 = abi.encode(revokees); 
+        bytes memory lawCalldataElect2 = abi.encode(revokees);
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut2, uint256[] memory valuesOut2, bytes[] memory calldatasOut2) =
             Law(tokenSelect).executeLaw(charlotte, lawCalldataElect2, bytes32(0));
@@ -333,7 +333,7 @@ contract DelegateSelectTest is TestSetupLaws {
         address nominateMe = laws[3];
         address delegateSelect = laws[7];
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
-        bytes memory lawCalldataElect = abi.encode();  // empty calldata
+        bytes memory lawCalldataElect = abi.encode(); // empty calldata
         bytes memory expectedCalldata =
             abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
@@ -358,10 +358,20 @@ contract DelegateSelectTest is TestSetupLaws {
         address nominateMe = laws[3];
         address delegateSelect = laws[7];
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
+        // nominate
         for (uint256 i = 4; i < users.length; i++) {
-            vm.startPrank(address(daoMock));
+            vm.prank(address(daoMock));
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
+            vm.stopPrank();
         }
+        // mint vote
+        for (uint256 i = 0; i < users.length; i++) {
+            vm.startPrank(users[i]);
+            erc20VotesMock.mintVotes(100 + i * 2);
+            erc20VotesMock.delegate(users[i]); // delegate votes to themselves
+            vm.stopPrank();
+        }
+
         // act
         bytes memory lawCalldataElect = abi.encode(new address[](0)); // empty calldata
         vm.startPrank(address(daoMock));
@@ -402,7 +412,7 @@ contract DelegateSelectTest is TestSetupLaws {
         revokees[0] = users[0];
         revokees[1] = users[1];
         revokees[2] = users[2];
-        bytes memory lawCalldataElect2 = abi.encode(revokees); 
+        bytes memory lawCalldataElect2 = abi.encode(revokees);
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut2, uint256[] memory valuesOut2, bytes[] memory calldatasOut2) =
             Law(delegateSelect).executeLaw(charlotte, lawCalldataElect2, bytes32(0));

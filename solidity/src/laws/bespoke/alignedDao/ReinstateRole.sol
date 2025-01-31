@@ -22,7 +22,8 @@ import { Erc721Mock } from "../../../../test/mocks/Erc721Mock.sol";
 
 contract ReinstateRole is Law {
     error ReinstateRole__IsAlreadyMember();
-    uint32 constant ROLE_ID = 1; 
+
+    uint32 constant ROLE_ID = 1;
 
     address public erc721Token;
 
@@ -34,12 +35,12 @@ contract ReinstateRole is Law {
         LawConfig memory config_,
         address erc721Token_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("uint256");
-        inputParams[1] = _dataType("address");
+        inputParams[0] = _dataType("uint256"); // token id
+        inputParams[1] = _dataType("address"); // account
 
         erc721Token = erc721Token_;
     }
-   
+
     /// @notice execute the law.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
@@ -48,21 +49,20 @@ contract ReinstateRole is Law {
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
-    {   
-
+    {
         (uint256 tokenId, address account) = abi.decode(lawCalldata, (uint256, address));
         targets = new address[](2);
         values = new uint256[](2);
         calldatas = new bytes[](2);
         stateChange = abi.encode("");
 
-        // action 0: revoke role member in Separated powers 
+        // action 0: revoke role member in Separated powers
         targets[0] = separatedPowers;
         calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, account);
 
         // action 1: burn the access token of the member, so they cannot become member again.
         targets[1] = erc721Token;
-        calldatas[1] = abi.encodeWithSelector(Erc721Mock.mintNFT.selector, account);
+        calldatas[1] = abi.encodeWithSelector(Erc721Mock.mintNFT.selector, tokenId, account);
 
         return (targets, values, calldatas, stateChange);
     }

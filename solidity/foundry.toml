@@ -18,6 +18,7 @@ wrap_comments = false
 runs = 256
 depth = 256
 fail_on_revert = true 
+seed = '0x3e6'
 
 [invariant] 
 runs = 128

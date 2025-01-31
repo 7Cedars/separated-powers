@@ -12,7 +12,6 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // note that natspecs are wip.
 
 /// @notice This contract allows account holders to log themselves as nominated. The nomination can subsequently be used for an election process: see {DelegateSelect}, {RandomSelect} and {TokenSelect} for examples.
@@ -52,14 +51,14 @@ contract NominateMe is Law {
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        view 
-        override
+        view
         virtual
+        override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // decode the calldata.
         (bool nominateMe) = abi.decode(lawCalldata, (bool));
-         
+
         // nominating //
         if (nominateMe) {
             if (nominees[initiator] != 0) {
@@ -89,7 +88,7 @@ contract NominateMe is Law {
             nomineesSorted.push(initiator);
             nomineesCount++;
             emit NominateMe__NominationReceived(initiator);
-        } else  {
+        } else {
             nominees[initiator] = 0;
             for (uint256 i; i < nomineesSorted.length; i++) {
                 if (nomineesSorted[i] == initiator) {

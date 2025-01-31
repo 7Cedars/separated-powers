@@ -20,11 +20,11 @@ import { SelfSelect } from "../../electoral/SelfSelect.sol";
 import { Members } from "./Members.sol";
 
 contract RoleByKyc is SelfSelect {
-    error RoleByKyc__NotEligible(); 
+    error RoleByKyc__NotEligible();
 
-    uint16[] public nationalities; 
-    uint16[] public countryOfResidences; 
-    int64 public olderThan; // in seconds 
+    uint16[] public nationalities;
+    uint16[] public countryOfResidences;
+    int64 public olderThan; // in seconds
     int64 public youngerThan; // in seconds
     address public members;
 
@@ -36,64 +36,69 @@ contract RoleByKyc is SelfSelect {
         uint32 allowedRole_,
         LawConfig memory config_,
         // self select
-        uint32 roleId_, 
-        // filter 
+        uint32 roleId_,
+        // filter
         uint16[] memory nationalities_,
-        uint16[] memory countryOfResidences_, 
-        int64 olderThan_, // in seconds 
+        uint16[] memory countryOfResidences_,
+        int64 olderThan_, // in seconds
         int64 youngerThan_, // in seconds
         // members state law
-        address members_  
-        ) 
-        SelfSelect(name_, description_, separatedPowers_, allowedRole_, config_, roleId_) { 
-            nationalities = nationalities_;
-            countryOfResidences = countryOfResidences_;
-            olderThan = olderThan_;
-            youngerThan = youngerThan_;
-        }
+        address members_
+    ) SelfSelect(name_, description_, separatedPowers_, allowedRole_, config_, roleId_) {
+        nationalities = nationalities_;
+        countryOfResidences = countryOfResidences_;
+        olderThan = olderThan_;
+        youngerThan = youngerThan_;
+    }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        view 
-        override
+        view
         virtual
+        override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
-        // note that each initiates to 'false'. 
+        // note that each initiates to 'false'.
         bool nationalityOk;
-        bool residencyOk; 
-        bool oldEnough; 
-        bool youngEnough; 
+        bool residencyOk;
+        bool oldEnough;
+        bool youngEnough;
         (uint16 nationality, uint16 countryOfResidence, int64 DoB) = Members(members).members(initiator);
 
-        // step 0: check nationalities  
+        // step 0: check nationalities
         if (nationalities.length > 0) {
-            for (uint i = 0; i < nationalities.length; i++) {
-                if (nationality == nationalities[i]) { nationalityOk = true; break; } 
+            for (uint256 i = 0; i < nationalities.length; i++) {
+                if (nationality == nationalities[i]) {
+                    nationalityOk = true;
+                    break;
+                }
             }
         } else {
-            nationalityOk = true; 
+            nationalityOk = true;
         }
 
         // step 1: check country of residences
         if (countryOfResidences.length > 0) {
-            for (uint i = 0; i < countryOfResidences.length; i++) {
-                if (countryOfResidence == countryOfResidences[i]) { residencyOk = true; break; } 
+            for (uint256 i = 0; i < countryOfResidences.length; i++) {
+                if (countryOfResidence == countryOfResidences[i]) {
+                    residencyOk = true;
+                    break;
+                }
             }
         } else {
             residencyOk = true;
         }
-        
+
         // step 2: check if individual is old enough
-        if (olderThan > 0) { 
-            if (uint64(DoB) < (uint64(block.timestamp) - uint64(olderThan))) { oldEnough = true; }
+        if (olderThan > 0) {
+            if (uint64(DoB) < (uint64(block.timestamp) - uint64(olderThan))) oldEnough = true;
         } else {
             oldEnough = true;
         }
 
         // step 3: check if individual is young enough
         if (youngerThan > 0) {
-            if (uint64(DoB) > (uint64(block.timestamp) - uint64(youngerThan))) { youngEnough = true; }
+            if (uint64(DoB) > (uint64(block.timestamp) - uint64(youngerThan))) youngEnough = true;
         } else {
             youngEnough = true;
         }
@@ -102,7 +107,7 @@ contract RoleByKyc is SelfSelect {
         if (!nationalityOk || !residencyOk || !oldEnough || !youngEnough) {
             revert RoleByKyc__NotEligible();
         }
-        
+
         // step 5: call super
         return super.simulateLaw(initiator, lawCalldata, descriptionHash);
     }

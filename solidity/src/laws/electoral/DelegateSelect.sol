@@ -16,17 +16,17 @@
 
 /// @notice This contract assigns accounts to roles by the tokens that have been delegated to them.
 /// - At construction time, the following is set:
-///    - the maximum amount of accounts that can be assigned the role 
+///    - the maximum amount of accounts that can be assigned the role
 ///    - the roleId to be assigned
 ///    - the ERC20 token address to be assessed.
 ///    - the address from which to retrieve nominees.
 ///
 /// - The logic:
-///    - The calldata holds the accounts that need to be _revoked_ from the role prior to the election. 
+///    - The calldata holds the accounts that need to be _revoked_ from the role prior to the election.
 ///    - If fewer than N accounts are nominated, all will be assigne roleId R.
 ///    - If more than N accounts are nominated, the accounts that hold most ERC20 T will be assigned roleId R.
-/// 
-/// 
+///
+///
 ///
 /// @dev The contract is an example of a law that
 /// - has does not need a proposal to be voted through. It can be called directly.
@@ -47,7 +47,7 @@ contract DelegateSelect is Law {
     uint256 public immutable MAX_ROLE_HOLDERS;
     uint32 public immutable ROLE_ID;
     address public immutable NOMINEES;
-    address[] public electedAccounts; 
+    address[] public electedAccounts;
 
     constructor(
         string memory name_,
@@ -68,13 +68,14 @@ contract DelegateSelect is Law {
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
-        override
+        public
+        view
         virtual
+        override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // step 1: setting up array for revoking & assigning roles.
-        address[] memory accountElects; 
+        address[] memory accountElects;
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
         uint256 numberRevokees = electedAccounts.length;
         uint256 arrayLength =
@@ -90,7 +91,7 @@ contract DelegateSelect is Law {
         }
 
         // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts.
-        for (uint256 i; i < numberRevokees; i++) { 
+        for (uint256 i; i < numberRevokees; i++) {
             calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, electedAccounts[i]);
         }
 
@@ -122,7 +123,7 @@ contract DelegateSelect is Law {
                 uint256 rank;
                 // a: loop to assess ranking.
                 for (uint256 j; j < numberNominees; j++) {
-                    if (_votes[j] > _votes[i]) {
+                    if (j != i && _votes[j] >= _votes[i]) {
                         rank++;
                         if (rank > MAX_ROLE_HOLDERS) break; // b: do not need to know rank beyond MAX_ROLE_HOLDERS threshold.
                     }
@@ -131,7 +132,7 @@ contract DelegateSelect is Law {
                 if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberRevokees) {
                     calldatas[index + numberRevokees] =
                         abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nominees[i]);
-                    accountElects[i] = _nominees[i];
+                    accountElects[index] = _nominees[i];
                     index++;
                 }
             }

@@ -25,19 +25,19 @@ import { Grant } from "./Grant.sol";
 contract StopGrant is Law {
     error StopGrant__GrantHasNotExpired();
 
-     constructor(
+    constructor(
         string memory name_,
         string memory description_,
         address payable separatedPowers_,
         uint32 allowedRole_,
-        LawConfig memory config_ // this is the configuration for creating new grants, not of the grants themselves. 
+        LawConfig memory config_ // this is the configuration for creating new grants, not of the grants themselves.
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams[0] = _dataType("address"); // address of grant
     }
-    
+
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        view 
+        view
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
@@ -45,8 +45,11 @@ contract StopGrant is Law {
         // step 1: decode data from stateChange
         (address grantAddress) = abi.decode(lawCalldata, (address));
 
-        // step 2: run additional checks 
-        if (Grant(grantAddress).budget() - Grant(grantAddress).spent() != 0 && Grant(grantAddress).expiryBlock() > uint48(block.number)) {
+        // step 2: run additional checks
+        if (
+            Grant(grantAddress).budget() - Grant(grantAddress).spent() != 0
+                && Grant(grantAddress).expiryBlock() > uint48(block.number)
+        ) {
             revert StopGrant__GrantHasNotExpired();
         }
 
@@ -61,6 +64,6 @@ contract StopGrant is Law {
         calldatas[0] = abi.encodeWithSelector(SeparatedPowers.revokeLaw.selector, grantAddress);
 
         // step 5: return data
-        return (targets, values, calldatas, stateChange); 
+        return (targets, values, calldatas, stateChange);
     }
 }

@@ -50,9 +50,9 @@ contract SelfSelect is Law {
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        view 
+        view
+        virtual
         override
-        virtual 
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // step 1: decode the calldata.

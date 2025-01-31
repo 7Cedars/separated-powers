@@ -12,8 +12,8 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-/// @notice Natspecs WIP 
-/// 
+/// @notice Natspecs WIP
+///
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
@@ -22,18 +22,18 @@ import { SeparatedPowers } from "../../SeparatedPowers.sol";
 abstract contract HasNotRoleCheck is Law {
     /// @notice overrides the default simulateLaw function.
 
-    error HasNotRoleCheck__DoesHaveRole(); 
+    error HasNotRoleCheck__DoesHaveRole();
 
     function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal override {
         (uint32[] memory roles) = hasNotRoles();
 
         for (uint32 i = 0; i < roles.length; i++) {
-          uint48 since = SeparatedPowers(separatedPowers).hasRoleSince(initiator, roles[i]);
-          if (since == 0) {
-            revert HasNotRoleCheck__DoesHaveRole();
-          }
+            uint48 since = SeparatedPowers(separatedPowers).hasRoleSince(initiator, roles[i]);
+            if (since == 0) {
+                revert HasNotRoleCheck__DoesHaveRole();
+            }
         }
-        
+
         super._executeChecks(initiator, lawCalldata, descriptionHash);
     }
 

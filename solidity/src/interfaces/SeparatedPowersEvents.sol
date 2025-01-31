@@ -53,7 +53,9 @@ interface SeparatedPowersEvents {
     /// @param targetLaw the address of the target law
     /// @param lawCalldata the calldata of the law
     /// @param descriptionHash the description hash of the law
-    event ProposalCompleted(address indexed initiator, address indexed targetLaw, bytes lawCalldata, bytes32 descriptionHash);
+    event ProposalCompleted(
+        address indexed initiator, address indexed targetLaw, bytes lawCalldata, bytes32 descriptionHash
+    );
 
     /// @notice Emitted when a proposal for an executive action is cancelled.
     /// @param proposalId the id of the proposal

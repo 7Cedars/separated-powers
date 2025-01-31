@@ -31,15 +31,15 @@ contract StartGrant is Law {
     error StartGrant__GrantAddressAlreadyExists();
     error StartGrant__RequestAmountExceedsAvailableFunds();
 
-    LawConfig public configNewGrants; // config for new grants. 
-    
+    LawConfig public configNewGrants; // config for new grants.
+
     constructor(
         string memory name_,
         string memory description_,
         address payable separatedPowers_,
         uint32 allowedRole_,
-        LawConfig memory config_, // this is the configuration for creating new grants, not of the grants themselves. 
-        address proposals // the address where proposals should be made to proposals. 
+        LawConfig memory config_, // this is the configuration for creating new grants, not of the grants themselves.
+        address proposals // the address where proposals to the grant are made.
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams[0] = _dataType("string"); // name
         inputParams[1] = _dataType("string"); // description
@@ -47,48 +47,53 @@ contract StartGrant is Law {
         inputParams[3] = _dataType("uint256"); // budget
         inputParams[4] = _dataType("address"); // tokenAddress
         inputParams[5] = _dataType("uint256"); // tokenType
-        inputParams[6] = _dataType("uint256"); // tokenId   
+        inputParams[6] = _dataType("uint256"); // tokenId
         inputParams[7] = _dataType("uint32"); // allowedRole
         stateVars = inputParams; // Note: stateVars == inputParams.
 
-        configNewGrants.quorum = 80; 
-        configNewGrants.succeedAt = 66; 
-        configNewGrants.votingPeriod = 1200; 
-        configNewGrants.needCompleted = proposals; 
-      }
-   
+        configNewGrants.quorum = 80;
+        configNewGrants.succeedAt = 66;
+        configNewGrants.votingPeriod = 1200;
+        configNewGrants.needCompleted = proposals;
+    }
+
     /// @notice execute the law.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        view 
+        view
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
-    {   
+    {
         (
-            string memory name, 
-            string memory description, 
+            string memory name,
+            string memory description,
             uint48 duration,
             uint256 budget,
-            address tokenAddress,   
+            address tokenAddress,
             uint256 tokenType,
             uint256 tokenId,
             uint32 allowedRole
-            ) = abi.decode(lawCalldata, (
-                string, string, uint48, uint256, address, uint256, uint256, uint32
-                ));
+        ) = abi.decode(lawCalldata, (string, string, uint48, uint256, address, uint256, uint256, uint32));
 
         // step 0: run additional checks
-        // - if budget of grant does not exceed available funds. 
-        if (Grant.TokenType(tokenType) == Grant.TokenType.ERC20 && budget >  ERC20(tokenAddress).balanceOf(separatedPowers)) {
+        // - if budget of grant does not exceed available funds.
+        if (
+            Grant.TokenType(tokenType) == Grant.TokenType.ERC20
+                && budget > ERC20(tokenAddress).balanceOf(separatedPowers)
+        ) {
             revert StartGrant__RequestAmountExceedsAvailableFunds();
-        } else if (Grant.TokenType(tokenType) == Grant.TokenType.ERC1155 && budget > ERC1155(tokenAddress).balanceOf(separatedPowers, tokenId)) {
+        } else if (
+            Grant.TokenType(tokenType) == Grant.TokenType.ERC1155
+                && budget > ERC1155(tokenAddress).balanceOf(separatedPowers, tokenId)
+        ) {
             revert StartGrant__RequestAmountExceedsAvailableFunds();
         }
 
-        // step 1: calculate address at which grant will be created. 
-        address grantAddress = _getGrantAddress(name, description, duration, budget, tokenAddress, tokenType, tokenId, allowedRole);
+        // step 1: calculate address at which grant will be created.
+        address grantAddress =
+            _getGrantAddress(name, description, duration, budget, tokenAddress, tokenType, tokenId, allowedRole);
 
         // step 2: if address is already in use, revert.
         uint256 codeSize = grantAddress.code.length;
@@ -112,23 +117,20 @@ contract StartGrant is Law {
     }
 
     function _changeStateVariables(bytes memory stateChange) internal override {
-
         // step 0: decode data from stateChange
         (
-        string memory name, 
-        string memory description, 
-        uint48 duration,
-        uint256 budget,
-        address tokenAddress,   
-        uint256 tokenType,
-        uint256 tokenId,
-        uint32 allowedRole
-        ) = abi.decode(stateChange, (
-            string, string, uint48, uint256, address, uint256, uint256, uint32
-            ));
+            string memory name,
+            string memory description,
+            uint48 duration,
+            uint256 budget,
+            address tokenAddress,
+            uint256 tokenType,
+            uint256 tokenId,
+            uint32 allowedRole
+        ) = abi.decode(stateChange, (string, string, uint48, uint256, address, uint256, uint256, uint32));
 
         // stp 1: deploy new grant
-        _deployGrant(name, description, duration, budget, tokenAddress, tokenType, tokenId, allowedRole);      
+        _deployGrant(name, description, duration, budget, tokenAddress, tokenType, tokenId, allowedRole);
     }
 
     /**
@@ -136,59 +138,64 @@ contract StartGrant is Law {
      * exact copy from SimpleAccountFactory.sol, except it takes loyaltyProgram as param
      */
     function _getGrantAddress(
-        string memory name, 
-        string memory description, 
+        string memory name,
+        string memory description,
         uint48 duration,
         uint256 budget,
-        address tokenAddress,   
+        address tokenAddress,
         uint256 tokenType,
         uint256 tokenId,
         uint32 allowedRole
-        ) internal view returns (address) {
-            address grantAddress = Create2.computeAddress(bytes32(keccak256(abi.encodePacked(name, description))), keccak256(abi.encodePacked(
-                type(Grant).creationCode,
-                abi.encode(
-                    // standard params
-                    name,
-                    description,
-                    separatedPowers,
-                    allowedRole,
-                    configNewGrants,
-                    // remaining params
-                    duration,
-                    budget,
-                    tokenAddress,
-                    Grant.TokenType(tokenType),
-                    tokenId
+    ) internal view returns (address) {
+        address grantAddress = Create2.computeAddress(
+            bytes32(keccak256(abi.encodePacked(name, description))),
+            keccak256(
+                abi.encodePacked(
+                    type(Grant).creationCode,
+                    abi.encode(
+                        // standard params
+                        name,
+                        description,
+                        separatedPowers,
+                        allowedRole,
+                        configNewGrants,
+                        // remaining params
+                        duration,
+                        budget,
+                        tokenAddress,
+                        Grant.TokenType(tokenType),
+                        tokenId
+                    )
                 )
-            )));
+            )
+        );
 
-            return grantAddress;
-        }
+        return grantAddress;
+    }
 
     function _deployGrant(
-        string memory name, 
-        string memory description, 
+        string memory name,
+        string memory description,
         uint48 duration,
         uint256 budget,
-        address tokenAddress,   
+        address tokenAddress,
         uint256 tokenType,
         uint256 tokenId,
         uint32 allowedRole
-        ) internal {
-            Grant newGrant = new Grant{salt: bytes32(keccak256(abi.encodePacked(name, description)))}(
-                // standard params
-                name,
-                description,
-                separatedPowers,
-                allowedRole,
-                configNewGrants,
-                // remaining params
-                duration,
-                budget,
-                tokenAddress,
-                Grant.TokenType(tokenType),
-                tokenId
-            );
+    ) internal {
+        Grant newGrant = new Grant{ salt: bytes32(keccak256(abi.encodePacked(name, description))) }(
+            // standard params
+            name,
+            description,
+            separatedPowers,
+            allowedRole,
+            configNewGrants,
+            // remaining params
+            duration,
+            budget,
+            tokenAddress,
+            Grant.TokenType(tokenType),
+            tokenId
+        );
     }
 }

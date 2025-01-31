@@ -6,7 +6,7 @@ import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
 import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
-import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";  
+import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
 
 contract HelperConfig is Script {
     error HelperConfig__InvalidChainId();

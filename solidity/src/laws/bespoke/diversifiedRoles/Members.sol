@@ -17,7 +17,7 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
- 
+
 contract Members is Law {
     error Members__MemberAlreadyExists(address account);
     error Members__MemberNonExistent(address account);
@@ -26,9 +26,10 @@ contract Members is Law {
     struct Member {
         uint16 nationality;
         uint16 countryOfResidence;
-        int64  dateOfBirth; // NB: can also go into minus for before 1970.  https://en.wikipedia.org/wiki/Unix_time#:~:text=A%20signed%2032%2Dbit%20value,Tuesday%202038%2D01%2D19.
+        int64 dateOfBirth; // NB: can also go into minus for before 1970.  https://en.wikipedia.org/wiki/Unix_time#:~:text=A%20signed%2032%2Dbit%20value,Tuesday%202038%2D01%2D19.
     }
-    mapping(address => Member) public members; 
+
+    mapping(address => Member) public members;
 
     event Members__Added(address indexed account);
     event Members__Removed(address indexed account);
@@ -41,53 +42,54 @@ contract Members is Law {
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams[0] = _dataType("address"); // account
-        inputParams[1] = _dataType("uint16");  // nationality
-        inputParams[2] = _dataType("uint16");  // country of residence 
+        inputParams[1] = _dataType("uint16"); // nationality
+        inputParams[2] = _dataType("uint16"); // country of residence
         inputParams[3] = _dataType("int64"); // DoB
-        inputParams[4] = _dataType("bool"); // add ? (if false: remove)  
-      }
-   
+        inputParams[4] = _dataType("bool"); // add ? (if false: remove)
+    }
+
     /// @notice execute the law.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        view 
+        view
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
-    {   
+    {
         // step 0: decode law calldata
-        (address account, , , , bool add) = abi.decode(lawCalldata, (address, uint16, uint16, int64, bool));
-        
-        // step 1: run additional checks 
+        (address account,,,, bool add) = abi.decode(lawCalldata, (address, uint16, uint16, int64, bool));
+
+        // step 1: run additional checks
         if (add && members[account].nationality != 0) {
-            revert Members__MemberAlreadyExists(account);            
-        } 
+            revert Members__MemberAlreadyExists(account);
+        }
         if (!add && members[account].nationality == 0) {
             revert Members__MemberNonExistent(account);
-        } 
+        }
 
-        // step 2: create arrays 
+        // step 2: create arrays
         targets = new address[](1);
         values = new uint256[](1);
         calldatas = new bytes[](1);
         stateChange = abi.encode("");
 
-        // step 3: fill out arrays with data - no action should be taken by protocol. 
+        // step 3: fill out arrays with data - no action should be taken by protocol.
         targets[0] = address(1);
-        stateChange = lawCalldata; 
+        stateChange = lawCalldata;
 
-        // step 4: return data 
+        // step 4: return data
         return (targets, values, calldatas, stateChange);
     }
 
-    // add or remove member from state mapping in law. 
+    // add or remove member from state mapping in law.
     function _changeStateVariables(bytes memory stateChange) internal override {
-        (address account, uint16 nationality, uint16 countryOfResidence, int64 DoB, bool add) = abi.decode(stateChange, (address, uint16, uint16, int64, bool));
+        (address account, uint16 nationality, uint16 countryOfResidence, int64 DoB, bool add) =
+            abi.decode(stateChange, (address, uint16, uint16, int64, bool));
 
         if (add) {
-            members[account] = Member(nationality, countryOfResidence, DoB); 
-            emit Members__Added(account);            
+            members[account] = Member(nationality, countryOfResidence, DoB);
+            emit Members__Added(account);
         } else {
             members[account] = Member(0, 0, 0);
             emit Members__Removed(account);

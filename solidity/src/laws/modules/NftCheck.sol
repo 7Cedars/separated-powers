@@ -12,18 +12,22 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-/// @notice Natspecs WIP 
-/// 
+/// @notice Natspecs WIP
+///
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 import { ERC721 } from "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 
 abstract contract NftCheck is Law {
-    error Erc721Check__DoesNotOwnToken(); 
+    error Erc721Check__DoesNotOwnToken();
 
     /// @notice overrides the default simulateLaw function.
-    function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal virtual override {
+    function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+        internal
+        virtual
+        override
+    {
         bool hasToken = ERC721(_nftCheckAddress()).balanceOf(initiator) > 0;
         if (!hasToken) {
             revert Erc721Check__DoesNotOwnToken();

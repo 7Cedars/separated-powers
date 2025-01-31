@@ -16,10 +16,9 @@
 
 pragma solidity 0.8.26;
 
-// laws 
+// laws
 import { PresetAction } from "../../executive/PresetAction.sol";
 import { SelfDestruct } from "../../modules/SelfDestruct.sol";
-
 
 contract SelfDestructPresetAction is PresetAction, SelfDestruct {
     constructor(
@@ -31,14 +30,16 @@ contract SelfDestructPresetAction is PresetAction, SelfDestruct {
         address[] memory targets_,
         uint256[] memory values_,
         bytes[] memory calldatas_
-    ) PresetAction(
-        name_, description_, separatedPowers_, allowedRole_, config_, targets_, values_, calldatas_
-    ) SelfDestruct() { }
+    )
+        PresetAction(name_, description_, separatedPowers_, allowedRole_, config_, targets_, values_, calldatas_)
+        SelfDestruct()
+    { }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
-        override (PresetAction, SelfDestruct)
+        public
+        view
         virtual
+        override(PresetAction, SelfDestruct)
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         return super.simulateLaw(initiator, lawCalldata, descriptionHash);

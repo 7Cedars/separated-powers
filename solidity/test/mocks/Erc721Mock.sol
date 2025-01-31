@@ -6,8 +6,8 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @dev Mock ERC721 contract for use in DAO example implementations of the SeparatedPowers protocol.
- * IMPORTANT: This is a non-transferable NFT!  
- * Note Natspecs WIP. 
+ * IMPORTANT: This is a non-transferable NFT!
+ * Note Natspecs WIP.
  */
 contract Erc721Mock is ERC721, Ownable {
     error Erc721Mock__NonTransferable();
@@ -15,13 +15,13 @@ contract Erc721Mock is ERC721, Ownable {
     error Erc721Mock__IncorrectAccountTokenPair();
     error Erc721Mock__OnlySeparatedPowers();
 
-    constructor( ) ERC721("mock", "MOCK") Ownable(msg.sender) { }
+    constructor() ERC721("mock", "MOCK") Ownable(msg.sender) { }
 
-    function mintNFT(uint256 tokenId) public onlyOwner {
+    function mintNFT(uint256 tokenId, address account) public onlyOwner {
         if (_ownerOf(tokenId) != address(0)) {
             revert Erc721Mock__NftAlreadyExists();
         }
-        _safeMint(msg.sender, tokenId);
+        _safeMint(account, tokenId);
     }
 
     function burnNFT(uint256 tokenId, address account) public onlyOwner {
@@ -41,7 +41,7 @@ contract Erc721Mock is ERC721, Ownable {
     function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
         address from = _ownerOf(tokenId);
 
-        // Execute the update. Note only address(0) can transfer. Meaning that the NFT can only be minted to an address and is non-transferable. 
+        // Execute the update. Note only address(0) can transfer. Meaning that the NFT can only be minted to an address and is non-transferable.
         if (from != address(0)) {
             revert Erc721Mock__NonTransferable();
         }

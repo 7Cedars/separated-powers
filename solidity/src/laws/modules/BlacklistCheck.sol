@@ -12,8 +12,8 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-/// @notice Natspecs WIP 
-/// 
+/// @notice Natspecs WIP
+///
 pragma solidity 0.8.26;
 
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
@@ -22,14 +22,14 @@ import { AddressesMapping } from "../state/AddressesMapping.sol";
 
 abstract contract BlacklistCheck is Law {
     /// @notice overrides the default simulateLaw function.
-    error BlacklistCheck__Blacklisted(); 
+    error BlacklistCheck__Blacklisted();
 
     function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal override {
         bool blacklisted = AddressesMapping(blacklistContract()).addresses(initiator);
         if (blacklisted) {
-          revert BlacklistCheck__Blacklisted();
+            revert BlacklistCheck__Blacklisted();
         }
-        
+
         super._executeChecks(initiator, lawCalldata, descriptionHash);
     }
 

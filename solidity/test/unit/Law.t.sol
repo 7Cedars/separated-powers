@@ -31,7 +31,9 @@ contract DeployTest is TestSetupLaw {
 
     function testDeployEmitsEvent() public {
         vm.expectEmit(false, false, false, false);
-        emit Law__Initialized(address(0), payable(address(123)), "Mock Law", "This is a mock law contract", ROLE_ONE, lawConfig);
+        emit Law__Initialized(
+            address(0), payable(address(123)), "Mock Law", "This is a mock law contract", ROLE_ONE, lawConfig
+        );
         new Law("Mock Law", "This is a mock law contract", payable(address(123)), ROLE_ONE, lawConfig);
     }
 
@@ -67,13 +69,14 @@ contract DeployTest is TestSetupLaw {
         string memory description = "Executing a proposal vote";
         address separatedPowers = address(123);
 
-        Law lawMock = new OpenAction("Mock Law", "This is a mock law contract", payable(separatedPowers), ROLE_ONE, lawConfig);
+        Law lawMock =
+            new OpenAction("Mock Law", "This is a mock law contract", payable(separatedPowers), ROLE_ONE, lawConfig);
 
-        lawMock.inputParams(0); 
+        lawMock.inputParams(0);
 
         // (
         //     bytes4 param0,
-        //     bytes4 param1, 
+        //     bytes4 param1,
         //     bytes4 param2,
         //     bytes4 param3,
         //     bytes4 param4,

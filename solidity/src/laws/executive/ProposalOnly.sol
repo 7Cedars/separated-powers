@@ -52,8 +52,8 @@ contract ProposalOnly is Law {
 
     /// @notice Execute the open action.
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
-        public 
-        view 
+        public
+        view
         virtual
         override
         returns (
@@ -61,7 +61,7 @@ contract ProposalOnly is Law {
             address[] memory tar,
             uint256[] memory val,
             bytes[] memory cal,
-            bytes memory stateChange 
+            bytes memory stateChange
         )
     {
         // at execution, send empty calldata to protocol. -- nothing gets done.

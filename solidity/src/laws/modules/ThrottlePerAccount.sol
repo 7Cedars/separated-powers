@@ -12,15 +12,15 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-/// @notice Natspecs WIP 
-/// 
+/// @notice Natspecs WIP
+///
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
 
 abstract contract ThrottlePerAccount is Law {
-    error ThrottlePerAccount__DelayNotPassed(); 
+    error ThrottlePerAccount__DelayNotPassed();
 
     address private initiatorSaved;
     mapping(address initiator => uint48 blockNumber) public lastTransaction;
@@ -41,6 +41,6 @@ abstract contract ThrottlePerAccount is Law {
     }
 
     function _delay() internal view virtual returns (uint48) {
-        return 0; 
+        return 0;
     }
 }

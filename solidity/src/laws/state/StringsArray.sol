@@ -22,10 +22,10 @@ import { Law } from "../../Law.sol";
 
 contract StringsArray is Law {
     // the state vars that this law manages: community strings.
-    string[] public strings; 
+    string[] public strings;
     uint256 public numberOfStrings;
 
-    error StringsArray__StringNotFound(); 
+    error StringsArray__StringNotFound();
     error StringsArray__AlreadyAdded();
 
     event StringsArray__StringAdded(string str);
@@ -45,7 +45,8 @@ contract StringsArray is Law {
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
+        public
+        view
         override
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal, bytes memory stateChange)
     {
@@ -66,7 +67,7 @@ contract StringsArray is Law {
             numberOfStrings++;
             emit StringsArray__StringAdded(str);
         } else if (numberOfStrings == 0) {
-            revert  StringsArray__StringNotFound();
+            revert StringsArray__StringNotFound();
         } else {
             for (uint256 index; index < numberOfStrings; index++) {
                 if (keccak256(bytes(strings[index])) == keccak256(bytes(str))) {
@@ -77,7 +78,7 @@ contract StringsArray is Law {
                 }
 
                 if (index == numberOfStrings - 1) {
-                    revert  StringsArray__StringNotFound();
+                    revert StringsArray__StringNotFound();
                 }
             }
             emit StringsArray__StringRemoved(str);

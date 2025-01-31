@@ -25,6 +25,8 @@ import { Erc721Mock } from "./mocks/Erc721Mock.sol";
 import { Erc20VotesMock } from "./mocks/Erc20VotesMock.sol";
 import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
 
+import { DeployBasicDao } from "../script/DeployBasicDao.s.sol";
+
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
     // protocol and mocks
     SeparatedPowers separatedPowers;
@@ -42,6 +44,29 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     uint8 AGAINST;
     uint8 FOR;
     uint8 ABSTAIN;
+    
+    address[] targets; 
+    uint256[] values;
+    bytes[] calldatas; 
+    bytes lawCalldata;
+    string description;
+    bytes32 descriptionHash;
+    uint256 proposalId;
+
+    uint256 roleCount;
+    uint256 againstVote;
+    uint256 forVote;
+    uint256 abstainVote;
+
+    uint8 quorum;
+    uint8 succeedAt;
+    uint32 votingPeriod;
+    address needCompleted;
+    address needNotCompleted;
+    uint48 delayExecution;
+    uint48 throttleExecution;
+    bool quorumReached;
+    bool voteSucceeded;
 
     // roles
     uint32 ADMIN_ROLE;
@@ -65,10 +90,17 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     string[] daoNames;
 
     // the only event in the Law contract
-    event Law__Initialized(address indexed law, address indexed separatedPowers, string name, string description, uint48 allowedRole, ILaw.LawConfig config);
+    event Law__Initialized(
+        address indexed law,
+        address indexed separatedPowers,
+        string name,
+        string description,
+        uint48 allowedRole,
+        ILaw.LawConfig config
+    );
 }
 
-abstract contract TestHelpers is TestVariables {
+abstract contract TestHelpers is Test, TestVariables {
     function hashProposal(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         pure
@@ -77,16 +109,66 @@ abstract contract TestHelpers is TestVariables {
     {
         return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
     }
+
+    function distributeTokens(address erc20VoteMock, address[] memory accounts, uint256 randomiser) public {
+        uint256 currentRandomiser;
+        for (uint256 i = 0; i < accounts.length; i++) {
+            if (currentRandomiser < 10) {
+                currentRandomiser = randomiser;
+            } else {
+                currentRandomiser = currentRandomiser / 10;
+            }
+            uint256 amount = (currentRandomiser % 10_000) + 1;
+            vm.startPrank(accounts[i]);
+            Erc20VotesMock(config.erc20VotesMock).mintVotes(amount);
+            Erc20VotesMock(config.erc20VotesMock).delegate(accounts[i]); // delegate votes to themselves
+            vm.stopPrank();
+        }
+    }
+
+    function voteOnProposal(
+        address payable dao,
+        address law,
+        uint256 proposalId,
+        address[] memory accounts,
+        uint256 randomiser,
+        uint256 quorumPassChance, // in percentage
+        uint256 successPassChance // in percentage
+    ) public returns (uint256 roleCount, uint256 againstVote, uint256 forVote, uint256 abstainVote) {
+        uint256 currentRandomiser;
+        for (uint256 i = 0; i < accounts.length; i++) {
+            // set randomiser..
+            if (currentRandomiser < 10) {
+                currentRandomiser = randomiser;
+            } else {
+                currentRandomiser = currentRandomiser / 10;
+            }
+            // vote
+            if (SeparatedPowers(dao).canCallLaw(accounts[i], law)) {
+                roleCount++;
+                if (currentRandomiser % 100 < quorumPassChance && currentRandomiser % 100 < successPassChance) {
+                    vm.prank(accounts[i]);
+                    SeparatedPowers(dao).castVote(proposalId, 0); // = against
+                    againstVote++;
+                } else if (currentRandomiser % 100 < quorumPassChance && currentRandomiser % 100 >= successPassChance) {
+                    vm.prank(accounts[i]);
+                    SeparatedPowers(dao).castVote(proposalId, 1); // = for
+                    forVote++;
+                } else {
+                    vm.prank(accounts[i]);
+                    SeparatedPowers(dao).castVote(proposalId, 2); // = abstain
+                    abstainVote++;
+                }
+            }
+        }
+    }
 }
 
-abstract contract BaseSetup is Test, TestVariables, TestHelpers {
+abstract contract BaseSetup is TestVariables, TestHelpers {
     function setUp() public virtual {
         vm.roll(block.number + 10);
         setUpVariables();
     }
-
-    // // add this to be excluded from coverage report
-    // function test() public {}
 
     function setUpVariables() public virtual {
         // votes types
@@ -134,6 +216,10 @@ abstract contract BaseSetup is Test, TestVariables, TestHelpers {
     }
 }
 
+/////////////////////////////////////////////////////////////////////
+//                           TEST SETUPS                           //
+/////////////////////////////////////////////////////////////////////
+
 abstract contract TestSetupSeparatedPowers is BaseSetup, ConstitutionsMock {
     function setUpVariables() public override {
         super.setUpVariables();
@@ -179,6 +265,7 @@ abstract contract TestSetupLaw is BaseSetup, ConstitutionsMock {
     }
 }
 
+/// This should actually be separated between executive and electoral test. £todo.
 abstract contract TestSetupLaws is BaseSetup, ConstitutionsMock {
     function setUpVariables() public override {
         super.setUpVariables();
@@ -219,7 +306,7 @@ abstract contract TestSetupState is BaseSetup, ConstitutionsMock {
 
         // constitute daoMock.
         daoMock.constitute(laws);
-        
+
         // assign Roles
         vm.roll(block.number + 4000);
         daoMock.execute(
@@ -237,8 +324,8 @@ abstract contract TestSetupAlignedDao is BaseSetup, ConstitutionsMock {
 
         // initiate constitution & get founders' roles list
         (address[] memory laws_) = constitutionsMock.initiateAlignedDaoTestConstitution(
-            payable(address(daoMock)), 
-            payable(address(erc1155Mock)), 
+            payable(address(daoMock)),
+            payable(address(erc1155Mock)),
             payable(address(erc20VotesMock)),
             payable(address(erc721Mock))
         );
@@ -256,13 +343,27 @@ abstract contract TestSetupDiversifiedGrants is BaseSetup, ConstitutionsMock {
 
         // initiate constitution & get founders' roles list
         (address[] memory laws_) = constitutionsMock.initiateDiversifiedGrantsTestConstitution(
-            payable(address(daoMock)), 
-            payable(address(erc1155Mock))
+            payable(address(daoMock)), payable(address(erc20VotesMock)), payable(address(erc1155Mock))
         );
         laws = laws_;
 
         // constitute daoMock.
         daoMock.constitute(laws);
         daoNames.push("DiversifiedGrants");
+    }
+}
+
+abstract contract TestSetupBasicDao_fuzzIntegration is BaseSetup {
+    SeparatedPowers basicDao;
+
+    function setUpVariables() public override {
+        super.setUpVariables();
+
+        DeployBasicDao deployBasicDao = new DeployBasicDao();
+        (address payable basicDaoAddress, address[] memory laws_, HelperConfig.NetworkConfig memory config_) =
+            deployBasicDao.run();
+        laws = laws_;
+        config = config_;
+        basicDao = SeparatedPowers(basicDaoAddress);
     }
 }

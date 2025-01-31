@@ -12,12 +12,16 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-/// @notice Natspecs WIP 
-/// 
+/// @notice Natspecs WIP
+///
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
+
+///////// ONLY FOR TESTING ////////////
+import "forge-std/Test.sol";
+//////////////////////////////////////
 
 abstract contract SelfDestruct is Law {
     /// @notice execute the law.
@@ -29,25 +33,27 @@ abstract contract SelfDestruct is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
-      (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange) = super.simulateLaw(initiator, lawCalldata, descriptionHash);
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange) =
+            super.simulateLaw(initiator, lawCalldata, descriptionHash);
 
-      // creating new arrays 
-      address[] memory targetsNew = new address[](targets.length + 1);
-      uint256[] memory valuesNew = new uint256[](values.length + 1);
-      bytes[] memory calldatasNew = new bytes[](calldatas.length + 1);
-      
-      // pasting in old arrays -- don't know if this works. We'll see through tests. 
-      targetsNew = targets;
-      valuesNew = values;
-      calldatasNew = calldatas;
+        // creating new arrays
+        address[] memory targetsNew = new address[](targets.length + 1);
+        uint256[] memory valuesNew = new uint256[](values.length + 1);
+        bytes[] memory calldatasNew = new bytes[](calldatas.length + 1);
 
-      // adding self destruct data to array
-      targetsNew[targets.length] = separatedPowers;
-      valuesNew[values.length] = 0;
-      calldatasNew[calldatas.length] = abi.encodeWithSelector(SeparatedPowers.revokeLaw.selector, address(this));
+        // pasting in old arrays. This method is super inefficient. Is there no other way of doing this?
+        for (uint256 i; i < targets.length; i++) {
+            targetsNew[i] = targets[i];
+            valuesNew[i] = values[i];
+            calldatasNew[i] = calldatas[i];
+        }
 
-      // return new arrays
-      return (targetsNew, valuesNew, calldatasNew, stateChange);
+        // adding self destruct data to array
+        targetsNew[targets.length] = separatedPowers;
+        valuesNew[values.length] = 0;
+        calldatasNew[calldatas.length] = abi.encodeWithSelector(SeparatedPowers.revokeLaw.selector, address(this));
+
+        // return new arrays
+        return (targetsNew, valuesNew, calldatasNew, stateChange);
     }
-
 }

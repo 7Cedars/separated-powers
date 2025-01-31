@@ -17,7 +17,7 @@
 pragma solidity 0.8.26;
 
 // protocol
-import { Law } from "../../../Law.sol"; 
+import { Law } from "../../../Law.sol";
 
 // @title AiAgents
 contract AiAgents is Law {
@@ -26,12 +26,13 @@ contract AiAgents is Law {
 
     struct AiAgent {
         string name;
-        address account; 
+        address account;
         string uri;
     }
+
     AiAgent[] public aiAgentsList;
     uint256 public aiAgentsCount;
-    
+
     event AiAgents__AgentAdded(address indexed account, string name, string uri);
     event AiAgents__AgentRemoved(address indexed account);
 
@@ -42,25 +43,25 @@ contract AiAgents is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("string");  // name
+        inputParams[0] = _dataType("string"); // name
         inputParams[1] = _dataType("address"); // account
-        inputParams[2] = _dataType("string");  // uri
-        inputParams[3] = _dataType("bool");   // add
-      }
-   
+        inputParams[2] = _dataType("string"); // uri
+        inputParams[3] = _dataType("bool"); // add
+    }
+
     /// @notice execute the law.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        view 
+        view
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
-    {   
+    {
         // step 0: decode law calldata
-        (string memory name, address account, , bool add) = abi.decode(lawCalldata, (string, address, string, bool));
-        
-        // step 1: run additional checks 
+        (string memory name, address account,, bool add) = abi.decode(lawCalldata, (string, address, string, bool));
+
+        // step 1: run additional checks
         if (add) {
             for (uint256 i = 0; i < aiAgentsCount; i++) {
                 if (aiAgentsList[i].account == account) {
@@ -73,8 +74,8 @@ contract AiAgents is Law {
             bool agentFound;
             for (uint256 i = 0; i < aiAgentsCount; i++) {
                 if (aiAgentsList[i].account == account) {
-                    agentFound = true; 
-                    break; 
+                    agentFound = true;
+                    break;
                 }
             }
             if (!agentFound) {
@@ -82,35 +83,36 @@ contract AiAgents is Law {
             }
         }
 
-        // step 2: create arrays 
+        // step 2: create arrays
         targets = new address[](1);
         values = new uint256[](1);
         calldatas = new bytes[](1);
         stateChange = abi.encode("");
 
-        // step 3: fill out arrays with data - no action should be taken by protocol. 
+        // step 3: fill out arrays with data - no action should be taken by protocol.
         targets[0] = address(1);
-        stateChange = lawCalldata; 
+        stateChange = lawCalldata;
 
-        // step 4: return data 
+        // step 4: return data
         return (targets, values, calldatas, stateChange);
     }
 
-    // add or remove member from state mapping in law. 
+    // add or remove member from state mapping in law.
     function _changeStateVariables(bytes memory stateChange) internal override {
-        (string memory name, address account, string memory uri, bool add) = abi.decode(stateChange, (string, address, string, bool));
+        (string memory name, address account, string memory uri, bool add) =
+            abi.decode(stateChange, (string, address, string, bool));
 
         if (add) {
-            aiAgentsList.push(AiAgent(name, account, uri)); 
-            aiAgentsCount++; 
-            emit AiAgents__AgentAdded(account, name, uri);     
-        } 
-        
+            aiAgentsList.push(AiAgent(name, account, uri));
+            aiAgentsCount++;
+            emit AiAgents__AgentAdded(account, name, uri);
+        }
+
         if (!add) {
             for (uint256 i = 0; i < aiAgentsCount; i++) {
                 if (aiAgentsList[i].account == account) {
                     aiAgentsList[i] = aiAgentsList[aiAgentsCount - 1];
-                    aiAgentsList.pop(); 
+                    aiAgentsList.pop();
                     aiAgentsCount--;
                     break;
                 }

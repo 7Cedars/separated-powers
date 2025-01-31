@@ -634,7 +634,6 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         string memory description = "Assigning mockAddress ROLE_ONE";
         address mockAddress = makeAddr("mock");
         bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
-        
 
         address[] memory tar = new address[](0);
         uint256[] memory val = new uint256[](0);
@@ -659,7 +658,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         string memory description = "Assigning mockAddress ROLE_ONE";
         address mockAddress = makeAddr("mock");
         bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
-        
+
         address[] memory tar = new address[](1);
         uint256[] memory val = new uint256[](1);
         bytes[] memory cal = new bytes[](1);
@@ -719,7 +718,8 @@ contract ConstituteTest is TestSetupSeparatedPowers {
 
         ILaw.LawConfig memory lawConfig;
         address[] memory laws = new address[](1);
-        laws[0] = address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
+        laws[0] =
+            address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
         vm.prank(alice);
         daoMockTest.constitute(laws);
@@ -736,7 +736,8 @@ contract ConstituteTest is TestSetupSeparatedPowers {
 
         ILaw.LawConfig memory lawConfig;
         address[] memory laws = new address[](1);
-        laws[0] = address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
+        laws[0] =
+            address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
         vm.prank(alice);
         daoMockTest.constitute(laws);
@@ -752,7 +753,8 @@ contract ConstituteTest is TestSetupSeparatedPowers {
 
         ILaw.LawConfig memory lawConfig;
         address[] memory laws = new address[](1);
-        laws[0] = address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
+        laws[0] =
+            address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
         vm.expectRevert(SeparatedPowers__AccessDenied.selector);
         vm.prank(bob);
@@ -899,7 +901,7 @@ contract ComplianceTest is TestSetupSeparatedPowers {
 
         // act
         vm.prank(address(daoMock));
-        erc721Mock.mintNFT(NftToMint);
+        erc721Mock.mintNFT(NftToMint, address(daoMock));
 
         // assert
         assertEq(erc721Mock.balanceOf(address(daoMock)), 1);
@@ -954,7 +956,6 @@ contract ComplianceTest is TestSetupSeparatedPowers {
 }
 
 contract DataTypeSignatureTest is TestSetupSeparatedPowers {
-
     function testEncodeDataType() public {
         console.logBytes4(encodeDataType("uint8"));
         console.logBytes4(encodeDataType("uint16"));
@@ -985,25 +986,25 @@ contract DataTypeSignatureTest is TestSetupSeparatedPowers {
     }
 }
 
-// uint8, 
-// uint16, 
-// uint32, 
-// uint64, 
+// uint8,
+// uint16,
+// uint32,
+// uint64,
 // uint128,
-// uint256, 
-// address, 
-// bytes, 
-// string, 
-// bytes32, 
-// bool, 
-// uint8[], 
+// uint256,
+// address,
+// bytes,
+// string,
+// bytes32,
+// bool,
+// uint8[],
 // uint16[],
 // uint32[],
 // uint64[],
 // uint128[],
-// uint256[], 
-// address[], 
-// bytes[], 
-// string[], 
-// bytes32[], 
-// bool[], 
+// uint256[],
+// address[],
+// bytes[],
+// string[],
+// bytes32[],
+// bool[],

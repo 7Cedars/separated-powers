@@ -371,7 +371,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             if (!newMember) {
                 roles[roleId].amountMembers--;
             }
-        } 
+        }
         emit RoleSet(roleId, account, access);
     }
 
@@ -464,7 +464,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
         uint256 start = _proposals[proposalId].voteStart; // = startDate
         if (start == 0) {
-            revert SeparatedPowers__InvalidProposalId();
+            return ProposalState.NonExistent;
         }
 
         uint256 deadline = proposalDeadline(proposalId);
