@@ -10,7 +10,7 @@ import { ILaw } from "../src/interfaces/ILaw.sol";
 import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
 
 // laws
-import { NominateMe } from "../src/laws/electoral/NominateMe.sol";
+import { NominateMe } from "../src/laws/state/NominateMe.sol";
 import { DelegateSelect } from "../src/laws/electoral/DelegateSelect.sol";
 import { DirectSelect } from "../src/laws/electoral/DirectSelect.sol";
 import { PeerSelect } from "../src/laws/electoral/PeerSelect.sol";

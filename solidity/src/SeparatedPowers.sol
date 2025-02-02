@@ -132,7 +132,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         returns (uint256 proposalId)
     {
         (uint8 quorum,, uint32 votingPeriod,,,,) = Law(targetLaw).config();
-        proposalId = hashProposal(targetLaw, lawCalldata, keccak256(bytes(description)));
+        bytes32 descriptionHash = keccak256(bytes(description));
+        proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
 
         // check 1: does target law need proposal vote to pass?
         if (quorum == 0) {
@@ -142,6 +143,8 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         if (_proposals[proposalId].voteStart != 0) {
             revert SeparatedPowers__UnexpectedProposalState();
         }
+        // check 3: do proposal checks of the law pass?
+        Law(targetLaw).checksAtPropose(initiator, lawCalldata, descriptionHash);  
 
         // if checks pass: create proposal
         uint32 duration = votingPeriod;

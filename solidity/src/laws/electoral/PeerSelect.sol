@@ -21,7 +21,7 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
-import { NominateMe } from "./NominateMe.sol";
+import { NominateMe } from "../state/NominateMe.sol";
 
 contract PeerSelect is Law {
     error PeerSelect__MaxRoleHoldersReached();

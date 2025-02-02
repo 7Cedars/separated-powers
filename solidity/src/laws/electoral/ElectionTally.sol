@@ -26,8 +26,6 @@
 ///    - If fewer than N accounts are nominated, all will be assigne roleId R.
 ///    - If more than N accounts are nominated, the accounts that hold most ERC20 T will be assigned roleId R.
 ///
-///
-///
 /// @dev The contract is an example of a law that
 /// - has does not need a proposal to be voted through. It can be called directly.
 /// - has two internal mechanisms: nominate or elect. Which one is run depends on calldata input.
@@ -39,14 +37,19 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
-import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import { PeerVote } from "../state/PeerVote.sol";
 import { NominateMe } from "../state/NominateMe.sol";
 
-contract DelegateSelect is Law {
-    address public immutable ERC_20_VOTE_TOKEN;
+contract ElectionTally is Law {
+    error ElectionTally__PeerVoteContractNotActive(); 
+    error ElectionTally__IncorrectNomineesContract();
+    error ElectionTally__IncorrectTallyContract();
+    error ElectionTally__NoNominees();
+    error ElectionTally__ElectionHasNotEnded();
+    
+    address public immutable NOMINEES;
     uint256 public immutable MAX_ROLE_HOLDERS;
     uint32 public immutable ROLE_ID;
-    address public immutable NOMINEES;
     address[] public electedAccounts;
 
     constructor(
@@ -55,15 +58,15 @@ contract DelegateSelect is Law {
         address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
-        address payable erc20Token_,
+        address peerVote_,
         address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        ERC_20_VOTE_TOKEN = erc20Token_; // £todo interface should be checked here.
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
+        inputParams[0] = _dataType("address");
         stateVars[0] = _dataType("address[]");
     }
 
@@ -74,7 +77,27 @@ contract DelegateSelect is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
-        // step 1: setting up array for revoking & assigning roles.
+        // step 0: unpacking calldata
+        address peerVote = abi.decode(lawCalldata, (address));
+
+        // step 1: run additional checks 
+        if (!SeparatedPowers(separatedPowers).getActiveLaw(peerVote)) {
+          revert ElectionTally__PeerVoteContractNotActive();
+        }
+        if (NominateMe(NOMINEES).nomineesCount() == 0) {
+            revert ElectionTally__NoNominees();
+        }
+        if (PeerVote(peerVote).endVote() < block.timestamp) {
+            revert ElectionTally__ElectionHasNotEnded();
+        }
+        if (PeerVote(peerVote).NOMINEES() != NOMINEES) {
+            revert ElectionTally__IncorrectNomineesContract();
+        } 
+        if (PeerVote(peerVote).TALLY() != address(this)) {
+            revert ElectionTally__IncorrectTallyContract();
+        } 
+ 
+        // step 2: setting up array for revoking & assigning roles.
         address[] memory accountElects;
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
         uint256 numberRevokees = electedAccounts.length;
@@ -90,7 +113,7 @@ contract DelegateSelect is Law {
             targets[i] = separatedPowers;
         }
 
-        // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts.
+        // step 2: calls to revoke roles of previously elected accounts.
         for (uint256 i; i < numberRevokees; i++) {
             calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, electedAccounts[i]);
         }
@@ -104,14 +127,14 @@ contract DelegateSelect is Law {
                 accountElects[i] = accountElect;
             }
 
-            // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
+        // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
         } else {
-            // retrieve balances of delegated votes of nominees.
+            // retrieve votes for delegates from PeerVote contract.
             uint256[] memory _votes = new uint256[](numberNominees);
             address[] memory _nominees = new address[](numberNominees);
             for (uint256 i; i < numberNominees; i++) {
                 _nominees[i] = NominateMe(NOMINEES).nomineesSorted(i);
-                _votes[i] = ERC20Votes(ERC_20_VOTE_TOKEN).getVotes(_nominees[i]);
+                _votes[i] = PeerVote(peerVote).votes(_nominees[i]);
             }
             // £todo: check what will happen if people have the same amount of delegated votes.
             // note how the following mechanism works:
@@ -141,10 +164,8 @@ contract DelegateSelect is Law {
     }
 
     function _changeStateVariables(bytes memory stateChange) internal override {
-        (address[] memory elected) = abi.decode(stateChange, (address[]));
-        for (uint256 i; i < electedAccounts.length; i++) {
-            electedAccounts.pop();
-        }
-        electedAccounts = elected;
+      (address[] memory elected) = abi.decode(stateChange, (address[]));
+      delete electedAccounts; 
+      electedAccounts = elected;
     }
 }

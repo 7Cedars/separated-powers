@@ -20,7 +20,7 @@ contract Erc20VotesMockTest is Test {
     }
 
     function testMintVotesRevertsWithZeroAmount() public {
-        vm.expectRevert(Erc20VotesMock.Erc20Mock__NoZeroAmount.selector);
+        vm.expectRevert(Erc20VotesMock.Erc20VotesMock__NoZeroAmount.selector);
         erc20VotesMock.mintVotes(0);
     }
 
@@ -28,7 +28,7 @@ contract Erc20VotesMockTest is Test {
         uint256 maxAmount = 100_000_000;
 
         vm.expectRevert(
-            abi.encodeWithSelector(Erc20VotesMock.Erc20Mock__AmountExceedsMax.selector, maxAmount + 1, maxAmount)
+            abi.encodeWithSelector(Erc20VotesMock.Erc20VotesMock__AmountExceedsMax.selector, maxAmount + 1, maxAmount)
         );
         erc20VotesMock.mintVotes(maxAmount + 1);
     }

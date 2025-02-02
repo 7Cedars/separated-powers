@@ -16,43 +16,48 @@
 
 pragma solidity 0.8.26;
 
-import { Law } from "../../../Law.sol";
-import { NftCheck } from "../../modules/NftCheck.sol";
 import { SelfSelect } from "../../electoral/SelfSelect.sol";
+import { Erc20TaxedMock } from "../../../../test/mocks/Erc20TaxedMock.sol";
 
-contract NftSelfSelect is SelfSelect, NftCheck {
-    address public erc721Token;
+contract RoleByTaxPaid is SelfSelect {
+    error RoleByTaxPaid__NotEligible();
+
+    address public erc20TaxedMock;
+    uint256 public thresholdTaxPaid;
 
     constructor(
+        // standard
         string memory name_,
         string memory description_,
         address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
+        // self select
         uint32 roleId_,
-        address erc721Token_
+        // the taxed token to check
+        address erc20TaxedMock_,
+        uint256 thresholdTaxPaid_
     ) SelfSelect(name_, description_, separatedPowers_, allowedRole_, config_, roleId_) {
-        erc721Token = erc721Token_;
+        erc20TaxedMock = erc20TaxedMock_;
+        thresholdTaxPaid = thresholdTaxPaid_;
     }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         view
         virtual
-        override(Law, SelfSelect)
+        override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
+        // step 0: check if initiator paid sufficient taxes in the _previous_ epoch. 
+        uint48 epochDuration = Erc20TaxedMock(erc20TaxedMock).epochDuration();
+        uint256 taxPaid = Erc20TaxedMock(erc20TaxedMock).getTaxLogs(uint48(block.number) - epochDuration, initiator);
+
+        if (taxPaid < thresholdTaxPaid) {
+            revert RoleByTaxPaid__NotEligible();
+        }
+
+        // step 1: call super
         return super.simulateLaw(initiator, lawCalldata, descriptionHash);
-    }
-
-    function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
-        override(Law, NftCheck)
-    {
-        super.checksAtPropose(initiator, lawCalldata, descriptionHash);
-    }
-
-    function _nftCheckAddress() internal view override returns (address) {
-        return erc721Token;
     }
 }

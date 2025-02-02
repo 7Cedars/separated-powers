@@ -56,9 +56,9 @@ contract RequestPayment is ThrottlePerAccount {
         targets = new address[](1);
         values = new uint256[](1);
         calldatas = new bytes[](1);
+        stateChange = abi.encode("");
         targets[0] = erc1155;
-        calldatas[0] =
-            abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, separatedPowers, initiator, tokenId, amount, "");
+        calldatas[0] = abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, separatedPowers, initiator, tokenId, amount, "");
     }
 
     function _delay() internal view override returns (uint48) {

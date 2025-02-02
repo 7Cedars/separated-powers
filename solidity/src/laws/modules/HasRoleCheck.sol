@@ -24,7 +24,7 @@ abstract contract HasRoleCheck is Law {
 
     error HasRoleCheck__DoesNotHaveRole();
 
-    function _executeChecks(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) internal override {
+    function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) public view override {
         (uint32[] memory roles) = hasRoles();
 
         for (uint32 i = 0; i < roles.length; i++) {
@@ -34,7 +34,7 @@ abstract contract HasRoleCheck is Law {
             }
         }
 
-        super._executeChecks(initiator, lawCalldata, descriptionHash);
+        super.checksAtPropose(initiator, lawCalldata, descriptionHash);
     }
 
     function hasRoles() internal view virtual returns (uint32[] memory) {

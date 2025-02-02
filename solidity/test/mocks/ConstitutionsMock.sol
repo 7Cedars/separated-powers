@@ -14,7 +14,6 @@ import { TokensSelect } from "../../src/laws/electoral/TokensSelect.sol";
 import { DirectSelect } from "../../src/laws/electoral/DirectSelect.sol";
 import { DelegateSelect } from "../../src/laws/electoral/DelegateSelect.sol";
 import { RandomlySelect } from "../../src/laws/electoral/RandomlySelect.sol";
-import { NominateMe } from "../../src/laws/electoral/NominateMe.sol";
 // executive laws.
 import { ProposalOnly } from "../../src/laws/executive/ProposalOnly.sol";
 import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
@@ -24,6 +23,7 @@ import { BespokeAction } from "../../src/laws/executive/BespokeAction.sol";
 import { StringsArray } from "../../src/laws/state/StringsArray.sol";
 import { TokensArray } from "../../src/laws/state/TokensArray.sol";
 import { AddressesMapping } from "../../src/laws/state/AddressesMapping.sol";
+import { NominateMe } from "../../src/laws/state/NominateMe.sol";
 // bespoke: aligned dao laws.
 import { NftSelfSelect } from "../../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 import { RequestPayment } from "../../src/laws/bespoke/alignedDao/RequestPayment.sol";
@@ -710,9 +710,9 @@ contract ConstitutionsMock is Test {
         address helen = makeAddr("helen");
 
         // call to set initial roles. Also used as dummy call data.
-        targets = new address[](13);
-        values = new uint256[](13);
-        calldatas = new bytes[](13);
+        targets = new address[](12);
+        values = new uint256[](12);
+        calldatas = new bytes[](12);
         for (uint256 i = 0; i < targets.length; i++) {
             targets[i] = dao_;
         }
@@ -724,12 +724,11 @@ contract ConstitutionsMock is Test {
         calldatas[4] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, eve);
         calldatas[5] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, frank);
         calldatas[6] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, gary);
-        calldatas[7] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, helen);
-        calldatas[8] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 2, alice);
-        calldatas[9] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 2, bob);
-        calldatas[10] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 2, charlotte);
-        calldatas[11] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 3, alice);
-        calldatas[12] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 3, bob);
+        calldatas[7] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 2, alice);
+        calldatas[8] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 2, bob);
+        calldatas[9] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 2, charlotte);
+        calldatas[10] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 3, alice);
+        calldatas[11] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 3, bob);
 
         return (targets, values, calldatas);
     }
