@@ -23,6 +23,7 @@ import { DaoMock } from "./mocks/DaoMock.sol";
 import { Erc1155Mock } from "./mocks/Erc1155Mock.sol";
 import { Erc721Mock } from "./mocks/Erc721Mock.sol";
 import { Erc20VotesMock } from "./mocks/Erc20VotesMock.sol";
+import { Erc20TaxedMock } from "./mocks/Erc20TaxedMock.sol";
 import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
 
 import { DeployBasicDao } from "../script/DeployBasicDao.s.sol";
@@ -36,6 +37,7 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     Erc1155Mock erc1155Mock;
     Erc721Mock erc721Mock;
     Erc20VotesMock erc20VotesMock;
+    Erc20TaxedMock erc20TaxedMock; 
     HelperConfig.NetworkConfig config;
 
     address[] laws;
@@ -211,8 +213,14 @@ abstract contract BaseSetup is TestVariables, TestHelpers {
         daoMock = new DaoMock();
         constitutionsMock = new ConstitutionsMock();
 
-        vm.prank(address(daoMock));
+        vm.startPrank(address(daoMock));
         erc721Mock = new Erc721Mock();
+        erc20TaxedMock = new Erc20TaxedMock(
+            7, // 7
+            2, // decimals. Tax works out to 7 percent. ( 7 / 100) 
+            100 // duration of epoch = 100 blocks 
+        );
+        vm.stopPrank();
     }
 }
 
@@ -265,13 +273,40 @@ abstract contract TestSetupLaw is BaseSetup, ConstitutionsMock {
     }
 }
 
-/// This should actually be separated between executive and electoral test. £todo.
-abstract contract TestSetupLaws is BaseSetup, ConstitutionsMock {
+abstract contract TestSetupElectoral is BaseSetup, ConstitutionsMock {
     function setUpVariables() public override {
         super.setUpVariables();
 
         // initiate constitution & get founders' roles list
-        (address[] memory laws_) = constitutionsMock.initiateLawsTestConstitution(
+        (address[] memory laws_) = constitutionsMock.initiateElectoralTestConstitution(
+            payable(address(daoMock)), payable(address(erc1155Mock)), payable(address(erc20VotesMock))
+        );
+        laws = laws_;
+
+        // constitute daoMock.
+        daoMock.constitute(laws);
+
+        // testing...
+        PresetAction presetAction = PresetAction(laws[laws.length - 1]);
+        console.logAddress(presetAction.targets(0));
+
+        // assign Roles
+        vm.roll(block.number + 4000);
+        daoMock.execute(
+            laws[laws.length - 1],
+            abi.encode(), // empty calldata
+            "assigning roles"
+        );
+        daoNames.push("DaoMock");
+    }
+}
+
+abstract contract TestSetupExecutive is BaseSetup, ConstitutionsMock {
+    function setUpVariables() public override {
+        super.setUpVariables();
+
+        // initiate constitution & get founders' roles list
+        (address[] memory laws_) = constitutionsMock.initiateExecutiveTestConstitution(
             payable(address(daoMock)), payable(address(erc1155Mock)), payable(address(erc20VotesMock))
         );
         laws = laws_;
@@ -343,7 +378,10 @@ abstract contract TestSetupDiversifiedGrants is BaseSetup, ConstitutionsMock {
 
         // initiate constitution & get founders' roles list
         (address[] memory laws_) = constitutionsMock.initiateDiversifiedGrantsTestConstitution(
-            payable(address(daoMock)), payable(address(erc20VotesMock)), payable(address(erc1155Mock))
+            payable(address(daoMock)), 
+            payable(address(erc20VotesMock)),  
+            payable(address(erc20TaxedMock)),  
+            payable(address(erc1155Mock))
         );
         laws = laws_;
 

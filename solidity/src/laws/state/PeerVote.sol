@@ -55,6 +55,7 @@ contract PeerVote is Law {
         uint48 endVote_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         NOMINEES = nominateMe;
+        TALLY = tallyVote;
         startVote = startVote_;
         endVote = endVote_;
 
@@ -70,7 +71,7 @@ contract PeerVote is Law {
         returns (address[] memory tar, uint256[] memory val, bytes[] memory cal, bytes memory stateChange)
     {
         // step 0: run additional checks
-        if (block.timestamp < startVote || block.timestamp > endVote) {
+        if (block.number < startVote || block.number > endVote) {
             revert PeerVote__ElectionNotOpen();
         }
         if (hasVoted[initiator]) {
@@ -87,7 +88,7 @@ contract PeerVote is Law {
         tar[0] = address(1); // signals that separatedPowers should not execute anything else.
 
         stateChange = abi.encode(vote, initiator);
-        return (tar, val, cal, lawCalldata);
+        return (tar, val, cal, stateChange);
     }
 
     function _changeStateVariables(bytes memory stateChange) internal override {
@@ -100,7 +101,7 @@ contract PeerVote is Law {
         }
 
         hasVoted[initiator] = true;
-        votes[nominee] = votes[nominee]++;
+        votes[nominee]++;
         emit PeerVote__VoteCast(initiator);
     }
 }

@@ -20,7 +20,6 @@ import { Law } from "../../../Law.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { ThrottlePerAccount } from "../../modules/ThrottlePerAccount.sol";
 
-// Bespoke law 2: Request Payment
 contract RequestPayment is ThrottlePerAccount {
     address public erc1155;
     uint256 public tokenId;
@@ -55,8 +54,9 @@ contract RequestPayment is ThrottlePerAccount {
     {
         targets = new address[](1);
         values = new uint256[](1);
-        calldatas = new bytes[](1);
-        stateChange = abi.encode("");
+        calldatas = new bytes[](1); 
+        stateChange = abi.encode(initiator); // needed for throttlePerAccount     
+
         targets[0] = erc1155;
         calldatas[0] = abi.encodeWithSelector(ERC1155.safeTransferFrom.selector, separatedPowers, initiator, tokenId, amount, "");
     }

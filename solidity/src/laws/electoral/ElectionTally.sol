@@ -42,8 +42,8 @@ import { NominateMe } from "../state/NominateMe.sol";
 
 contract ElectionTally is Law {
     error ElectionTally__PeerVoteContractNotActive(); 
-    error ElectionTally__IncorrectNomineesContract();
-    error ElectionTally__IncorrectTallyContract();
+    error ElectionTally__DissimilarNomineesContracts();
+    error ElectionTally__IncorrectTallyContractAtPeerVote();
     error ElectionTally__NoNominees();
     error ElectionTally__ElectionHasNotEnded();
     
@@ -58,7 +58,6 @@ contract ElectionTally is Law {
         address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
-        address peerVote_,
         address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
@@ -66,7 +65,7 @@ contract ElectionTally is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-        inputParams[0] = _dataType("address");
+        inputParams[0] = _dataType("address"); // peervote address
         stateVars[0] = _dataType("address[]");
     }
 
@@ -87,14 +86,14 @@ contract ElectionTally is Law {
         if (NominateMe(NOMINEES).nomineesCount() == 0) {
             revert ElectionTally__NoNominees();
         }
-        if (PeerVote(peerVote).endVote() < block.timestamp) {
+        if (PeerVote(peerVote).endVote() > block.number) {
             revert ElectionTally__ElectionHasNotEnded();
         }
         if (PeerVote(peerVote).NOMINEES() != NOMINEES) {
-            revert ElectionTally__IncorrectNomineesContract();
+            revert ElectionTally__DissimilarNomineesContracts();
         } 
         if (PeerVote(peerVote).TALLY() != address(this)) {
-            revert ElectionTally__IncorrectTallyContract();
+            revert ElectionTally__IncorrectTallyContractAtPeerVote();
         } 
  
         // step 2: setting up array for revoking & assigning roles.

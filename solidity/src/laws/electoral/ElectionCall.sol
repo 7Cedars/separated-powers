@@ -36,8 +36,6 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 contract ElectionCall is Law {
-    error ElectionCall__NoZeroAddress();
-    error ElectionCall__NotAPeerVoteContract();
     error ElectionCall__PeerVoteAddressAlreadyExists(); 
 
     constructor(

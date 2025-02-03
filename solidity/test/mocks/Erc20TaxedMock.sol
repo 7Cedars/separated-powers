@@ -9,14 +9,16 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Erc20TaxedMock is ERC20, Ownable {
     error Erc20TaxedMock__NoZeroAmount();
+    error Erc20TaxedMock__TaxRateOverflow();
+    error Erc20TaxedMock__InsufficientBalanceForTax(); 
 
-    uint8 public taxRate;
+    uint256 public taxRate;
     uint8 public immutable taxDecimals;
     uint48 public epochDuration;
     mapping (uint48 epoch => mapping (address account => uint256 taxPaid)) public taxLogs;
 
     constructor(
-      uint8 taxRate_,
+      uint256 taxRate_,
       uint8 taxDecimals_,
       uint48 epochDuration_  
     ) ERC20("mockTaxed", "MTXD") Ownable(msg.sender) { 
@@ -40,7 +42,10 @@ contract Erc20TaxedMock is ERC20, Ownable {
         _burn(msg.sender, amount);
     }
 
-    function changeTaxRate(uint8 newTaxRate) public onlyOwner {
+    function changeTaxRate(uint256 newTaxRate) public onlyOwner {
+        if (newTaxRate > (10 ** taxDecimals) - 1) {
+            revert Erc20TaxedMock__TaxRateOverflow();
+        }
         taxRate = newTaxRate;
     }
 
@@ -49,12 +54,19 @@ contract Erc20TaxedMock is ERC20, Ownable {
 
         // adds tax collection and registration to transfers. Note that tax is _added_ to amount transferred.
         // if taxed amount cannot be collected, it will revert. 
-        if (from != address(0) && to != address(0) && value != 0) {
-            uint256 tax = value - (value * ((10 ^ taxDecimals) - taxRate) / (10 ^ taxDecimals));
+        // taxes are not collected when minting, burning or transferring to or from owner.
+        if (
+            from != owner() &&
+            to != owner() &&
+            from != address(0) && 
+            to != address(0) && 
+            value != 0
+            ) {
+            uint256 tax = (value *  taxRate) / (10 ** taxDecimals);
             uint256 fromBalance = balanceOf(from);
 
             if (fromBalance < value + tax) {
-                revert ERC20InsufficientBalance(from, fromBalance, value);
+                revert Erc20TaxedMock__InsufficientBalanceForTax();
             }
             
             // transfer tax to owner of token

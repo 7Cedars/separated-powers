@@ -13,6 +13,8 @@ import { Law } from "../../../src/Law.sol";
 import { AddressesMapping } from "../../../src/laws/state/AddressesMapping.sol";
 import { StringsArray } from "../../../src/laws/state/StringsArray.sol";
 import { TokensArray } from "../../../src/laws/state/TokensArray.sol";
+import { NominateMe } from "../../../src/laws/state/NominateMe.sol";
+import { PeerVote } from "../../../src/laws/state/PeerVote.sol";
 
 contract AddressMappingTest is TestSetupState {
     error AddressesMapping__AlreadyTrue();
@@ -296,5 +298,154 @@ contract TokensArrayTest is TestSetupState {
 
         // assert state
         assertEq(TokensArray(tokensArray).numberOfTokens(), 1);
+    }
+}
+
+
+contract NominateMeTest is TestSetupState {
+    error NominateMe__NomineeAlreadyNominated();
+    error NominateMe__NomineeNotNominated();
+
+    event NominateMe__NominationReceived(address indexed nominee);
+    event NominateMe__NominationRevoked(address indexed nominee);
+
+    function testAssignNominationSucceeds() public {
+        // prep
+        address nominateMe = laws[3];
+        bytes memory lawCalldata = abi.encode(true); // nominateMe
+
+        // act & assert
+        vm.expectEmit(true, false, false, false);
+        emit NominateMe__NominationReceived(charlotte);
+        vm.startPrank(address(daoMock));
+        Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
+    }
+
+    // test addition to count
+
+    function testAssignNominationRevertsWhenAlreadyNominated() public {
+        // prep
+        address nominateMe = laws[3];
+        bytes memory lawCalldata = abi.encode(true); // nominateMe
+
+        // nominate once..
+        vm.startPrank(address(daoMock));
+        Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
+
+        // and try to nominate twice.
+        vm.startPrank(address(daoMock));
+        vm.expectRevert(NominateMe__NomineeAlreadyNominated.selector);
+        Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
+    }
+
+    function testRevokeNominationSucceeds() public {
+        // prep 1: nominate charlotte
+        address nominateMe = laws[3];
+        bytes memory lawCalldata1 = abi.encode(true); // nominateMe
+        vm.startPrank(address(daoMock));
+        Law(nominateMe).executeLaw(charlotte, lawCalldata1, bytes32(0));
+
+        // prep 2: revoke nomination.
+        bytes memory lawCalldata2 = abi.encode(false); // revokeNomination
+
+        // act & assert
+        vm.expectEmit(true, false, false, false);
+        emit NominateMe__NominationRevoked(charlotte);
+        vm.startPrank(address(daoMock));
+        Law(nominateMe).executeLaw(charlotte, lawCalldata2, bytes32(0));
+    }
+
+    // test subtraction from count
+
+    function testRevokeNominationRevertsWhenNotNominated() public {
+        // prep
+        address nominateMe = laws[3];
+        bytes memory lawCalldata = abi.encode(false); // revokeNomination
+
+        // charlotte tries to revoke nomination, without being nominated.
+        vm.startPrank(address(daoMock));
+        vm.expectRevert(NominateMe__NomineeNotNominated.selector);
+        Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
+    }
+}
+
+contract PeerVoteTest is TestSetupState {
+    error PeerVote__NotNominee();
+    error PeerVote__AlreadyVoted();
+    error PeerVote__ElectionNotOpen();
+
+    event PeerVote__VoteCast(address voter);
+
+    function testVoteCorrectlyRegistered() public {
+        // prep 
+        address nominateMe = laws[3];
+        address peerVote = laws[4];
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
+        bytes memory lawCalldataVote = abi.encode(charlotte); // peerVote
+        // nominate charlotte
+        vm.startPrank(address(daoMock));
+        Law(nominateMe).executeLaw(charlotte, lawCalldataNominate, bytes32(0));
+
+        // act + assert emit 
+        vm.roll(51); // vote starts at block 50. 
+        vm.expectEmit(true, false, false, false);
+        emit PeerVote__VoteCast(charlotte);
+        vm.startPrank(address(daoMock));
+        Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
+
+        assertEq(PeerVote(peerVote).hasVoted(alice), true);
+        assertEq(PeerVote(peerVote).votes(charlotte), 1);
+    }
+
+    function testVoteRevertsIfElectionNotOpen() public {
+         // prep 
+        address nominateMe = laws[3];
+        address peerVote = laws[4];
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
+        bytes memory lawCalldataVote = abi.encode(charlotte); // peerVote
+
+        // nominate charlotte
+        vm.startPrank(address(daoMock));
+        Law(nominateMe).executeLaw(charlotte, lawCalldataNominate, bytes32(0));
+
+        // act + assert revert 
+        vm.roll(40); // vote starts at block 50. 
+        vm.expectRevert(PeerVote__ElectionNotOpen.selector);
+        vm.startPrank(address(daoMock));
+        Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
+    }
+
+    function testVoteRevertsIfAlreadyVoted() public {
+        // prep 
+        address nominateMe = laws[3];
+        address peerVote = laws[4];
+        bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
+        bytes memory lawCalldataVote = abi.encode(charlotte); // peerVote
+        // nominate charlotte
+        vm.startPrank(address(daoMock));
+        Law(nominateMe).executeLaw(charlotte, lawCalldataNominate, bytes32(0));
+        vm.roll(51); // vote starts at block 50. 
+        // alice votes a first time... 
+        vm.startPrank(address(daoMock));
+        Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
+
+
+        // act + assert revert 
+        // alice votes tries to vote a second time... 
+        vm.expectRevert(PeerVote__AlreadyVoted.selector);
+        vm.startPrank(address(daoMock));
+        Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
+    }
+
+    function testVoteRevertsIfNotNominee() public {
+        // prep. note: no one is nominated. 
+        address peerVote = laws[4];
+        bytes memory lawCalldataVote = abi.encode(charlotte); // peerVote
+
+        // act + assert revert 
+        vm.roll(51); // vote starts at block 50.  
+        vm.expectRevert(PeerVote__NotNominee.selector);
+        vm.startPrank(address(daoMock));
+        Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
     }
 }

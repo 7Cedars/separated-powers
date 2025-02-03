@@ -4,12 +4,12 @@ pragma solidity 0.8.26;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
-import { TestSetupLaws } from "../../TestSetup.t.sol";
+import { TestSetupExecutive } from "../../TestSetup.t.sol";
 import { Law } from "../../../src/Law.sol";
 import { Erc1155Mock } from "../../mocks/Erc1155Mock.sol";
 import { OpenAction } from "../../../src/laws/executive/OpenAction.sol";
 
-contract OpenActionTest is TestSetupLaws {
+contract OpenActionTest is TestSetupExecutive {
     using ShortStrings for *;
 
     function testExecuteAction() public {
@@ -32,11 +32,11 @@ contract OpenActionTest is TestSetupLaws {
     }
 }
 
-contract ProposalOnlyTest is TestSetupLaws {
+contract ProposalOnlyTest is TestSetupExecutive {
     using ShortStrings for *;
 
     function testReturnDataProposalOnly() public {
-        address proposalOnly = laws[8];
+        address proposalOnly = laws[3];
         bytes memory lawCalldata = abi.encode(Erc1155Mock.mintCoins.selector, 123);
 
         vm.startPrank(address(daoMock));
@@ -48,7 +48,7 @@ contract ProposalOnlyTest is TestSetupLaws {
     }
 }
 
-contract BespokeActionTest is TestSetupLaws {
+contract BespokeActionTest is TestSetupExecutive {
     function testReturnDataBespokeAction() public {
         // this bespoke action mints coins in the mock1155 contract.
         address bespokeAction = laws[2];
