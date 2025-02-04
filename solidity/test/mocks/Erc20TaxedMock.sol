@@ -14,7 +14,7 @@ contract Erc20TaxedMock is ERC20, Ownable {
 
     uint256 public taxRate;
     uint8 public immutable taxDecimals;
-    uint48 public epochDuration;
+    uint48 public immutable epochDuration;
     mapping (uint48 epoch => mapping (address account => uint256 taxPaid)) public taxLogs;
 
     constructor(

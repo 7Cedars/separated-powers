@@ -36,10 +36,8 @@ contract AddressesMapping is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("address");
-        inputParams[1] = _dataType("bool");
-        stateVars[0] = _dataType("address");
-        stateVars[1] = _dataType("bool");
+        inputParams = abi.encode("address", "bool");
+        stateVars = abi.encode("address", "bool");
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)

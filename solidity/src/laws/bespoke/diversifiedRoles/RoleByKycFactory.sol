@@ -36,16 +36,9 @@ contract RoleByKycFactory is Law {
         LawConfig memory config_, // this is the configuration for creating new grants, not of the grants themselves.
         address members_ // the address where account kyc are stored. - note: all on public blockchain..
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("string"); // name
-        inputParams[1] = _dataType("string"); // description
-        inputParams[2] = _dataType("uint32"); // role to be assigned
-        inputParams[3] = _dataType("uint16[]"); // nationalities
-        inputParams[4] = _dataType("uint16[]"); // countries of residence
-        inputParams[5] = _dataType("int64"); // olderThan
-        inputParams[6] = _dataType("int64"); // youngerThan
-
-        members = members_;
+        inputParams = abi.encode("string", "string", "uint32", "uint16[]", "uint16[]", "int64", "int64");
         stateVars = inputParams; // Note: stateVars == inputParams.
+        members = members_;
     }
 
     /// @notice execute the law.

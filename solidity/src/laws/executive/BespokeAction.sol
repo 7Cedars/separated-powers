@@ -49,9 +49,7 @@ contract BespokeAction is Law {
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         _targetContract = targetContract_;
         _targetFunction = targetFunction_;
-        for (uint256 i = 0; i < params_.length; i++) {
-            inputParams[i] = _dataType(params_[i]);
-        }
+        inputParams = abi.encode(params_);
     }
 
     /// @notice execute the law.

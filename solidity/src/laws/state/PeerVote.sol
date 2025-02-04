@@ -59,9 +59,8 @@ contract PeerVote is Law {
         startVote = startVote_;
         endVote = endVote_;
 
-        inputParams[0] = _dataType("address");
-        stateVars[0] = _dataType("address"); // address that is voted on 
-        stateVars[1] = _dataType("address"); // address that has voted
+        inputParams = abi.encode("address");
+        stateVars = abi.encode("address", "address"); 
     }
 
     function simulateLaw(address initiator,  bytes memory lawCalldata, bytes32 descriptionHash)

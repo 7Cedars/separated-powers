@@ -61,8 +61,8 @@ contract Law is ERC165, ILaw {
     ShortString public immutable name; // name of the law
     address payable public separatedPowers; // the address of the core governance protocol
     string public description; // description of the law
-    bytes4[8] public inputParams; // hashes of data types needed for the lawCalldata. Saved as bytes4, encoded through the {DataType} function
-    bytes4[8] public stateVars; // hashes of data types needed for setting state variables. Saved as bytes4, encoded through the {DataType} function
+    bytes public inputParams; // an abi.encoded array of strings that denote the input parameters. For example: abi.encode("address", "address", "uint256", "address[]");
+    bytes public stateVars; // an abi.encoded array of strings that denote the variables that are saved in state. For example: abi.encode("address", "address", "uint256", "address[]");
 
     // optional parameters
     LawConfig public config;
@@ -197,42 +197,6 @@ contract Law is ERC165, ILaw {
     //////////////////////////////////////////////////
     //           HELPER & VIEW FUNCTIONS            //
     //////////////////////////////////////////////////
-    /// @inheritdoc ILaw
-    function getInputParams()
-        public
-        view
-        returns (bytes4 param0, bytes4 param1, bytes4 param2, bytes4 param3, bytes4 param4, bytes4 param5, bytes4 param6, bytes4 param7)
-    {
-        return (
-            inputParams[0],
-            inputParams[1],
-            inputParams[2],
-            inputParams[3],
-            inputParams[4],
-            inputParams[5],
-            inputParams[6],
-            inputParams[7]
-        );
-    }
-
-    /// @inheritdoc ILaw
-    function getStateVars()
-        public
-        view
-        returns (bytes4 var0, bytes4 var1, bytes4 var2, bytes4 var3, bytes4 var4, bytes4 var5, bytes4 var6, bytes4 var7)
-    {
-        return (
-            stateVars[0],
-            stateVars[1],
-            stateVars[2],
-            stateVars[3],
-            stateVars[4],
-            stateVars[5],
-            stateVars[6],
-            stateVars[7]
-        );
-    }
-
     /// @notice implements ERC165
     function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(ILaw).interfaceId || super.supportsInterface(interfaceId);
@@ -245,10 +209,5 @@ contract Law is ERC165, ILaw {
         returns (uint256)
     {
         return uint256(keccak256(abi.encode(targetLaw, lawCalldata, descriptionHash)));
-    }
-
-    /// @notice an internal helper function for hashing data types
-    function _dataType(string memory param) internal pure returns (bytes4) {
-        return bytes4(keccak256(bytes(param)));
     }
 }

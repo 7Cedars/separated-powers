@@ -41,11 +41,13 @@ contract Members is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("address"); // account
-        inputParams[1] = _dataType("uint16"); // nationality
-        inputParams[2] = _dataType("uint16"); // country of residence
-        inputParams[3] = _dataType("int64"); // DoB
-        inputParams[4] = _dataType("bool"); // add ? (if false: remove)
+        inputParams = abi.encode(
+            "address",  // account
+            "uint16", // nationality
+            "uint16", // country of residence
+            "int64", // DoB
+            "bool" // add ? (if false: remove)
+        );
     }
 
     /// @notice execute the law.

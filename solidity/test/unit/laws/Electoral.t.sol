@@ -573,9 +573,6 @@ contract ElectionCallTest is TestSetupElectoral {
         // prep: data
         address electionCall = laws[11];
         bytes memory lawCalldata = abi.encode(
-            1, // allowedRole
-            laws[0], // nominateMe
-            laws[6], // tallyVote
             50, // startVote
             150, // endVote
             "This is a test election"
@@ -609,9 +606,6 @@ contract ElectionCallTest is TestSetupElectoral {
         // prep: data
         address electionCall = laws[11];
         bytes memory lawCalldata = abi.encode(
-            1, // allowedRole
-            laws[0], // nominateMe
-            laws[6], // tallyVote
             50, // startVote
             150, // endVote
             "This is a test election"

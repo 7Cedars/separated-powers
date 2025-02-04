@@ -38,20 +38,31 @@ import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 contract ElectionCall is Law {
     error ElectionCall__PeerVoteAddressAlreadyExists(); 
 
+    uint32 public immutable VOTER_ROLE_ID;
+    address public immutable NOMINEES;
+    address public immutable TALLY_VOTE;
+
     constructor(
         string memory name_,
         string memory description_,
         address payable separatedPowers_,
         uint32 allowedRole_,
-        LawConfig memory config_ // this is the configuration for creating new grants, not of the grants themselves. 
+        LawConfig memory config_,
+        // bespoke params
+        uint32 voterRoleId_,
+        address nominees_,
+        address tallyVote_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("uint32"); // allowedRole = what role is allowed to cast vote. 
-        inputParams[1] = _dataType("address"); // nominateMe = the contract that allows accounts to nominate themselves for the election.
-        inputParams[2] = _dataType("address"); // tallyVote = the contract that tallies votes.
-        inputParams[3] = _dataType("uint48"); // startVote = the start date of the election.
-        inputParams[4] = _dataType("uint48"); // endVote = the end date of the election.
-        inputParams[5] = _dataType("string"); // description = a description of the election.
+        inputParams = abi.encode(
+            "uint48", // startVote = the start date of the election.
+            "uint48",  // endVote = the end date of the election.
+            "string" // description = a description of the election.
+        );
         stateVars = inputParams; // Note: stateVars == inputParams.
+
+        VOTER_ROLE_ID = voterRoleId_;
+        NOMINEES = nominees_;
+        TALLY_VOTE = tallyVote_;
     }
 
     /// @notice execute the law.
@@ -65,19 +76,16 @@ contract ElectionCall is Law {
     {
         // step 0: decode the law calldata.
         (
-            uint32 allowedRole,
-            address nominateMe,
-            address tallyVote,
             uint48 startVote,
             uint48 endVote,
             string memory description 
-        ) = abi.decode(lawCalldata, (uint32, address, address, uint48, uint48, string));
+        ) = abi.decode(lawCalldata, (uint48, uint48, string));
 
         // step 1: run additional checks: £todo create ERC165 type checks for nominateMe and tallyVote.
 
         // step 2: calculate address at which grant will be created.
         address peerVoteAddress =
-            _getPeerVoteAddress(allowedRole, nominateMe, tallyVote, startVote, endVote, description);
+            _getPeerVoteAddress(VOTER_ROLE_ID, NOMINEES, TALLY_VOTE, startVote, endVote, description);
 
         // step 2: if address is already in use, revert.
         uint256 codeSize = peerVoteAddress.code.length;
@@ -103,16 +111,13 @@ contract ElectionCall is Law {
     function _changeStateVariables(bytes memory stateChange) internal override {
         // step 0: decode data from stateChange
         (
-            uint32 allowedRole,
-            address nominateMe,
-            address tallyVote,
             uint48 startVote,
             uint48 endVote,
             string memory description 
-        ) = abi.decode(stateChange, (uint32, address, address, uint48, uint48, string));
+        ) = abi.decode(stateChange, (uint48, uint48, string));
 
         // stp 1: deploy new grant
-        _deployPeerVote(allowedRole, nominateMe, tallyVote, startVote, endVote, description);
+        _deployPeerVote(VOTER_ROLE_ID, NOMINEES, TALLY_VOTE, startVote, endVote, description);
     }
 
     /**

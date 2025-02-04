@@ -35,9 +35,7 @@ contract RevokeMembership is Law {
         LawConfig memory config_,
         address erc721Token_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("uint256");
-        inputParams[1] = _dataType("address");
-
+        inputParams = abi.encode("uint256", "address"); // tokenId, account
         erc721Token = erc721Token_;
     }
 

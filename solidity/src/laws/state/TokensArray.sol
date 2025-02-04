@@ -21,8 +21,6 @@ pragma solidity 0.8.26;
 import { Law } from "../../Law.sol";
 
 contract TokensArray is Law {
-    // the state vars that this law manages: community tokens.
-
     enum TokenType {
         Erc20,
         Erc721,
@@ -49,13 +47,8 @@ contract TokensArray is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("address"); // tokenAddress
-        inputParams[1] = _dataType("uint256"); // tokenType
-        inputParams[2] = _dataType("bool"); // add
-
-        stateVars[0] = _dataType("address");
-        stateVars[1] = _dataType("uint256");
-        stateVars[2] = _dataType("bool");
+        inputParams = abi.encode("address", "uint256", "bool");
+        stateVars = abi.encode("address", "uint256", "bool");
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)

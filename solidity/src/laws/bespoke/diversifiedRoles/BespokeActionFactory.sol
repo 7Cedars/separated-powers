@@ -35,13 +35,14 @@ contract BespokeActionFactory is Law {
         uint32 allowedRole_,
         LawConfig memory config_ // this is the configuration for creating new grants, not of the grants themselves.
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("string"); // name
-        inputParams[1] = _dataType("string"); // description
-        inputParams[2] = _dataType("uint32"); // allowedRole
-        inputParams[3] = _dataType("address"); // target contract
-        inputParams[4] = _dataType("bytes4"); // target function
-        inputParams[5] = _dataType("string[]"); // params
-
+        inputParams = abi.encode(
+            "string", // name
+            "string", // description
+            "uint32", // allowedRole
+            "address", // target contract
+            "bytes4", // target function
+            "string[]" // params
+        );
         stateVars = inputParams; // Note: stateVars == inputParams.
     }
 

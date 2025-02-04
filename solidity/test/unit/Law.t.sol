@@ -13,6 +13,31 @@ import { ILaw } from "../../src/interfaces/ILaw.sol";
 //////////////////////////////////////////////////
 //                  DEPLOY                      //
 //////////////////////////////////////////////////
+
+contract TempBuildTest is TestSetupLaw {
+    
+    function testTemp() public {
+        bytes4[] memory inputParams = new bytes4[](3); 
+
+        inputParams[0] = _dataType("address");
+        inputParams[1] = _dataType("address");
+        inputParams[2] = _dataType("uint256");
+
+        bytes memory test = abi.encode("address", "address", "uint256");
+        console.logBytes(test);
+        // (string memory one, string memory two, string memory three, string memory four) = abi.decode(test, (string, string, string, string));
+
+        // console.log(one, two, three);
+
+    }
+    
+    
+    function _dataType(string memory param) internal pure returns (bytes4) {
+        return bytes4(keccak256(bytes(param)));
+    }
+
+}
+
 contract DeployTest is TestSetupLaw {
     using ShortStrings for *;
 
@@ -62,29 +87,6 @@ contract DeployTest is TestSetupLaw {
         vm.prank(address(1)); // =! separatedPowers
         vm.expectRevert(Law__OnlySeparatedPowers.selector);
         lawMock.executeLaw(address(333), lawCalldata, keccak256(bytes(description)));
-    }
-
-    function testGetParams() public {
-        bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint.
-        string memory description = "Executing a proposal vote";
-        address separatedPowers = address(123);
-
-        Law lawMock =
-            new OpenAction("Mock Law", "This is a mock law contract", payable(separatedPowers), ROLE_ONE, lawConfig);
-
-        lawMock.inputParams(0);
-
-        // (
-        //     bytes4 param0,
-        //     bytes4 param1,
-        //     bytes4 param2,
-        //     bytes4 param3,
-        //     bytes4 param4,
-        //     bytes4 param5,
-        //     bytes4 param6,
-        //     bytes4 param7
-        //     ) = lawMock.getInputParams();
-        // assert(lengthParams > 0);
     }
 }
 

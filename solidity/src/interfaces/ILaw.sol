@@ -86,25 +86,4 @@ interface ILaw is IERC165, LawErrors {
     /// @param lawCalldata the calldata for the law.
     /// @param descriptionHash the hash of the description of the law.
     function checksAtExecute(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) external view;  
-
-    /// @notice function to get the input params of the law
-    function getInputParams()
-        external
-        view
-        returns (
-            bytes4 param0,
-            bytes4 param1,
-            bytes4 param2,
-            bytes4 param3,
-            bytes4 param4,
-            bytes4 param5,
-            bytes4 param6,
-            bytes4 param7
-        );
-
-    /// @notice function to get the state var types of the law
-    function getStateVars()
-        external
-        view
-        returns (bytes4 var0, bytes4 var1, bytes4 var2, bytes4 var3, bytes4 var4, bytes4 var5, bytes4 var6, bytes4 var7);
 }

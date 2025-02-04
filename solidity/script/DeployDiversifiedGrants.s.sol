@@ -14,17 +14,22 @@ import { NominateMe } from "../src/laws/state/NominateMe.sol";
 import { DelegateSelect } from "../src/laws/electoral/DelegateSelect.sol";
 import { DirectSelect } from "../src/laws/electoral/DirectSelect.sol";
 import { PeerSelect } from "../src/laws/electoral/PeerSelect.sol";
+import { ElectionTally } from "../src/laws/electoral/ElectionTally.sol";
+import { ElectionCall } from "../src/laws/electoral/ElectionCall.sol";
 import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
 import { BespokeAction } from "../src/laws/executive/BespokeAction.sol";
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
-import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
+import { Erc721Mock } from     "../test/mocks/Erc721Mock.sol";
+import { Erc20TaxedMock } from "../test/mocks/Erc20TaxedMock.sol";
 
 import { Grant } from "../src/laws/bespoke/diversifiedGrants/Grant.sol";
 import { StartGrant } from "../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
 import { StopGrant } from "../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
 import { SelfDestructPresetAction } from "../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol";
+import { RoleByTaxPaid } from "../src/laws/bespoke/diversifiedGrants/RoleByTaxPaid.sol";
 // borrowing one law from another bespoke folder. Not ideal, but ok for now.
 import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
+
 
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
@@ -46,13 +51,18 @@ contract DeployDiversifiedGrants is Script {
 
         vm.startBroadcast(address(separatedPowers));
         Erc721Mock erc721Mock = new Erc721Mock();
+        Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
+            // NB! these params should be included in the config. £todo
+            7, 2, 100 // 7% tax, (tax = 7, denominator = 2),  100 block epoch. 
+        );
         vm.stopBroadcast();
 
         initiateConstitution(
             payable(address(separatedPowers)),
-            payable(config.erc1155Mock),
             payable(config.erc20VotesMock),
-            payable(address(erc721Mock))
+            payable(address(erc20TaxedMock)),
+            payable(address(erc721Mock)),
+            payable(config.erc1155Mock)
         );
 
         // constitute dao.
@@ -65,7 +75,8 @@ contract DeployDiversifiedGrants is Script {
 
     function initiateConstitution(
         address payable dao_,
-        address payable mock20_,
+        address payable mock20Votes_,
+        address payable mock20Taxed_,
         address payable mock721_,
         address payable mock1155_
     ) public {
@@ -118,6 +129,20 @@ contract DeployDiversifiedGrants is Script {
         delete lawConfig;
 
         // laws[2]
+        // initiating law
+        vm.startBroadcast();
+        law = new StopGrant(
+            "Stop a grant", // max 31 chars
+            "When a grant's budget is spent, or the grant is expired, it can be stopped.",
+            dao_, // separated powers
+            2, // access role
+            lawConfig // bespoke configs for this law.
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        // laws[3]
         lawConfig.quorum = 40; // = 40% quorum needed
         lawConfig.succeedAt = 80; // =  80 majority needed
         lawConfig.votingPeriod = 120; // = number of blocks for vote.
@@ -128,7 +153,7 @@ contract DeployDiversifiedGrants is Script {
         vm.startBroadcast();
         law = new BespokeAction(
             "Stop law",
-            "The security Council can stop any law.",
+            "The security Council can stop any active law.",
             dao_, // separated powers
             3, // access role
             lawConfig, // bespoke configs for this law
@@ -140,17 +165,17 @@ contract DeployDiversifiedGrants is Script {
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[3]
+        // laws[4]
         lawConfig.quorum = 50; // = 50% quorum needed
         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
         lawConfig.votingPeriod = 1200; // = number of blocks
-        lawConfig.needCompleted = laws[2]; // NB! first a law needs to be stopped before it can be restarted!
+        lawConfig.needCompleted = laws[3]; // NB! first a law needs to be stopped before it can be restarted!
         // This does mean that the reason given needs to be the same as when the law was stopped.
         // initiating law.
         vm.startBroadcast();
         law = new BespokeAction(
             "Restart law",
-            "The security Council can restart a law.",
+            "The security Council can restart a law. They can only restart a law that they themselves stopped.",
             dao_, // separated powers
             3, // access role
             lawConfig, // bespoke configs for this law
@@ -165,21 +190,22 @@ contract DeployDiversifiedGrants is Script {
         //////////////////////////////////////////////////////////////
         //              CHAPTER 2: ELECT ROLES                      //
         //////////////////////////////////////////////////////////////
-        // laws[4]
+        // laws[5]
         vm.startBroadcast();
-        law = new NftSelfSelect(
+        law = new RoleByTaxPaid(
             "Elect self for role 1", // max 31 chars
-            "Anyone who has a mock Erc721 token can (de)select themselves for role 1. See the treasury page for the contract where to mint one.",
+            "Anyone who has paid sufficient tax (by using the Dao's ERC20 token) can claim a role 1. The threshold is 100MCK tokens per 100 blocks.",
             dao_,
             type(uint32).max, // access role = public access
             lawConfig,
             1, // role id
-            mock721_
+            mock20Taxed_, 
+            100 // have to see if this is a fair amount. 
         );
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[5]
+        // laws[6]
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for role 2", // max 31 chars
@@ -191,35 +217,54 @@ contract DeployDiversifiedGrants is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[6]
+        // CONTINUE HERE // THIS SHOULD BE PEER ELECT! 
+        // laws[7]
         vm.startBroadcast();
-        law = new DelegateSelect(
+        law = new ElectionTally(
+            "Tally role 2 election", // max 31 chars
+            "Tally elections for role 2.",
+            dao_, // separated powers protocol.
+            1, // Note: any one can tally the election. It can only be done after election duration has finished. 
+            lawConfig, //  config file.
+            // bespoke configs for this law:
+            laws[6], // law where nominations are made.
+            4, // max role holders, 
+            3 // role id that is elected
+        ); 
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        // laws[8]
+        vm.startBroadcast();
+        law = new ElectionCall(
             "Call role 2 election", // max 31 chars
-            "An election is called by an oracle, as set by the admin. The nominated accounts with most delegated vote tokens are then assigned to role 2.",
+            "An election is called by an oracle, as set by the admin. The nominated accounts with most votes from role 1 holders are then assigned to role 2.",
             dao_, // separated powers protocol.
             9, // oracle role id designation.
             lawConfig, //  config file.
-            mock20_, // the tokens that will be used as votes in the election.
-            laws[7], // nominateMe //
-            10, // maximum amount of delegates
-            2 // role id to be assigned
+            // bespoke configs for this law:
+            2, // role id that is allowed to vote. 
+            laws[6], // law where nominations are made.
+            laws[7] // law where votes are tallied.
         );
         vm.stopBroadcast();
         laws.push(address(law));
+        delete lawConfig;
 
-        // laws[7]
+        // laws[9]
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for role 3", // max 31 chars
-            "Anyone can nominate themselves for role 3.",
+            "Nominate yourself for role 3.",
             dao_,
-            type(uint32).max, // access role = public access
+            1, // access role = 1
             lawConfig
         );
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[8]: security council: peer select. - role 3
+        // laws[10]: security council: peer select. - role 3
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 7200; // = duration in number of blocks to vote, about one day.
@@ -232,14 +277,56 @@ contract DeployDiversifiedGrants is Script {
             3, // role 3 id designation.
             lawConfig, //  config file.
             3, // maximum elected to role
-            laws[7], // nominateMe
+            laws[10], // nominateMe
             3 // role id to be assigned
         );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[9]: selfDestructPresetAction: assign initial accounts to security council.
+        // laws[11]: elect and revoke members to grant council A -- governance council votes.
+        lawConfig.quorum = 70; // = 70% quorum needed
+        lawConfig.succeedAt = 51; // =  simple majority sufficient
+        lawConfig.votingPeriod = 1200; // = number of blocks
+        vm.startBroadcast();
+        law = new DirectSelect(
+            "Elect and revoke role 4", // max 31 chars
+            "Elect and revoke members for role 4 (Grant council A)",
+            dao_, // separated powers protocol.
+            2, // governors.
+            lawConfig, //  config file.
+            4 // role id to be assigned
+        );
+        vm.stopBroadcast();
+
+        // laws[12]: elect and revoke members to grant council B -- governance council votes.
+        vm.startBroadcast();
+        law = new DirectSelect(
+            "Elect and revoke role 5", // max 31 chars
+            "Elect and revoke members for role 5 (Grant council B)",
+            dao_, // separated powers protocol.
+            2, // governors.
+            lawConfig, //  config file. // same as law[9]
+            5 // role id to be assigned
+        );
+        vm.stopBroadcast();
+
+        // laws[13]: elect and revoke members to grant council C -- governance council votes.
+        vm.startBroadcast();
+        law = new DirectSelect(
+            "Elect and revoke role 6", // max 31 chars
+            "Elect and revoke members for role 6 (Grant council C)",
+            dao_, // separated powers protocol.
+            2, // governors.
+            lawConfig, //  config file. // same as law[9]
+            6 // role id to be assigned
+        );
+        vm.stopBroadcast();
+        delete lawConfig; // here we delete the law config
+
+        // note at the moment not possible to resign form these roles. In reality there should be a law that allows for resignations.
+
+        // laws[14]: selfDestructPresetAction: assign initial accounts to security council.
         address[] memory targets = new address[](3);
         uint256[] memory values = new uint256[](3);
         bytes[] memory calldatas = new bytes[](3);
@@ -267,49 +354,7 @@ contract DeployDiversifiedGrants is Script {
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[10]: elect and revoke members to grant council A -- governance council votes.
-        lawConfig.quorum = 70; // = 70% quorum needed
-        lawConfig.succeedAt = 51; // =  simple majority sufficient
-        lawConfig.votingPeriod = 1200; // = number of blocks
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Elect and revoke role 4", // max 31 chars
-            "Elect and revoke members for role 4 (Grant council A)",
-            dao_, // separated powers protocol.
-            2, // governors.
-            lawConfig, //  config file.
-            4 // role id to be assigned
-        );
-        vm.stopBroadcast();
-
-        // laws[11]: elect and revoke members to grant council B -- governance council votes.
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Elect and revoke role 5", // max 31 chars
-            "Elect and revoke members for role 5 (Grant council B)",
-            dao_, // separated powers protocol.
-            2, // governors.
-            lawConfig, //  config file. // same as law[9]
-            5 // role id to be assigned
-        );
-        vm.stopBroadcast();
-
-        // laws[12]: elect and revoke members to grant council C -- governance council votes.
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Elect and revoke role 6", // max 31 chars
-            "Elect and revoke members for role 6 (Grant council C)",
-            dao_, // separated powers protocol.
-            2, // governors.
-            lawConfig, //  config file. // same as law[9]
-            6 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        delete lawConfig; // here we delete the law config
-
-        // note at the moment not possible to resign form these roles. In reality there should be a law that allows for resignations.
-
-        // laws[13]
+        // laws[15]
         vm.startBroadcast();
         law = new DirectSelect(
             "Set Oracle", // max 31 chars

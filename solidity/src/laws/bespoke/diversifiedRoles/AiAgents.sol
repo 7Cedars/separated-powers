@@ -43,10 +43,12 @@ contract AiAgents is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("string"); // name
-        inputParams[1] = _dataType("address"); // account
-        inputParams[2] = _dataType("string"); // uri
-        inputParams[3] = _dataType("bool"); // add
+        inputParams = abi.encode(
+            "string", // name 
+            "address", // account
+            "string", // uri
+            "bool" // add
+        );
     }
 
     /// @notice execute the law.

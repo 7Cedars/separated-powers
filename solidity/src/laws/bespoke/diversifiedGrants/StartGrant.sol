@@ -41,14 +41,16 @@ contract StartGrant is Law {
         LawConfig memory config_, // this is the configuration for creating new grants, not of the grants themselves.
         address proposals // the address where proposals to the grant are made.
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("string"); // name
-        inputParams[1] = _dataType("string"); // description
-        inputParams[2] = _dataType("uint48"); // duration
-        inputParams[3] = _dataType("uint256"); // budget
-        inputParams[4] = _dataType("address"); // tokenAddress
-        inputParams[5] = _dataType("uint256"); // tokenType
-        inputParams[6] = _dataType("uint256"); // tokenId
-        inputParams[7] = _dataType("uint32"); // allowedRole
+        inputParams = abi.encode(
+            "string", // name
+            "string", // description
+            "uint48", // duration
+            "uint256", // budget
+            "address", // tokenAddress
+            "uint256", // tokenType
+            "uint256", // tokenId
+            "uint32" // allowedRole
+        );
         stateVars = inputParams; // Note: stateVars == inputParams.
 
         configNewGrants.quorum = 80;

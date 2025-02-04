@@ -53,11 +53,13 @@ contract Grant is Law {
         TokenType tokenType_,
         uint256 tokenId_ // only used with erc1155 funded grants
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams[0] = _dataType("address"); // grantee address
-        inputParams[1] = _dataType("address"); // grant address = address(this). This is needed to make abuse of proposals across contracts impossible.
-        inputParams[2] = _dataType("uint256"); // quantity to transfer
-        stateVars[0] = _dataType("uint256"); //  quantity to transfer
-
+        inputParams = abi.encode(
+            "address", // grantee address
+            "address", // grant address = address(this). This is needed to make abuse of proposals across contracts impossible.
+            "uint256" // quantity to transfer
+        );
+        stateVars = abi.encode("uint256"); //  quantity to transfer
+        
         expiryBlock = duration_ + uint48(block.number);
         budget = budget_;
         tokenAddress = tokenAddress_;

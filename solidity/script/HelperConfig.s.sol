@@ -4,6 +4,7 @@ pragma solidity 0.8.26;
 import "lib/forge-std/src/Script.sol";
 import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
 import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
+import { Erc20TaxedMock } from "../test/mocks/Erc20TaxedMock.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
@@ -13,6 +14,7 @@ contract HelperConfig is Script {
 
     struct NetworkConfig {
         address erc20VotesMock;
+        address erc20TaxedMock;
         address erc721Mock;
         address erc1155Mock;
         uint256 blocksPerHour; // a basic way of establishing time. As long as block times are fairly stable on a chain, this will work.
@@ -82,11 +84,15 @@ contract HelperConfig is Script {
         // if anvil is not deployed, deploy and save addresses.
         vm.startBroadcast();
         ERC20Votes erc20VotesMock = new Erc20VotesMock();
+        Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
+            7, 2, 100 // 7% tax, (tax = 7, denominator = 2),  100 block epoch. 
+        );
         Erc721Mock erc721Mock = new Erc721Mock();
         Erc1155Mock erc1155Mock = new Erc1155Mock();
         vm.stopBroadcast();
 
         networkConfig.erc20VotesMock = address(erc20VotesMock);
+        networkConfig.erc20TaxedMock = address(erc20TaxedMock);
         networkConfig.erc721Mock = address(erc721Mock);
         networkConfig.erc1155Mock = address(erc1155Mock);
         networkConfig.blocksPerHour = 3600;

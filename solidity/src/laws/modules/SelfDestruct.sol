@@ -19,10 +19,6 @@ pragma solidity 0.8.26;
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
 
-///////// ONLY FOR TESTING ////////////
-import "forge-std/Test.sol";
-//////////////////////////////////////
-
 abstract contract SelfDestruct is Law {
     /// @notice execute the law.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.

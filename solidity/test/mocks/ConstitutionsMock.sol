@@ -480,7 +480,11 @@ contract ConstitutionsMock is Test {
             "Create and call an election for an existing TallyVote law.",
             dao_,
             1, // access role
-            lawConfig // empty config file.
+            lawConfig, // empty config file.
+            // bespoke configs for this law:
+            2, // voter role id
+            laws[0], // NominateMe contract.
+            laws[6] // ElectionTally contract.
         );
         laws[11] = address(law);
 
