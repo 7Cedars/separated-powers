@@ -1,9 +1,8 @@
-// todo. 
-// link to NominateMe 
-// save cast vote on address. 
-// log if address has voted. 
+// todo.
+// link to NominateMe
+// save cast vote on address.
+// log if address has voted.
 // disallow repeated votes.
-
 
 // SPDX-License-Identifier: MIT
 
@@ -34,11 +33,11 @@ contract PeerVote is Law {
     error PeerVote__ElectionNotOpen();
 
     // the state vars that this law manages: community strings.
-    mapping (address => bool) public hasVoted;
-    mapping (address => uint256) public votes;
+    mapping(address => bool) public hasVoted;
+    mapping(address => uint256) public votes;
     uint48 public immutable startVote;
     uint48 public immutable endVote;
-    address public immutable NOMINEES; 
+    address public immutable NOMINEES;
     address public immutable TALLY;
 
     event PeerVote__VoteCast(address voter);
@@ -48,9 +47,9 @@ contract PeerVote is Law {
         string memory description_,
         address payable separatedPowers_,
         uint32 allowedRole_,
-        LawConfig memory config_, 
-        address nominateMe, // the nominateMe contract linked to this contract. 
-        address tallyVote, // the tallyVote contract linked to this contract. 
+        LawConfig memory config_,
+        address nominateMe, // the nominateMe contract linked to this contract.
+        address tallyVote, // the tallyVote contract linked to this contract.
         uint48 startVote_,
         uint48 endVote_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
@@ -60,10 +59,10 @@ contract PeerVote is Law {
         endVote = endVote_;
 
         inputParams = abi.encode("address");
-        stateVars = abi.encode("address", "address"); 
+        stateVars = abi.encode("address", "address");
     }
 
-    function simulateLaw(address initiator,  bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         view
         override

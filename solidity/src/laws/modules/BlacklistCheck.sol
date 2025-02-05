@@ -24,7 +24,11 @@ abstract contract BlacklistCheck is Law {
     /// @notice overrides the default simulateLaw function.
     error BlacklistCheck__Blacklisted();
 
-    function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) public view override {
+    function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        view
+        override
+    {
         bool blacklisted = AddressesMapping(blacklistContract()).addresses(initiator);
         if (blacklisted) {
             revert BlacklistCheck__Blacklisted();

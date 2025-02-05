@@ -98,7 +98,7 @@ contract Law is ERC165, ILaw {
     {
         if (msg.sender != separatedPowers) {
             revert Law__OnlySeparatedPowers();
-        } 
+        }
         checksAtPropose(initiator, lawCalldata, descriptionHash);
         checksAtExecute(initiator, lawCalldata, descriptionHash);
         bytes memory stateChange;
@@ -126,7 +126,11 @@ contract Law is ERC165, ILaw {
     //                  CHECKS                      //
     //////////////////////////////////////////////////
     /// @inheritdoc ILaw
-    function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) public view virtual {
+    function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        view
+        virtual
+    {
         /// Optional check 1: make law conditional on a parent law being completed.
         if (config.needCompleted != address(0)) {
             uint256 parentProposalId = _hashProposal(config.needCompleted, lawCalldata, descriptionHash);
@@ -163,7 +167,11 @@ contract Law is ERC165, ILaw {
     }
 
     /// @inheritdoc ILaw
-    function checksAtExecute(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) public view virtual {
+    function checksAtExecute(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        view
+        virtual
+    {
         // Optional check 4: make law conditional on a proposal succeeding.
         if (config.quorum != 0) {
             uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);

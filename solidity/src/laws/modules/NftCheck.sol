@@ -24,7 +24,8 @@ abstract contract NftCheck is Law {
 
     /// @notice overrides the default simulateLaw function.
     function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
+        public
+        view
         virtual
         override
     {

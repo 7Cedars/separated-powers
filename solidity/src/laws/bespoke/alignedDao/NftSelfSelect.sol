@@ -46,7 +46,8 @@ contract NftSelfSelect is SelfSelect, NftCheck {
     }
 
     function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
-        public view
+        public
+        view
         override(Law, NftCheck)
     {
         super.checksAtPropose(initiator, lawCalldata, descriptionHash);

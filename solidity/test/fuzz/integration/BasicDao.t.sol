@@ -6,6 +6,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
 import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
+import { SeparatedPowersEvents } from "../../../src/interfaces/SeparatedPowersEvents.sol";
 import { Law } from "../../../src/Law.sol";
 import { ILaw } from "../../../src/interfaces/ILaw.sol";
 
@@ -15,26 +16,23 @@ import { Erc20VotesMock } from "../../../test/mocks/Erc20VotesMock.sol";
 import { TestSetupBasicDao_fuzzIntegration } from "../../../test/TestSetup.t.sol";
 import { HelperConfig } from "../../../script/HelperConfig.s.sol";
 
-/////////////////////////////////////////////////////
-//                      Setup                      //
-/////////////////////////////////////////////////////
 contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
     //////////////////////////////////////////////////////////////
     //              CHAPTER 1: EXECUTIVE ACTIONS                //
     //////////////////////////////////////////////////////////////
     function testFuzz_ProposeAndExecuteAnAction(
-        uint256 proposePassChance,
-        uint256 vetoCastChance,
-        uint256 executePassChance
+        uint256 step0Chance,
+        uint256 step1Chance,
+        uint256 step2Chance
     ) public {
-        uint256 proposePassChance = bound(proposePassChance, 0, 100);
-        uint256 vetoCastChance = bound(vetoCastChance, 0, 100);
-        uint256 executePassChance = bound(executePassChance, 0, 100);
+        uint256 step0Chance = bound(step0Chance, 0, 100);
+        uint256 step1Chance = bound(step1Chance, 0, 100);
+        uint256 step2Chance = bound(step2Chance, 0, 100);
         uint256 balanceBefore = erc20VotesMock.balanceOf(address(basicDao));
+        uint256 seed = 9034273427; 
 
         bool[] memory stepsPassed = new bool[](3);
 
-        // assigning necessary roles.
         vm.startPrank(address(basicDao));
         basicDao.assignRole(0, alice); // ADMIN ROLE
         basicDao.assignRole(1, bob); // role 1s
@@ -63,10 +61,9 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
             payable(address(basicDao)),
             laws[0],
             proposalId,
-            config.testAccounts,
-            (proposePassChance + vetoCastChance) / 2,
-            proposePassChance,
-            vetoCastChance
+            users,
+            seed, 
+            step0Chance
         );
 
         // step 0 results.
@@ -76,13 +73,18 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         stepsPassed[0] = quorumReached && voteSucceeded;
         vm.roll(block.number + votingPeriod + 1);
         if (stepsPassed[0]) {
-          vm.prank(gary);
-          basicDao.execute(laws[0], lawCalldata, description);
+            console.log("step 1 action: GARY EXECUTES!");
+            vm.expectEmit(true, false, false, false);
+            emit SeparatedPowersEvents.ProposalCompleted(gary, laws[0], lawCalldata, keccak256(bytes(description)));
+            vm.prank(gary);
+            basicDao.execute(laws[0], lawCalldata, description);
         }
 
         // step 1 action: cast veto?.
-        if (vetoCastChance > 50) {
-            console.log("step 2 action: alice casts a veto!");
+        if (step1Chance > 50) {
+            console.log("step 2 action: ALICE CASTS VETO!");
+            vm.expectEmit(true, false, false, false);
+            emit SeparatedPowersEvents.ProposalCompleted(alice, laws[1], lawCalldata, keccak256(bytes(description)));
             vm.prank(alice); // has admin role.
             basicDao.execute(laws[1], lawCalldata, description);
 
@@ -93,13 +95,13 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
             stepsPassed[1] = vetoState != uint8(ProposalState.Completed);
             console.log("step 2 result: proposal vetoState: ", vetoState);
         } else {
-            console.log("step 2 action: alice does not cast a veto!");
+            console.log("step 2 action: ALICE DOES NOT CASTS VETO!");
             stepsPassed[1] = true;
         }
 
         // only resume if both steps passed
         vm.assume(stepsPassed[0] && stepsPassed[1]);
-        // step 2 action: propose and vote on action.
+        // step 2 action: propose and vote on action. 
         vm.prank(bob); // has role 1.
         proposalId = basicDao.propose(laws[2], lawCalldata, description);
 
@@ -107,14 +109,13 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
             payable(address(basicDao)),
             laws[2],
             proposalId,
-            config.testAccounts,
-            (proposePassChance + vetoCastChance) / 2,
-            proposePassChance,
-            vetoCastChance
+            users,
+            seed,
+            step2Chance
         );
 
         // step 2 results.
-        (quorum, succeedAt, votingPeriod, , , delayExecution,) = Law(laws[2]).config();
+        (quorum, succeedAt, votingPeriod,,, delayExecution,) = Law(laws[2]).config();
         quorumReached = (forVote + abstainVote) * 100 / roleCount > quorum;
         voteSucceeded = forVote * 100 / roleCount > succeedAt;
         stepsPassed[2] = quorumReached && voteSucceeded;
@@ -125,6 +126,8 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         // step 3: conditional execute of proposal
         if (stepsPassed[2]) {
             console.log("step 4 action: ACTION WILL BE EXECUTED");
+            vm.expectEmit(true, false, false, false);
+            emit SeparatedPowersEvents.ProposalCompleted(bob, laws[2], lawCalldata, keccak256(bytes(description)));
             vm.prank(bob); // has role 1
             basicDao.execute(laws[2], lawCalldata, description);
             uint256 balanceAfter = erc20VotesMock.balanceOf(address(basicDao));
@@ -148,28 +151,28 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         address delegateSelectLaw = laws[5];
 
         // step 0: distribute tokens. Tokens are distributed randomly.
-        distributeTokens(config.erc20VotesMock, config.testAccounts, voteTokensRandomiser);
+        distributeTokens(config.erc20VotesMock, users, voteTokensRandomiser);
 
         // step 1: people nominate their accounts.
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe = true
 
         for (uint256 i = 0; i < numNominees; i++) {
-            vm.prank(config.testAccounts[i]);
+            vm.prank(users[i]);
             basicDao.execute(
                 nominateMeLaw, lawCalldataNominate, string.concat("Account nominates themselves: ", Strings.toString(i))
             );
         }
         // step 2: run election.
         bytes memory lawCalldataElect = abi.encode(); // empty calldata
-        address executioner = config.testAccounts[voteTokensRandomiser % config.testAccounts.length];
+        address executioner = users[voteTokensRandomiser % users.length];
         vm.prank(executioner);
         basicDao.execute(delegateSelectLaw, lawCalldataElect, "Account executes an election.");
 
         // step 3: assert that the elected accounts are correct.
         for (uint256 i = 0; i < numNominees; i++) {
             for (uint256 j = 0; j < numNominees; j++) {
-                address nominee = config.testAccounts[i];
-                address nominee2 = config.testAccounts[j];
+                address nominee = users[i];
+                address nominee2 = users[j];
                 if (basicDao.hasRoleSince(nominee, 2) != 0 && basicDao.hasRoleSince(nominee2, 2) == 0) {
                     uint256 balanceNominee = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee);
                     uint256 balanceNominee2 = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee2);
@@ -185,14 +188,10 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
     }
 
     function testFuzz_PeerSelect(
-        uint256 numNominees,
-        uint256 indexRandomiser,
-        uint256 quorumPassChance,
-        uint256 succeedPassChance
+        uint256 passChance
     ) public {
-        quorumPassChance = bound(quorumPassChance, 0, 100);
-        succeedPassChance = bound(succeedPassChance, 0, 100);
-        // indexRandomiser = bound(indexRandomiser, 0, numNominees - 1);
+        passChance = bound(passChance, 0, 100);
+        uint256 seed = 3298443729;  
 
         // assigning necessary roles.
         vm.startPrank(address(basicDao));
@@ -204,9 +203,9 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
 
         // step 1: people nominate their accounts.
         uint256 numNominees;
-        for (uint256 i = 0; i < config.testAccounts.length; i++) {
-            if (basicDao.hasRoleSince(config.testAccounts[i], 1) == 0) {
-                vm.prank(config.testAccounts[i]);
+        for (uint256 i = 0; i < users.length; i++) {
+            if (basicDao.hasRoleSince(users[i], 1) == 0) {
+                vm.prank(users[i]);
                 basicDao.execute(
                     laws[6], abi.encode(true), string.concat("Account nominates themself", Strings.toString(i))
                 );
@@ -221,7 +220,12 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         uint256 proposalId = basicDao.propose(laws[7], lawCalldataSelect, descriptionSelect);
 
         (uint256 roleCount, uint256 againstVote, uint256 forVote, uint256 abstainVote) = voteOnProposal(
-            payable(address(basicDao)), laws[7], proposalId, config.testAccounts, 0, quorumPassChance, succeedPassChance
+            payable(address(basicDao)), 
+            laws[7], 
+            proposalId, 
+            users, 
+            seed,  
+            passChance
         );
 
         // step 3:  assert that the elected accounts are correct.
@@ -234,7 +238,7 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         if (quorumReached && succeeded) {
             vm.prank(alice);
             basicDao.execute(laws[7], lawCalldataSelect, descriptionSelect);
-            assertNotEq(basicDao.hasRoleSince(config.testAccounts[0], 1), 0);
+            assertNotEq(basicDao.hasRoleSince(users[0], 1), 0);
         } else {
             vm.expectRevert();
             vm.prank(alice);

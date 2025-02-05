@@ -15,9 +15,8 @@ import { ILaw } from "../../src/interfaces/ILaw.sol";
 //////////////////////////////////////////////////
 
 contract TempBuildTest is TestSetupLaw {
-    
     function testTemp() public {
-        bytes4[] memory inputParams = new bytes4[](3); 
+        bytes4[] memory inputParams = new bytes4[](3);
 
         inputParams[0] = _dataType("address");
         inputParams[1] = _dataType("address");
@@ -28,14 +27,11 @@ contract TempBuildTest is TestSetupLaw {
         // (string memory one, string memory two, string memory three, string memory four) = abi.decode(test, (string, string, string, string));
 
         // console.log(one, two, three);
-
     }
-    
-    
+
     function _dataType(string memory param) internal pure returns (bytes4) {
         return bytes4(keccak256(bytes(param)));
     }
-
 }
 
 contract DeployTest is TestSetupLaw {

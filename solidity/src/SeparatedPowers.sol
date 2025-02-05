@@ -144,7 +144,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
             revert SeparatedPowers__UnexpectedProposalState();
         }
         // check 3: do proposal checks of the law pass?
-        Law(targetLaw).checksAtPropose(initiator, lawCalldata, descriptionHash);  
+        Law(targetLaw).checksAtPropose(initiator, lawCalldata, descriptionHash);
 
         // if checks pass: create proposal
         uint32 duration = votingPeriod;
@@ -393,7 +393,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
         uint32 allowedRole = Law(targetLaw).allowedRole();
         uint256 amountMembers = roles[allowedRole].amountMembers;
 
-        return (quorum == 0 || (amountMembers * quorum) / DENOMINATOR <= proposal.forVotes + proposal.abstainVotes);
+        return (quorum == 0 || amountMembers * quorum <= (proposal.forVotes + proposal.abstainVotes) * DENOMINATOR); 
     }
 
     /// @notice internal function {voteSucceeded} that checks if a vote for a given proposal has succeeded.

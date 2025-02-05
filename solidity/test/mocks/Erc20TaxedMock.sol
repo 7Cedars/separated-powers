@@ -10,22 +10,21 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 contract Erc20TaxedMock is ERC20, Ownable {
     error Erc20TaxedMock__NoZeroAmount();
     error Erc20TaxedMock__TaxRateOverflow();
-    error Erc20TaxedMock__InsufficientBalanceForTax(); 
+    error Erc20TaxedMock__InsufficientBalanceForTax();
 
     uint256 public taxRate;
     uint8 public immutable taxDecimals;
     uint48 public immutable epochDuration;
-    mapping (uint48 epoch => mapping (address account => uint256 taxPaid)) public taxLogs;
+    mapping(uint48 epoch => mapping(address account => uint256 taxPaid)) public taxLogs;
 
-    constructor(
-      uint256 taxRate_,
-      uint8 taxDecimals_,
-      uint48 epochDuration_  
-    ) ERC20("mockTaxed", "MTXD") Ownable(msg.sender) { 
-      taxRate = taxRate_;
-      taxDecimals = taxDecimals_;
-      epochDuration = epochDuration_;
-    } 
+    constructor(uint256 taxRate_, uint8 taxDecimals_, uint48 epochDuration_)
+        ERC20("mockTaxed", "MTXD")
+        Ownable(msg.sender)
+    {
+        taxRate = taxRate_;
+        taxDecimals = taxDecimals_;
+        epochDuration = epochDuration_;
+    }
 
     // a public non-restricted function that allows anyone to mint coins. Only restricted by max allowed coins to mint.
     function mint(uint256 amount) public onlyOwner {
@@ -49,39 +48,32 @@ contract Erc20TaxedMock is ERC20, Ownable {
         taxRate = newTaxRate;
     }
 
-    // replaces the standard update function, adding tax collection and registration. 
+    // replaces the standard update function, adding tax collection and registration.
     function _update(address from, address to, uint256 value) internal override {
-
         // adds tax collection and registration to transfers. Note that tax is _added_ to amount transferred.
-        // if taxed amount cannot be collected, it will revert. 
+        // if taxed amount cannot be collected, it will revert.
         // taxes are not collected when minting, burning or transferring to or from owner.
-        if (
-            from != owner() &&
-            to != owner() &&
-            from != address(0) && 
-            to != address(0) && 
-            value != 0
-            ) {
-            uint256 tax = (value *  taxRate) / (10 ** taxDecimals);
+        if (from != owner() && to != owner() && from != address(0) && to != address(0) && value != 0) {
+            uint256 tax = (value * taxRate) / (10 ** taxDecimals);
             uint256 fromBalance = balanceOf(from);
 
             if (fromBalance < value + tax) {
                 revert Erc20TaxedMock__InsufficientBalanceForTax();
             }
-            
+
             // transfer tax to owner of token
             _transfer(from, owner(), tax);
-            
-            // register tax in contract. 
+
+            // register tax in contract.
             uint48 currentEpoch = uint48(block.number) / epochDuration;
-            taxLogs[currentEpoch][from] += tax;    
+            taxLogs[currentEpoch][from] += tax;
         }
-        
+
         super._update(from, to, value);
     }
 
     ////////////////////////////////////////////
-    //             Getter functions           // 
+    //             Getter functions           //
     ////////////////////////////////////////////
 
     function getTaxLogs(uint48 blockNumber, address account) external view returns (uint256 taxPaid) {
@@ -93,5 +85,4 @@ contract Erc20TaxedMock is ERC20, Ownable {
     // function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
     //     return interfaceId == type(Erc20TaxedMock).interfaceId || super.supportsInterface(interfaceId);
     // }
-
 }

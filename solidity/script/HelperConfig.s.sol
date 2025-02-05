@@ -85,7 +85,9 @@ contract HelperConfig is Script {
         vm.startBroadcast();
         ERC20Votes erc20VotesMock = new Erc20VotesMock();
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
-            7, 2, 100 // 7% tax, (tax = 7, denominator = 2),  100 block epoch. 
+            7,
+            2,
+            100 // 7% tax, (tax = 7, denominator = 2),  100 block epoch.
         );
         Erc721Mock erc721Mock = new Erc721Mock();
         Erc1155Mock erc1155Mock = new Erc1155Mock();

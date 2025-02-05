@@ -19,7 +19,7 @@ import { ElectionCall } from "../src/laws/electoral/ElectionCall.sol";
 import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
 import { BespokeAction } from "../src/laws/executive/BespokeAction.sol";
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
-import { Erc721Mock } from     "../test/mocks/Erc721Mock.sol";
+import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
 import { Erc20TaxedMock } from "../test/mocks/Erc20TaxedMock.sol";
 
 import { Grant } from "../src/laws/bespoke/diversifiedGrants/Grant.sol";
@@ -30,11 +30,10 @@ import { RoleByTaxPaid } from "../src/laws/bespoke/diversifiedGrants/RoleByTaxPa
 // borrowing one law from another bespoke folder. Not ideal, but ok for now.
 import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 
-
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
 
-contract DeployDiversifiedGrants is Script {
+contract DeployGovernedGrants is Script {
     address[] laws;
 
     function run()
@@ -46,14 +45,16 @@ contract DeployDiversifiedGrants is Script {
 
         // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Aligned Grants", "");
+        SeparatedPowers separatedPowers = new SeparatedPowers("Governed Grants", "");
         vm.stopBroadcast();
 
         vm.startBroadcast(address(separatedPowers));
         Erc721Mock erc721Mock = new Erc721Mock();
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
             // NB! these params should be included in the config. £todo
-            7, 2, 100 // 7% tax, (tax = 7, denominator = 2),  100 block epoch. 
+            7,
+            2,
+            100 // 7% tax, (tax = 7, denominator = 2),  100 block epoch.
         );
         vm.stopBroadcast();
 
@@ -199,8 +200,8 @@ contract DeployDiversifiedGrants is Script {
             type(uint32).max, // access role = public access
             lawConfig,
             1, // role id
-            mock20Taxed_, 
-            100 // have to see if this is a fair amount. 
+            mock20Taxed_,
+            100 // have to see if this is a fair amount.
         );
         vm.stopBroadcast();
         laws.push(address(law));
@@ -217,20 +218,20 @@ contract DeployDiversifiedGrants is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // CONTINUE HERE // THIS SHOULD BE PEER ELECT! 
+        // CONTINUE HERE // THIS SHOULD BE PEER ELECT!
         // laws[7]
         vm.startBroadcast();
         law = new ElectionTally(
             "Tally role 2 election", // max 31 chars
             "Tally elections for role 2.",
             dao_, // separated powers protocol.
-            1, // Note: any one can tally the election. It can only be done after election duration has finished. 
+            1, // Note: any one can tally the election. It can only be done after election duration has finished.
             lawConfig, //  config file.
             // bespoke configs for this law:
             laws[6], // law where nominations are made.
-            4, // max role holders, 
+            4, // max role holders,
             3 // role id that is elected
-        ); 
+        );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
@@ -244,7 +245,7 @@ contract DeployDiversifiedGrants is Script {
             9, // oracle role id designation.
             lawConfig, //  config file.
             // bespoke configs for this law:
-            2, // role id that is allowed to vote. 
+            2, // role id that is allowed to vote.
             laws[6], // law where nominations are made.
             laws[7] // law where votes are tallied.
         );

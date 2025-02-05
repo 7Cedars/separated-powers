@@ -41,18 +41,20 @@ contract DeployAlignedDao is Script {
 
         // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Aligned Grants", "");
+        SeparatedPowers separatedPowers = new SeparatedPowers("Aligned Dao", "");
         vm.stopBroadcast();
 
         vm.startBroadcast(address(separatedPowers));
         Erc721Mock erc721Mock = new Erc721Mock();
         vm.stopBroadcast();
 
+        config.erc721Mock = address(erc721Mock);
+
         initiateConstitution(
             payable(address(separatedPowers)),
-            payable(config.erc1155Mock),
             payable(config.erc20VotesMock),
-            payable(address(erc721Mock))
+            payable(address(erc721Mock)),
+            payable(config.erc1155Mock)
         );
 
         // constitute dao.

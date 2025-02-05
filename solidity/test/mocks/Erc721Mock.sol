@@ -42,7 +42,7 @@ contract Erc721Mock is ERC721, Ownable {
         address from = _ownerOf(tokenId);
 
         // Execute the update. Note only address(0) can transfer. Meaning that the NFT can only be minted to an address and is non-transferable.
-        if (from != address(0)) {
+        if (from != address(0) && to != address(0)) {
             revert Erc721Mock__NonTransferable();
         }
 

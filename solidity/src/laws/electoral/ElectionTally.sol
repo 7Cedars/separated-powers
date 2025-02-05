@@ -41,12 +41,12 @@ import { PeerVote } from "../state/PeerVote.sol";
 import { NominateMe } from "../state/NominateMe.sol";
 
 contract ElectionTally is Law {
-    error ElectionTally__PeerVoteContractNotActive(); 
+    error ElectionTally__PeerVoteContractNotActive();
     error ElectionTally__DissimilarNomineesContracts();
     error ElectionTally__IncorrectTallyContractAtPeerVote();
     error ElectionTally__NoNominees();
     error ElectionTally__ElectionHasNotEnded();
-    
+
     address public immutable NOMINEES;
     uint256 public immutable MAX_ROLE_HOLDERS;
     uint32 public immutable ROLE_ID;
@@ -79,9 +79,9 @@ contract ElectionTally is Law {
         // step 0: unpacking calldata
         address peerVote = abi.decode(lawCalldata, (address));
 
-        // step 1: run additional checks 
+        // step 1: run additional checks
         if (!SeparatedPowers(separatedPowers).getActiveLaw(peerVote)) {
-          revert ElectionTally__PeerVoteContractNotActive();
+            revert ElectionTally__PeerVoteContractNotActive();
         }
         if (NominateMe(NOMINEES).nomineesCount() == 0) {
             revert ElectionTally__NoNominees();
@@ -91,11 +91,11 @@ contract ElectionTally is Law {
         }
         if (PeerVote(peerVote).NOMINEES() != NOMINEES) {
             revert ElectionTally__DissimilarNomineesContracts();
-        } 
+        }
         if (PeerVote(peerVote).TALLY() != address(this)) {
             revert ElectionTally__IncorrectTallyContractAtPeerVote();
-        } 
- 
+        }
+
         // step 2: setting up array for revoking & assigning roles.
         address[] memory accountElects;
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
@@ -126,7 +126,7 @@ contract ElectionTally is Law {
                 accountElects[i] = accountElect;
             }
 
-        // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
+            // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
         } else {
             // retrieve votes for delegates from PeerVote contract.
             uint256[] memory _votes = new uint256[](numberNominees);
@@ -163,8 +163,8 @@ contract ElectionTally is Law {
     }
 
     function _changeStateVariables(bytes memory stateChange) internal override {
-      (address[] memory elected) = abi.decode(stateChange, (address[]));
-      delete electedAccounts; 
-      electedAccounts = elected;
+        (address[] memory elected) = abi.decode(stateChange, (address[]));
+        delete electedAccounts;
+        electedAccounts = elected;
     }
 }

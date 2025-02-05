@@ -485,56 +485,50 @@ contract StopGrantTest is TestSetupDiversifiedGrants {
 contract RoleByTaxPaidTest is TestSetupDiversifiedGrants {
     error RoleByTaxPaid__NotEligible();
     error RoleByTaxPaid__IsEligible();
-    error RoleByTaxPaid__NoFinishedEpochYet(); 
+    error RoleByTaxPaid__NoFinishedEpochYet();
 
     function testSuccessfulRoleByTaxPaid() public {
         address roleByTaxPaid = laws[5];
         bytes memory lawCalldata = abi.encode(
-            false, // = revoke 
+            false, // = revoke
             alice // = account
-            );
+        );
         uint48 epochDuration = erc20TaxedMock.epochDuration();
-        // give alice some funds 
+        // give alice some funds
         uint256 transferAmount1 = 10_000;
         vm.startPrank(address(daoMock));
         erc20TaxedMock.mint(transferAmount1);
         erc20TaxedMock.transfer(alice, transferAmount1);
-        vm.stopPrank(); 
+        vm.stopPrank();
 
         // alice needs to pay at least 100 tax to be eligible for role
         // tax is set at 7% per transaction
-        // 100 tax = 100 / .07 = 1428 
+        // 100 tax = 100 / .07 = 1428
         vm.prank(alice);
         erc20TaxedMock.transfer(bob, 1430);
 
         // act
         vm.roll(block.number + epochDuration + 1);
         vm.prank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut) = 
-            Law(roleByTaxPaid).executeLaw(
-                charlotte, // charlotte = initiator
-                lawCalldata,
-                keccak256("Alice requests role by tax paid")
-            );
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) = Law(roleByTaxPaid)
+            .executeLaw(
+            charlotte, // charlotte = initiator
+            lawCalldata,
+            keccak256("Alice requests role by tax paid")
+        );
 
         // assert output
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
-        assertEq(calldatasOut[0], abi.encodeWithSelector(
-            SeparatedPowers.assignRole.selector, 
-            3, 
-            alice));
+        assertEq(calldatasOut[0], abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, alice));
     }
 
     function testAssignRoleByTaxRevertsIfNoTaxPaid() public {
         address roleByTaxPaid = laws[5];
         bytes memory lawCalldata = abi.encode(
-            false, // = revoke 
+            false, // = revoke
             alice // = account
-            );
+        );
         uint48 epochDuration = erc20TaxedMock.epochDuration();
 
         // act
@@ -551,20 +545,20 @@ contract RoleByTaxPaidTest is TestSetupDiversifiedGrants {
     function testRevokeRoleByTaxRevertsIfTaxPaid() public {
         address roleByTaxPaid = laws[5];
         bytes memory lawCalldata = abi.encode(
-            true, // = revoke 
+            true, // = revoke
             alice // = account
-            );
+        );
         uint48 epochDuration = erc20TaxedMock.epochDuration();
-        // give alice some funds 
+        // give alice some funds
         uint256 transferAmount1 = 10_000;
         vm.startPrank(address(daoMock));
         erc20TaxedMock.mint(transferAmount1);
         erc20TaxedMock.transfer(alice, transferAmount1);
-        vm.stopPrank(); 
+        vm.stopPrank();
 
         // alice needs to pay at least 100 tax to be eligible for role
         // tax is set at 7% per transaction
-        // 100 tax = 100 / .07 = 1428 
+        // 100 tax = 100 / .07 = 1428
         vm.prank(alice);
         erc20TaxedMock.transfer(bob, 1430);
 
@@ -580,22 +574,22 @@ contract RoleByTaxPaidTest is TestSetupDiversifiedGrants {
     }
 
     function testRoleByTaxRevertsIfNoEpochFinishedYet() public {
-       address roleByTaxPaid = laws[5];
+        address roleByTaxPaid = laws[5];
         bytes memory lawCalldata = abi.encode(
-            false, // = revoke 
+            false, // = revoke
             alice // = account
-            );
+        );
         uint48 epochDuration = erc20TaxedMock.epochDuration();
-        // give alice some funds 
+        // give alice some funds
         uint256 transferAmount1 = 10_000;
         vm.startPrank(address(daoMock));
         erc20TaxedMock.mint(transferAmount1);
         erc20TaxedMock.transfer(alice, transferAmount1);
-        vm.stopPrank(); 
+        vm.stopPrank();
 
         // alice needs to pay at least 100 tax to be eligible for role
         // tax is set at 7% per transaction
-        // 100 tax = 100 / .07 = 1428 
+        // 100 tax = 100 / .07 = 1428
         vm.prank(alice);
         erc20TaxedMock.transfer(bob, 1430);
 
@@ -610,7 +604,6 @@ contract RoleByTaxPaidTest is TestSetupDiversifiedGrants {
         );
     }
 }
-
 
 contract SelfDestructPresetActionTest is TestSetupDiversifiedGrants {
     function testSuccessfulSelfDestruct() public {
@@ -630,11 +623,8 @@ contract SelfDestructPresetActionTest is TestSetupDiversifiedGrants {
         assertEq(targetsOut[targetsOut.length - 1], address(daoMock));
         assertEq(valuesOut[valuesOut.length - 1], 0);
         assertEq(
-            calldatasOut[calldatasOut.length - 1], abi.encodeWithSelector(
-                SeparatedPowers.revokeLaw.selector, 
-                selfDestructPresetAction
-            )
+            calldatasOut[calldatasOut.length - 1],
+            abi.encodeWithSelector(SeparatedPowers.revokeLaw.selector, selfDestructPresetAction)
         );
     }
 }
-

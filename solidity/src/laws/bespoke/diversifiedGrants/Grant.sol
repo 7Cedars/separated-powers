@@ -59,7 +59,7 @@ contract Grant is Law {
             "uint256" // quantity to transfer
         );
         stateVars = abi.encode("uint256"); //  quantity to transfer
-        
+
         expiryBlock = duration_ + uint48(block.number);
         budget = budget_;
         tokenAddress = tokenAddress_;

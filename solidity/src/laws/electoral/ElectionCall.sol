@@ -1,10 +1,10 @@
 // TODO
-// link to nominateMe + PeerVote. 
-// 
+// link to nominateMe + PeerVote.
+//
 // - start election: input: token, startDate + duration. tole to designated + allowedRole are preset. It creates a PeerVote contract + assigns to Dao.
-// - end election: read from peerVote Law + nominateMe to assign roles. First deleting roles first assigned. (very close to delegateSelect logic) + delete peerVote law from Dao.   
-// - NB, gotcha: only assign roles for people that nominated themselves at time of call the PeerElect law! 
-// 
+// - end election: read from peerVote Law + nominateMe to assign roles. First deleting roles first assigned. (very close to delegateSelect logic) + delete peerVote law from Dao.
+// - NB, gotcha: only assign roles for people that nominated themselves at time of call the PeerElect law!
+//
 
 // SPDX-License-Identifier: MIT
 
@@ -36,7 +36,7 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 contract ElectionCall is Law {
-    error ElectionCall__PeerVoteAddressAlreadyExists(); 
+    error ElectionCall__PeerVoteAddressAlreadyExists();
 
     uint32 public immutable VOTER_ROLE_ID;
     address public immutable NOMINEES;
@@ -55,7 +55,7 @@ contract ElectionCall is Law {
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "uint48", // startVote = the start date of the election.
-            "uint48",  // endVote = the end date of the election.
+            "uint48", // endVote = the end date of the election.
             "string" // description = a description of the election.
         );
         stateVars = inputParams; // Note: stateVars == inputParams.
@@ -75,11 +75,8 @@ contract ElectionCall is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // step 0: decode the law calldata.
-        (
-            uint48 startVote,
-            uint48 endVote,
-            string memory description 
-        ) = abi.decode(lawCalldata, (uint48, uint48, string));
+        (uint48 startVote, uint48 endVote, string memory description) =
+            abi.decode(lawCalldata, (uint48, uint48, string));
 
         // step 1: run additional checks: £todo create ERC165 type checks for nominateMe and tallyVote.
 
@@ -110,11 +107,8 @@ contract ElectionCall is Law {
 
     function _changeStateVariables(bytes memory stateChange) internal override {
         // step 0: decode data from stateChange
-        (
-            uint48 startVote,
-            uint48 endVote,
-            string memory description 
-        ) = abi.decode(stateChange, (uint48, uint48, string));
+        (uint48 startVote, uint48 endVote, string memory description) =
+            abi.decode(stateChange, (uint48, uint48, string));
 
         // stp 1: deploy new grant
         _deployPeerVote(VOTER_ROLE_ID, NOMINEES, TALLY_VOTE, startVote, endVote, description);
@@ -130,9 +124,9 @@ contract ElectionCall is Law {
         address tallyVote,
         uint48 startVote,
         uint48 endVote,
-        string memory description 
+        string memory description
     ) internal view returns (address) {
-        LawConfig memory config; 
+        LawConfig memory config;
 
         address peerReviewAddress = Create2.computeAddress(
             bytes32(keccak256(abi.encodePacked(description))),
@@ -165,9 +159,9 @@ contract ElectionCall is Law {
         address tallyVote,
         uint48 startVote,
         uint48 endVote,
-        string memory description 
+        string memory description
     ) internal {
-        PeerVote newPeerVote = new PeerVote{ salt:bytes32(keccak256(abi.encodePacked(description))) }(
+        PeerVote newPeerVote = new PeerVote{ salt: bytes32(keccak256(abi.encodePacked(description))) }(
             // standard params
             "Election",
             description,

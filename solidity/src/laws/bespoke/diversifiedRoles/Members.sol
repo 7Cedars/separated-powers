@@ -42,7 +42,7 @@ contract Members is Law {
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams = abi.encode(
-            "address",  // account
+            "address", // account
             "uint16", // nationality
             "uint16", // country of residence
             "int64", // DoB

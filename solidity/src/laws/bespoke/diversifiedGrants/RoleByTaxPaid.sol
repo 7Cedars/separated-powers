@@ -22,7 +22,7 @@ import { Erc20TaxedMock } from "../../../../test/mocks/Erc20TaxedMock.sol";
 contract RoleByTaxPaid is DirectSelect {
     error RoleByTaxPaid__NotEligible();
     error RoleByTaxPaid__IsEligible();
-    error RoleByTaxPaid__NoFinishedEpochYet(); 
+    error RoleByTaxPaid__NoFinishedEpochYet();
 
     address public erc20TaxedMock;
     uint256 public thresholdTaxPaid;
@@ -50,11 +50,11 @@ contract RoleByTaxPaid is DirectSelect {
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
-    {   
+    {
         // step 0: decode the calldata.
         (bool revoke, address account) = abi.decode(lawCalldata, (bool, address));
 
-        // step 1: check if initiator paid sufficient taxes in the _previous_ epoch. 
+        // step 1: check if initiator paid sufficient taxes in the _previous_ epoch.
         uint48 epochDuration = Erc20TaxedMock(erc20TaxedMock).epochDuration();
         uint48 currentEpoch = uint48(block.number) / epochDuration;
         if (currentEpoch == 0) {

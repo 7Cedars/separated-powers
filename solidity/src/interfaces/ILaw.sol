@@ -77,7 +77,7 @@ interface ILaw is IERC165, LawErrors {
     /// @param initiator the address of the proposer.
     /// @param lawCalldata the calldata for the law.
     /// @param descriptionHash the hash of the description of the law.
-    function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) external view;  
+    function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) external view;
 
     /// @notice a public view function to check that the law is valid before execution.
     /// @dev Optional checks can be added by overriding this function.
@@ -85,5 +85,5 @@ interface ILaw is IERC165, LawErrors {
     /// @param initiator the address of the proposer.
     /// @param lawCalldata the calldata for the law.
     /// @param descriptionHash the hash of the description of the law.
-    function checksAtExecute(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) external view;  
+    function checksAtExecute(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) external view;
 }

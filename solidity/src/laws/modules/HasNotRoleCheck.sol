@@ -24,7 +24,11 @@ abstract contract HasNotRoleCheck is Law {
 
     error HasNotRoleCheck__DoesHaveRole();
 
-    function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) public view override {
+    function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        view
+        override
+    {
         (uint32[] memory roles) = hasNotRoles();
 
         for (uint32 i = 0; i < roles.length; i++) {

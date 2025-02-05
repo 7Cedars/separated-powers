@@ -24,7 +24,12 @@ abstract contract ThrottlePerAccount is Law {
 
     mapping(address initiator => uint48 blockNumber) public lastTransaction;
 
-    function checksAtExecute(address initiator, bytes memory lawCalldata, bytes32 descriptionHash) public view virtual override {
+    function checksAtExecute(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        view
+        virtual
+        override
+    {
         if (uint48(block.number) - lastTransaction[initiator] < _delay()) {
             revert ThrottlePerAccount__DelayNotPassed();
         }

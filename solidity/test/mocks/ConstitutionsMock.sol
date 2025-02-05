@@ -318,10 +318,11 @@ contract ConstitutionsMock is Test {
     //////////////////////////////////////////////////////////////
     //            CONSTITUTION: Electoral Laws                  //
     //////////////////////////////////////////////////////////////
-    function initiateElectoralTestConstitution(address payable dao_, address payable mock1155_, address payable mock20Votes_)
-        external
-        returns (address[] memory laws)
-    {
+    function initiateElectoralTestConstitution(
+        address payable dao_,
+        address payable mock1155_,
+        address payable mock20Votes_
+    ) external returns (address[] memory laws) {
         Law law;
         laws = new address[](13);
         ILaw.LawConfig memory lawConfig;
@@ -439,43 +440,43 @@ contract ConstitutionsMock is Test {
         law = new PeerVote(
             "Mock PeerVote", // name
             "This is a placeholder PeerVote law.", // description
-            dao_,// separated powers protocol.
+            dao_, // separated powers protocol.
             1,
             lawConfig,
-            laws[0], // NominateMe contract. 
+            laws[0], // NominateMe contract.
             laws[6], // ElectionTally contract.
-            50, // startVote 
+            50, // startVote
             150 // endVote
-            );
+        );
         laws[8] = address(law);
 
         law = new PeerVote(
             "Mock PeerVote", // name
             "This is a placeholder PeerVote law.", // description
-            dao_,// separated powers protocol.
+            dao_, // separated powers protocol.
             1,
             lawConfig,
-            laws[1], // incorrect NominateMe contract. 
+            laws[1], // incorrect NominateMe contract.
             laws[6], // ElectionTally contract.
-            50, // startVote 
+            50, // startVote
             150 // endVote
-            );
+        );
         laws[9] = address(law);
 
         law = new PeerVote(
             "Mock PeerVote", // name
             "This is a placeholder PeerVote law.", // description
-            dao_,// separated powers protocol.
+            dao_, // separated powers protocol.
             1,
             lawConfig,
-            laws[0], // NominateMe contract. 
+            laws[0], // NominateMe contract.
             laws[7], // incorrect ElectionTally contract.
-            50, // startVote 
+            50, // startVote
             150 // endVote
-            );
+        );
         laws[10] = address(law);
 
-        law = new ElectionCall (
+        law = new ElectionCall(
             "Create Election", // max 31 chars
             "Create and call an election for an existing TallyVote law.",
             dao_,
@@ -515,10 +516,11 @@ contract ConstitutionsMock is Test {
     //////////////////////////////////////////////////////////////
     //            CONSTITUTION: Executive Laws                  //
     //////////////////////////////////////////////////////////////
-    function initiateExecutiveTestConstitution(address payable dao_, address payable mock1155_, address payable mock20Votes_)
-        external
-        returns (address[] memory laws)
-    {
+    function initiateExecutiveTestConstitution(
+        address payable dao_,
+        address payable mock1155_,
+        address payable mock20Votes_
+    ) external returns (address[] memory laws) {
         Law law;
         laws = new address[](5);
         ILaw.LawConfig memory lawConfig;
@@ -610,17 +612,16 @@ contract ConstitutionsMock is Test {
         vm.stopBroadcast();
         laws[4] = address(law);
         delete lawConfig; // reset lawConfig
-    }    
-
-
+    }
 
     //////////////////////////////////////////////////////////////
     //                CONSTITUTION: STATE LAWS                  //
     //////////////////////////////////////////////////////////////
-    function initiateStateTestConstitution(address payable dao_, address payable mock1155_, address payable mock20Votes_)
-        external
-        returns (address[] memory laws)
-    {
+    function initiateStateTestConstitution(
+        address payable dao_,
+        address payable mock1155_,
+        address payable mock20Votes_
+    ) external returns (address[] memory laws) {
         Law law;
         laws = new address[](6);
         ILaw.LawConfig memory lawConfig;
@@ -660,9 +661,9 @@ contract ConstitutionsMock is Test {
             "This is a placeholder nomination law.",
             dao_,
             1, // access role
-            lawConfig // empty config file.            
+            lawConfig // empty config file.
         );
-        laws[3] = address(law); 
+        laws[3] = address(law);
 
         law = new PeerVote(
             "Nominate for any role", // max 31 chars
@@ -672,11 +673,11 @@ contract ConstitutionsMock is Test {
             lawConfig, // empty config file.
             // bespoke configs for this law:
             laws[3], // nominate me
-            address(123), // tally vote 
+            address(123), // tally vote
             50, // start vote in block number
-            150  // end vote in block number. 
+            150 // end vote in block number.
         );
-        laws[4] = address(law); 
+        laws[4] = address(law);
 
         (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
         lawConfig.throttleExecution = type(uint48).max - uint48(block.number);
@@ -841,10 +842,10 @@ contract ConstitutionsMock is Test {
             "(De)select an account for role 3 on the basis of tax paid.",
             dao_,
             2, // access role
-            lawConfig, 
+            lawConfig,
             3, // role Id to be assigned
-            mock20Taxed_, 
-            100 // threshold tax paid per epoch. 
+            mock20Taxed_,
+            100 // threshold tax paid per epoch.
         );
         laws[5] = address(law);
 

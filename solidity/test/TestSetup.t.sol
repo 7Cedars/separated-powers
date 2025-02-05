@@ -14,9 +14,10 @@ import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol
 import { SeparatedPowersEvents } from "../src/interfaces/SeparatedPowersEvents.sol";
 import { LawErrors } from "../src/interfaces/LawErrors.sol";
 import { HelperConfig } from "../script/HelperConfig.s.sol";
-import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
+// openZeppelin
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
+import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 // mocks
 import { DaoMock } from "./mocks/DaoMock.sol";
@@ -26,7 +27,10 @@ import { Erc20VotesMock } from "./mocks/Erc20VotesMock.sol";
 import { Erc20TaxedMock } from "./mocks/Erc20TaxedMock.sol";
 import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
 
+// deploy scripts 
 import { DeployBasicDao } from "../script/DeployBasicDao.s.sol";
+import { DeployAlignedDao } from "../script/DeployAlignedDao.s.sol";
+// import { DeployGovernedGrants } from "../script/DeployGovernedGrants.s.sol"; 
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
     // protocol and mocks
@@ -86,6 +90,10 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     address frank;
     address gary;
     address helen;
+    address ian;
+    address jacob;
+    address kate;
+    address lisa;
     address[] users;
 
     // list of dao names
@@ -128,14 +136,30 @@ abstract contract TestHelpers is Test, TestVariables {
         }
     }
 
+    function distributeNFTs(address erc721Mock, address[] memory accounts, uint256 randomiser, uint256 density) public {
+        uint256 currentRandomiser;
+        randomiser = bound(randomiser, 10, 100_000_000);
+        for (uint256 i = 0; i < accounts.length; i++) {
+            if (currentRandomiser < 10) {
+                currentRandomiser = randomiser;
+            } else {
+                currentRandomiser = currentRandomiser / 10;
+            }
+            bool getNft = (currentRandomiser % 100) < density;
+            if (getNft) {
+                vm.prank(accounts[i]);
+                Erc721Mock(config.erc721Mock).cheatMint(randomiser + i);
+            }
+        }
+    }
+
     function voteOnProposal(
         address payable dao,
         address law,
         uint256 proposalId,
         address[] memory accounts,
         uint256 randomiser,
-        uint256 quorumPassChance, // in percentage
-        uint256 successPassChance // in percentage
+        uint256 passChance // in percentage
     ) public returns (uint256 roleCount, uint256 againstVote, uint256 forVote, uint256 abstainVote) {
         uint256 currentRandomiser;
         for (uint256 i = 0; i < accounts.length; i++) {
@@ -148,11 +172,11 @@ abstract contract TestHelpers is Test, TestVariables {
             // vote
             if (SeparatedPowers(dao).canCallLaw(accounts[i], law)) {
                 roleCount++;
-                if (currentRandomiser % 100 < quorumPassChance && currentRandomiser % 100 < successPassChance) {
+                if (currentRandomiser % 100 >= passChance) {
                     vm.prank(accounts[i]);
                     SeparatedPowers(dao).castVote(proposalId, 0); // = against
                     againstVote++;
-                } else if (currentRandomiser % 100 < quorumPassChance && currentRandomiser % 100 >= successPassChance) {
+                } else if (currentRandomiser % 100 < passChance) {
                     vm.prank(accounts[i]);
                     SeparatedPowers(dao).castVote(proposalId, 1); // = for
                     forVote++;
@@ -194,6 +218,10 @@ abstract contract BaseSetup is TestVariables, TestHelpers {
         frank = makeAddr("frank");
         gary = makeAddr("gary");
         helen = makeAddr("helen");
+        ian = makeAddr("ian");
+        jacob = makeAddr("jacob");
+        kate = makeAddr("kate");
+        lisa = makeAddr("lisa");
 
         // assign funds
         vm.deal(alice, 10 ether);
@@ -204,8 +232,12 @@ abstract contract BaseSetup is TestVariables, TestHelpers {
         vm.deal(frank, 10 ether);
         vm.deal(gary, 10 ether);
         vm.deal(helen, 10 ether);
+        vm.deal(ian, 10 ether);
+        vm.deal(jacob, 10 ether);
+        vm.deal(kate, 10 ether);
+        vm.deal(lisa, 10 ether);
 
-        users = [alice, bob, charlotte, david, eve, frank, gary, helen];
+        users = [alice, bob, charlotte, david, eve, frank, gary, helen, ian, jacob, kate, lisa];
 
         // deploy mocks
         erc1155Mock = new Erc1155Mock();
@@ -405,3 +437,36 @@ abstract contract TestSetupBasicDao_fuzzIntegration is BaseSetup {
         basicDao = SeparatedPowers(basicDaoAddress);
     }
 }
+
+abstract contract TestSetupAlignedDao_fuzzIntegration is BaseSetup {
+    SeparatedPowers alignedDao;
+
+    function setUpVariables() public override {
+        super.setUpVariables();
+        
+        DeployAlignedDao deployAlignedDao = new DeployAlignedDao();
+        (
+            address payable alignedDaoAddress, 
+            address[] memory laws_, 
+            HelperConfig.NetworkConfig memory config_
+            ) = deployAlignedDao.run();
+        laws = laws_;
+        config = config_;
+        alignedDao = SeparatedPowers(alignedDaoAddress);
+    } 
+}
+
+// abstract contract TestSetupGovernedGrants_fuzzIntegration is BaseSetup {
+//     SeparatedPowers governedGrants;
+
+//     function setUpVariables() public override {
+//         super.setUpVariables();
+
+//         DeployGovernedGrants deployGovernedGrants = new DeployGovernedGrants();
+//         (address payable governedGrantsAddress, address[] memory laws_, HelperConfig.NetworkConfig memory config_) =
+//             deployGovernedGrants.run();
+//         laws = laws_;
+//         config = config_;
+//         governedGrants = SeparatedPowers(governedGrantsAddress);
+//     }
+// }

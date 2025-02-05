@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
 import { TestSetupElectoral } from "../../TestSetup.t.sol";
-import { Law } from "../../../src/Law.sol"; 
+import { Law } from "../../../src/Law.sol";
 import { Erc1155Mock } from "../../mocks/Erc1155Mock.sol";
 import { OpenAction } from "../../../src/laws/executive/OpenAction.sol";
 import { PeerVote } from "../../../src/laws/state/PeerVote.sol";
@@ -360,7 +360,7 @@ contract DelegateSelectTest is TestSetupElectoral {
 }
 
 contract ElectionTallyTest is TestSetupElectoral {
-    error ElectionTally__PeerVoteContractNotActive(); 
+    error ElectionTally__PeerVoteContractNotActive();
     error ElectionTally__DissimilarNomineesContracts();
     error ElectionTally__IncorrectTallyContractAtPeerVote();
     error ElectionTally__NoNominees();
@@ -371,20 +371,20 @@ contract ElectionTallyTest is TestSetupElectoral {
         address nominateMe = laws[0];
         address electionTally = laws[6];
         address peerVote = laws[8];
-        uint48 startVote = 50; 
-        uint48 endVote = 150;  
-       
-        bytes memory lawCalldataNominate = abi.encode(true);  
+        uint48 startVote = 50;
+        uint48 endVote = 150;
+
+        bytes memory lawCalldataNominate = abi.encode(true);
         bytes memory lawCalldataTally = abi.encode(peerVote);
 
-        // prep: nominate accounts. 
+        // prep: nominate accounts.
         for (uint256 i = 0; i < users.length; i++) {
             vm.startPrank(address(daoMock));
             Law(nominateMe).executeLaw(users[i], lawCalldataNominate, bytes32(0));
             vm.stopPrank();
         }
-        // prep: vote on accounts. 
-        vm.roll(startVote + 1); 
+        // prep: vote on accounts.
+        vm.roll(startVote + 1);
         for (uint256 i = 0; i < users.length; i++) {
             if (i <= 4) {
                 vm.startPrank(address(daoMock));
@@ -401,13 +401,10 @@ contract ElectionTallyTest is TestSetupElectoral {
         }
 
         // act + assert emit
-        vm.roll(endVote + 1); 
+        vm.roll(endVote + 1);
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
 
         // assert output
         assertEq(targetsOut.length, 2);
@@ -420,7 +417,7 @@ contract ElectionTallyTest is TestSetupElectoral {
         assertEq(valuesOut[1], 0);
         assertEq(calldatasOut[1], abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, bob));
 
-        // assert state 
+        // assert state
         assertEq(ElectionTally(electionTally).electedAccounts(0), alice);
         assertEq(ElectionTally(electionTally).electedAccounts(1), bob);
     }
@@ -430,31 +427,28 @@ contract ElectionTallyTest is TestSetupElectoral {
         address nominateMe = laws[0];
         address electionTally = laws[6];
         address peerVote = laws[8];
-        uint48 startVote = 50; 
-        uint48 endVote = 150;  
-       
-        bytes memory lawCalldataNominate = abi.encode(true);  
+        uint48 startVote = 50;
+        uint48 endVote = 150;
+
+        bytes memory lawCalldataNominate = abi.encode(true);
         bytes memory lawCalldataTally = abi.encode(peerVote);
 
-        // prep: nominate alice only. 
+        // prep: nominate alice only.
         vm.prank(address(daoMock));
         Law(nominateMe).executeLaw(alice, lawCalldataNominate, bytes32(0));
-        
-        // prep: vote on alice. 
-        vm.roll(startVote + 1); 
+
+        // prep: vote on alice.
+        vm.roll(startVote + 1);
         for (uint256 i = 0; i < users.length; i++) {
             vm.prank(address(daoMock));
             PeerVote(peerVote).executeLaw(users[i], abi.encode(alice), bytes32(0));
         }
 
         // act + assert emit
-        vm.roll(endVote + 1); 
+        vm.roll(endVote + 1);
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
 
         // assert output
         assertEq(targetsOut.length, 1);
@@ -463,7 +457,7 @@ contract ElectionTallyTest is TestSetupElectoral {
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
         assertEq(calldatasOut[0], abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, alice));
-        // assert state 
+        // assert state
         assertEq(ElectionTally(electionTally).electedAccounts(0), alice);
     }
 
@@ -472,25 +466,25 @@ contract ElectionTallyTest is TestSetupElectoral {
         address nominateMe = laws[0];
         address electionTally = laws[6];
         address peerVote = laws[8];
-        uint48 startVote = 50; 
-        uint48 endVote = 150;  
-       
-        bytes memory lawCalldataNominate = abi.encode(true);  
+        uint48 startVote = 50;
+        uint48 endVote = 150;
+
+        bytes memory lawCalldataNominate = abi.encode(true);
         bytes memory lawCalldataTally = abi.encode(peerVote);
 
-        // prep: nominate alice only. 
+        // prep: nominate alice only.
         vm.prank(address(daoMock));
         Law(nominateMe).executeLaw(alice, lawCalldataNominate, bytes32(0));
-        
-        // prep: vote on alice. 
-        vm.roll(startVote + 1); 
+
+        // prep: vote on alice.
+        vm.roll(startVote + 1);
         for (uint256 i = 0; i < users.length; i++) {
             vm.prank(address(daoMock));
             PeerVote(peerVote).executeLaw(users[i], abi.encode(alice), bytes32(0));
         }
 
         // act + assert emit
-        vm.roll(endVote - 10); 
+        vm.roll(endVote - 10);
         vm.expectRevert(ElectionTally__ElectionHasNotEnded.selector);
         vm.startPrank(address(daoMock));
         Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
@@ -501,20 +495,19 @@ contract ElectionTallyTest is TestSetupElectoral {
         address nominateMe = laws[0];
         address electionTally = laws[6];
         address peerVote = laws[8];
-        uint48 startVote = 50; 
-        uint48 endVote = 150;  
-       
-        bytes memory lawCalldataNominate = abi.encode(true);  
+        uint48 startVote = 50;
+        uint48 endVote = 150;
+
+        bytes memory lawCalldataNominate = abi.encode(true);
         bytes memory lawCalldataTally = abi.encode(peerVote);
 
-        // Note: no nominees + no vote! 
+        // Note: no nominees + no vote!
 
         // act + assert emit
-        vm.roll(endVote + 1); 
+        vm.roll(endVote + 1);
         vm.expectRevert(ElectionTally__NoNominees.selector);
         vm.startPrank(address(daoMock));
         Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
-        
     }
 
     function testTallyRevertsIfIncorrectNomineesContract() public {
@@ -523,43 +516,42 @@ contract ElectionTallyTest is TestSetupElectoral {
         address nominateMeIncorrect = laws[1]; // Note this is an incorrect NominateMe contract
         address electionTally = laws[6];
         address peerVote = laws[9]; // PeerVote using incorrect nominateMe contract
-        uint48 startVote = 50; 
-        uint48 endVote = 150;  
-       
-        bytes memory lawCalldataNominate = abi.encode(true);  
+        uint48 startVote = 50;
+        uint48 endVote = 150;
+
+        bytes memory lawCalldataNominate = abi.encode(true);
         bytes memory lawCalldataTally = abi.encode(peerVote);
 
-        // prep: nominate alice only. 
+        // prep: nominate alice only.
         vm.startPrank(address(daoMock));
         Law(nominateMe).executeLaw(alice, lawCalldataNominate, bytes32(0));
         Law(nominateMeIncorrect).executeLaw(alice, lawCalldataNominate, bytes32(0));
         vm.stopPrank();
 
         // act + assert emit
-        vm.roll(endVote + 10); 
+        vm.roll(endVote + 10);
         vm.expectRevert(ElectionTally__DissimilarNomineesContracts.selector);
         vm.startPrank(address(daoMock));
         Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
-        
     }
 
     function testTallyRevertsIfIncorrectTallyContract() public {
         // prep: data
-        address nominateMe = laws[0]; 
+        address nominateMe = laws[0];
         address electionTally = laws[6];
         address peerVote = laws[10]; // PeerVote using incorrect TallyVote contract
-        uint48 startVote = 50; 
-        uint48 endVote = 150;  
-       
-        bytes memory lawCalldataNominate = abi.encode(true);  
+        uint48 startVote = 50;
+        uint48 endVote = 150;
+
+        bytes memory lawCalldataNominate = abi.encode(true);
         bytes memory lawCalldataTally = abi.encode(peerVote);
 
-        // prep: nominate alice only. 
+        // prep: nominate alice only.
         vm.prank(address(daoMock));
         Law(nominateMe).executeLaw(alice, lawCalldataNominate, bytes32(0));
-    
+
         // act + assert emit
-        vm.roll(endVote + 10); 
+        vm.roll(endVote + 10);
         vm.expectRevert(ElectionTally__IncorrectTallyContractAtPeerVote.selector);
         vm.startPrank(address(daoMock));
         Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
@@ -567,7 +559,7 @@ contract ElectionTallyTest is TestSetupElectoral {
 }
 
 contract ElectionCallTest is TestSetupElectoral {
-    error ElectionCall__PeerVoteAddressAlreadyExists(); 
+    error ElectionCall__PeerVoteAddressAlreadyExists();
 
     function testPeerVoteContractCorrectlyDeployed() public {
         // prep: data
@@ -580,13 +572,9 @@ contract ElectionCallTest is TestSetupElectoral {
 
         // act + assert emit
         vm.startPrank(address(daoMock));
-        (
-            address[] memory targetsOut, 
-            uint256[] memory valuesOut, 
-            bytes[] memory calldatasOut
-            ) = Law(electionCall).executeLaw(charlotte, lawCalldata, bytes32(0));
+        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
+            Law(electionCall).executeLaw(charlotte, lawCalldata, bytes32(0));
 
-        
         // retrieve new grant address from calldatasOut
         uint256 BYTES4_SIZE = 4;
         uint256 bytesSize = calldatasOut[0].length - BYTES4_SIZE;
@@ -599,7 +587,7 @@ contract ElectionCallTest is TestSetupElectoral {
         // assert output
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
-        assertNotEq(peerVoteAddress.code.length, 0);  
+        assertNotEq(peerVoteAddress.code.length, 0);
     }
 
     function testPeerVoteContractRevertsIfAlreadyDeployed() public {
@@ -615,9 +603,8 @@ contract ElectionCallTest is TestSetupElectoral {
         Law(electionCall).executeLaw(charlotte, lawCalldata, bytes32(0));
 
         // act: deploy again
-        vm.expectRevert(ElectionCall__PeerVoteAddressAlreadyExists.selector); 
+        vm.expectRevert(ElectionCall__PeerVoteAddressAlreadyExists.selector);
         vm.prank(address(daoMock));
         Law(electionCall).executeLaw(charlotte, lawCalldata, bytes32(0));
     }
 }
-

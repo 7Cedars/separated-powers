@@ -44,7 +44,9 @@ contract DeployBasicDao is Script {
         vm.stopBroadcast();
 
         initiateConstitution(
-            payable(address(separatedPowers)), payable(config.erc1155Mock), payable(config.erc20VotesMock)
+            payable(address(separatedPowers)), 
+            payable(config.erc1155Mock), 
+            payable(config.erc20VotesMock)
         );
 
         // constitute dao.
@@ -107,7 +109,7 @@ contract DeployBasicDao is Script {
         lawConfig.needCompleted = laws[0]; // needs the proposal by Delegates to be completed.
         lawConfig.needNotCompleted = laws[1]; // needs the admin NOT to have cast a veto.
         lawConfig.delayExecution = 25_200; // = duration in number of blocks (= half a week).
-       
+
         // initiate law
         vm.startBroadcast();
         law = new OpenAction(

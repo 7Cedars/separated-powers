@@ -58,20 +58,14 @@ contract Erc20TaxedMockTest is Test {
     SeparatedPowers daoMock;
 
     function setUp() public {
-        uint256 taxRate_ = 7; 
-        uint8 taxDecimals_ = 2; // this should work out at 7 percent tax per transaction. 
+        uint256 taxRate_ = 7;
+        uint8 taxDecimals_ = 2; // this should work out at 7 percent tax per transaction.
         uint48 epochDuration_ = 19;
-        
-        daoMock = new SeparatedPowers(
-            "DAO", ""
-        );
+
+        daoMock = new SeparatedPowers("DAO", "");
         vm.startPrank(address(daoMock));
-        erc20TaxedMock = new Erc20TaxedMock(
-            taxRate_,
-            taxDecimals_,
-            epochDuration_ 
-        );
-        erc20TaxedMock.mint(10_000); 
+        erc20TaxedMock = new Erc20TaxedMock(taxRate_, taxDecimals_, epochDuration_);
+        erc20TaxedMock.mint(10_000);
         vm.stopPrank();
 
         assertEq(erc20TaxedMock.totalSupply(), 10_000);
@@ -125,7 +119,7 @@ contract Erc20TaxedMockTest is Test {
         uint256 oldTaxRate = erc20TaxedMock.taxRate();
         uint8 taxDecimals = erc20TaxedMock.taxDecimals();
         uint256 proposedTaxRate = (10 ** taxDecimals) + 1;
-        
+
         vm.expectRevert(Erc20TaxedMock.Erc20TaxedMock__TaxRateOverflow.selector);
         vm.prank(address(daoMock));
         erc20TaxedMock.changeTaxRate(proposedTaxRate);
@@ -134,7 +128,7 @@ contract Erc20TaxedMockTest is Test {
     }
 
     function testSuccessfulTaxCollection() public {
-        // prep 
+        // prep
         uint256 taxRate = erc20TaxedMock.taxRate();
         uint8 decimals = erc20TaxedMock.taxDecimals();
 
@@ -150,10 +144,10 @@ contract Erc20TaxedMockTest is Test {
         vm.prank(address(daoMock));
         erc20TaxedMock.transfer(alice, transferAmount1);
         uint256 balanceDaoStep1 = erc20TaxedMock.balanceOf(address(daoMock));
-        // note: no taxes collected in transfer from dao to alice and bob.  
+        // note: no taxes collected in transfer from dao to alice and bob.
         vm.assertEq(balanceDaoStep0, balanceDaoStep1 + transferAmount1);
 
-        // act 
+        // act
         vm.prank(alice);
         erc20TaxedMock.transfer(bob, transferAmount2);
         vm.assertEq(erc20TaxedMock.balanceOf(bob), transferAmount2);
@@ -166,7 +160,7 @@ contract Erc20TaxedMockTest is Test {
     }
 
     function testTransferRevertsIfInsufficientBalanceForTax() public {
-        // prep 
+        // prep
         uint256 taxRate = erc20TaxedMock.taxRate();
         uint8 decimals = erc20TaxedMock.taxDecimals();
 
@@ -182,13 +176,13 @@ contract Erc20TaxedMockTest is Test {
         vm.prank(address(daoMock));
         erc20TaxedMock.transfer(alice, transferAmount1);
         uint256 balanceDaoStep1 = erc20TaxedMock.balanceOf(address(daoMock));
-        // note: no taxes collected in transfer from dao to alice and bob.  
+        // note: no taxes collected in transfer from dao to alice and bob.
         vm.assertEq(balanceDaoStep0, balanceDaoStep1 + transferAmount1);
 
         // act
-        vm.expectRevert(Erc20TaxedMock.Erc20TaxedMock__InsufficientBalanceForTax.selector); 
+        vm.expectRevert(Erc20TaxedMock.Erc20TaxedMock__InsufficientBalanceForTax.selector);
         vm.prank(alice);
-        erc20TaxedMock.transfer(bob, transferAmount2); 
+        erc20TaxedMock.transfer(bob, transferAmount2);
     }
 }
 
