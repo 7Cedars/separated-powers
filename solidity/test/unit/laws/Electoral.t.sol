@@ -563,7 +563,7 @@ contract ElectionCallTest is TestSetupElectoral {
 
     function testPeerVoteContractCorrectlyDeployed() public {
         // prep: data
-        address electionCall = laws[11];
+        address electionCall = laws[10];
         bytes memory lawCalldata = abi.encode(
             50, // startVote
             150, // endVote
@@ -592,7 +592,7 @@ contract ElectionCallTest is TestSetupElectoral {
 
     function testPeerVoteContractRevertsIfAlreadyDeployed() public {
         // prep: data
-        address electionCall = laws[11];
+        address electionCall = laws[10];
         bytes memory lawCalldata = abi.encode(
             50, // startVote
             150, // endVote

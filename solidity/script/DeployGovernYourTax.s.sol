@@ -33,7 +33,7 @@ import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol"
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
 
-contract DeployGovernedGrants is Script {
+contract DeployGovernYourTax is Script {
     address[] laws;
 
     function run()
@@ -45,7 +45,7 @@ contract DeployGovernedGrants is Script {
 
         // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Governed Grants", "");
+        SeparatedPowers separatedPowers = new SeparatedPowers("Govern Your Tax", "");
         vm.stopBroadcast();
 
         vm.startBroadcast(address(separatedPowers));
@@ -57,12 +57,14 @@ contract DeployGovernedGrants is Script {
             100 // 7% tax, (tax = 7, denominator = 2),  100 block epoch.
         );
         vm.stopBroadcast();
+        config.erc20TaxedMock = address(erc20TaxedMock); 
+        config.erc721Mock = address(erc721Mock); 
 
         initiateConstitution(
             payable(address(separatedPowers)),
             payable(config.erc20VotesMock),
-            payable(address(erc20TaxedMock)),
-            payable(address(erc721Mock)),
+            payable(config.erc20TaxedMock),
+            payable(config.erc721Mock),
             payable(config.erc1155Mock)
         );
 
@@ -188,10 +190,49 @@ contract DeployGovernedGrants is Script {
         laws.push(address(law));
         delete lawConfig;
 
+        // laws[5]
+        // mint tokens 
+        lawConfig.quorum = 67; // = two-thirds quorum needed
+        lawConfig.succeedAt = 67; // =  two/thirds majority needed for
+        lawConfig.votingPeriod = 1200; // = number of blocks voting period. 
+        // bespoke inputParams 
+        inputParams = new string[](1);
+        inputParams[0] = "uint256"; // number of tokens to mint. 
+        vm.startBroadcast();
+        law = new BespokeAction(
+            "Mint tokens",
+            "Governors can decide to mint tokens.",
+            dao_, // separated powers
+            2, // access role
+            lawConfig, // bespoke configs for this law
+            mock20Taxed_,
+            Erc20TaxedMock.mint.selector,
+            inputParams  
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        // laws[6]
+        // burn token 
+        vm.startBroadcast();
+        law = new BespokeAction(
+            "Mint tokens",
+            "Governors can decide to mint tokens.",
+            dao_, // separated powers
+            2, // access role
+            lawConfig, // same lawConfig as laws[5] 
+            mock20Taxed_,
+            Erc20TaxedMock.burn.selector,
+            inputParams // same lawConfig as laws[5]
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig; // here we delete lawConfig. 
+
         //////////////////////////////////////////////////////////////
         //              CHAPTER 2: ELECT ROLES                      //
         //////////////////////////////////////////////////////////////
-        // laws[5]
+        // laws[7]
         vm.startBroadcast();
         law = new RoleByTaxPaid(
             "Elect self for role 1", // max 31 chars
@@ -206,7 +247,7 @@ contract DeployGovernedGrants is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[6]
+        // laws[8]
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for role 2", // max 31 chars
@@ -218,25 +259,24 @@ contract DeployGovernedGrants is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // CONTINUE HERE // THIS SHOULD BE PEER ELECT!
-        // laws[7]
+        // laws[9]
         vm.startBroadcast();
         law = new ElectionTally(
             "Tally role 2 election", // max 31 chars
             "Tally elections for role 2.",
             dao_, // separated powers protocol.
-            1, // Note: any one can tally the election. It can only be done after election duration has finished.
+            1, // Note: any community member can tally the election. It can only be done after election duration has finished.
             lawConfig, //  config file.
             // bespoke configs for this law:
-            laws[6], // law where nominations are made.
-            4, // max role holders,
+            laws[8], // law where nominations are made.
+            3, // max role holders,
             3 // role id that is elected
         );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[8]
+        // laws[10]
         vm.startBroadcast();
         law = new ElectionCall(
             "Call role 2 election", // max 31 chars
@@ -246,14 +286,14 @@ contract DeployGovernedGrants is Script {
             lawConfig, //  config file.
             // bespoke configs for this law:
             2, // role id that is allowed to vote.
-            laws[6], // law where nominations are made.
-            laws[7] // law where votes are tallied.
+            laws[8], // law where nominations are made.
+            laws[9] // law where votes are tallied.
         );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[9]
+        // laws[11]
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for role 3", // max 31 chars
@@ -265,7 +305,7 @@ contract DeployGovernedGrants is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[10]: security council: peer select. - role 3
+        // laws[12]: security council: peer select. - role 3
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 7200; // = duration in number of blocks to vote, about one day.
@@ -278,14 +318,15 @@ contract DeployGovernedGrants is Script {
             3, // role 3 id designation.
             lawConfig, //  config file.
             3, // maximum elected to role
-            laws[10], // nominateMe
+            laws[11], // nominateMe
             3 // role id to be assigned
         );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[11]: elect and revoke members to grant council A -- governance council votes.
+        // laws[13]: elect and revoke members to grant council A -- governance council votes.
+        // lawConfig is for next three laws
         lawConfig.quorum = 70; // = 70% quorum needed
         lawConfig.succeedAt = 51; // =  simple majority sufficient
         lawConfig.votingPeriod = 1200; // = number of blocks
@@ -299,8 +340,9 @@ contract DeployGovernedGrants is Script {
             4 // role id to be assigned
         );
         vm.stopBroadcast();
+        laws.push(address(law));
 
-        // laws[12]: elect and revoke members to grant council B -- governance council votes.
+        // laws[14]: elect and revoke members to grant council B -- governance council votes.
         vm.startBroadcast();
         law = new DirectSelect(
             "Elect and revoke role 5", // max 31 chars
@@ -311,8 +353,9 @@ contract DeployGovernedGrants is Script {
             5 // role id to be assigned
         );
         vm.stopBroadcast();
+        laws.push(address(law));
 
-        // laws[13]: elect and revoke members to grant council C -- governance council votes.
+        // laws[15]: elect and revoke members to grant council C -- governance council votes.
         vm.startBroadcast();
         law = new DirectSelect(
             "Elect and revoke role 6", // max 31 chars
@@ -323,23 +366,45 @@ contract DeployGovernedGrants is Script {
             6 // role id to be assigned
         );
         vm.stopBroadcast();
+        laws.push(address(law));
         delete lawConfig; // here we delete the law config
-
         // note at the moment not possible to resign form these roles. In reality there should be a law that allows for resignations.
+        
+        // laws[16]
+        vm.startBroadcast();
+        law = new DirectSelect(
+            "Set Oracle", // max 31 chars
+            "The admin selects accounts for role 9, the oracle role.",
+            dao_, // separated powers protocol.
+            0, // admin.
+            lawConfig, //  config file.
+            9 // role id to be assigned
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
 
-        // laws[14]: selfDestructPresetAction: assign initial accounts to security council.
+        // laws[17]: selfDestructPresetAction: assign initial accounts to security council.
         address[] memory targets = new address[](3);
         uint256[] memory values = new uint256[](3);
         bytes[] memory calldatas = new bytes[](3);
         for (uint256 i = 0; i < targets.length; i++) {
             targets[i] = dao_;
         }
-        calldatas[0] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
-        calldatas[1] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
-        calldatas[2] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
+        calldatas[0] = abi.encodeWithSelector(
+          SeparatedPowers.assignRole.selector, 
+          3, 
+          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+        );
+        calldatas[1] = abi.encodeWithSelector(
+          SeparatedPowers.assignRole.selector, 
+          3, 
+          0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+        );
+        calldatas[2] = abi.encodeWithSelector(
+          SeparatedPowers.assignRole.selector, 
+          3, 
+          0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+        );
         vm.startBroadcast();
         law = new SelfDestructPresetAction(
             "Set initial roles 3", // max 31 chars
@@ -354,18 +419,5 @@ contract DeployGovernedGrants is Script {
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
-
-        // laws[15]
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Set Oracle", // max 31 chars
-            "The admin selects accounts for role 9, the oracle role.",
-            dao_, // separated powers protocol.
-            0, // admin.
-            lawConfig, //  config file.
-            9 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
     }
 }

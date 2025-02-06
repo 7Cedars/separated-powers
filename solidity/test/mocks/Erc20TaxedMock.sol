@@ -68,7 +68,8 @@ contract Erc20TaxedMock is ERC20, Ownable {
             uint48 currentEpoch = uint48(block.number) / epochDuration;
             taxLogs[currentEpoch][from] += tax;
         }
-
+        
+        // continue with legacy _update function: 
         super._update(from, to, value);
     }
 

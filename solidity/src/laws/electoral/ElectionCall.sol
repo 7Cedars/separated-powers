@@ -54,9 +54,9 @@ contract ElectionCall is Law {
         address tallyVote_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams = abi.encode(
+            "string", // description = a description of the election.
             "uint48", // startVote = the start date of the election.
-            "uint48", // endVote = the end date of the election.
-            "string" // description = a description of the election.
+            "uint48" // endVote = the end date of the election.
         );
         stateVars = inputParams; // Note: stateVars == inputParams.
 
@@ -75,8 +75,8 @@ contract ElectionCall is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // step 0: decode the law calldata.
-        (uint48 startVote, uint48 endVote, string memory description) =
-            abi.decode(lawCalldata, (uint48, uint48, string));
+        (string memory description, uint48 startVote, uint48 endVote) =
+            abi.decode(lawCalldata, (string, uint48, uint48));
 
         // step 1: run additional checks: £todo create ERC165 type checks for nominateMe and tallyVote.
 
@@ -107,8 +107,8 @@ contract ElectionCall is Law {
 
     function _changeStateVariables(bytes memory stateChange) internal override {
         // step 0: decode data from stateChange
-        (uint48 startVote, uint48 endVote, string memory description) =
-            abi.decode(stateChange, (uint48, uint48, string));
+        (string memory description, uint48 startVote, uint48 endVote) =
+            abi.decode(stateChange, (string, uint48, uint48));
 
         // stp 1: deploy new grant
         _deployPeerVote(VOTER_ROLE_ID, NOMINEES, TALLY_VOTE, startVote, endVote, description);

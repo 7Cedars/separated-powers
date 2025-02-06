@@ -82,7 +82,6 @@ contract HelperConfig is Script {
             return networkConfig;
         }
         // if anvil is not deployed, deploy and save addresses.
-        vm.startBroadcast();
         ERC20Votes erc20VotesMock = new Erc20VotesMock();
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
             7,
@@ -91,8 +90,7 @@ contract HelperConfig is Script {
         );
         Erc721Mock erc721Mock = new Erc721Mock();
         Erc1155Mock erc1155Mock = new Erc1155Mock();
-        vm.stopBroadcast();
-
+         
         networkConfig.erc20VotesMock = address(erc20VotesMock);
         networkConfig.erc20TaxedMock = address(erc20TaxedMock);
         networkConfig.erc721Mock = address(erc721Mock);

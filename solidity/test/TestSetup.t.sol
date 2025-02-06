@@ -30,7 +30,7 @@ import { ConstitutionsMock } from "./mocks/ConstitutionsMock.sol";
 // deploy scripts 
 import { DeployBasicDao } from "../script/DeployBasicDao.s.sol";
 import { DeployAlignedDao } from "../script/DeployAlignedDao.s.sol";
-// import { DeployGovernedGrants } from "../script/DeployGovernedGrants.s.sol"; 
+import { DeployGovernYourTax } from "../script/DeployGovernYourTax.s.sol"; 
 
 abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
     // protocol and mocks
@@ -94,10 +94,19 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     address jacob;
     address kate;
     address lisa;
+    address oracle; 
     address[] users;
 
     // list of dao names
     string[] daoNames;
+
+    // loop variables.
+    uint256 i; 
+    uint256 j; 
+
+    mapping (address => uint256) taxPaid;
+    mapping (address => uint256) votesReceived;
+    mapping (address => bool) hasVoted;    
 
     // the only event in the Law contract
     event Law__Initialized(
@@ -222,6 +231,7 @@ abstract contract BaseSetup is TestVariables, TestHelpers {
         jacob = makeAddr("jacob");
         kate = makeAddr("kate");
         lisa = makeAddr("lisa");
+        oracle = makeAddr("oracle"); 
 
         // assign funds
         vm.deal(alice, 10 ether);
@@ -236,6 +246,7 @@ abstract contract BaseSetup is TestVariables, TestHelpers {
         vm.deal(jacob, 10 ether);
         vm.deal(kate, 10 ether);
         vm.deal(lisa, 10 ether);
+        vm.deal(oracle, 10 ether);
 
         users = [alice, bob, charlotte, david, eve, frank, gary, helen, ian, jacob, kate, lisa];
 
@@ -456,17 +467,20 @@ abstract contract TestSetupAlignedDao_fuzzIntegration is BaseSetup {
     } 
 }
 
-// abstract contract TestSetupGovernedGrants_fuzzIntegration is BaseSetup {
-//     SeparatedPowers governedGrants;
+abstract contract TestSetupGovernYourTax_fuzzIntegration is BaseSetup {
+    SeparatedPowers governYourTax;
 
-//     function setUpVariables() public override {
-//         super.setUpVariables();
+    function setUpVariables() public override {
+        super.setUpVariables();
 
-//         DeployGovernedGrants deployGovernedGrants = new DeployGovernedGrants();
-//         (address payable governedGrantsAddress, address[] memory laws_, HelperConfig.NetworkConfig memory config_) =
-//             deployGovernedGrants.run();
-//         laws = laws_;
-//         config = config_;
-//         governedGrants = SeparatedPowers(governedGrantsAddress);
-//     }
-// }
+        DeployGovernYourTax deployGovernYourTax = new DeployGovernYourTax();
+        (
+            address payable governYourTaxAddress, 
+            address[] memory laws_, 
+            HelperConfig.NetworkConfig memory config_
+            ) = deployGovernYourTax.run();
+        laws = laws_;
+        config = config_;
+        governYourTax = SeparatedPowers(governYourTaxAddress);
+    }
+}

@@ -47,8 +47,8 @@ contract StopGrant is Law {
 
         // step 2: run additional checks
         if (
-            Grant(grantAddress).budget() - Grant(grantAddress).spent() != 0
-                && Grant(grantAddress).expiryBlock() > uint48(block.number)
+            Grant(grantAddress).budget() != Grant(grantAddress).spent() && 
+            Grant(grantAddress).expiryBlock() > uint48(block.number)
         ) {
             revert StopGrant__GrantHasNotExpired();
         }
