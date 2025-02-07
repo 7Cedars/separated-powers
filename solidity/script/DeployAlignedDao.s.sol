@@ -9,8 +9,11 @@ import { Law } from "../src/Law.sol";
 import { ILaw } from "../src/interfaces/ILaw.sol";
 import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
 
+// config
+import { HelperConfig } from "./HelperConfig.s.sol";
+
 // laws
-import { NominateMe } from "../src/laws/state/NominateMe.sol";
+import { NominateMe } from "../src/laws/state/NominateMe.sol"; 
 import { DelegateSelect } from "../src/laws/electoral/DelegateSelect.sol";
 import { DirectSelect } from "../src/laws/electoral/DirectSelect.sol";
 import { PeerSelect } from "../src/laws/electoral/PeerSelect.sol";
@@ -19,50 +22,62 @@ import { OpenAction } from "../src/laws/executive/OpenAction.sol";
 import { BespokeAction } from "../src/laws/executive/BespokeAction.sol";
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 import { StringsArray } from "../src/laws/state/StringsArray.sol";
-import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
-
 import { RevokeMembership } from "../src/laws/bespoke/alignedDao/RevokeMembership.sol";
 import { ReinstateRole } from "../src/laws/bespoke/alignedDao/ReinstateRole.sol";
 import { RequestPayment } from "../src/laws/bespoke/alignedDao/RequestPayment.sol";
 import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 
-// config
-import { HelperConfig } from "./HelperConfig.s.sol";
+// mocks 
+import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
+import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
+import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
 
 contract DeployAlignedDao is Script {
     address[] laws;
 
     function run()
         external
-        returns (address payable dao, address[] memory constituentLaws, HelperConfig.NetworkConfig memory config)
+        returns (
+            address payable dao, 
+            address[] memory constituentLaws, 
+            HelperConfig.NetworkConfig memory config, 
+            address payable mock20_, 
+            address payable mock721_, 
+            address payable mock1155_
+            )
     {
         HelperConfig helperConfig = new HelperConfig();
         config = helperConfig.getConfigByChainId(block.chainid);
 
-        // Initiating Dao.
+        // deploying token contracts that will be managed by the Dao. 
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Aligned Dao", "");
-        vm.stopBroadcast();
-
-        vm.startBroadcast(address(separatedPowers));
+        // initiating Dao
+        SeparatedPowers separatedPowers = new SeparatedPowers(
+            "Aligned Dao", 
+            "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreihwvloi4rmzeertaclrz4pom4a42fn6asbcxex2iw3kggmdmsexee"
+            );
+        // Deploying token contracts that will be controlled by the Dao
+        Erc20VotesMock erc20VotesMock = new Erc20VotesMock(); 
         Erc721Mock erc721Mock = new Erc721Mock();
+        Erc1155Mock erc1155Mock = new Erc1155Mock(); 
         vm.stopBroadcast();
 
-        config.erc721Mock = address(erc721Mock);
+        dao = payable(address(separatedPowers));
+        mock20_ = payable(address(erc20VotesMock)); 
+        mock721_ = payable(address(erc721Mock));
+        mock1155_ = payable(address(erc1155Mock));
 
-        initiateConstitution(
-            payable(address(separatedPowers)),
-            payable(config.erc20VotesMock),
-            payable(address(erc721Mock)),
-            payable(config.erc1155Mock)
-        );
+        // initiating constitution: creates the Daos laws. 
+        initiateConstitution(dao, mock20_, mock721_, mock1155_);
 
-        // constitute dao.
         vm.startBroadcast();
+        // constitute dao.
         separatedPowers.constitute(laws);
+        // & transferring ownership of Erc721 token to the Dao. 
+        erc721Mock.transferOwnership(address(separatedPowers));
         vm.stopBroadcast();
-
-        return (payable(address(separatedPowers)), laws, config);
+ 
+        return (dao, laws, config, mock20_, mock721_, mock1155_);
     }
 
     function initiateConstitution(

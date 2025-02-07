@@ -10,7 +10,7 @@ import { ILaw } from "../src/interfaces/ILaw.sol";
 import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
 
 // laws
-import { NominateMe } from "../src/laws/state/NominateMe.sol";
+import { NominateMe } from "../src/laws/state/NominateMe.sol"; 
 import { DelegateSelect } from "../src/laws/electoral/DelegateSelect.sol";
 import { DirectSelect } from "../src/laws/electoral/DirectSelect.sol";
 import { PeerSelect } from "../src/laws/electoral/PeerSelect.sol";
@@ -28,38 +28,54 @@ import { BespokeActionFactory } from "../src/laws/bespoke/diversifiedRoles/Bespo
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
 
+// mocks 
+import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
+import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
+import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
+
 contract DeployDiverseRoles is Script {
     address[] laws;
 
     function run()
         external
-        returns (address payable dao, address[] memory constituentLaws, HelperConfig.NetworkConfig memory config)
+        returns (
+            address payable dao, 
+            address[] memory constituentLaws, 
+            HelperConfig.NetworkConfig memory config, 
+            address payable mock20_, 
+            address payable mock721_, 
+            address payable mock1155_
+            )
     {
         HelperConfig helperConfig = new HelperConfig();
         config = helperConfig.getConfigByChainId(block.chainid);
 
-        // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Aligned Grants", "");
-        vm.stopBroadcast();
-
-        vm.startBroadcast(address(separatedPowers));
+        // Initiating Dao.
+        SeparatedPowers separatedPowers = new SeparatedPowers(
+            "Diversified Roles", 
+            "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreibszieidbocucrpnwwsljfxktoq46zj45hb7iak6upphl4jow5blm"
+            );
+        // deploying token contracts that will be managed by the Dao.
+        Erc20VotesMock erc20VotesMock = new Erc20VotesMock(); 
         Erc721Mock erc721Mock = new Erc721Mock();
+        Erc1155Mock erc1155Mock = new Erc1155Mock(); 
         vm.stopBroadcast();
 
-        initiateConstitution(
-            payable(address(separatedPowers)),
-            payable(config.erc1155Mock),
-            payable(config.erc20VotesMock),
-            payable(address(erc721Mock))
-        );
+        dao = payable(address(separatedPowers));
+        mock20_ = payable(address(erc20VotesMock)); 
+        mock721_ = payable(address(erc721Mock));
+        mock1155_ = payable(address(erc1155Mock));
+        initiateConstitution(dao, mock20_, mock721_, mock1155_);
 
         // constitute dao.
         vm.startBroadcast();
         separatedPowers.constitute(laws);
+        // transferring ownership erc721 token contract.
+        erc721Mock.transferOwnership(address(separatedPowers));
         vm.stopBroadcast();
 
-        return (payable(address(separatedPowers)), laws, config);
+        return (dao, laws, config, mock20_, mock721_, mock1155_);
     }
 
     function initiateConstitution(

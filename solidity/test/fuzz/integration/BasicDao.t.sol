@@ -151,7 +151,7 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         address delegateSelectLaw = laws[5];
 
         // step 0: distribute tokens. Tokens are distributed randomly.
-        distributeTokens(config.erc20VotesMock, users, voteTokensRandomiser);
+        distributeTokens(address(erc20VotesMock), users, voteTokensRandomiser);
 
         // step 1: people nominate their accounts.
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe = true
@@ -174,13 +174,13 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
                 address nominee = users[i];
                 address nominee2 = users[j];
                 if (basicDao.hasRoleSince(nominee, 2) != 0 && basicDao.hasRoleSince(nominee2, 2) == 0) {
-                    uint256 balanceNominee = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee);
-                    uint256 balanceNominee2 = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee2);
+                    uint256 balanceNominee = erc20VotesMock.balanceOf(nominee);
+                    uint256 balanceNominee2 = erc20VotesMock.balanceOf(nominee2);
                     assertGe(balanceNominee, balanceNominee2); // assert that nominee has more tokens than nominee2.
                 }
                 if (basicDao.hasRoleSince(nominee, 2) == 0 && basicDao.hasRoleSince(nominee2, 2) != 0) {
-                    uint256 balanceNominee = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee);
-                    uint256 balanceNominee2 = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee2);
+                    uint256 balanceNominee = erc20VotesMock.balanceOf(nominee);
+                    uint256 balanceNominee2 = erc20VotesMock.balanceOf(nominee2);
                     assertLe(balanceNominee, balanceNominee2); // assert that nominee has fewer tokens than nominee2.
                 }
             }

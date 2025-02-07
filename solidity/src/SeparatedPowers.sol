@@ -29,11 +29,11 @@
 /// For example implementations of DAOs, see the implementations/daos folder.
 ///
 /// Note This protocol is a work in progress. A number of features are planned to be added in the future.
-/// - Support for EIP-6372 {clock()} for timestamping governance processes.
 /// - Integration with, or support for OpenZeppelin's {Governor.sol}. This would mean the protocol can be used in combination websites such as Tally.xyz.
 /// - Integration with, or support for, the Hats Protocol.
 /// - Native support for multi-chain governance.
 /// - Gas efficiency improvements.
+/// - Support for EIP-6372 {clock()} for timestamping governance processes.
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 
@@ -484,7 +484,7 @@ contract SeparatedPowers is EIP712, ISeparatedPowers {
 
     /// @notice saves the version of the SeparatedPowers implementation.
     function version() public pure returns (string memory) {
-        return "1";
+        return "0.2";
     }
 
     /// @notice public function {SeparatedPowers::canCallLaw} that checks if a caller can call a given law.

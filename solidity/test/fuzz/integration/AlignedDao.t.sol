@@ -135,7 +135,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         // give everyone a NFT. Note: NftId == index of user. 
         for (uint256 i = 0; i < users.length; i++) {
             vm.startPrank(users[i]);
-            Erc721Mock(config.erc721Mock).cheatMint(i); 
+            erc721Mock.cheatMint(i); 
             vm.stopPrank();
         }
         // assign roles. 
@@ -291,11 +291,11 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         selectUser = bound(selectUser, 0, users.length - 1); 
         duration = bound(duration, 1000, 2000);
         numberSteps = bound(numberSteps, 5, 100);
-        uint256 balanceBefore = Erc1155Mock(config.erc1155Mock).balanceOf(users[selectUser], 0);  
+        uint256 balanceBefore = Erc1155Mock(erc1155Mock).balanceOf(users[selectUser], 0);  
         
         // mint funds
         vm.prank(address(alignedDao));
-        Erc1155Mock(config.erc1155Mock).mintCoins(1_000_000);
+        Erc1155Mock(erc1155Mock).mintCoins(1_000_000);
 
         // assign roles. 
         vm.startPrank(address(alignedDao));
@@ -335,7 +335,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
                 alignedDao.execute(laws[5], abi.encode(), description);
            }
         }
-        uint256 balanceAfter = Erc1155Mock(config.erc1155Mock).balanceOf(users[selectUser], 0);
+        uint256 balanceAfter = Erc1155Mock(erc1155Mock).balanceOf(users[selectUser], 0);
         assertEq(balanceAfter, balanceBefore + (numberRequests * 5000)); // = number tokens per request 
     }
 
@@ -348,11 +348,11 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
     ) public {
         density = bound(density, 0, 100);
         // step 0: distribute nfts. NFTs are distributed randomly.
-        distributeNFTs(config.erc721Mock, users, seed, density);
+        distributeNFTs(address(erc721Mock), users, seed, density);
 
         // step 1: assert that only accounts with an NFT can claim role.
         for (uint256 i = 0; i < users.length; i++) {
-            bool hasNFT = Erc721Mock(config.erc721Mock).balanceOf(users[i]) > 0; // does user have NFT? 
+            bool hasNFT = erc721Mock.balanceOf(users[i]) > 0; // does user have NFT? 
             string memory description = string.concat("Account claims role: ", Strings.toString(i));
 
             if (hasNFT) {
@@ -379,7 +379,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         vm.stopPrank();
 
         // step 0a: distribute tokens. Tokens are distributed randomly.
-        distributeTokens(config.erc20VotesMock, users, voteTokensRandomiser);
+        distributeTokens(address(erc20VotesMock), users, voteTokensRandomiser);
         // step 0b: set oracle address
         vm.prank(alice); // alice = admin. 
         alignedDao.execute(laws[11], abi.encode(false, oracle), "The admin sets the oracle address.");
@@ -404,13 +404,13 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
                 address nominee = users[i];
                 address nominee2 = users[j];
                 if (alignedDao.hasRoleSince(nominee, 2) != 0 && alignedDao.hasRoleSince(nominee2, 2) == 0) {
-                    uint256 balanceNominee = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee);
-                    uint256 balanceNominee2 = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee2);
+                    uint256 balanceNominee = Erc20VotesMock(address(erc20VotesMock)).balanceOf(nominee);
+                    uint256 balanceNominee2 = Erc20VotesMock(address(erc20VotesMock)).balanceOf(nominee2);
                     assertGe(balanceNominee, balanceNominee2); // assert that nominee has more tokens than nominee2.
                 }
                 if (alignedDao.hasRoleSince(nominee, 2) == 0 && alignedDao.hasRoleSince(nominee2, 2) != 0) {
-                    uint256 balanceNominee = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee);
-                    uint256 balanceNominee2 = Erc20VotesMock(config.erc20VotesMock).balanceOf(nominee2);
+                    uint256 balanceNominee = Erc20VotesMock(address(erc20VotesMock)).balanceOf(nominee);
+                    uint256 balanceNominee2 = Erc20VotesMock(address(erc20VotesMock)).balanceOf(nominee2);
                     assertLe(balanceNominee, balanceNominee2); // assert that nominee has fewer tokens than nominee2.
                 }
             }

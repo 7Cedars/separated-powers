@@ -13,16 +13,16 @@ contract Erc20TaxedMock is ERC20, Ownable {
     error Erc20TaxedMock__InsufficientBalanceForTax();
 
     uint256 public taxRate;
-    uint8 public immutable taxDecimals;
+    uint8 public immutable DENOMINATOR;
     uint48 public immutable epochDuration;
     mapping(uint48 epoch => mapping(address account => uint256 taxPaid)) public taxLogs;
 
-    constructor(uint256 taxRate_, uint8 taxDecimals_, uint48 epochDuration_)
+    constructor(uint256 taxRate_, uint8 DENOMINATOR_, uint48 epochDuration_)
         ERC20("mockTaxed", "MTXD")
         Ownable(msg.sender)
     {
         taxRate = taxRate_;
-        taxDecimals = taxDecimals_;
+        DENOMINATOR = DENOMINATOR_;
         epochDuration = epochDuration_;
     }
 
@@ -42,7 +42,7 @@ contract Erc20TaxedMock is ERC20, Ownable {
     }
 
     function changeTaxRate(uint256 newTaxRate) public onlyOwner {
-        if (newTaxRate > (10 ** taxDecimals) - 1) {
+        if (newTaxRate >= DENOMINATOR - 1) {
             revert Erc20TaxedMock__TaxRateOverflow();
         }
         taxRate = newTaxRate;
@@ -54,7 +54,7 @@ contract Erc20TaxedMock is ERC20, Ownable {
         // if taxed amount cannot be collected, it will revert.
         // taxes are not collected when minting, burning or transferring to or from owner.
         if (from != owner() && to != owner() && from != address(0) && to != address(0) && value != 0) {
-            uint256 tax = (value * taxRate) / (10 ** taxDecimals);
+            uint256 tax = (value * taxRate) / DENOMINATOR;
             uint256 fromBalance = balanceOf(from);
 
             if (fromBalance < value + tax) {

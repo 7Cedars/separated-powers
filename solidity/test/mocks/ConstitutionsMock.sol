@@ -758,7 +758,7 @@ contract ConstitutionsMock is Test {
     //////////////////////////////////////////////////////////////
     //      SEVENTH CONSTITUTION: test Diversified Grants       //
     //////////////////////////////////////////////////////////////
-    function initiateDiversifiedGrantsTestConstitution(
+    function initiateGovernYourTaxTestConstitution(
         address payable dao_,
         address payable mock20Votes_,
         address payable mock20Taxed_,

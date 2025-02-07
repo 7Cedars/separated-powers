@@ -41,15 +41,7 @@ import { ILaw } from "./interfaces/ILaw.sol";
 import { ERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
-
-// ////////////////////////////////////////////////
-// //            ONLY FOR TESTING                //
-// ////////////////////////////////////////////////
-// import { Test, console, console2 } from "lib/forge-std/src/Test.sol";
-// ////////////////////////////////////////////////
-// //            ONLY FOR TESTING                //
-// ////////////////////////////////////////////////
-
+ 
 contract Law is ERC165, ILaw {
     using ShortStrings for *;
 

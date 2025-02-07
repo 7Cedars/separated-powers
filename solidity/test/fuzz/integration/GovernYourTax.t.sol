@@ -27,8 +27,6 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
     //              CHAPTER 1: EXECUTIVE ACTIONS                //
     //////////////////////////////////////////////////////////////
 
-    
-
     function  testFuzz_CreateUseAndStopGrants(
         uint256 seed, 
         uint256 step0Chance, 
@@ -37,7 +35,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         
         // mint erc20 Tokens to organisation. 
         vm.prank(address(governYourTax)); 
-        Erc20TaxedMock(config.erc20TaxedMock).mint(1_000_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(1_000_000);
         
         seed = bound(seed, 250, 1000);
         step0Chance = bound(step0Chance, 15, 100);
@@ -67,7 +65,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             "This is a test grant.", // description 
             uint48(seed), // duration grant 
             seed, // budget grant max = 2000
-            config.erc20TaxedMock, // token address
+            erc20TaxedMock, // token address
             0, // tokenType 0 = erc20. 1 = erc1155
             0, // tokenId (not used in this case as it is an Erc20 token)
             uint32((seed % 3) + 4) // role that is allowed to decide on grant proposals
@@ -245,7 +243,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
     ) public {
         // mint erc20 Tokens to organisation. 
         vm.prank(address(governYourTax)); 
-        Erc20TaxedMock(config.erc20TaxedMock).mint(1_000_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(1_000_000);
         
         seed = bound(seed, 0, 100_000);
         step0Chance = bound(step0Chance, 0, 100);
@@ -354,7 +352,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         ) public {
         // mint erc20 Tokens to organisation. 
         vm.prank(address(governYourTax)); 
-        Erc20TaxedMock(config.erc20TaxedMock).mint(100_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(100_000);
         uint256 tokensMinted; 
         uint256 tokensBurned; 
         
@@ -437,7 +435,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             quorumReached && 
             voteSucceeded && 
             Erc20TaxedMock(
-                config.erc20TaxedMock
+                erc20TaxedMock
                 ).balanceOf(address(governYourTax)) - burnQuantity > 0
             ) {
             console.log("step 1 action: bob EXECUTES and burns tokens.");
@@ -457,7 +455,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         console.log("burned, minted tokens: ", tokensBurned, tokensMinted); 
 
         assertEq(
-            Erc20TaxedMock(config.erc20TaxedMock).balanceOf(address(governYourTax)), 
+            Erc20TaxedMock(erc20TaxedMock).balanceOf(address(governYourTax)), 
             100_000 - tokensBurned + tokensMinted
         ); 
     } 
@@ -474,12 +472,12 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         ) public {
         // mint erc20 Tokens to organisation. 
         vm.prank(address(governYourTax)); 
-        Erc20TaxedMock(config.erc20TaxedMock).mint(10_000_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(10_000_000);
 
         // distribute tokens to users, each users get 100_000 
         for (i; i < users.length; i++) {
             vm.prank(address(governYourTax)); 
-            Erc20TaxedMock(config.erc20TaxedMock).transfer(users[i], 100_000);
+            Erc20TaxedMock(erc20TaxedMock).transfer(users[i], 100_000);
         }
         // we do a hundred transactions, let users pay tax
         
@@ -492,7 +490,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                 currentSeed = currentSeed / 10;
             }
             vm.prank(currentUser);
-            Erc20TaxedMock(config.erc20TaxedMock).transfer(
+            Erc20TaxedMock(erc20TaxedMock).transfer(
                 users[(currentSeed / 5) % users.length], 
                 currentSeed % 250
             );
@@ -502,7 +500,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
 
         // let users claim - outcome conditional.
         i = 0; 
-        vm.roll(block.number + 100 + 1); // 100 is 1 epoch
+        vm.roll(block.number + 50400 + 1); // 100 is 1 epoch
         for (i; i < users.length; i++) {
             description = "claiming role!";
             lawCalldata = abi.encode(false, users[i]); 
@@ -533,7 +531,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
 
         // mint erc20 Tokens to organisation. 
         vm.prank(address(governYourTax)); 
-        Erc20TaxedMock(config.erc20TaxedMock).mint(1_000_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(1_000_000);
         
         seed1 = bound(seed1, 1_000_000, 100_000_000);
         seed2 = bound(seed2, 1_000_000, 100_000_000);

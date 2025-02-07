@@ -18,7 +18,7 @@ import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 contract DeployTest is TestSetupSeparatedPowers {
     function testDeployAlignedDao() public view {
         assertEq(daoMock.name(), daoNames[0]);
-        assertEq(daoMock.version(), "1");
+        assertEq(daoMock.version(), "0.2");
 
         assertNotEq(daoMock.hasRoleSince(alice, ROLE_ONE), 0);
     }

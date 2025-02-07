@@ -563,11 +563,11 @@ contract ElectionCallTest is TestSetupElectoral {
 
     function testPeerVoteContractCorrectlyDeployed() public {
         // prep: data
-        address electionCall = laws[10];
+        address electionCall = laws[11];
         bytes memory lawCalldata = abi.encode(
+            "This is a test election",
             50, // startVote
-            150, // endVote
-            "This is a test election"
+            150 // endVote
         );
 
         // act + assert emit
@@ -592,11 +592,11 @@ contract ElectionCallTest is TestSetupElectoral {
 
     function testPeerVoteContractRevertsIfAlreadyDeployed() public {
         // prep: data
-        address electionCall = laws[10];
+        address electionCall = laws[11];
         bytes memory lawCalldata = abi.encode(
+            "This is a test election",
             50, // startVote
-            150, // endVote
-            "This is a test election"
+            150 // endVote
         );
         // deploy once..
         vm.prank(address(daoMock));

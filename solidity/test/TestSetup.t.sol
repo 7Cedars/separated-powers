@@ -16,7 +16,7 @@ import { LawErrors } from "../src/interfaces/LawErrors.sol";
 import { HelperConfig } from "../script/HelperConfig.s.sol";
 
 // openZeppelin
-import { PresetAction } from "../src/laws/executive/PresetAction.sol";
+import { PresetAction } from "../src/laws/executive/PresetAction.sol"; 
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 
 // mocks
@@ -139,8 +139,8 @@ abstract contract TestHelpers is Test, TestVariables {
             }
             uint256 amount = (currentRandomiser % 10_000) + 1;
             vm.startPrank(accounts[i]);
-            Erc20VotesMock(config.erc20VotesMock).mintVotes(amount);
-            Erc20VotesMock(config.erc20VotesMock).delegate(accounts[i]); // delegate votes to themselves
+            Erc20VotesMock(erc20VotesMock).mintVotes(amount);
+            Erc20VotesMock(erc20VotesMock).delegate(accounts[i]); // delegate votes to themselves
             vm.stopPrank();
         }
     }
@@ -157,7 +157,7 @@ abstract contract TestHelpers is Test, TestVariables {
             bool getNft = (currentRandomiser % 100) < density;
             if (getNft) {
                 vm.prank(accounts[i]);
-                Erc721Mock(config.erc721Mock).cheatMint(randomiser + i);
+                Erc721Mock(erc721Mock).cheatMint(randomiser + i);
             }
         }
     }
@@ -260,7 +260,7 @@ abstract contract BaseSetup is TestVariables, TestHelpers {
         erc721Mock = new Erc721Mock();
         erc20TaxedMock = new Erc20TaxedMock(
             7, // 7
-            2, // decimals. Tax works out to 7 percent. ( 7 / 100) 
+            100, // denominator works out to 7 percent (7 / 100). 
             100 // duration of epoch = 100 blocks 
         );
         vm.stopPrank();
@@ -420,7 +420,7 @@ abstract contract TestSetupDiversifiedGrants is BaseSetup, ConstitutionsMock {
         super.setUpVariables();
 
         // initiate constitution & get founders' roles list
-        (address[] memory laws_) = constitutionsMock.initiateDiversifiedGrantsTestConstitution(
+        (address[] memory laws_) = constitutionsMock.initiateGovernYourTaxTestConstitution(
             payable(address(daoMock)), 
             payable(address(erc20VotesMock)),  
             payable(address(erc20TaxedMock)),  
@@ -441,10 +441,19 @@ abstract contract TestSetupBasicDao_fuzzIntegration is BaseSetup {
         super.setUpVariables();
 
         DeployBasicDao deployBasicDao = new DeployBasicDao();
-        (address payable basicDaoAddress, address[] memory laws_, HelperConfig.NetworkConfig memory config_) =
-            deployBasicDao.run();
+        (
+            address payable basicDaoAddress, 
+            address[] memory laws_, 
+            HelperConfig.NetworkConfig memory config_,
+            address mock20_,  
+            address mock1155_
+            ) = deployBasicDao.run();
         laws = laws_;
         config = config_;
+
+        erc20VotesMock = Erc20VotesMock(mock20_);  
+        erc1155Mock = Erc1155Mock(mock1155_); 
+
         basicDao = SeparatedPowers(basicDaoAddress);
     }
 }
@@ -459,10 +468,18 @@ abstract contract TestSetupAlignedDao_fuzzIntegration is BaseSetup {
         (
             address payable alignedDaoAddress, 
             address[] memory laws_, 
-            HelperConfig.NetworkConfig memory config_
+            HelperConfig.NetworkConfig memory config_, 
+            address mock20_, 
+            address mock721_, 
+            address mock1155_
             ) = deployAlignedDao.run();
         laws = laws_;
         config = config_;
+
+        erc20VotesMock = Erc20VotesMock(mock20_); 
+        erc721Mock = Erc721Mock(mock721_); 
+        erc1155Mock = Erc1155Mock(mock1155_); 
+     
         alignedDao = SeparatedPowers(alignedDaoAddress);
     } 
 }
@@ -477,10 +494,20 @@ abstract contract TestSetupGovernYourTax_fuzzIntegration is BaseSetup {
         (
             address payable governYourTaxAddress, 
             address[] memory laws_, 
-            HelperConfig.NetworkConfig memory config_
+            HelperConfig.NetworkConfig memory config_, 
+            address mock20_,
+            address mock20Taxed_, 
+            address mock721_, 
+            address mock1155_
             ) = deployGovernYourTax.run();
         laws = laws_;
         config = config_;
+
+        erc20VotesMock = Erc20VotesMock(mock20_); 
+        erc20TaxedMock = Erc20TaxedMock(mock20Taxed_); 
+        erc721Mock = Erc721Mock(mock721_); 
+        erc1155Mock = Erc1155Mock(mock1155_); 
+        
         governYourTax = SeparatedPowers(governYourTaxAddress);
     }
 }

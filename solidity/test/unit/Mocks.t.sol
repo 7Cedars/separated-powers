@@ -59,19 +59,19 @@ contract Erc20TaxedMockTest is Test {
 
     function setUp() public {
         uint256 taxRate_ = 7;
-        uint8 taxDecimals_ = 2; // this should work out at 7 percent tax per transaction.
+        uint8 DENOMINATOR_ = 100; // this should work out at 7 percent tax per transaction.
         uint48 epochDuration_ = 19;
 
         daoMock = new SeparatedPowers("DAO", "");
         vm.startPrank(address(daoMock));
-        erc20TaxedMock = new Erc20TaxedMock(taxRate_, taxDecimals_, epochDuration_);
+        erc20TaxedMock = new Erc20TaxedMock(taxRate_, DENOMINATOR_, epochDuration_);
         erc20TaxedMock.mint(10_000);
         vm.stopPrank();
 
         assertEq(erc20TaxedMock.totalSupply(), 10_000);
         assertEq(erc20TaxedMock.balanceOf(address(daoMock)), 10_000);
         assertEq(erc20TaxedMock.taxRate(), taxRate_);
-        assertEq(erc20TaxedMock.taxDecimals(), taxDecimals_);
+        assertEq(erc20TaxedMock.DENOMINATOR(), DENOMINATOR_);
         assertEq(erc20TaxedMock.epochDuration(), epochDuration_);
     }
 
@@ -106,8 +106,8 @@ contract Erc20TaxedMockTest is Test {
 
     function testChangeTaxRate() public {
         uint256 oldTaxRate = erc20TaxedMock.taxRate();
-        uint8 proposedTaxRate = 98;
-        uint8 decimals = erc20TaxedMock.taxDecimals();
+        uint8 denominator = erc20TaxedMock.DENOMINATOR();
+        uint8 proposedTaxRate = denominator - 2;
 
         vm.prank(address(daoMock));
         erc20TaxedMock.changeTaxRate(proposedTaxRate);
@@ -117,8 +117,8 @@ contract Erc20TaxedMockTest is Test {
 
     function testChangeTaxRateOverflow() public {
         uint256 oldTaxRate = erc20TaxedMock.taxRate();
-        uint8 taxDecimals = erc20TaxedMock.taxDecimals();
-        uint256 proposedTaxRate = (10 ** taxDecimals) + 1;
+        uint8 DENOMINATOR = erc20TaxedMock.DENOMINATOR();
+        uint256 proposedTaxRate = DENOMINATOR + 1;
 
         vm.expectRevert(Erc20TaxedMock.Erc20TaxedMock__TaxRateOverflow.selector);
         vm.prank(address(daoMock));
@@ -130,11 +130,11 @@ contract Erc20TaxedMockTest is Test {
     function testSuccessfulTaxCollection() public {
         // prep
         uint256 taxRate = erc20TaxedMock.taxRate();
-        uint8 decimals = erc20TaxedMock.taxDecimals();
+        uint8 denominator = erc20TaxedMock.DENOMINATOR();
 
         uint256 transferAmount1 = 500;
         uint256 transferAmount2 = 250;
-        uint256 taxAmount = (transferAmount2 * taxRate) / (10 ** decimals);
+        uint256 taxAmount = (transferAmount2 * taxRate) / denominator;
         console.log(taxAmount);
 
         address alice = makeAddr("alice");
@@ -162,11 +162,11 @@ contract Erc20TaxedMockTest is Test {
     function testTransferRevertsIfInsufficientBalanceForTax() public {
         // prep
         uint256 taxRate = erc20TaxedMock.taxRate();
-        uint8 decimals = erc20TaxedMock.taxDecimals();
+        uint8 denominator = erc20TaxedMock.DENOMINATOR();
 
         uint256 transferAmount1 = 500;
         uint256 transferAmount2 = 500;
-        uint256 taxAmount = (transferAmount2 * taxRate) / (10 ** decimals);
+        uint256 taxAmount = (transferAmount2 * taxRate) / denominator;
         console.log(taxAmount);
 
         address alice = makeAddr("alice");

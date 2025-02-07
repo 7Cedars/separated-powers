@@ -9,8 +9,11 @@ import { Law } from "../src/Law.sol";
 import { ILaw } from "../src/interfaces/ILaw.sol";
 import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
 
+// config
+import { HelperConfig } from "./HelperConfig.s.sol";
+
 // laws
-import { NominateMe } from "../src/laws/state/NominateMe.sol";
+import { NominateMe } from "../src/laws/state/NominateMe.sol"; 
 import { DelegateSelect } from "../src/laws/electoral/DelegateSelect.sol";
 import { DirectSelect } from "../src/laws/electoral/DirectSelect.sol";
 import { PeerSelect } from "../src/laws/electoral/PeerSelect.sol";
@@ -19,9 +22,6 @@ import { ElectionCall } from "../src/laws/electoral/ElectionCall.sol";
 import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
 import { BespokeAction } from "../src/laws/executive/BespokeAction.sol";
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
-import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
-import { Erc20TaxedMock } from "../test/mocks/Erc20TaxedMock.sol";
-
 import { Grant } from "../src/laws/bespoke/diversifiedGrants/Grant.sol";
 import { StartGrant } from "../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
 import { StopGrant } from "../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
@@ -30,50 +30,62 @@ import { RoleByTaxPaid } from "../src/laws/bespoke/diversifiedGrants/RoleByTaxPa
 // borrowing one law from another bespoke folder. Not ideal, but ok for now.
 import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 
-// config
-import { HelperConfig } from "./HelperConfig.s.sol";
+// mocks 
+import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
+import { Erc20TaxedMock } from "../test/mocks/Erc20TaxedMock.sol";
+import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
+import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
 
 contract DeployGovernYourTax is Script {
     address[] laws;
 
     function run()
         external
-        returns (address payable dao, address[] memory constituentLaws, HelperConfig.NetworkConfig memory config)
+        returns (
+            address payable dao, 
+            address[] memory constituentLaws, 
+            HelperConfig.NetworkConfig memory config, 
+            address payable mock20_, 
+            address payable mock20Taxed_, 
+            address payable mock721_, 
+            address payable mock1155_
+            )
     {
         HelperConfig helperConfig = new HelperConfig();
         config = helperConfig.getConfigByChainId(block.chainid);
 
-        // Initiating Dao.
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers("Govern Your Tax", "");
-        vm.stopBroadcast();
+        SeparatedPowers separatedPowers = new SeparatedPowers(
+            "Govern Your Tax", 
+            "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreid7bb6jueiqjn4mpkcy5ob7w6ulksfntobbwbn4feehvzjwe3tufe");
 
-        vm.startBroadcast(address(separatedPowers));
-        Erc721Mock erc721Mock = new Erc721Mock();
+        Erc20VotesMock erc20VotesMock = new Erc20VotesMock(); 
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
-            // NB! these params should be included in the config. £todo
-            7,
-            2,
-            100 // 7% tax, (tax = 7, denominator = 2),  100 block epoch.
+            7, // rate
+            100, // denominator  
+            50400 // 7% tax, (tax = 7, denominator = 2),  50400 block epoch.
         );
+        Erc721Mock erc721Mock = new Erc721Mock();
+        Erc1155Mock erc1155Mock = new Erc1155Mock(); 
         vm.stopBroadcast();
-        config.erc20TaxedMock = address(erc20TaxedMock); 
-        config.erc721Mock = address(erc721Mock); 
 
-        initiateConstitution(
-            payable(address(separatedPowers)),
-            payable(config.erc20VotesMock),
-            payable(config.erc20TaxedMock),
-            payable(config.erc721Mock),
-            payable(config.erc1155Mock)
-        );
+        dao = payable(address(separatedPowers));
+        mock20_ = payable(address(erc20VotesMock)); 
+        mock20Taxed_ = payable(address(erc20TaxedMock)); 
+        mock721_ = payable(address(erc721Mock));
+        mock1155_ = payable(address(erc1155Mock));
+        initiateConstitution(dao, mock20_, mock20Taxed_, mock721_, mock1155_);
+
 
         // constitute dao.
         vm.startBroadcast();
         separatedPowers.constitute(laws);
+        // transferring ownership of erc721 and erc20Taxed token contracts.. 
+        erc721Mock.transferOwnership(address(separatedPowers));
+        erc20TaxedMock.transferOwnership(address(separatedPowers));
         vm.stopBroadcast();
 
-        return (payable(address(separatedPowers)), laws, config);
+        return (dao, laws, config, mock20_, mock20Taxed_, mock721_, mock1155_);
     }
 
     function initiateConstitution(

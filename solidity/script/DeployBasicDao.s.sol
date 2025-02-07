@@ -10,7 +10,7 @@ import { ILaw } from "../src/interfaces/ILaw.sol";
 import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
 
 // laws
-import { NominateMe } from "../src/laws/state/NominateMe.sol";
+import { NominateMe } from "../src/laws/state/NominateMe.sol"; 
 import { DelegateSelect } from "../src/laws/electoral/DelegateSelect.sol";
 import { DirectSelect } from "../src/laws/electoral/DirectSelect.sol";
 import { PeerSelect } from "../src/laws/electoral/PeerSelect.sol";
@@ -21,6 +21,10 @@ import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
 
+// mocks 
+import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
+import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
+
 /// @notice core script to deploy a dao
 /// Note the {run} function for deploying the dao can be used without changes.
 /// Note  the {initiateConstitution} function for creating bespoke constitution for the DAO.
@@ -30,34 +34,44 @@ contract DeployBasicDao is Script {
 
     function run()
         external
-        returns (address payable dao, address[] memory constituentLaws, HelperConfig.NetworkConfig memory config)
+        returns (
+            address payable dao, 
+            address[] memory constituentLaws, 
+            HelperConfig.NetworkConfig memory config, 
+            address payable mock20_, 
+            address payable mock1155_
+            )
     {
         HelperConfig helperConfig = new HelperConfig();
         config = helperConfig.getConfigByChainId(block.chainid);
 
-        // Initiating Dao.
         vm.startBroadcast();
         SeparatedPowers separatedPowers = new SeparatedPowers(
             "Basic Dao",
-            "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreicipqz46fivyta6mnizu3ly7hrulnlp6skzyrd7dddgnakwl5ulre"
+            "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreidhq4eoq3gsfbrbf6735a2lbmcokumgbsq7zqxkzaopu3daxjnkgu"
         );
+        Erc20VotesMock erc20VotesMock = new Erc20VotesMock(); 
+        Erc1155Mock erc1155Mock = new Erc1155Mock(); 
         vm.stopBroadcast();
-
-        initiateConstitution(
-            payable(address(separatedPowers)), 
-            payable(config.erc1155Mock), 
-            payable(config.erc20VotesMock)
-        );
-
+        
+        dao = payable(address(separatedPowers)); 
+        mock20_ = payable(address(erc20VotesMock)); 
+        mock1155_ = payable(address(erc1155Mock));
+        initiateConstitution(dao, mock20_, mock1155_);
+        
         // constitute dao.
         vm.startBroadcast();
         separatedPowers.constitute(laws);
         vm.stopBroadcast();
 
-        return (payable(address(separatedPowers)), laws, config);
+        return (dao, laws, config, mock20_, mock1155_);
     }
 
-    function initiateConstitution(address payable dao_, address payable mock1155_, address payable mock20_) public {
+    function initiateConstitution(
+        address payable dao_, 
+        address payable mock20_, 
+        address payable mock1155_ 
+        ) public {
         Law law;
         ILaw.LawConfig memory lawConfig;
 
