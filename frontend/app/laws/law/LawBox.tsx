@@ -10,29 +10,36 @@ import { useChainId, useReadContract, useReadContracts } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { parseParams, parseRole } from "@/utils/parsers";
-import { InputType } from "@/context/types";
+import { bytesToParams, parseParams, parseRole } from "@/utils/parsers";
+import { InputType, DataType } from "@/context/types";
 import { DynamicInput } from "@/app/laws/law/DynamicInput";
 import { notUpToDate } from "@/context/store"
 import { SimulationBox } from "@/components/SimulationBox";
 import { useWallets } from "@privy-io/react-auth";
 import { supportedChains } from "@/context/chains";
 
+// CONTINUE HERE 
+/// NB! inputParams bytecode: (bytecode.length - 3) / 192 = number of params. And all params are strings.... 
+// use abi.decode to get to params!
+
 const roleColour = [  
   "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
   "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
-]
-
+] 
 export function LawBox() {
   const router = useRouter();
   const action = useActionStore();
   const {status, error, law, simulation, checks, resetStatus, execute, fetchSimulation, fetchChecks} = useLaw();
-  const { data, isLoading, isError } = useReadContract({
+  const { data, isLoading, isError, error: errorInputParams } = useReadContract({
         abi: lawAbi,
         address: law.law,
-        functionName: 'getInputParams'
+        functionName: 'inputParams'
       })
-  const dataTypes = data ? parseParams(data as string[]) : []
+
+  console.log({data, isLoading, isError, errorInputParams})
+  // bytesToParams(data as `0x${string}`)
+  // const dataTypes: DataType[] = []
+  const dataTypes =  bytesToParams(data as `0x${string}`)  
   const {wallets} = useWallets();
 
   const [paramValues, setParamValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(dataTypes.length)); // NB! String has to be converted to hex using toHex before being able to use as input.  

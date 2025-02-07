@@ -1,6 +1,7 @@
 import { ChangeEvent } from "react";
-import {InputType, DataType, Metadata, Attribute} from "../context/types"
+import { InputType, DataType, Metadata, Attribute } from "../context/types"
 import { type UseReadContractsReturnType } from 'wagmi'
+import { decodeAbiParameters, hexToString } from 'viem'
 
 const isArray = (array: unknown): array is Array<unknown> => {
   // array.find(item => !isString(item)) 
@@ -85,6 +86,18 @@ export const parseParams = (params: string[]): DataType[]  => {
 
   return parsedParams
 }
+
+export const bytesToParams = (bytes: `0x${string}`): DataType[]  => {
+  if (!bytes) { // I can make it more specific later.
+    return [] 
+  }
+  const string = hexToString(bytes) 
+  const raw = string.split(`\u0000`).filter(item => item.length > 3)
+  const cleaned = raw.map(item => item.slice(1)) as DataType[]
+
+  return cleaned
+}
+
 
 export const parseParamValues = (inputs: unknown): Array<InputType | InputType[]> => {
   // very basic parser. Here necessary input checks can be added later.  
