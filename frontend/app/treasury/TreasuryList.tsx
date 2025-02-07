@@ -43,34 +43,37 @@ export function TreasuryList() {
     balances = data.map((item: any) => Number(item.result))
   }
 
+  console.log({status})
+
   return (
-    <div className="w-full flex flex-col justify-start items-center">
+    <div className="w-full flex flex-col justify-start items-center bg-slate-50 border border-slate-200 rounded-md overflow-hidden">
       {/* table banner  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-4 px-6 rounded-t-md">
+      <div className="w-full flex flex-row gap-3 justify-between items-center py-4 px-6 border-b border-slate-200">
         <div className="text-slate-900 text-center font-bold text-lg">
           Treasury
         </div>
         <button 
-          className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500"
+          className="w-fit h-fit p-1 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 aria-selected:animate-spin"
           onClick = {() => refetch()}
           >
             <ArrowPathIcon
-              className="w-4 h-4 text-slate-800"
+              className="w-5 h-5 text-slate-800"
+              aria-selected={status == 'pending'}
               />
         </button>
       </div>
       {/* table laws  */}
-      <div className="w-full h-full border border-slate-200 border-t-0 rounded-b-md overflow-x-scroll overflow-y-hidden">
-      <table className="w-full table-auto border border-t-0">
-      <thead className="w-full">
-            <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
+      <div className="w-full h-full overflow-x-scroll overflow-y-hidden">
+      <table className="w-full table-auto ">
+      <thead className="w-full border-b border-slate-200">
+            <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500">
                 <th className="ps-6 py-2 font-light rounded-tl-md"> Token </th>
                 <th className="font-light"> Type </th>
                 <th className="font-light text-center"> Holdings </th>
                 <th className="font-light text-right ps-2 pe-8"> Address </th>
             </tr>
         </thead>
-        <tbody className="w-full h-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
+        <tbody className="w-full h-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
             <tr className={`text-sm text-left text-slate-500 h-16 overflow-x-scroll`}>
               <td className="text-left rounded-bl-md ps-6 px-2 min-w-48"> Mock Erc20 Vote Coin </td>
               <td className="text-left text-slate-500 min-w-24">ERC 20</td>

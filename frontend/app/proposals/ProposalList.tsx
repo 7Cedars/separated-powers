@@ -1,23 +1,28 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { assignOrg, setLaw, useOrgStore } from "@/context/store";
 import { Button } from "@/components/Button";
 import { useRouter } from "next/navigation";
 import { Proposal } from "@/context/types";
-import { parseRole } from "@/utils/parsers";
+import { parseProposalStatus, parseRole } from "@/utils/parsers";
 import { useProposal } from "@/hooks/useProposal";
 import { setProposal } from "@/context/store"
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { useOrganisations } from "@/hooks/useOrganisations";
+
 
 // NB: need to delete action from store? Just in case? 
 export function ProposalList() {
   const organisation = useOrgStore();
   const router = useRouter();
+  const [deselectedStatus, setDeselectedStatus] = useState<number[]>([1, 2, 3, 4])
+  const { organisations, status: statusUpdate, initialise, fetch, update } = useOrganisations()
   const {status, error, law, proposals: proposalsWithState, fetchProposals, propose, cancel, castVote} = useProposal();
+  const possibleStatus: number[] = [0, 1, 2, 3, 4]; 
 
   const handleRoleSelection = (role: bigint) => {
     const index = organisation?.deselectedRoles?.indexOf(role);
-
     if (index == -1) {
       assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? [...organisation?.deselectedRoles, role as bigint] : [role as bigint]})
     } else if (index == 0) {
@@ -27,16 +32,28 @@ export function ProposalList() {
     }
   };
 
+  const handleStatusSelection = (proposalStatus: number) => {
+    let newDeselection: number[] = []
+    if (deselectedStatus.includes(proposalStatus)) {
+      newDeselection = deselectedStatus.filter(option => option != proposalStatus)
+    } else {
+      newDeselection = [...deselectedStatus, proposalStatus]
+    }
+    setDeselectedStatus(newDeselection)
+  };
+
   useEffect(() => {
     if (organisation) {
       fetchProposals(organisation);
     }
   }, []);
 
+  console.log({proposalsWithState})
+
   return (
-    <div className="w-full flex flex-col justify-start items-center">
-      {/* table banner  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-2 px-6 rounded-t-md overflow-y-scroll">
+    <div className="w-full min-w-96 flex flex-col justify-start items-center bg-slate-50 border slate-300 rounded-md overflow-hidden">
+      {/* table banner:roles  */}
+      <div className="w-full flex flex-row gap-3 justify-between items-center pt-3 px-6 overflow-y-scroll">
         <div className="text-slate-900 text-center font-bold text-lg">
           Proposals
         </div>
@@ -77,12 +94,40 @@ export function ProposalList() {
             Public
           </Button>
         </div>
+        <button 
+          className="w-fit h-fit p-1"
+          onClick = {() => update(organisation)}
+          >
+            <ArrowPathIcon
+              className="w-5 h-5 text-slate-800 aria-selected:animate-spin"
+              aria-selected={statusUpdate == 'pending'}
+              />
+        </button>
       </div>
+
+      {/* table banner:status  */}
+      <div className="w-full flex flex-row gap-3 justify-between items-between py-2 overflow-y-scroll border-b border-slate-200 px-6">
+      {
+        possibleStatus.map(option => {
+          return (
+            <button 
+            key = {option}
+            onClick={() => handleStatusSelection(option)}
+            className="w-fit h-full hover:text-slate-400 text-sm aria-selected:text-slate-800 text-slate-300"
+            aria-selected = {!deselectedStatus?.includes(option)}
+            >  
+              <p className="text-sm text-left"> {parseProposalStatus(option)} </p>
+          </button>
+          )
+        })
+      }
+      </div>
+
       {/* table laws  */}
-      <div className="w-full border border-slate-200 border-t-0 rounded-b-md overflow-scroll">
+      <div className="w-full overflow-scroll">
       <table className="w-full table-auto">
-      <thead className="w-full">
-            <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 border-b border-slate-200">
+      <thead className="w-full border-b border-slate-200">
+            <tr className="w-96 text-xs font-light text-left text-slate-500">
                 <th className="ps-6 py-2 font-light rounded-tl-md"> Block </th>
                 <th className="font-light"> Law name </th>
                 <th className="font-light"> Reason </th>
@@ -90,18 +135,21 @@ export function ProposalList() {
                 <th className="font-light"> Role </th>
             </tr>
         </thead>
-        <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
+        <tbody className="w-full text-sm text-right text-slate-500 divide-y divide-slate-200">
           {
             proposalsWithState?.map((proposal: Proposal, i) => {
               const law = organisation?.laws?.find(law => law.law == proposal.targetLaw)
               return (
-                law && law.allowedRole != undefined && !organisation?.deselectedRoles?.includes(BigInt(`${law.allowedRole}`)) ? 
-             
+                law && 
+                law.allowedRole != undefined && 
+                !organisation?.deselectedRoles?.includes(BigInt(`${law.allowedRole}`)) && 
+                !deselectedStatus.includes(proposal.state ? proposal.state : 9) 
+                ? 
                 <tr
                   key={i}
                   className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}
                 >
-                  <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-fit">
+                  <td className="flex flex-col justify-center items-start text-left px-2 py-2 w-fit">
                     <Button
                       showBorder={false}
                       role={parseRole(law.allowedRole)}
@@ -117,7 +165,7 @@ export function ProposalList() {
                   </td>
                   <td className="pe-4 text-slate-500 min-w-60">{law.name}</td>
                   <td className="pe-4 text-slate-500 min-w-48">{proposal.description}</td>
-                  <td className="pe-4 text-slate-500 text-center">{proposal.state}</td>
+                  <td className="pe-4 text-slate-500">{parseProposalStatus(proposal.state)}</td>
                   <td className="pe-4 min-w-20 text-slate-500"> { 
                     law.allowedRole == 0n ? 
                       "Admin"

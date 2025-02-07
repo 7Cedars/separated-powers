@@ -310,6 +310,25 @@ export const parseMetadata = (metadata: unknown): Metadata => {
     throw new Error('Incorrect data at program Metadata: some fields are missing or incorrect');
 };
 
+export const parseProposalStatus = (state: number | undefined): string => {
+  if (!isNumber(state)) {
+    throw new Error(`Incorrect state, not a number: ${state}`);
+  }
+
+  switch (state) {
+    case 0: return "Active";
+    case 1: return "Cancelled";
+    case 2: return "Defeated";
+    case 3: return "Succeeded";
+    case 4: return "Completed"; 
+
+    default:
+      return "unsupported state";
+  } 
+ 
+};
+
+
 
 // Info: supported dataType Signatures: 
 // uint8, = 0x7bcdc9c6

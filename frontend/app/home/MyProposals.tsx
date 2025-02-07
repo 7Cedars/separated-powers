@@ -1,3 +1,5 @@
+`use client`
+
 import { useOrgStore, setProposal} from "@/context/store";
 import { Proposal } from "@/context/types";
 import { useProposal } from "@/hooks/useProposal";

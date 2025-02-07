@@ -91,6 +91,7 @@ export type Organisation = {
   name: string;
   colourScheme: number;
   laws?: Law[];
+  activeLaws?: Law[];
   proposals?: Proposal[];
   roles: bigint[];
   deselectedRoles?: bigint[];

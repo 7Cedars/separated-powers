@@ -113,8 +113,8 @@ const Header = () => {
 
   return (
     <header className="absolute grow w-screen top-0 h-fit py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
-    <section className="grow flex flex-row gap-1 justify-between px-2 max-w-screen-lg">
-      <div className="flex flex-row gap-1 max-w-96 min-w-48"> 
+    <section className="grow flex flex-row gap-1 justify-between px-2 max-w-screen-xl">
+      <div className="flex flex-row gap-1 min-w-48"> 
         <Button size = {0} onClick={
             () => {
               router.push('/')
@@ -159,7 +159,7 @@ const Header = () => {
         </div>
       </div>
       {
-        <div className="flex flex-row w-0 md:w-full opacity-0 md:opacity-100">
+        <div className="flex flex-row grow gap-2 md:max-w-2xl opacity-0 md:opacity-100 max-w-0">
           {organisation.name != '' ? NavigationBar() : null }
         </div>
       }
@@ -199,76 +199,6 @@ const NavigationSmallScreen = () => {
   )
 }
 
-export const Footer = () => { 
-  // Need to include some legal stuff here as well?  
-  return (
-     <div className="w-full z-20 min-h-60 h-fit bg-slate-50 flex md:flex-row flex-col justify-between items-start text-slate-800 text-sm px-24 snap-end pt-12 border-t border-slate-300 gap-16 snap-end">
-      <div className="grid grid-cols-3 gap-28">
-        <div className="flex flex-col gap-3 justify-start items-start">
-          <div className="font-bold"> 
-            DApp
-          </div>
-          <div className="text-slate-500"> 
-            Docs
-          </div>
-          <div className="text-slate-500"> 
-            Github repo 
-          </div>
-        </div>
-        <div className="flex flex-col gap-3 justify-start items-start">
-          <div className="font-bold"> 
-            Protocol
-          </div>
-          <div className="text-slate-500"> 
-            About
-          </div>
-          <div className="text-slate-500"> 
-            Docs
-          </div>
-          <div className="text-slate-500"> 
-            Github repo 
-          </div>
-        </div>
-      </div>
-
-      <div className="w-full flex flex-row gap-3 justify-end items-end snap-end">
-        <div className="flex flex-col gap-3 justify-start md:items-end items-center pb-20">
-          <Image 
-          src='/logo.png' 
-          width={48}
-          height={48}
-          alt="Logo Separated Powers"
-          >
-          </Image>
-          <div className="text-md font-bold flex flex-row gap-1">
-            <p>Made with</p> 
-            <HeartIcon className="w-4 h-4 text-red-700" />
-            <p>by 7Cedars</p>
-          </div>
-          <div className="flex flex-row gap-2">
-            <div>
-              discord
-            </div>
-            <div>
-              mirror.xyz
-            </div>
-            <div>
-              telegram
-            </div>
-            <div>
-              twitter
-            </div>
-          </div>
-        
-        
-        </div>
-      </div>
-    
-    </div>
-  )
-}
-
-
 export const NavBars = (props: PropsWithChildren<{}>) => {
   const organisation = useOrgStore();
   const router = useRouter();
@@ -291,13 +221,11 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
         {/* <Footer /> */}
       </div>
       : 
-        <div className="flex flex-col items-center justify-start items-start w-full h-full">
+        <div className=" w-full h-full flex flex-col justify-center items-center">
           <Header /> 
-          <main className="grow max-w-screen-lg h-fit w-full flex flex-col gap-3 py-16 px-2 justify-center overflow-y-scroll border border-red-500">
-            {props.children}
-            
+          <main className="max-w-screen-lg w-full h-full grid grid-cols-1 justify-items-start content-start overflow-y-scroll px-2 pt-20 pb-20">
+            {props.children}   
           </main>
-          <div className = "w-full min-h-60 bg-blue-500"/> 
           <NavigationSmallScreen /> 
         </div>
       }

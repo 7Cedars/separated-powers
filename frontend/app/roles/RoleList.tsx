@@ -12,9 +12,11 @@ import { separatedPowersAbi } from "@/context/abi";
 import { readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { setRole } from "@/context/store"
+import { useOrganisations } from "@/hooks/useOrganisations";
 
 export function RoleList() {
   const organisation = useOrgStore();
+  const { organisations, status: statusUpdate, initialise, fetch, update } = useOrganisations()
   const router = useRouter();
 
   const [status, setStatus] = useState<Status>('idle')
@@ -23,6 +25,7 @@ export function RoleList() {
 
   const fetchRoleHolders = useCallback(
     async (roleIds: bigint[]) => {
+      console.log("fetchRoleHolder TRIGGERED")
       let roleId: number; 
       let rolesFetched: Roles[] = []; 
       let lawsFetched: number[]; 
@@ -66,11 +69,12 @@ export function RoleList() {
           Roles
         </div>
         <button 
-          className="w-fit h-fit p-2 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500"
-          onClick = {() => fetchRoleHolders(organisation.roles)}
+          className="w-fit h-fit p-1 rounded-md border-slate-500"
+          onClick = {() => update(organisation)}
           >
             <ArrowPathIcon
-              className="w-4 h-4 text-slate-800"
+              className="w-5 h-5 text-slate-800 aria-selected:animate-spin"
+              aria-selected={statusUpdate == 'pending'}
               />
         </button>
       </div>

@@ -80,6 +80,40 @@ export const useOrganisations = () => {
     }
   }
 
+  const fetchActiveLaws = async (organisations: Organisation[]) => {
+    let organisation: Organisation
+    let law: Law
+    let activeLaws: Law[] = []
+    let orgsWithActiveLaws: Organisation[] = []
+
+    if (publicClient) {
+      try {
+        for await (organisation of organisations) {
+          if (organisation?.contractAddress && organisation?.laws) {
+            for await (law of organisation.laws) {
+              const activeLaw = await readContract(wagmiConfig, {
+                abi: separatedPowersAbi,
+                address: organisation.contractAddress,
+                functionName: 'getActiveLaw', 
+                args: [law.law]
+              })
+              const active = activeLaw as boolean
+              console.log({law, active})
+              if (active) activeLaws.push(law) 
+            }
+          } 
+          const orgActiveLaws: Law[] = activeLaws.filter(law => law.separatedPowers == organisation.contractAddress) 
+          orgsWithActiveLaws.push({...organisation, activeLaws: orgActiveLaws})
+        } 
+        return orgsWithActiveLaws
+      } catch (error) {
+        setStatus("error") 
+        setError(error)
+      }
+    }
+  }
+
+
   const fetchProposals = async (organisations: Organisation[]) => {
     let organisation: Organisation
     let orgsWithProposals: Organisation[] = []
@@ -120,36 +154,84 @@ export const useOrganisations = () => {
     }
   }
 
-  
-
-  const fetchOrganisations = useCallback(
+  const fetch = useCallback(
     async () => {
-      setStatus("pending")
 
-      let localStore = localStorage.getItem("powersProtocol_savedOrgs")
-      const saved: Organisation[] = localStore ? JSON.parse(localStore) : []
-          
+      setStatus("pending")
+      console.log("waypoint 3: fetch called")
+      
       let orgsWithLaws: Organisation[] | undefined
+      let orgsWithActiveLaws: Organisation[] | undefined
       let orgsWithProposals: Organisation[] | undefined 
 
       const fetchedOrganisations = await getOrganisations()
-      if (fetchedOrganisations && saved.length == 0) {
+      if (fetchedOrganisations) {
+        console.log("waypoint 4")
         orgsWithLaws = await fetchLaws(fetchedOrganisations)
       }
       if (orgsWithLaws) {
-        orgsWithProposals = await fetchProposals(orgsWithLaws)
+        console.log("waypoint 5")
+        orgsWithActiveLaws = await fetchActiveLaws(orgsWithLaws)
       }
-      if (orgsWithProposals && saved.length == 0) {
+      if (orgsWithActiveLaws) {
+        console.log("waypoint 6")
+        orgsWithProposals = await fetchProposals(orgsWithActiveLaws)
+      }
+      if (orgsWithProposals) {
+        console.log("waypoint 7")
         setOrganisations(orgsWithProposals)
         localStorage.setItem("powersProtocol_savedOrgs", JSON.stringify(orgsWithProposals, (key, value) =>
           typeof value === "bigint" ? Number(value) : value,
         ));
-
-      } else if (saved.length > 0) {
-        setOrganisations(saved)
+        console.log("waypoint 8")
+        setStatus("success")
       }
-      setStatus("success")
-    }, [ ])
+    }, [ ]
+  )
 
-  return {status, error, organisations, fetchOrganisations}
+  const initialise = () => {
+      console.log("waypoint 1: initialise called")
+      setStatus("pending")
+      let localStore = localStorage.getItem("powersProtocol_savedOrgs")
+      const saved: Organisation[] = localStore ? JSON.parse(localStore) : []
+      console.log("waypoint 2: local storage queried:", {saved})
+
+      saved.length == 0 ? fetch() : setOrganisations(saved)
+      setStatus("success")  
+    } 
+
+    
+  const update = useCallback(
+    async (organisation: Organisation) => {
+      setStatus("pending")
+
+      let localStore = localStorage.getItem("powersProtocol_savedOrgs")
+      const saved: Organisation[] = localStore ? JSON.parse(localStore) : []
+
+      let orgWithLaws: Organisation[] | undefined
+      let orgWithActiveLaws: Organisation[] | undefined
+      let orgWithProposals: Organisation[] | undefined 
+
+      orgWithLaws = await fetchLaws([organisation])
+      if (orgWithLaws) {
+        orgWithActiveLaws = await fetchActiveLaws(orgWithLaws)
+      }
+      if (orgWithActiveLaws) {
+        orgWithProposals = await fetchProposals(orgWithActiveLaws)
+      }
+      if (orgWithProposals && saved.length > 0) {
+        const updatedOrgs: Organisation[] = saved.map(org => 
+          organisation.contractAddress == org.contractAddress ? 
+          orgWithProposals[0] : org)
+        
+          setOrganisations(updatedOrgs)
+          localStorage.setItem("powersProtocol_savedOrgs", JSON.stringify(updatedOrgs, (key, value) =>
+            typeof value === "bigint" ? Number(value) : value,
+          ));
+      
+        setStatus("success")
+      }
+  }, [])
+
+  return {status, error, organisations, initialise, fetch, update}
 }

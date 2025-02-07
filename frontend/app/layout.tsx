@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { ThemeProvider } from "@/context/Theme";
 import { Providers } from "../context/Providers"
-import { Footer, NavBars } from "../components/NavBars";
+import { NavBars } from "../components/NavBars";
 import "./globals.css";
 
 export const metadata: Metadata = {

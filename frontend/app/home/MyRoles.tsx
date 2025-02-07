@@ -20,7 +20,7 @@ export function MyRoles({hasRoles}: MyRolesProps ) {
           onClick={() => router.push('/roles') } 
           className="w-full border-b border-slate-300"
         >
-        <div className="w-full flex flex-row gap-6 items-center justify-between p-2 ps-3">
+        <div className="w-full flex flex-row gap-6 items-center justify-between p-2 ps-4">
           <div className="text-left text-sm text-slate-600 w-52">
             My roles
           </div> 
@@ -33,7 +33,7 @@ export function MyRoles({hasRoles}: MyRolesProps ) {
       authenticated ? 
       <div className = "w-full flex flex-col justify-center items-center max-h-48 overflow-y-scroll divider-slate-300 divide-y">
            <div className ={`w-full p-1`}>
-            <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center   rounded-md p-2`}>
+            <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-2`}>
               <div className = "w-full flex flex-row justify-start items-center text-left">
               Public
               </div>
@@ -47,7 +47,7 @@ export function MyRoles({hasRoles}: MyRolesProps ) {
         myRoles?.map((role: {role: bigint, since: bigint}, i) =>
           role.role == 4294967295n ? null :
           <div className ={`w-full p-1`}>
-            <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md p-2`}>
+            <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-2`}>
               <div className = "w-full flex flex-row justify-start items-center text-left">
                 {/* need to get the timestamp.. */}
                 {
