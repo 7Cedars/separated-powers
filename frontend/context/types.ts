@@ -28,7 +28,7 @@ export type Metadata = {
 export type Token = {
   name?: string; 
   symbol?: string; 
-  type?: "erc20" | "erc721" | "erc1155";  
+  type?: "erc20" | "erc721" | "erc1155" | "native";  
   balance: bigint; 
   decimals?: bigint; 
   address?: `0x${string}`; 
@@ -45,10 +45,11 @@ export type ChainProps = {
   nativeCurrency?: {
     name: string;
     symbol: string;
-    decimals: number;
+    decimals: bigint;
   };
   blockExplorerUrl?: string;
   iconUrl?: string;
+  organisations?: `0x${string}`[]; 
   erc20s?: `0x${string}`[];
   erc721s?: `0x${string}`[];
   erc1155s?: `0x${string}`[];

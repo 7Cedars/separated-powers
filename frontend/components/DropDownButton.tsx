@@ -35,7 +35,7 @@ const roleBorderColour = [
   "aria-selected:bg-slate-200 md:hover:border-slate-600 border-slate-300"
 ]
 
-export const Button = ({
+export const DropDownButton = ({
   statusButton = 'idle', 
   showBorder = true,
   selected = false, 

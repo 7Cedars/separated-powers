@@ -6,34 +6,13 @@ import { publicClient } from "@/context/clients"
 import { useOrgStore } from "@/context/store"
 import { Status, Token } from "@/context/types"
 import { useCallback, useState } from "react"
-import { useBlockNumber, useChainId } from "wagmi"
+import { useBalance, useBlockNumber, useChainId } from "wagmi"
 import { Abi, Hex, Log, parseEventLogs, ParseEventLogsReturnType } from "viem"
 import { readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/context/wagmiConfig"
 import { parse1155Metadata, parseMetadata } from "@/utils/parsers"
 
 // NB! ALSO retrieve balance in native currency! 
-// Read events of transfer ownership to protocol contract. - problem is: will NOT have info on what TYPE of token it is. 
-// can I build a hook that is token ambivalent? 
-// Issue is: how to deal with tokenIds of ERC1155s? -- maybe check for first ten ids? -- and not it in the code.  
-//  
-//  
-
-// step 2: check on TYPE of token: ERC20, ERC 721, ERC1155, or unsupported.  
-//
-// step 3: use UseReadContracts to fetch following data for ERC20, ERC 721, ERC1155: (will have to do so for each separately)
-//   - name 
-//   - symbol
-//   - decimals (erc20 only?)
-//   - totalSupply (at ERC1155: ask for a whole bunch of tokens.)
-//   - balanceOf  (ERC20) 
-//   - balanceOfBatch (ERC1155) - fetch all tokens in one go. 
-//  
-// step 4: use API from (coinGecko, coinbase, chainlink?) to fetch (can do this for ERC20 & ERC1155 together.  ): 
-//   - price per unit in ETH
-// 
-// step 5: load exchange rate Eth to fiat currencies: USD, EUR, GBP, YEN ... 
-// 
 
 export const useAssets = () => {
   const [status, setStatus ] = useState<Status>("idle")
@@ -41,6 +20,9 @@ export const useAssets = () => {
   const [tokens, setTokens] = useState<Token[]>()
   const organisation = useOrgStore()
   const chainId = useChainId()
+  const {data: native, status: statusBalance}  = useBalance({
+    address: organisation.contractAddress
+  }) 
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
   const blockNumber = useBlockNumber()
 
@@ -49,8 +31,9 @@ export const useAssets = () => {
      let tokens: Token[] = [] 
  
      if (publicClient) {
-       try {
          for await (token of tokenAddresses) {
+          try {
+            console.log("fetching token: ", token)
            if (organisation?.contractAddress) {
             const name = await readContract(wagmiConfig, {
               abi: type ==  "erc20" ? erc20Abi : erc721Abi,
@@ -110,14 +93,15 @@ export const useAssets = () => {
             console.log({tokens, nameParsed, symbolParsed, balanceParsed, decimalParsed, type})
               
            } 
-         } 
-         return tokens
-       } catch (error) {
-         setStatus("error") 
-         setError(error)
-       }
-     }
-   }
+         } catch (error) {
+          setStatus("error") 
+          setError({error, token})
+         }
+         
+       } 
+    } return tokens
+  }
+
 
   const fetch1155s = async (erc1155Addresses: `0x${string}`[]) => {
     let token: `0x${string}`
@@ -127,15 +111,15 @@ export const useAssets = () => {
     
 
     if (publicClient) {
-      try {
         for await (token of erc1155Addresses) {
+          try {
            const AccountsToCheck: `0x${string}`[] = new Array(Ids).fill(token);
            console.log({AccountsToCheck})
            const balancesRaw = await readContract(wagmiConfig, {
              abi: erc1155Abi,
              address: token,
              functionName: 'balanceOfBatch', 
-             args: [[AccountsToCheck[0]], [0n]] 
+             args: [AccountsToCheck, IdsToCheck] 
            })
            const balancesParsed: bigint[] = balancesRaw as bigint[]
            
@@ -151,12 +135,12 @@ export const useAssets = () => {
            const result: Token[] = erc1155.filter(token => token != undefined)
            erc1155s = result ? [...erc1155s, ...result] : erc1155s
            console.log({erc1155s})     
+        } catch (error) {
+          setStatus("error") 
+          setError({token, error})
         }
         return erc1155s
-      } catch (error) {
-        setStatus("error") 
-        setError(error)
-      }
+      } 
     }
   }
 
@@ -232,37 +216,5 @@ export const useAssets = () => {
         setStatus("idle") //NB note: after checking status, sets the status back to idle! 
   }, [ ])
 
-  return {status, error, tokens, fetchTokens}
+  return {status, error, tokens, native, fetchTokens}
 }
-  
-
-// }
-
-// const mockErc20Contract  = {
-//   address: supportedChain?.mockErc20?.address,
-//   abi: erc20Abi,
-// } as const
-// const mockErc1155Contract = {
-//   address: supportedChain?.mockErc1155?.address,
-//   abi: erc1155Abi,
-// } as const
-
-// const {isSuccess, status, data, refetch} = useReadContracts({
-//   contracts: [
-//     {
-//       ...mockErc20Contract,
-//       functionName: 'balanceOf', 
-//       args: [organisation.contractAddress],
-//     },
-//     {
-//       ...mockErc1155Contract,
-//       functionName: 'balanceOf', 
-//       args: [organisation.contractAddress, 0],
-//     }
-//   ]
-// })
-// if (isSuccess) {
-//   balances = data.map((item: any) => Number(item.result))
-// }
-
-// console.log({status})

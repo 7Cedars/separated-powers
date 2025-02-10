@@ -17,9 +17,9 @@ export function AssetList() {
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
   let balances: number[] = []; 
-  const {status, error, tokens, fetchTokens } = useAssets()
+  const {status, error, tokens, native, fetchTokens } = useAssets()
 
-  console.log({status, error, tokens})
+  console.log({status, error, tokens, native})
 
   return (
     <div className="w-full flex flex-col justify-start items-center bg-slate-50 border border-slate-200 rounded-md overflow-hidden">
@@ -55,15 +55,26 @@ export function AssetList() {
               <th className="font-light"> TokenId </th>
               <th className="font-light"> Address </th>
               <th className="font-light"> Quantity </th>
-              <th className="font-light"> Value (Eth) </th>
+              <th className="font-light"> Decimals </th>
+              <th className="font-light"> {`Value (${native?.symbol})`} </th>
               {/* here add button to switch between USD, EUR and GBP + maybe YEN, ? other currency */}
               <th className="font-light"> Value </th> 
           </tr>
         </thead>
         <tbody className="w-full text-sm text-right text-slate-500 divide-y divide-slate-200">
+            <tr className={`text-sm text-left text-slate-500 h-16 overflow-x-scroll`}>
+                <td className="ps-6 py-2"> {supportedChain?.nativeCurrency?.name} </td>
+                <td className=""> {native?.symbol} </td>
+                <td className=""> Native </td>
+                <td className=""> - </td>
+                <td className=""> - </td>
+                <td className=""> {String(native?.value)} </td>
+                <td className=""> {native?.decimals} </td>
+                <td className=""> {String(native?.value)} </td>
+            </tr>
           {
             tokens?.map((token: Token, i) => 
-              <tr className={`text-sm text-left text-slate-500 h-16 overflow-x-scroll`}>
+              <tr className={`text-sm text-left text-slate-500 h-16 overflow-x-scroll`} key = {i}>
                 <td className="ps-6 py-2"> {token.name} </td>
                 <td className=""> {token.symbol} </td>
                 <td className=""> {token.type} </td>
@@ -77,13 +88,12 @@ export function AssetList() {
                     <ArrowUpRightIcon
                     className="w-4 h-4 text-slate-500"
                     />
-
                   </a>
-                  
                 </td>
                 <td className=""> {String(token.balance)} </td>
+                <td className=""> {token.decimals ? String(token.decimals) : ` - `}</td>
                 <td className=""> {token.valueEth  ? token.valueEth : ` - `} </td>
-                <td className=""> { ` - `} </td>
+                <td className=""> {` - `} </td>
               </tr>
               )
             }

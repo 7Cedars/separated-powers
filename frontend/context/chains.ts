@@ -19,9 +19,24 @@ export const supportedChains: ChainProps[] = [
     network: "arbitrumSepolia",
     blockExplorerUrl: "https://sepolia.arbiscan.io",
     genesisBlock: 111800000n,
-    erc20s: [`0x96B8FDE7522cB57aD19478637033607732412B84`], 
-    erc721s: [`0x535a7772dC1e3B3a5Fe25b7727546110468AbCf3`], 
-    erc1155s: [`0x5818B5aeE55696900479eCd410DEC1114c63E430`]
+    organisations: [],
+    nativeCurrency: {
+      name: "Ether", 
+      symbol: "ETH", 
+      decimals: 18n
+    }, 
+    erc20s: [
+      `0x96B8FDE7522cB57aD19478637033607732412B84`, // Mock 
+      `0xe97A5e6C4670DD6fDeA0B5C3E304110eB0e599d9`, // USDC contract
+      `0xA977E34e4B8583C6928453CC9572Ae032Cc3200a`, // USDS
+      `0xCd5261356706Fd4D8f417F9BffB9dBE575CaE996` // stEth 
+    ], 
+    erc721s: [
+      `0x535a7772dC1e3B3a5Fe25b7727546110468AbCf3` // Mock 
+    ], 
+    erc1155s: [
+      `0x5818B5aeE55696900479eCd410DEC1114c63E430` // Mock 
+    ]
   },
 
 ]
