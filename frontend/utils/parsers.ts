@@ -1,5 +1,5 @@
 import { ChangeEvent } from "react";
-import { InputType, DataType, Metadata, Attribute } from "../context/types"
+import { InputType, DataType, Metadata, Attribute, Token } from "../context/types"
 import { type UseReadContractsReturnType } from 'wagmi'
 import { decodeAbiParameters, hexToString } from 'viem'
 
@@ -321,6 +321,24 @@ export const parseMetadata = (metadata: unknown): Metadata => {
        }
       
     throw new Error('Incorrect data at program Metadata: some fields are missing or incorrect');
+};
+
+export const parse1155Metadata = (metadata: unknown): Token => {
+  if ( !metadata || typeof metadata !== 'object' ) {
+    throw new Error('Incorrect or missing data');
+  }
+
+  // I can always add more to this logic if I think it is needed... 
+  let result: Token = {
+    name: "unknown",
+    symbol: "unknown", 
+    balance: 0n
+  }
+
+  if ( 'name' in metadata) { result.name =  metadata.name as string }
+  if ( 'symbol' in metadata) { result.symbol =  metadata.symbol as string }
+
+  return result
 };
 
 export const parseProposalStatus = (state: number | undefined): string => {

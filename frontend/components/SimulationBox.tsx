@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
-import { parseParamValues, parseParams } from "@/utils/parsers";
+import { bytesToParams, parseParamValues, parseParams } from "@/utils/parsers";
 import { decodeAbiParameters, parseAbiParameters } from "viem";
 import { LawSimulation } from "@/context/types";
 
@@ -18,9 +18,9 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
   const { data, isLoading, isError, error: stateVarsError } = useReadContract({
         abi: lawAbi,
         address: law.law,
-        functionName: 'getStateVars'
+        functionName: 'stateVars'
       })
-  const dataTypes = parseParams(data ? data as string[] : [])
+  const dataTypes = bytesToParams(data as `0x${string}`)
     
   useEffect(() => {
 

@@ -37,8 +37,6 @@ export function LawBox() {
       })
 
   console.log({data, isLoading, isError, errorInputParams})
-  // bytesToParams(data as `0x${string}`)
-  // const dataTypes: DataType[] = []
   const dataTypes =  bytesToParams(data as `0x${string}`)  
   const {wallets} = useWallets();
 
