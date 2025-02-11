@@ -11,14 +11,16 @@ import {notUpToDate} from "@/context/store"
 
 type InputProps = {
   dataType: DataType;
+  varName: string;
   values: InputType | InputType[]
   onChange: (input: InputType | InputType[]) => void;
 }
 
-export function DynamicInput({dataType, onChange}: InputProps) {
+export function DynamicInput({dataType, varName, onChange}: InputProps) {
   const [inputArray, setInputArray] = useState<InputType[]>(new Array<InputType>(1))
   const [itemsArray, setItemsArray] = useState<number[]>([0])
   const [error, setError] = useState<String>()
+  console.log({varName})
 
   const inputType = 
     dataType.indexOf('uint') > -1 ? "number"
@@ -73,8 +75,8 @@ export function DynamicInput({dataType, onChange}: InputProps) {
     <div className="w-full flex flex-col justify-center items-center">
       {itemsArray.map((item) =>  
           <section className="w-full mt-4 flex flex-row justify-center items-center gap-4 px-6">
-            <div className="text-sm/6 block min-w-16 font-medium text-slate-600">
-              {`${dataType}`.replace(/\[\]/g, '')}
+            <div className="text-sm block min-w-20 font-medium text-slate-600">
+              {varName}
             </div>
 
             {

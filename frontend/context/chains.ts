@@ -20,8 +20,8 @@ export const supportedChains: ChainProps[] = [
     blockExplorerUrl: "https://sepolia.arbiscan.io",
     genesisBlock: 111800000n,
     organisations: [
-      "0xc70A1A95157Ba7cB7e9fC24F9f91a3B9414ba8a6", // alignedDao ?
-      "0x7d4cA83bF92655CF6Ea3fe534765428CBA3E6a55" // basicDao ? 
+      "0x40dC3d837DAfF68E2163887d9570a23bb126ECFb", // alignedDao ?
+      "0x0B52f0b406B3Aaa753717474aC1eC8F72c8dCF9d" // basicDao ? 
     ],
     nativeCurrency: {
       name: "Ether", 

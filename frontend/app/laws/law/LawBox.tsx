@@ -37,10 +37,12 @@ export function LawBox() {
       })
 
   console.log({data, isLoading, isError, errorInputParams})
-  const dataTypes =  bytesToParams(data as `0x${string}`)  
+  const params =  bytesToParams(data as `0x${string}`)  
+  const dataTypes = params.map(param => param.dataType) 
+  const varNames = params.map(param => param.varName) 
   const {wallets} = useWallets();
 
-  const [paramValues, setParamValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(dataTypes.length)); // NB! String has to be converted to hex using toHex before being able to use as input.  
+  const [paramValues, setParamValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(params.length)); // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
@@ -120,11 +122,11 @@ export function LawBox() {
       {/* dynamic form */}
       <form action="" method="get" className="w-full">
         {
-          dataTypes.map((dataType, index) => 
-            <DynamicInput dataType = {dataType} values = {paramValues[index]} onChange = {(input)=> {handleChange(input, index)}}/>)
+          params.map((param, index) => 
+            <DynamicInput dataType = {param.dataType} varName = {param.varName} values = {paramValues[index]} onChange = {(input)=> {handleChange(input, index)}}/>)
         }
-        <div className="w-full mt-4 flex flex-row justify-center items-start px-3 pb-4 min-h-24">
-          <label htmlFor="reason" className="text-sm text-slate-600 pb-1 pe-8 ps-3">Reason</label>
+        <div className="w-full mt-4 flex flex-row justify-center items-start ps-3 pe-6 pb-4 min-h-24">
+          <label htmlFor="reason" className="text-sm text-slate-600 pb-1 pe-12 ps-3">Reason</label>
           <div className="w-full h-fit flex items-center text-md justify-start rounded-md bg-white pl-3 outline outline-1 outline-slate-300">
               <textarea 
                 name="reason" 

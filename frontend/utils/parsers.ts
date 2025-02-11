@@ -74,7 +74,7 @@ export const parseParams = (params: string[]): DataType[]  => {
           
           case "0xc1053bda": return "bool";
           case "0x8761250c": return "bool[]"; 
-      
+       
           default:
             return "unsupported";
         } 
@@ -95,12 +95,14 @@ export const bytesToParams = (bytes: `0x${string}`): {varName: string, dataType:
   const raw = string.split(`\u0000`).filter(item => item.length > 3)
   const cleanString = raw.map(item => item.slice(1)) as string[]
   const result = cleanString.map(item => {
-    const items = item.split(" ")
+  const items = item.split(" ")
     return ({
       varName: items[1] as string, 
       dataType: items[0] as DataType
     })
   })
+
+  console.log("@bytesToParams", {string, raw, cleanString, result})
 
   return result
 }

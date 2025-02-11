@@ -45,10 +45,7 @@ contract DeployGovernYourTax is Script {
             address payable dao, 
             address[] memory constituentLaws, 
             HelperConfig.NetworkConfig memory config, 
-            address payable mock20_, 
-            address payable mock20Taxed_, 
-            address payable mock721_, 
-            address payable mock1155_
+            address payable mock20Taxed_
             )
     {
         HelperConfig helperConfig = new HelperConfig();
@@ -58,42 +55,30 @@ contract DeployGovernYourTax is Script {
         SeparatedPowers separatedPowers = new SeparatedPowers(
             "Govern Your Tax", 
             "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreid7bb6jueiqjn4mpkcy5ob7w6ulksfntobbwbn4feehvzjwe3tufe");
-
-        Erc20VotesMock erc20VotesMock = new Erc20VotesMock(); 
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
             7, // rate
             100, // denominator  
             50400 // 7% tax, (tax = 7, denominator = 2),  50400 block epoch.
         );
-        Erc721Mock erc721Mock = new Erc721Mock();
-        Erc1155Mock erc1155Mock = new Erc1155Mock(); 
         vm.stopBroadcast();
 
         dao = payable(address(separatedPowers));
-        mock20_ = payable(address(erc20VotesMock)); 
         mock20Taxed_ = payable(address(erc20TaxedMock)); 
-        mock721_ = payable(address(erc721Mock));
-        mock1155_ = payable(address(erc1155Mock));
-        initiateConstitution(dao, mock20_, mock20Taxed_, mock721_, mock1155_);
-
+        initiateConstitution(dao, mock20Taxed_);
 
         // constitute dao.
         vm.startBroadcast();
         separatedPowers.constitute(laws);
         // transferring ownership of erc721 and erc20Taxed token contracts.. 
-        erc721Mock.transferOwnership(address(separatedPowers));
         erc20TaxedMock.transferOwnership(address(separatedPowers));
         vm.stopBroadcast();
 
-        return (dao, laws, config, mock20_, mock20Taxed_, mock721_, mock1155_);
+        return (dao, laws, config, mock20Taxed_);
     }
 
     function initiateConstitution(
         address payable dao_,
-        address payable mock20Votes_,
-        address payable mock20Taxed_,
-        address payable mock721_,
-        address payable mock1155_
+        address payable mock20Taxed_
     ) public {
         Law law;
         ILaw.LawConfig memory lawConfig;
@@ -430,6 +415,5 @@ contract DeployGovernYourTax is Script {
         );
         vm.stopBroadcast();
         laws.push(address(law));
-        delete lawConfig;
     }
 }

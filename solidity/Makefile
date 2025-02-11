@@ -42,13 +42,11 @@ OPT_SEPOLIA_DEPLOY_ARGS := --rpc-url $(OPT_SEPOLIA_RPC_URL) --account dev_2 --se
 anvilTest :; forge test $(ANVIL_ARGS_0)
 arbSepoliaForkedTest :; forge test ${ARB_SEPOLIA_TEST_ARGS}
 
-anvilDeployMocks :; forge script script/DeployMocks.s.sol:DeployMocks $(ANVIL_ARGS_0)
 anvilDeployBasic :; forge script script/DeployBasicDao.s.sol:DeployBasicDao $(ANVIL_ARGS_0)
 anvilDeployAligned :; forge script script/DeployAlignedDao.s.sol:DeployAlignedDao $(ANVIL_ARGS_0)
 anvilDeployTax :; forge script script/DeployGovernYourTax.s.sol:DeployGovernYourTax $(ANVIL_ARGS_0)
 anvilDeployRoles  :; forge script script/DeployDiversifiedRoles.s.sol:DeployDiversifiedRoles $(ANVIL_ARGS_0)
 
-arbSepoliaDeployMocks :; forge script script/DeployMocks.s.sol:DeployMocks $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaDeployBasic :; forge script script/DeployBasicDao.s.sol:DeployBasicDao $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaDeployAligned :; forge script script/DeployAlignedDao.s.sol:DeployAlignedDao $(ARB_SEPOLIA_DEPLOY_ARGS)
 arbSepoliaDeployTax :; forge script script/DeployGovernYourTax.s.sol:DeployGovernYourTax $(ARB_SEPOLIA_DEPLOY_ARGS)
