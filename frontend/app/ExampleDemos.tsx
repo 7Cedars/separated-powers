@@ -15,7 +15,7 @@ export function ExampleDemos() {
   }, [, organisations])
 
   return (
-    <section className = "w-full min-w-[60vw] min-h-[90vh] grow flex flex-col justify-between items-center snap-start px-4 pb-10"> 
+    <section className = "w-full min-w-[60vw] min-h-[80vh] grow flex flex-col justify-start items-center snap-start px-4 pb-10"> 
       <div> 
         <div className = "w-full flex flex-row justify-center items-center text-3xl text-slate-600 text-center text-pretty font-bold pt-16 px-4">
             Want to play around with a live demo?

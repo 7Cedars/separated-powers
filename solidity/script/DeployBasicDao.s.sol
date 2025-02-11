@@ -80,10 +80,10 @@ contract DeployBasicDao is Script {
         //////////////////////////////////////////////////////////////
 
         // law[0]
-        string[] memory paramsAction = new string[](3);
-        paramsAction[0] = "address[]"; // targets
-        paramsAction[1] = "uint256[]"; // values
-        paramsAction[2] = "bytes[]"; // calldatas
+        string[] memory inputParams = new string[](3);
+        inputParams[0] = "address[] Targets"; // targets
+        inputParams[1] = "uint256[] Values"; // values
+        inputParams[2] = "bytes[] Calldatas"; // calldatas
         // setting config.
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
@@ -96,7 +96,7 @@ contract DeployBasicDao is Script {
             dao_,
             2, // access role
             lawConfig,
-            paramsAction
+            inputParams
         );
         vm.stopBroadcast();
         laws.push(address(law));
@@ -110,7 +110,7 @@ contract DeployBasicDao is Script {
             dao_,
             0, // access role
             lawConfig,
-            paramsAction
+            inputParams
         );
         vm.stopBroadcast();
         laws.push(address(law));

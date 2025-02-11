@@ -38,8 +38,11 @@ contract StringsArray is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams = abi.encode("string", "bool");
-        stateVars = abi.encode("string", "bool");
+        inputParams = abi.encode(
+            "string String", 
+            "bool Add"
+            );
+        stateVars = inputParams;
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)

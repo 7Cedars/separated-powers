@@ -54,9 +54,9 @@ contract ElectionCall is Law {
         address tallyVote_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams = abi.encode(
-            "string", // description = a description of the election.
-            "uint48", // startVote = the start date of the election.
-            "uint48" // endVote = the end date of the election.
+            "string Description", // description = a description of the election.
+            "uint48 StartVote", // startVote = the start date of the election.
+            "uint48 EndVote" // endVote = the end date of the election.
         );
         stateVars = inputParams; // Note: stateVars == inputParams.
 

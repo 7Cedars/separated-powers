@@ -35,7 +35,7 @@ contract ReinstateRole is Law {
         LawConfig memory config_,
         address erc721Token_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams = abi.encode("uint256", "address"); // token id, account
+        inputParams = abi.encode("uint256 TokenId", "address Account"); // token id, account
         erc721Token = erc721Token_;
     }
 

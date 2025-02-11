@@ -44,10 +44,10 @@ contract AiAgents is Law {
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams = abi.encode(
-            "string", // name
-            "address", // account
-            "string", // uri
-            "bool" // add
+            "string Name", // name
+            "address Account", // account
+            "string Uri", // uri
+            "bool Add" // add
         );
     }
 

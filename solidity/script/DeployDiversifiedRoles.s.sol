@@ -111,12 +111,12 @@ contract DeployDiverseRoles is Script {
         lawConfig.votingPeriod = 1200; // = number of blocks
         // setting up params
         string[] memory inputParams = new string[](6); // same as DeployRoleByKyc inputParams
-        inputParams[0] = "string"; // name
-        inputParams[1] = "string"; // description
-        inputParams[2] = "uint16[]"; // nationalities
-        inputParams[3] = "uint16[]"; // countries of residence
-        inputParams[4] = "int64"; // olderThan
-        inputParams[5] = "int64"; // youngerThan
+        inputParams[0] = "string Name"; // name
+        inputParams[1] = "string Description"; // description
+        inputParams[2] = "uint16[] Nationalities"; // nationalities
+        inputParams[3] = "uint16[] residentCountries"; // countries of residence
+        inputParams[4] = "int64 olderThan"; // olderThan
+        inputParams[5] = "int64 youngerThan"; // youngerThan
         // initiating law.
         vm.startBroadcast();
         law = new ProposalOnly(
@@ -156,10 +156,10 @@ contract DeployDiverseRoles is Script {
         lawConfig.votingPeriod = 1200; // = number of blocks
         // setting up params
         inputParams = new string[](4); // same as AiAgents inputParams
-        inputParams[0] = "string"; // name
-        inputParams[1] = "address"; // account
-        inputParams[2] = "string"; // uri
-        inputParams[3] = "bool"; // add
+        inputParams[0] = "string Name"; // name
+        inputParams[1] = "address Account"; // account
+        inputParams[2] = "string Uri"; // uri
+        inputParams[3] = "bool Add"; // add
         // initiating law.
         vm.startBroadcast();
         law = new ProposalOnly(

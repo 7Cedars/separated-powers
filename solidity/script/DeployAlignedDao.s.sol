@@ -98,8 +98,8 @@ contract DeployAlignedDao is Script {
         lawConfig.votingPeriod = 1200; // = number of blocks
         // setting up params
         string[] memory inputParams = new string[](2);
-        inputParams[0] = "string";
-        inputParams[1] = "bool";
+        inputParams[0] = "string Value";
+        inputParams[1] = "bool Add";
         // initiating law.
         vm.startBroadcast();
         law = new ProposalOnly(
@@ -157,8 +157,8 @@ contract DeployAlignedDao is Script {
         lawConfig.needCompleted = laws[2];
         // input params
         inputParams = new string[](2);
-        inputParams[0] = "uint256";
-        inputParams[1] = "address";
+        inputParams[0] = "uint256 TokenId";
+        inputParams[1] = "address Account";
         // initiating law
         vm.startBroadcast();
         law = new ProposalOnly(

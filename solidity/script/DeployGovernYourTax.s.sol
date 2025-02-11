@@ -107,9 +107,9 @@ contract DeployGovernYourTax is Script {
         lawConfig.votingPeriod = 1200; // = number of blocks
         // setting up params
         string[] memory inputParams = new string[](3);
-        inputParams[0] = "address"; // grantee
-        inputParams[1] = "address"; // grant Law address
-        inputParams[2] = "uint256"; // amount
+        inputParams[0] = "address Grantee"; // grantee
+        inputParams[1] = "address Grant"; // grant Law address
+        inputParams[2] = "uint256 Quantity"; // amount
         // initiating law.
         vm.startBroadcast();
         // Note: the grant has its token pre specified.
@@ -163,7 +163,7 @@ contract DeployGovernYourTax is Script {
         lawConfig.votingPeriod = 120; // = number of blocks for vote.
         // input params
         inputParams = new string[](1);
-        inputParams[0] = "address";
+        inputParams[0] = "address Law";
         // initiating law.
         vm.startBroadcast();
         law = new BespokeAction(
@@ -209,7 +209,7 @@ contract DeployGovernYourTax is Script {
         lawConfig.votingPeriod = 1200; // = number of blocks voting period. 
         // bespoke inputParams 
         inputParams = new string[](1);
-        inputParams[0] = "uint256"; // number of tokens to mint. 
+        inputParams[0] = "uint256 Quantity"; // number of tokens to mint. 
         vm.startBroadcast();
         law = new BespokeAction(
             "Mint tokens",

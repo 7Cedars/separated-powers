@@ -47,8 +47,12 @@ contract TokensArray is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams = abi.encode("address", "uint256", "bool");
-        stateVars = abi.encode("address", "uint256", "bool");
+        inputParams = abi.encode(
+            "address TokenAddress", 
+            "uint256 TokenType", 
+            "bool Add"
+            );
+        stateVars = inputParams;
     }
 
     function simulateLaw(address, /*initiator */ bytes memory lawCalldata, bytes32 descriptionHash)

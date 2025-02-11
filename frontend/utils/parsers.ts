@@ -87,15 +87,22 @@ export const parseParams = (params: string[]): DataType[]  => {
   return parsedParams
 }
 
-export const bytesToParams = (bytes: `0x${string}`): DataType[]  => {
+export const bytesToParams = (bytes: `0x${string}`): {varName: string, dataType: DataType}[]  => {
   if (!bytes) { // I can make it more specific later.
     return [] 
   }
   const string = hexToString(bytes) 
   const raw = string.split(`\u0000`).filter(item => item.length > 3)
-  const cleaned = raw.map(item => item.slice(1)) as DataType[]
+  const cleanString = raw.map(item => item.slice(1)) as string[]
+  const result = cleanString.map(item => {
+    const items = item.split(" ")
+    return ({
+      varName: items[1] as string, 
+      dataType: items[0] as DataType
+    })
+  })
 
-  return cleaned
+  return result
 }
 
 

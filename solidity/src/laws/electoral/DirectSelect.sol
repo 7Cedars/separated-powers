@@ -45,7 +45,10 @@ contract DirectSelect is Law {
         uint32 roleId_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         ROLE_ID = roleId_;
-        inputParams = abi.encode("bool", "address");
+        inputParams = abi.encode(
+            "bool Revoke", 
+            "address Account"
+            );
     }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)

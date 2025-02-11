@@ -42,14 +42,14 @@ contract StartGrant is Law {
         address proposals // the address where proposals to the grant are made.
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         inputParams = abi.encode(
-            "string", // name
-            "string", // description
-            "uint48", // duration
-            "uint256", // budget
-            "address", // tokenAddress
-            "uint256", // tokenType
-            "uint256", // tokenId
-            "uint32" // allowedRole
+            "string Name", // name
+            "string Description", // description
+            "uint48 Duration", // duration
+            "uint256 Budget", // budget
+            "address TokenAddress", // tokenAddress
+            "uint256 TokenType", // tokenType
+            "uint256 TokenId", // tokenId
+            "uint32 RoleId" // allowedRole
         );
         stateVars = inputParams; // Note: stateVars == inputParams.
 

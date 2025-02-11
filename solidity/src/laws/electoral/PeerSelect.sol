@@ -47,7 +47,9 @@ contract PeerSelect is Law {
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
         string[] memory paramArray = new string[](2);
-        inputParams = abi.encode("uint256", "bool"); // index, revoke
+        inputParams = abi.encode(
+            "uint256 Index", 
+            "bool Revoke"); 
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)

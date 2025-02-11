@@ -65,8 +65,8 @@ contract ElectionTally is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-        inputParams = abi.encode("address"); // peervote address
-        stateVars = abi.encode("address[]");
+        inputParams = abi.encode("address PeerVoteContract"); // peervote address
+        stateVars = abi.encode("address[] Elected");
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)

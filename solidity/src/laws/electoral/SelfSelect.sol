@@ -45,7 +45,7 @@ contract SelfSelect is Law {
         uint32 roleId_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         ROLE_ID = roleId_;
-        inputParams = abi.encode("bool");
+        inputParams = abi.encode("bool Revoke");
     }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)

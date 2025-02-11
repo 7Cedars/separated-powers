@@ -24,11 +24,13 @@ body {
 ::-webkit-scrollbar {
   width: 0px;
   height: 0px;
+  opacity: 0; 
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #aaaaaa00;
+  background: #aaaaaa;
   border-radius: 0px;
+  opacity: 0; 
 }
 
 

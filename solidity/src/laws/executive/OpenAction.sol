@@ -42,7 +42,11 @@ contract OpenAction is Law {
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        inputParams = abi.encode("address[]", "uint256[]", "bytes[]");
+        inputParams = abi.encode(
+            "address[] Targets", 
+            "uint256[] Values", 
+            "bytes[] CallDatas"
+            );
     }
 
     /// @notice Execute the open action.
