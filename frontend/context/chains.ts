@@ -19,7 +19,10 @@ export const supportedChains: ChainProps[] = [
     network: "arbitrumSepolia",
     blockExplorerUrl: "https://sepolia.arbiscan.io",
     genesisBlock: 111800000n,
-    organisations: [],
+    organisations: [
+      "0xc70A1A95157Ba7cB7e9fC24F9f91a3B9414ba8a6", // alignedDao ?
+      "0x7d4cA83bF92655CF6Ea3fe534765428CBA3E6a55" // basicDao ? 
+    ],
     nativeCurrency: {
       name: "Ether", 
       symbol: "ETH", 

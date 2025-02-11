@@ -33,7 +33,7 @@ export type Token = {
   decimals?: bigint; 
   address?: `0x${string}`; 
   tokenId?: number;
-  valueEth?: number; 
+  valueNative?: number; 
 }
 
 export type ChainProps = {
@@ -78,7 +78,7 @@ export type Law = {
 
 export type Organisation = {
   contractAddress: `0x${string}`;
-  name: string;
+  name?: string;
   colourScheme: number;
   laws?: Law[];
   activeLaws?: Law[];

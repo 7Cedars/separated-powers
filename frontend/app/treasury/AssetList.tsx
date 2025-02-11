@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useOrgStore } from "../../context/store";
 import { ArrowPathIcon, ArrowUpRightIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
@@ -17,9 +17,13 @@ export function AssetList() {
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
   let balances: number[] = []; 
-  const {status, error, tokens, native, fetchTokens } = useAssets()
+  const {status, error, tokens, native, initialise, update, fetchTokens} = useAssets()
 
   console.log({status, error, tokens, native})
+
+  useEffect(() => {
+    initialise() 
+  }, [])
 
   return (
     <div className="w-full flex flex-col justify-start items-center bg-slate-50 border border-slate-200 rounded-md overflow-hidden">
@@ -30,11 +34,7 @@ export function AssetList() {
         </div>
         <button 
           className="w-fit h-fit p-1 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 aria-selected:animate-spin"
-          onClick = {() => fetchTokens(
-            supportedChain?.erc20s ? supportedChain?.erc20s : [`0x0`], 
-            supportedChain?.erc721s ? supportedChain?.erc721s : [`0x0`], 
-            supportedChain?.erc1155s ? supportedChain?.erc1155s : [`0x0`]
-          )}
+          onClick = {() => initialise()}
           >
             <ArrowPathIcon
               className="w-5 h-5 text-slate-800"
@@ -51,11 +51,8 @@ export function AssetList() {
               {/* any N/A should just be shown with a simple '-' */}
               <th className="ps-6  py-2 font-light"> Asset </th> 
               <th className="font-light"> Symbol </th>
-              <th className="font-light"> Type </th>
-              <th className="font-light"> TokenId </th>
               <th className="font-light"> Address </th>
               <th className="font-light"> Quantity </th>
-              <th className="font-light"> Decimals </th>
               <th className="font-light"> {`Value (${native?.symbol})`} </th>
               {/* here add button to switch between USD, EUR and GBP + maybe YEN, ? other currency */}
               <th className="font-light"> Value </th> 
@@ -65,20 +62,16 @@ export function AssetList() {
             <tr className={`text-sm text-left text-slate-500 h-16 overflow-x-scroll`}>
                 <td className="ps-6 py-2"> {supportedChain?.nativeCurrency?.name} </td>
                 <td className=""> {native?.symbol} </td>
-                <td className=""> Native </td>
                 <td className=""> - </td>
-                <td className=""> - </td>
-                <td className=""> {String(native?.value)} </td>
-                <td className=""> {native?.decimals} </td>
-                <td className=""> {String(native?.value)} </td>
+                <td className=""> {String((Number(native?.value)/ 10 ** Number(native?.decimals)).toFixed(4))} </td>
+                <td className=""> {String((Number(native?.value)/ 10 ** Number(native?.decimals)).toFixed(4))} </td>
             </tr>
           {
             tokens?.map((token: Token, i) => 
+              token.balance > 0 ? 
               <tr className={`text-sm text-left text-slate-500 h-16 overflow-x-scroll`} key = {i}>
                 <td className="ps-6 py-2"> {token.name} </td>
                 <td className=""> {token.symbol} </td>
-                <td className=""> {token.type} </td>
-                <td className=""> {token.tokenId ? token.tokenId : ` - `} </td>
                 <td className="">
                   <a
                     href={`${supportedChain?.blockExplorerUrl}/address/${token.address}#code`} target="_blank" rel="noopener noreferrer"
@@ -90,11 +83,12 @@ export function AssetList() {
                     />
                   </a>
                 </td>
-                <td className=""> {String(token.balance)} </td>
-                <td className=""> {token.decimals ? String(token.decimals) : ` - `}</td>
-                <td className=""> {token.valueEth  ? token.valueEth : ` - `} </td>
+                <td className=""> {String((Number(token.balance)/ 10 ** Number(token.decimals)).toFixed(4))} </td>
+                <td className=""> {token.valueNative  ? token.valueNative : ` - `} </td>
                 <td className=""> {` - `} </td>
               </tr>
+              : 
+              null 
               )
             }
       </tbody>

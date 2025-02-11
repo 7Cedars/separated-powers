@@ -67,6 +67,8 @@ export const useAssets = () => {
               decimalParsed = decimal as bigint
             }
 
+            console.log({nameParsed, symbolParsed, balanceParsed, decimalParsed})
+
             // NB! still need to include a conditional decimal check for ERC20s. 
 
             if (nameParsed && symbolParsed && balanceParsed != undefined && type == "erc721") {
@@ -97,7 +99,6 @@ export const useAssets = () => {
           setStatus("error") 
           setError({error, token})
          }
-         
        } 
     } return tokens
   }
@@ -179,7 +180,7 @@ export const useAssets = () => {
       }
   }
 
-  const fetchValueEth = async ( ) => {
+  const fetchvalueNative = async ( ) => {
     // £todo later
   }
 
@@ -198,23 +199,72 @@ export const useAssets = () => {
     async (erc20: `0x${string}`[], erc721: `0x${string}`[], erc1155: `0x${string}`[]) => {
         setError(null)
         setStatus("pending")
+
+        // NOTE: at the moment I only save the Erc20s. I might change this later. 
         
         const erc20s: Token[] | undefined = await fetchErc20Or721(erc20, "erc20")
         const erc721s: Token[] | undefined =  await fetchErc20Or721(erc721, "erc721")
         const erc1155s: Token[] | undefined = await fetchErc1155(erc1155)
 
-        console.log({erc20s, erc721s})
-        
-        if (erc20s && erc721s ) {
-          const fetchedTokens = [...erc20s, ...erc721s]
+        if (erc20s) {
+          const fetchedTokens = [...erc20s]
           // order by balance (I can order by value as a second step later) 
           fetchedTokens.sort((a: Token, b: Token) => a.balance > b.balance ? 1 : -1)
 
           setTokens(fetchedTokens) 
+          localStorage.setItem("powersProtocol_savedTokens", JSON.stringify(fetchedTokens, (key, value) =>
+            typeof value === "bigint" ? Number(value) : value,
+          ));
+
+          setStatus("success") 
         }
 
-        setStatus("idle") //NB note: after checking status, sets the status back to idle! 
+        
   }, [ ])
 
-  return {status, error, tokens, native, fetchTokens}
+  const initialise = () => {
+        console.log("waypoint 1: initialise called")
+        setStatus("pending")
+        let localStore = localStorage.getItem("powersProtocol_savedTokens")
+        const saved: Token[] = localStore ? JSON.parse(localStore) : []
+        console.log("waypoint 2: local storage queried:", {saved})
+  
+        if (saved.length == 0) { fetchTokens(
+          supportedChain?.erc20s ? supportedChain?.erc20s : [`0x0`], 
+          supportedChain?.erc721s ? supportedChain?.erc721s : [`0x0`],
+          supportedChain?.erc1155s ? supportedChain?.erc1155s : [`0x0`]
+        )} else {
+          setTokens(saved)
+          setStatus("success")
+        }
+      } 
+
+  const update = useCallback(
+        async (erc20: `0x${string}`) => {
+          setStatus("pending")
+    
+          let localStore = localStorage.getItem("powersProtocol_savedTokens")
+          const saved: Token[] = localStore ? JSON.parse(localStore) : []
+          
+          let erc20s: Token[] | undefined
+          if (!saved.map(saved => saved.address).includes(erc20)) {
+            erc20s  = await fetchErc20Or721([erc20], "erc20")
+          } else {
+            setStatus("error")
+            setError("Token already added.")
+          }
+          if (erc20s && erc20s.length > 0) {
+            const fetchedTokens = [...erc20s, ...saved]
+            // order by balance (I can order by value as a second step later)
+            fetchedTokens.sort((a: Token, b: Token) => a.balance > b.balance ? 1 : -1)
+ 
+            setTokens(fetchedTokens)
+            localStorage.setItem("powersProtocol_savedTokens", JSON.stringify(fetchedTokens, (key, value) =>
+              typeof value === "bigint" ? Number(value) : value,
+            ));
+            setStatus("success")
+          }
+      }, [])
+  
+  return {status, error, tokens, native, fetchTokens, initialise, update }
 }

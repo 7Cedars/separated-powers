@@ -4,10 +4,11 @@ import { wagmiConfig } from '../context/wagmiConfig'
 import { useCallback, useEffect, useRef, useState } from "react";
 import { lawAbi, separatedPowersAbi } from "@/context/abi";
 import { Hex, Log, parseEventLogs, ParseEventLogsReturnType } from "viem"
-import { publicClient } from "@/context/clients";
+import { publicClient } from "@/context/clients"; 
 import { readContract } from "wagmi/actions";
 import { supportedChains } from "@/context/chains";
 import { useChainId } from 'wagmi'
+import { assignOrg } from "@/context/store";
 
 export const useOrganisations = () => {
   const [status, setStatus ] = useState<Status>("idle")
@@ -16,29 +17,29 @@ export const useOrganisations = () => {
   const chainId = useChainId()
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
-  const getOrganisations = useCallback( 
-    async () => {
-      if (publicClient) {
-        try {
-          const logs = await publicClient.getContractEvents({ 
-            abi: separatedPowersAbi, 
-            eventName: 'SeparatedPowers__Initialized',
-            fromBlock: supportedChain?.genesisBlock,
-          })
-          const fetchedLogs = parseEventLogs({
-            abi: separatedPowersAbi,
-            eventName: 'SeparatedPowers__Initialized',
-            logs
-          })
-          const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
-          const fetchedOrganisations: Organisation[] = fetchedLogsTyped.map(log => log.args as Organisation)
-          return fetchedOrganisations
+  const fetchNames = async (organisations: Organisation[]) => {
+    let organisation: Organisation
+    let orgsWithNames: Organisation[] = []
+
+    if (publicClient) {
+      try {
+        for await (organisation of organisations) {
+              const name = await readContract(wagmiConfig, {
+                abi: separatedPowersAbi,
+                address: organisation.contractAddress,
+                functionName: 'name'
+              })
+              const nameParsed = name as string
+              console.log({name, nameParsed}) 
+              orgsWithNames.push({...organisation, name: nameParsed})
+            }
+          return orgsWithNames
         } catch (error) {
-            setStatus("error") 
-            setError(error)
+          setStatus("error") 
+          setError(error)
         }
-      } 
-  }, [ ])
+      }
+  }
 
   const fetchLaws = async (organisations: Organisation[]) => {
     let organisation: Organisation
@@ -156,18 +157,28 @@ export const useOrganisations = () => {
 
   const fetch = useCallback(
     async () => {
+      // this should be refactored at some point. Does not all have to be sequential.. 
+      // £ todo 
 
       setStatus("pending")
       console.log("waypoint 3: fetch called")
       
+      let orgsWithNames: Organisation[] | undefined
       let orgsWithLaws: Organisation[] | undefined
       let orgsWithActiveLaws: Organisation[] | undefined
       let orgsWithProposals: Organisation[] | undefined 
 
-      const fetchedOrganisations = await getOrganisations()
-      if (fetchedOrganisations) {
+      const defaultOrganisations = supportedChain?.organisations?.map(org => { return ({
+        contractAddress: org
+        }) as Organisation }
+      )
+      if (defaultOrganisations) {
         console.log("waypoint 4")
-        orgsWithLaws = await fetchLaws(fetchedOrganisations)
+        orgsWithNames = await fetchNames(defaultOrganisations)
+      }
+      if (orgsWithNames) {
+        console.log("waypoint 4")
+        orgsWithLaws = await fetchLaws(orgsWithNames)
       }
       if (orgsWithLaws) {
         console.log("waypoint 5")
@@ -233,5 +244,37 @@ export const useOrganisations = () => {
       }
   }, [])
 
-  return {status, error, organisations, initialise, fetch, update}
+  const run = useCallback(
+    async (protocol: `0x${string}`) => {
+      setStatus("pending")
+
+      const requestedOrg =  {
+        contractAddress: protocol
+        } as Organisation 
+
+      let orgWithName: Organisation[] | undefined
+      let orgWithLaws: Organisation[] | undefined
+      let orgWithActiveLaws: Organisation[] | undefined
+      let orgWithProposals: Organisation[] | undefined 
+      
+      if (requestedOrg) {
+        console.log("waypoint 4")
+        orgWithName = await fetchNames([requestedOrg])
+      }
+      if (orgWithName) {
+        orgWithLaws = await fetchLaws(orgWithName)
+      }
+      if (orgWithLaws) {
+        orgWithActiveLaws = await fetchActiveLaws(orgWithLaws)
+      }
+      if (orgWithActiveLaws) {
+        orgWithProposals = await fetchProposals(orgWithActiveLaws)
+      }
+      if (orgWithProposals) {
+        assignOrg(orgWithProposals[0])
+        setStatus("success")
+      }
+  }, [])
+
+  return {status, error, organisations, initialise, fetch, update, run}
 }

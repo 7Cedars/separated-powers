@@ -1,14 +1,20 @@
 // £todo 
 // needs to take in: address + type of token (simple drop down menu).
 
-import { Button } from "@/components/Button";
-import { DropDownButton } from "@/components/DropDownButton";
-
+import { Button } from "@/components/Button"; 
+import { useAssets } from "@/hooks/useAssets";
+import { useState } from "react";
+import { TwoSeventyRingWithBg } from "react-svg-spinners";
 
 export function AddAsset() {
+  const [newToken, setNewToken] = useState<`0x${string}`>()
+  const {status, error, tokens, native, initialise, update, fetchTokens} = useAssets()
+
+  console.log("@AddAsset:", {status, error, tokens, native})
+
   return (
-    <div className="w-full flex flex-col justify-start items-center bg-slate-50 border border-slate-200 rounded-md overflow-hidden">
-      <div className="w-full flex flex-row gap-3 min-w-6xl justify-between items-center py-4 px-6 overflow-x-scroll overflow-y-hidden">
+    <div className="w-full flex flex-col justify-start items-center bg-slate-50 border border-slate-200 rounded-md overflow-hidden opacity-0 md:opacity-100 md:disabled">
+      <div className="w-full flex flex-row gap-3 min-w-6xl justify-between items-center py-4 px-5 overflow-x-scroll overflow-y-hidden">
         <div className="text-slate-900 text-center font-bold text-md min-w-24">
           Add Token
         </div>
@@ -20,34 +26,37 @@ export function AddAsset() {
             id={`input`}
             className="w-full h-8 pe-2 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm" 
             placeholder={`Enter token address here.`}
-            onChange={() => {}}
+            onChange={(event) => {setNewToken(event.target.value as `0x${string}`)}}
             />
-        </div>
-        {/* dropdown button: type of token */}
-        <div className="h-8 flex flex-row w-32 min-w-24 text-center text-slate-200">
-          <DropDownButton 
-            size = {0} 
-            role={8}
-            onClick={() => {}}
-            > 
-              <div className = "text-slate-800">
-                Token type
-              </div>
-          </DropDownButton>
         </div>
 
         {/* button: add */}
-        <div className="h-8 flex flex-row w-20 min-w-12 text-center">
+        <div className="h-8 flex flex-row w-40 min-w-24 text-center">
           <Button 
             size = {0} 
             role = {8} 
-            onClick={() => {}}
+            onClick={() => {update(newToken ? newToken : `0x0`)}}
             > 
-            <div className = "text-slate-800">
-              Add
-            </div>
+            <div className = "text-slate-600">{
+              status == 'pending' ? <TwoSeventyRingWithBg /> : "Add ERC-20 Token"  
+            }
+            </div>    
           </Button>
         </div>
+      </div>
+      <div className = "text-sm">
+        { status == 'error' ? 
+            <div className = "text-red-500 pb-4">
+              {typeof error == "string" ?  error.slice(0, 30) : "Token not recognised"}
+            </div> 
+          :
+          status == 'success' ? 
+            <div className = "text-green-500  pb-4"> 
+              Token added. Please refresh. 
+            </div> 
+          :
+          null 
+        }
       </div>
     </div>
   ) 
