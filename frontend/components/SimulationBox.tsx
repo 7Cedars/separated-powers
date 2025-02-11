@@ -20,7 +20,9 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
         address: law.law,
         functionName: 'stateVars'
       })
-  const dataTypes = bytesToParams(data as `0x${string}`)
+  const params =  bytesToParams(data as `0x${string}`)  
+  const dataTypes = params.map(param => param.dataType) 
+  // const dataTypes = bytesToParams(data as `0x${string}`)
     
   useEffect(() => {
 

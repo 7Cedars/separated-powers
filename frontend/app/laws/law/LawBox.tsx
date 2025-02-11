@@ -39,7 +39,6 @@ export function LawBox() {
   console.log({data, isLoading, isError, errorInputParams})
   const params =  bytesToParams(data as `0x${string}`)  
   const dataTypes = params.map(param => param.dataType) 
-  const varNames = params.map(param => param.varName) 
   const {wallets} = useWallets();
 
   const [paramValues, setParamValues] = useState<InputType[] | InputType[][]>(new Array<InputType>(params.length)); // NB! String has to be converted to hex using toHex before being able to use as input.  
