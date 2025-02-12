@@ -22,14 +22,16 @@ export function ProposalList() {
   const possibleStatus: number[] = [0, 1, 2, 3, 4]; 
 
   const handleRoleSelection = (role: bigint) => {
-    const index = organisation?.deselectedRoles?.indexOf(role);
-    if (index == -1) {
-      assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? [...organisation?.deselectedRoles, role as bigint] : [role as bigint]})
-    } else if (index == 0) {
-      assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? organisation?.deselectedRoles.slice(1) : []})
-    } else if (index) {
-      assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? organisation?.deselectedRoles.toSpliced(index) : []})
+    let newDeselection: bigint[] = []
+
+    if (organisation?.deselectedRoles?.includes(role)) {
+      newDeselection = organisation?.deselectedRoles?.filter(oldRole => oldRole != role)
+    } else if (organisation?.deselectedRoles != undefined) {
+      newDeselection = [...organisation?.deselectedRoles, role]
+    } else {
+      newDeselection = [role]
     }
+    assignOrg({...organisation, deselectedRoles: newDeselection})
   };
 
   const handleStatusSelection = (proposalStatus: number) => {

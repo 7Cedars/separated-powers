@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
-import { bytesToParams, parseParamValues, parseParams } from "@/utils/parsers";
+import { bytesToParams, parseParamValues } from "@/utils/parsers";
 import { decodeAbiParameters, parseAbiParameters } from "viem";
 import { LawSimulation } from "@/context/types";
 

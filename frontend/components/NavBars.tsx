@@ -25,6 +25,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useConnectWallet, useLogout, usePrivy } from "@privy-io/react-auth";
 import { useWallets } from "@privy-io/react-auth";
+import { ConnectButton } from './ConnectButton';
 
 const layoutIconBox: string = 'flex flex-row md:gap-2 gap-0 align-middle items-center'
 const layoutIcons: string = 'h-5 w-5'
@@ -163,29 +164,7 @@ const Header = () => {
           {organisation.name != '' ? NavigationBar() : null }
         </div>
       }
-
-      <div className="flex flex-row gap-2 min-w-40"> 
-      { 
-        wallets[0] && authenticated ? 
-        <Button 
-            size = {0} 
-            onClick={() => logout()}
-            >
-              <div className={layoutIconBox}> 
-                {wallets[0].address.slice(0, 6)}...{wallets[0].address.slice(-6)}   
-              </div> 
-        </Button>
-        : 
-        <Button 
-        size = {0} 
-        onClick={() => login()}
-        >
-          <div className={layoutIconBox}> 
-            <b> Connect Wallet </b>       
-          </div> 
-        </Button>
-      }
-      </div>
+        <ConnectButton /> 
     </section>
   </header>
   )

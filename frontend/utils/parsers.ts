@@ -34,59 +34,6 @@ const isValidUrl = (urlString: string) => {
   }
 }
 
-
-export const parseParams = (params: string[]): DataType[]  => {
-  if (!isArray(params)) {
-    throw new Error('Incorrect or missing data.');
-  }
-
-  const filteredParams = params.filter(param => param != '0x00000000')
-  let parsedParams; 
-
-  if (filteredParams) {
-    parsedParams = filteredParams.map(
-      param => {
-        switch (param) {
-          case "0x7bcdc9c6": return "uint8";
-          case "0x267213ef": return "uint16";
-          case "0xaab7cacf": return "uint32";
-          case "0xf1b7aa7b": return "uint64";
-          case "0x26255fcf": return "uint128";
-          case "0xec13d6d1": return "uint256";
-          case "0x79b36d0f": return "uint8[]";
-          case "0x176bfc5e": return "uint16[]";
-          case "0x78cd6b36": return "uint32[]";
-          case "0x9dc4a28a": return "uint64[]";
-          case "0x3d05ac75": return "uint128[]";
-          case "0xc1b76e99": return "uint256[]";
-      
-          case "0x421683f8": return "address";
-          case "0x23d8ff3d": return "address[]";
-          
-          case "0xb963e9b4": return "bytes";
-          case "0x084b42f8": return "bytes[]";
-          
-          case "0x9878dbb4": return "bytes32";
-          case "0xc0427979": return "bytes32[]";
-          
-          case "0x97fc4627": return "string";
-          case "0xa227fd7a": return "string[]"; 
-          
-          case "0xc1053bda": return "bool";
-          case "0x8761250c": return "bool[]"; 
-       
-          default:
-            return "unsupported";
-        } 
-      }
-    )
-  } else {
-    throw new Error('Missing data.');
-  }
-
-  return parsedParams
-}
-
 export const bytesToParams = (bytes: `0x${string}`): {varName: string, dataType: DataType}[]  => {
   if (!bytes) { // I can make it more specific later.
     return [] 

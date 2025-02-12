@@ -1,3 +1,5 @@
+"use client"
+
 import { TwoSeventyRingWithBg } from "react-svg-spinners";
 
 type ButtonProps = {

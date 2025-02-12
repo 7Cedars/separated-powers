@@ -10,8 +10,8 @@ import { useChainId, useReadContract, useReadContracts } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { bytesToParams, parseParams, parseRole } from "@/utils/parsers";
-import { InputType, DataType } from "@/context/types";
+import { bytesToParams, parseRole } from "@/utils/parsers";
+import { InputType } from "@/context/types";
 import { DynamicInput } from "@/app/laws/law/DynamicInput";
 import { notUpToDate } from "@/context/store"
 import { SimulationBox } from "@/components/SimulationBox";

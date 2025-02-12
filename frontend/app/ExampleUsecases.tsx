@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { exampleUseCases } from  "../public/exampleUseCases";
 import Image from 'next/image'
 
+// does not quite seem to work yet.. 
 function useHorizontalScroll<T extends HTMLElement>() {
     const elRef = useRef<T>(null);
     useEffect(() => {

@@ -8,7 +8,7 @@ import { useReadContract } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { decodeAbiParameters,  keccak256, parseAbiParameters, toHex } from "viem";
-import { parseParamValues, parseParams, parseRole } from "@/utils/parsers";
+import { bytesToParams, parseParamValues, parseRole } from "@/utils/parsers";
 import { InputType } from "@/context/types";
 import { StaticInput } from "./StaticInput";
 import { useProposal } from "@/hooks/useProposal";
@@ -35,13 +35,13 @@ export function ProposalBox() {
   const [description, setDescription] = useState<string>()
   const [calldata, setCalldata] = useState<`0x${string}`>()
 
-
-  const { data: params, isLoading, isError, error: paramsError } = useReadContract({
+  const { data, isLoading, isError, error: paramsError } = useReadContract({
     abi: lawAbi,
     address: law.law,
     functionName: 'getInputParams'
   })
-  const dataTypes = action.dataTypes && action.dataTypes.length > 0 ? action.dataTypes : params ? parseParams(params as string[]) : []
+  const params =  bytesToParams(data as `0x${string}`)  
+  const dataTypes = params.map(param => param.dataType) 
 
   const handleSimulate = async () => {
       if (dataTypes && dataTypes.length > 0 && calldata && description) {
