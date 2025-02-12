@@ -1,5 +1,17 @@
 // SPDX-License-Identifier: MIT
 
+///////////////////////////////////////////////////////////////////////////////
+/// This program is free software: you can redistribute it and/or modify    ///
+/// it under the terms of the MIT Public License.                           ///
+///                                                                         ///
+/// This is a Proof Of Concept and is not intended for production use.      ///
+/// Tests are incomplete and it contracts have not been audited.            ///
+///                                                                         ///
+/// It is distributed in the hope that it will be useful and insightful,    ///
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
+///////////////////////////////////////////////////////////////////////////////
+
 /// @notice A base contract that executes a bespoke action.
 ///
 /// Note 1: as of now, it only allows for a single function to be called.
@@ -28,29 +40,27 @@ contract BespokeAction is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address separatedPowers_,
+        address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address targetContract_,
         bytes4 targetFunction_,
-        bytes4[] memory params_
+        string[] memory params_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
         _targetContract = targetContract_;
         _targetFunction = targetFunction_;
-        params = params_;
+        inputParams = abi.encode(params_);
     }
 
     /// @notice execute the law.
     /// @param lawCalldata the calldata _without function signature_ to send to the function.
-    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
+        view
         virtual
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
-        // do necessary checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         targets = new address[](1);
         values = new uint256[](1);
         calldatas = new bytes[](1);

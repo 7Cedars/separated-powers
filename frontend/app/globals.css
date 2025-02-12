@@ -20,6 +20,20 @@ body {
   color: var(--text-color);
 }
 
+/* scrollbar changes layout */
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  opacity: 0; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: #aaaaaa;
+  border-radius: 0px;
+  opacity: 0; 
+}
+
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

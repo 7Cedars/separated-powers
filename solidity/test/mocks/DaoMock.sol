@@ -14,6 +14,6 @@ contract DaoMock is SeparatedPowers {
     uint32 public constant ROLE_THREE = 3;
 
     constructor()
-        SeparatedPowers("DaoMock") // name of the DAO.
+        SeparatedPowers("DaoMock", "") // name of the DAO.
     { }
 }

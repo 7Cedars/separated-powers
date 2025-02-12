@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
 import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
 import { ILaw } from "../../src/interfaces/ILaw.sol";
-// import { DeployAlignedGrants } from "../../script/DeployAlignedGrants.s.sol";
+// import { DeployAlignedDao } from "../../script/DeployAlignedDao.s.sol";
 
 //////////////////////////////////////////////////
 //                  SETUP                       //
@@ -14,10 +14,10 @@ import { ILaw } from "../../src/interfaces/ILaw.sol";
 //////////////////////////////////////////////////
 //                  TESTS                       //
 //////////////////////////////////////////////////
-contract DeployAlignedGrantsTest is Test {
+contract DeployAlignedDaoTest is Test {
     using ShortStrings for *;
 
-    // DeployAlignedGrants deployAlignedGrants = new DeployAlignedGrants();
+    // DeployAlignedDao deployAlignedGrants = new DeployAlignedDao();
 
     // function testDeployScriptAlignedGrants() public {
     //     (

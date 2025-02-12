@@ -16,9 +16,9 @@ import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 //               CONSTRUCTOR & RECEIVE                      //
 //////////////////////////////////////////////////////////////
 contract DeployTest is TestSetupSeparatedPowers {
-    function testDeployAlignedGrants() public view {
+    function testDeployAlignedDao() public view {
         assertEq(daoMock.name(), daoNames[0]);
-        assertEq(daoMock.version(), "1");
+        assertEq(daoMock.version(), "0.2");
 
         assertNotEq(daoMock.hasRoleSince(alice, ROLE_ONE), 0);
     }
@@ -36,7 +36,7 @@ contract DeployTest is TestSetupSeparatedPowers {
 
     function testDeployProtocolEmitsEvent() public {
         vm.expectEmit(true, false, false, false);
-        emit SeparatedPowers__Initialized(address(daoMock));
+        emit SeparatedPowers__Initialized(address(daoMock), "DaoMock");
 
         vm.prank(alice);
         daoMock = new DaoMock();
@@ -97,51 +97,51 @@ contract ProposeTest is TestSetupSeparatedPowers {
     }
 
     function testProposePassesWithCorrectCredentials() public {
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
         // check if charlotte has correct role
-        assertTrue(daoMock.canCallLaw(charlotte, laws[lawNumber]));
+        assertTrue(daoMock.canCallLaw(alice, laws[lawNumber]));
 
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Active));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Active));
     }
 
     function testProposeEmitsEvents() public {
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
         address targetLaw = laws[lawNumber];
         // check if charlotte has correct role
-        assertTrue(daoMock.canCallLaw(charlotte, laws[lawNumber]));
+        assertTrue(daoMock.canCallLaw(alice, laws[lawNumber]));
 
         uint256 actionId = hashProposal(targetLaw, lawCalldata, keccak256(bytes(description)));
         (,, uint32 duration,,,,) = Law(laws[lawNumber]).config();
 
         vm.expectEmit(true, false, false, false);
         emit ProposalCreated(
-            actionId, charlotte, targetLaw, "", lawCalldata, block.number, block.timestamp + duration, description
+            actionId, alice, targetLaw, "", lawCalldata, block.number, block.timestamp + duration, description
         );
-        vm.prank(charlotte);
+        vm.prank(alice);
         daoMock.propose(targetLaw, lawCalldata, description);
     }
 
     function testProposeRevertsIfAlreadyExist() public {
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
         address targetLaw = laws[lawNumber];
-        // check if charlotte has correct role
-        assertTrue(daoMock.canCallLaw(charlotte, laws[lawNumber]));
+        // check if alice has correct role
+        assertTrue(daoMock.canCallLaw(alice, laws[lawNumber]));
 
-        vm.prank(charlotte);
+        vm.prank(alice);
         daoMock.propose(targetLaw, lawCalldata, description);
 
-        vm.expectRevert(SeparatedPowers__UnexpectedActionState.selector);
-        vm.prank(charlotte);
+        vm.expectRevert(SeparatedPowers__UnexpectedProposalState.selector);
+        vm.prank(alice);
         daoMock.propose(targetLaw, lawCalldata, description);
     }
 }
@@ -149,65 +149,65 @@ contract ProposeTest is TestSetupSeparatedPowers {
 contract CancelTest is TestSetupSeparatedPowers {
     function testCancellingProposalsEmitsCorrectEvent() public {
         // prep: create a proposal
-        address targetLaw = laws[4];
+        address targetLaw = laws[5];
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(targetLaw, lawCalldata, description);
 
         // act: cancel the proposal
         vm.expectEmit(true, false, false, false);
         emit ProposalCancelled(actionId);
-        vm.prank(charlotte);
+        vm.prank(alice);
         daoMock.cancel(targetLaw, lawCalldata, keccak256(bytes(description)));
     }
 
     function testCancellingProposalsSetsStateToCancelled() public {
         // prep: create a proposal
-        address targetLaw = laws[4];
+        address targetLaw = laws[5];
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(targetLaw, lawCalldata, description);
 
         // act: cancel the proposal
-        vm.prank(charlotte);
+        vm.prank(alice);
         daoMock.cancel(targetLaw, lawCalldata, keccak256(bytes(description)));
 
         // check the state
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Cancelled));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Cancelled));
     }
 
     function testCancelRevertsWhenAccountDidNotCreateProposal() public {
         // prep: create a proposal
-        address targetLaw = laws[4];
+        address targetLaw = laws[5];
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         daoMock.propose(targetLaw, lawCalldata, description);
 
         // act: try to cancel the proposal
         vm.expectRevert(SeparatedPowers__AccessDenied.selector);
-        vm.prank(david);
+        vm.prank(helen);
         daoMock.cancel(targetLaw, lawCalldata, keccak256(bytes(description)));
     }
 
     function testCancelledProposalsCannotBeExecuted() public {
         // prep: create a proposal
-        address targetLaw = laws[4];
+        address targetLaw = laws[5];
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         daoMock.propose(targetLaw, lawCalldata, description);
 
         // prep: cancel the proposal one time...
-        vm.prank(charlotte);
+        vm.prank(alice);
         daoMock.cancel(targetLaw, lawCalldata, keccak256(bytes(description)));
 
         // act: try to cancel proposal a second time. Should revert
-        vm.expectRevert(SeparatedPowers__UnexpectedActionState.selector);
-        vm.prank(charlotte);
+        vm.expectRevert(SeparatedPowers__UnexpectedProposalState.selector);
+        vm.prank(alice);
         daoMock.cancel(targetLaw, lawCalldata, keccak256(bytes(description)));
     }
 }
@@ -215,10 +215,10 @@ contract CancelTest is TestSetupSeparatedPowers {
 contract VoteTest is TestSetupSeparatedPowers {
     function testVotingRevertsIfAccountNotAuthorised() public {
         // prep: create a proposal
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // create unauthorised account.
@@ -233,26 +233,26 @@ contract VoteTest is TestSetupSeparatedPowers {
 
     function testProposalDefeatedIfQuorumNotReachedInTime() public {
         // prep: create a proposal
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // act: go forward in time. -- no votes are cast.
         vm.roll(block.number + 4000);
 
         // check state of proposal
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Defeated));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Defeated));
     }
 
     function testVotingIsNotPossibleForDefeatedProposals() public {
         // prep: create a proposal
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // prep: defeat proposal: by going beyond voting period, quorum not reached. Proposal is defeated.
@@ -266,10 +266,10 @@ contract VoteTest is TestSetupSeparatedPowers {
 
     function testProposalSucceededIfQuorumReachedInTime() public {
         // prep: create a proposal
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // Loop through users,
@@ -284,16 +284,16 @@ contract VoteTest is TestSetupSeparatedPowers {
         vm.roll(block.number + 4000); //
 
         // assert
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Succeeded));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Succeeded));
     }
 
     function testVotesWithReasonsWorks() public {
         // prep: create a proposal
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // Loop through users,
@@ -308,16 +308,16 @@ contract VoteTest is TestSetupSeparatedPowers {
         vm.roll(block.number + 4000);
 
         // assert
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Succeeded));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Succeeded));
     }
 
     function testProposalDefeatedIfQuorumReachedButNotEnoughForVotes() public {
         // prep: create a proposal
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // Loop through users,
@@ -332,16 +332,16 @@ contract VoteTest is TestSetupSeparatedPowers {
         vm.roll(block.number + 4000); //
 
         // assert
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Defeated));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Defeated));
     }
 
     function testAccountCannotVoteTwice() public {
         // prep: create a proposal
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // alice votes once..
@@ -357,10 +357,10 @@ contract VoteTest is TestSetupSeparatedPowers {
     function testAgainstVoteIsCorrectlyCounted() public {
         // prep: create a proposal
         uint256 numberAgainstVotes;
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // Loop through users,
@@ -381,10 +381,10 @@ contract VoteTest is TestSetupSeparatedPowers {
     function testForVoteIsCorrectlyCounted() public {
         // prep: create a proposal
         uint256 numberForVotes;
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // Loop through users,
@@ -405,10 +405,10 @@ contract VoteTest is TestSetupSeparatedPowers {
     function testAbstainVoteIsCorrectlyCounted() public {
         // prep: create a proposal
         uint256 numberAbstainVotes;
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // Loop through users,
@@ -427,10 +427,10 @@ contract VoteTest is TestSetupSeparatedPowers {
     }
 
     function testVoteRevertsWithInvalidVote() public {
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // act
@@ -446,10 +446,10 @@ contract VoteTest is TestSetupSeparatedPowers {
     }
 
     function testHasVotedReturnCorrectData() public {
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // act
@@ -466,8 +466,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // prep
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         // check that mockAddress does NOT have ROLE_ONE
         assertEq(daoMock.hasRoleSince(mockAddress, ROLE_ONE), 0);
@@ -484,8 +484,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // prep
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         // act
         vm.prank(mockAddress);
@@ -493,16 +493,16 @@ contract ExecuteTest is TestSetupSeparatedPowers {
 
         // assert
         uint256 actionId = hashProposal(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Completed));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Completed));
     }
 
     function testExecuteEmitEvent() public {
         // prep
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         // build return expected return data
         address[] memory tar = new address[](1);
@@ -538,8 +538,9 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         // prep
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
+
         // execute action once...
         vm.prank(mockAddress);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
@@ -553,8 +554,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
     function testExecuteRevertsIfLawNotActive() public {
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         // revoke law
         vm.prank(address(daoMock));
@@ -579,10 +580,10 @@ contract ExecuteTest is TestSetupSeparatedPowers {
 
     function testExecuteRevertsIfProposalDefeated() public {
         // prep: create a proposal
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // Loop through users,
@@ -597,8 +598,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         vm.roll(block.number + 4000); //
 
         // check if proposal is defeated.
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Defeated));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Defeated));
 
         // act & assert: try to execute proposal.
         vm.expectRevert(); // check selector
@@ -608,31 +609,31 @@ contract ExecuteTest is TestSetupSeparatedPowers {
 
     function testExecuteRevertsIfProposalCancelled() public {
         // prep: create a proposal
-        uint32 lawNumber = 4;
+        uint32 lawNumber = 5;
         string memory description = "Creating a proposal";
         bytes memory lawCalldata = abi.encode(true);
-        vm.prank(charlotte);
+        vm.prank(alice);
         uint256 actionId = daoMock.propose(laws[lawNumber], lawCalldata, description);
 
         // cancel proposal
-        vm.prank(charlotte);
+        vm.prank(alice);
         daoMock.cancel(laws[lawNumber], lawCalldata, keccak256(bytes(description)));
 
         // check if proposal is cancelled.
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Cancelled));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Cancelled));
 
         // act & assert: try to execute proposal.
         vm.expectRevert(SeparatedPowers__ProposalCancelled.selector);
-        vm.prank(charlotte);
+        vm.prank(alice);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
 
     function testExecuteRevertsIfLawChecksNotPassed() public {
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         address[] memory tar = new address[](0);
         uint256[] memory val = new uint256[](0);
@@ -655,8 +656,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
     function testIfReturnDataIsAddressOneNothingGetsExecuted() public {
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         address[] memory tar = new address[](1);
         uint256[] memory val = new uint256[](1);
@@ -683,8 +684,8 @@ contract ExecuteTest is TestSetupSeparatedPowers {
     function testExecuteRevertsWithIncorrectReturnArrayLengths() public {
         uint32 lawNumber = 0;
         string memory description = "Assigning mockAddress ROLE_ONE";
-        bytes memory lawCalldata = abi.encode(false); // revoke = false
         address mockAddress = makeAddr("mock");
+        bytes memory lawCalldata = abi.encode(false, mockAddress); // revoke = false
 
         address[] memory tar = new address[](1);
         uint256[] memory val = new uint256[](2);
@@ -717,7 +718,8 @@ contract ConstituteTest is TestSetupSeparatedPowers {
 
         ILaw.LawConfig memory lawConfig;
         address[] memory laws = new address[](1);
-        laws[0] = address(new OpenAction("test law", "This is a test Law", address(daoMock), ROLE_ONE, lawConfig));
+        laws[0] =
+            address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
         vm.prank(alice);
         daoMockTest.constitute(laws);
@@ -734,7 +736,8 @@ contract ConstituteTest is TestSetupSeparatedPowers {
 
         ILaw.LawConfig memory lawConfig;
         address[] memory laws = new address[](1);
-        laws[0] = address(new OpenAction("test law", "This is a test Law", address(daoMock), ROLE_ONE, lawConfig));
+        laws[0] =
+            address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
         vm.prank(alice);
         daoMockTest.constitute(laws);
@@ -750,7 +753,8 @@ contract ConstituteTest is TestSetupSeparatedPowers {
 
         ILaw.LawConfig memory lawConfig;
         address[] memory laws = new address[](1);
-        laws[0] = address(new OpenAction("test law", "This is a test Law", address(daoMock), ROLE_ONE, lawConfig));
+        laws[0] =
+            address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
         vm.expectRevert(SeparatedPowers__AccessDenied.selector);
         vm.prank(bob);
@@ -764,7 +768,7 @@ contract SetLawTest is
     function testSetLawSetsNewLaw() public {
         ILaw.LawConfig memory lawConfig;
         address newLaw =
-            address(new OpenAction("test law", "This is a test Law", address(daoMock), ROLE_ONE, lawConfig));
+            address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
         vm.prank(address(daoMock));
         daoMock.adoptLaw(newLaw);
@@ -775,7 +779,7 @@ contract SetLawTest is
     function testSetLawEmitsEvent() public {
         ILaw.LawConfig memory lawConfig;
         address newLaw =
-            address(new OpenAction("test law", "This is a test Law", address(daoMock), ROLE_ONE, lawConfig));
+            address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
         vm.expectEmit(true, false, false, false);
         emit LawAdopted(newLaw);
@@ -786,7 +790,7 @@ contract SetLawTest is
     function testSetLawRevertsIfNotCalledFromSeparatedPowers() public {
         ILaw.LawConfig memory lawConfig;
         address newLaw =
-            address(new OpenAction("test law", "This is a test Law", address(daoMock), ROLE_ONE, lawConfig));
+            address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
         vm.expectRevert(SeparatedPowers__OnlySeparatedPowers.selector);
         vm.prank(alice);
@@ -812,7 +816,7 @@ contract SetLawTest is
     function testRevokeLawRevertsIfAddressNotActive() public {
         ILaw.LawConfig memory lawConfig;
         address newLaw =
-            address(new OpenAction("test law", "This is a test Law", address(daoMock), ROLE_ONE, lawConfig));
+            address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
         vm.expectRevert(SeparatedPowers__LawNotActive.selector);
         vm.prank(address(daoMock));
@@ -839,12 +843,14 @@ contract SetRoleTest is TestSetupSeparatedPowers {
         daoMock.assignRole(ROLE_THREE, bob);
     }
 
-    function testSetRoleRevertsIfAccountAlreadyHasRole() public {
+    function testSetRoleEmitsCorrectEventIfAccountAlreadyHasRole() public {
         // prep: check that bob has ROLE_ONE
         assertNotEq(daoMock.hasRoleSince(bob, ROLE_ONE), 0);
 
         vm.prank(address(daoMock));
-        vm.expectRevert(SeparatedPowers__RoleAccessNotChanged.selector);
+
+        vm.expectEmit(true, false, false, false);
+        emit RoleSet(ROLE_ONE, bob, false);
         daoMock.assignRole(ROLE_ONE, bob);
     }
 
@@ -881,7 +887,7 @@ contract SetRoleTest is TestSetupSeparatedPowers {
     function testSetRoleSetsEmitsEvent() public {
         // act & assert
         vm.expectEmit(true, false, false, false);
-        emit RoleSet(ROLE_THREE, helen);
+        emit RoleSet(ROLE_THREE, helen, true);
         vm.prank(address(daoMock));
         daoMock.assignRole(ROLE_THREE, helen);
     }
@@ -895,7 +901,7 @@ contract ComplianceTest is TestSetupSeparatedPowers {
 
         // act
         vm.prank(address(daoMock));
-        erc721Mock.mintNFT(NftToMint);
+        erc721Mock.mintNFT(NftToMint, address(daoMock));
 
         // assert
         assertEq(erc721Mock.balanceOf(address(daoMock)), 1);
@@ -948,3 +954,57 @@ contract ComplianceTest is TestSetupSeparatedPowers {
         assertEq(response, daoMock.onERC1155BatchReceived.selector);
     }
 }
+
+contract DataTypeSignatureTest is TestSetupSeparatedPowers {
+    function testEncodeDataType() public {
+        console.logBytes4(encodeDataType("uint8"));
+        console.logBytes4(encodeDataType("uint16"));
+        console.logBytes4(encodeDataType("uint32"));
+        console.logBytes4(encodeDataType("uint64"));
+        console.logBytes4(encodeDataType("uint128"));
+        console.logBytes4(encodeDataType("uint256"));
+        console.logBytes4(encodeDataType("address"));
+        console.logBytes4(encodeDataType("bytes"));
+        console.logBytes4(encodeDataType("string"));
+        console.logBytes4(encodeDataType("bytes32"));
+        console.logBytes4(encodeDataType("bool"));
+        console.logBytes4(encodeDataType("uint8[]"));
+        console.logBytes4(encodeDataType("uint16[]"));
+        console.logBytes4(encodeDataType("uint32[]"));
+        console.logBytes4(encodeDataType("uint64[]"));
+        console.logBytes4(encodeDataType("uint128[]"));
+        console.logBytes4(encodeDataType("uint256[]"));
+        console.logBytes4(encodeDataType("address[]"));
+        console.logBytes4(encodeDataType("bytes[]"));
+        console.logBytes4(encodeDataType("string[]"));
+        console.logBytes4(encodeDataType("bytes32[]"));
+        console.logBytes4(encodeDataType("bool[]"));
+    }
+
+    function encodeDataType(string memory param) private returns (bytes4 signature) {
+        return bytes4(keccak256(bytes(param)));
+    }
+}
+
+// uint8,
+// uint16,
+// uint32,
+// uint64,
+// uint128,
+// uint256,
+// address,
+// bytes,
+// string,
+// bytes32,
+// bool,
+// uint8[],
+// uint16[],
+// uint32[],
+// uint64[],
+// uint128[],
+// uint256[],
+// address[],
+// bytes[],
+// string[],
+// bytes32[],
+// bool[],

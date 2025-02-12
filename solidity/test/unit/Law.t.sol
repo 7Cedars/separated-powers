@@ -13,13 +13,30 @@ import { ILaw } from "../../src/interfaces/ILaw.sol";
 //////////////////////////////////////////////////
 //                  DEPLOY                      //
 //////////////////////////////////////////////////
+
+contract TempBuildTest is TestSetupLaw {
+    function testTempInputParams() public {
+        bytes4[] memory inputParams = new bytes4[](3);
+
+        // inputParams[0] = _dataType("address");
+        // inputParams[1] = _dataType("address");
+        // inputParams[2] = _dataType("uint256");
+
+        bytes memory test = abi.encode("address[]", "uint256[]", "bytes[]");
+        console.logBytes(test);
+        // (string memory one, string memory two, string memory three, string memory four) = abi.decode(test, (string, string, string, string));
+
+        // console.log(one, two, three);
+    }
+}
+
 contract DeployTest is TestSetupLaw {
     using ShortStrings for *;
 
     ILaw.LawConfig lawConfig;
 
     function testDeploy() public {
-        Law lawMock = new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
+        Law lawMock = new Law("Mock Law", "This is a mock law contract", payable(address(123)), ROLE_ONE, lawConfig);
 
         string memory lawMockName = lawMock.name().toString();
         string memory lawMockDescription = lawMock.description();
@@ -31,15 +48,17 @@ contract DeployTest is TestSetupLaw {
 
     function testDeployEmitsEvent() public {
         vm.expectEmit(false, false, false, false);
-        emit Law__Initialized(address(0));
-        new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
+        emit Law__Initialized(
+            address(0), payable(address(123)), "Mock Law", "This is a mock law contract", ROLE_ONE, lawConfig
+        );
+        new Law("Mock Law", "This is a mock law contract", payable(address(123)), ROLE_ONE, lawConfig);
     }
 
     function testLawReturnsEmptyValue() public {
         bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint.
         string memory description = "Executing a proposal vote";
 
-        Law lawMock = new Law("Mock Law", "This is a mock law contract", address(123), ROLE_ONE, lawConfig);
+        Law lawMock = new Law("Mock Law", "This is a mock law contract", payable(address(123)), ROLE_ONE, lawConfig);
 
         vm.prank(address(123));
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) =
@@ -55,7 +74,7 @@ contract DeployTest is TestSetupLaw {
         string memory description = "Executing a proposal vote";
         address separatedPowers = address(123);
 
-        Law lawMock = new Law("Mock Law", "This is a mock law contract", separatedPowers, ROLE_ONE, lawConfig);
+        Law lawMock = new Law("Mock Law", "This is a mock law contract", payable(separatedPowers), ROLE_ONE, lawConfig);
 
         vm.prank(address(1)); // =! separatedPowers
         vm.expectRevert(Law__OnlySeparatedPowers.selector);
@@ -153,8 +172,8 @@ contract NeedsParentCompletedTest is TestSetupLaw {
         daoMock.execute(laws[parentLawNumber], lawCalldata, description);
         // check if law has been set as completed.
 
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Completed));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Completed));
 
         uint256 balanceBefore = erc1155Mock.balanceOf(address(daoMock), 0);
 
@@ -184,8 +203,8 @@ contract NeedsParentCompletedTest is TestSetupLaw {
             }
         }
         vm.roll(block.number + 4000); // forward in time
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Defeated));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Defeated));
 
         // act & assert
         vm.expectRevert(Law__ParentNotCompleted.selector);
@@ -215,8 +234,8 @@ contract ParentCanBlockTest is TestSetupLaw {
         vm.prank(alice);
         daoMock.execute(laws[parentLawNumber], lawCalldata, description);
         // check if law has been set as completed.
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Completed));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Completed));
 
         // act & assert
         vm.prank(alice);
@@ -243,8 +262,8 @@ contract ParentCanBlockTest is TestSetupLaw {
         vm.roll(block.number + 4000); // forward in time
         vm.prank(alice);
         // check if law has been set as defeated.
-        ActionState proposalState = daoMock.state(actionId);
-        assertEq(uint8(proposalState), uint8(ActionState.Defeated));
+        ProposalState proposalState = daoMock.state(actionId);
+        assertEq(uint8(proposalState), uint8(ProposalState.Defeated));
 
         // act
         uint256 balanceBefore = erc1155Mock.balanceOf(address(daoMock), 0);

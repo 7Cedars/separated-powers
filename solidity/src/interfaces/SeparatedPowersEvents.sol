@@ -1,4 +1,17 @@
 // SPDX-License-Identifier: MIT
+
+///////////////////////////////////////////////////////////////////////////////
+/// This program is free software: you can redistribute it and/or modify    ///
+/// it under the terms of the MIT Public License.                           ///
+///                                                                         ///
+/// This is a Proof Of Concept and is not intended for production use.      ///
+/// Tests are incomplete and it contracts have not been audited.            ///
+///                                                                         ///
+/// It is distributed in the hope that it will be useful and insightful,    ///
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
+///////////////////////////////////////////////////////////////////////////////
+
 ///
 /// @notice Events used in the SeparatedPowers protocol.
 /// Code derived from OpenZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
@@ -9,7 +22,7 @@ pragma solidity 0.8.26;
 interface SeparatedPowersEvents {
     /// @notice Emitted when protocol is initialized.
     /// @param contractAddress the address of the contract
-    event SeparatedPowers__Initialized(address contractAddress);
+    event SeparatedPowers__Initialized(address contractAddress, string name);
 
     /// @notice Emitted when protocol receives funds/
     /// @param value the amount of funds received
@@ -20,16 +33,16 @@ interface SeparatedPowersEvents {
     /// @param initiator the address of the initiator
     /// @param targetLaw the address of the target law
     /// @param signature the signature of the proposal
-    /// @param ececuteCalldata the calldata to be passed to the law
+    /// @param executeCalldata the calldata to be passed to the law
     /// @param voteStart the start of the voting period
     /// @param voteEnd the end of the voting period
     /// @param description the description of the proposal
     event ProposalCreated(
-        uint256 proposalId,
-        address initiator,
+        uint256 indexed proposalId,
+        address indexed initiator,
         address targetLaw,
         string signature,
-        bytes ececuteCalldata,
+        bytes executeCalldata,
         uint256 voteStart,
         uint256 voteEnd,
         string description
@@ -40,7 +53,9 @@ interface SeparatedPowersEvents {
     /// @param targetLaw the address of the target law
     /// @param lawCalldata the calldata of the law
     /// @param descriptionHash the description hash of the law
-    event ProposalCompleted(address initiator, address targetLaw, bytes lawCalldata, bytes32 descriptionHash);
+    event ProposalCompleted(
+        address indexed initiator, address indexed targetLaw, bytes lawCalldata, bytes32 descriptionHash
+    );
 
     /// @notice Emitted when a proposal for an executive action is cancelled.
     /// @param proposalId the id of the proposal
@@ -62,7 +77,7 @@ interface SeparatedPowersEvents {
     /// @notice Emitted when a role is set.
     /// @param roleId the id of the role
     /// @param account the address of the account that has the role
-    event RoleSet(uint48 indexed roleId, address indexed account);
+    event RoleSet(uint48 indexed roleId, address indexed account, bool indexed access);
 
     /// @notice Emitted when a law is set.
     /// @param law the address of the law

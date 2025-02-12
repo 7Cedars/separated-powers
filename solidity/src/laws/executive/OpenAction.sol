@@ -1,5 +1,17 @@
 // SPDX-License-Identifier: MIT
 
+///////////////////////////////////////////////////////////////////////////////
+/// This program is free software: you can redistribute it and/or modify    ///
+/// it under the terms of the MIT Public License.                           ///
+///                                                                         ///
+/// This is a Proof Of Concept and is not intended for production use.      ///
+/// Tests are incomplete and it contracts have not been audited.            ///
+///                                                                         ///
+/// It is distributed in the hope that it will be useful and insightful,    ///
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
+///////////////////////////////////////////////////////////////////////////////
+
 /// @notice A base contract that executes a open action.
 ///
 /// Note As the contract allows for any action to be executed, it severely limits the functionality of the SeparatedPowers protocol.
@@ -26,23 +38,30 @@ contract OpenAction is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address separatedPowers_,
+        address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_
     ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        params = [dataType("address[]"), dataType("uint256[]"), dataType("bytes[]")];
+        inputParams = abi.encode(
+            "address[] Targets", 
+            "uint256[] Values", 
+            "bytes[] CallDatas"
+            );
     }
 
     /// @notice Execute the open action.
     /// @param lawCalldata the calldata of the law
-    function executeLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /* initiator */ bytes memory lawCalldata, bytes32 /*descriptionHash*/ )
         public
+        view
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (
+            address[] memory targets,
+            uint256[] memory values,
+            bytes[] memory calldatas,
+            bytes memory /*stateChange*/
+        )
     {
-        // do necessary checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         // decode the calldata.
         // note: no check on decoded call data. If needed, this can be added.
         (targets, values, calldatas) = abi.decode(lawCalldata, (address[], uint256[], bytes[]));

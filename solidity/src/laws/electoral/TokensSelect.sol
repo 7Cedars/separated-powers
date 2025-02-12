@@ -1,5 +1,17 @@
 // SPDX-License-Identifier: MIT
 
+///////////////////////////////////////////////////////////////////////////////
+/// This program is free software: you can redistribute it and/or modify    ///
+/// it under the terms of the MIT Public License.                           ///
+///                                                                         ///
+/// This is a Proof Of Concept and is not intended for production use.      ///
+/// Tests are incomplete and it contracts have not been audited.            ///
+///                                                                         ///
+/// It is distributed in the hope that it will be useful and insightful,    ///
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
+///////////////////////////////////////////////////////////////////////////////
+
 // note that natspecs are wip.
 
 /// @notice This contract assigns accounts to roles by the tokens that they hold.
@@ -27,24 +39,15 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
-import { NominateMe } from "./NominateMe.sol";
+import { NominateMe } from "../state/NominateMe.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/utils/ShortStrings.sol";
-
-/// ONLY FOR TESTING PURPOSES
-import "forge-std/Test.sol";
 
 contract TokensSelect is Law {
-    using ShortStrings for *;
-
     address private immutable ERC_1155_TOKEN;
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
     address private immutable NOMINEES;
-
-    mapping(address => uint48) private _elected;
-    address[] private _electedSorted;
-    uint48 private _lastElection;
+    address[] public electedAccounts;
 
     constructor(
         string memory name_,
@@ -61,36 +64,36 @@ contract TokensSelect is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-        params = new bytes4[](0);
+        stateVars = abi.encode("address[]");
     }
 
-    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
         public
+        view
+        virtual
         override
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
-        // do necessary optional checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
         // step 1: setting up array for revoking & assigning roles.
         uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
-        uint256 numberElected = _electedSorted.length;
+        uint256 numberElected = electedAccounts.length;
         uint256 arrayLength =
             numberNominees < MAX_ROLE_HOLDERS ? numberElected + numberNominees : numberElected + MAX_ROLE_HOLDERS;
+        address[] memory accountElects =
+            new address[](numberNominees < MAX_ROLE_HOLDERS ? numberNominees : MAX_ROLE_HOLDERS);
 
         targets = new address[](arrayLength);
         values = new uint256[](arrayLength);
         calldatas = new bytes[](arrayLength);
+        accountElects = new address[](numberNominees < MAX_ROLE_HOLDERS ? numberNominees : MAX_ROLE_HOLDERS);
+
         for (uint256 i; i < arrayLength; i++) {
             targets[i] = separatedPowers;
         }
 
         // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts.
         for (uint256 i; i < numberElected; i++) {
-            uint256 index = (numberElected - i) - 1; // we work backwards through the list.
-            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, _electedSorted[index]);
-            _elected[_electedSorted[index]] = uint48(0);
-            _electedSorted.pop();
+            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, electedAccounts[i]);
         }
 
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
@@ -99,8 +102,7 @@ contract TokensSelect is Law {
                 address accountElect = NominateMe(NOMINEES).nomineesSorted(i);
                 calldatas[i + numberElected] =
                     abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
-                _elected[accountElect] = uint48(block.timestamp);
-                _electedSorted.push(accountElect);
+                accountElects[i] = accountElect;
             }
             // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
         } else {
@@ -128,11 +130,19 @@ contract TokensSelect is Law {
                 if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberElected) {
                     calldatas[index + numberElected] =
                         abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]);
-                    _elected[_nomineesSorted[i]] = uint48(block.timestamp);
-                    _electedSorted.push(_nomineesSorted[i]);
+                    accountElects[i] = _nomineesSorted[i];
                     index++;
                 }
             }
         }
+        stateChange = abi.encode(accountElects);
+    }
+
+    function _changeStateVariables(bytes memory stateChange) internal override {
+        (address[] memory elected) = abi.decode(stateChange, (address[]));
+        for (uint256 i; i < electedAccounts.length; i++) {
+            electedAccounts.pop();
+        }
+        electedAccounts = elected;
     }
 }

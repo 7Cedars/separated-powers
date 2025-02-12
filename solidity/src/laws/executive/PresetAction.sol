@@ -1,5 +1,17 @@
 // SPDX-License-Identifier: MIT
 
+///////////////////////////////////////////////////////////////////////////////
+/// This program is free software: you can redistribute it and/or modify    ///
+/// it under the terms of the MIT Public License.                           ///
+///                                                                         ///
+/// This is a Proof Of Concept and is not intended for production use.      ///
+/// Tests are incomplete and it contracts have not been audited.            ///
+///                                                                         ///
+/// It is distributed in the hope that it will be useful and insightful,    ///
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
+///////////////////////////////////////////////////////////////////////////////
+
 /// @notice A base contract that executes a preset action.
 ///
 /// The logic:
@@ -29,7 +41,7 @@ contract PresetAction is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address separatedPowers_,
+        address payable separatedPowers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address[] memory targets_,
@@ -42,18 +54,13 @@ contract PresetAction is Law {
     }
 
     /// @notice execute the law.
-    /// @param lawCalldata the calldata of the law.
-    function executeLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
+    function simulateLaw(address, /*initiator*/ bytes memory, /*lawCalldata*/ bytes32 /*descriptionHash*/ )
         public
+        view
         virtual
         override
-        returns (address[] memory, uint256[] memory, bytes[] memory)
+        returns (address[] memory, uint256[] memory, bytes[] memory, bytes memory)
     {
-        // note: no calldata to decode.
-
-        // do necessary checks.
-        super.executeLaw(address(0), lawCalldata, descriptionHash);
-
-        return (targets, values, calldatas);
+        return (targets, values, calldatas, "0x0");
     }
 }

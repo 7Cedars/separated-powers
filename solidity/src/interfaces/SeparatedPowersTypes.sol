@@ -1,4 +1,17 @@
 // SPDX-License-Identifier: MIT
+
+///////////////////////////////////////////////////////////////////////////////
+/// This program is free software: you can redistribute it and/or modify    ///
+/// it under the terms of the MIT Public License.                           ///
+///                                                                         ///
+/// This is a Proof Of Concept and is not intended for production use.      ///
+/// Tests are incomplete and it contracts have not been audited.            ///
+///                                                                         ///
+/// It is distributed in the hope that it will be useful and insightful,    ///
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
+///////////////////////////////////////////////////////////////////////////////
+
 ///
 /// @notice Types used in the SeparatedPowers protocol. Code derived from OpenZeppelin's Governor.sol contract.
 ///
@@ -33,12 +46,13 @@ interface SeparatedPowersTypes {
     ///
     /// @dev that a proposal cannot be set as 'executed' as in Governor.sol. It can only be set as 'completed'.
     /// This is because execution logic in {SeparatedPowers} is separated from the proposal logic.
-    enum ActionState {
+    enum ProposalState {
         Active,
         Cancelled,
         Defeated,
         Succeeded,
-        Completed
+        Completed,
+        NonExistent
     }
 
     /// @notice Supported vote types. Matches Governor Bravo ordering.

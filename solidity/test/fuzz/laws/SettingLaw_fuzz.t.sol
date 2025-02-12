@@ -130,8 +130,8 @@ pragma solidity 0.8.26;
 //     agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
 //     // check
-//     SeparatedPowersTypes.ActionState proposalStateOne = agDao.state(proposalIdOne);
-//     assert(uint8(proposalStateOne) == 4); // == ActionState.Completed
+//     SeparatedPowersTypes.ProposalState proposalStateOne = agDao.state(proposalIdOne);
+//     assert(uint8(proposalStateOne) == 4); // == ProposalState.Completed
 
 //     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
 //     // proposing...
@@ -160,8 +160,8 @@ pragma solidity 0.8.26;
 //     agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
 //     // check
-//     SeparatedPowersTypes.ActionState proposalStateTwo = agDao.state(proposalIdTwo);
-//     assert(uint8(proposalStateTwo) == 4); // == ActionState.Completed
+//     SeparatedPowersTypes.ProposalState proposalStateTwo = agDao.state(proposalIdTwo);
+//     assert(uint8(proposalStateTwo) == 4); // == ProposalState.Completed
 
 //     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */
 //     vm.roll(block.number + 10_000);

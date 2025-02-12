@@ -1,94 +1,222 @@
-// import { Abi } from "viem"
+import { Abi } from "viem"
 
-// import agDao from "../../solidity/out/AgDao.sol/AgDao.json"
-// import agCoins from "../../solidity/out/AgCoins.sol/AgCoins.json"
+// import separatedPowers from "../../solidity/out/SeparatedPowers.sol/SeparatedPowers.json"
+// import law from "../../solidity/out/Law.sol/Law.json"
 
-// export const agDaoAbi: Abi = JSON.parse(JSON.stringify(agDao.abi)) 
-// export const agCoinsAbi: Abi = JSON.parse(JSON.stringify(agCoins.abi)) 
+// export const separatedPowersAbi: Abi = JSON.parse(JSON.stringify(separatedPowers.abi)) 
+// export const lawAbi: Abi = JSON.parse(JSON.stringify(law.abi)) 
 
-export const agDaoAbi =  [
-  { "type": "constructor", "inputs": [], "stateMutability": "nonpayable" },
+// Note: these abis only have the functions that are used in the UI
+export const erc20Abi: Abi = [
+  {
+    "type": "function",
+    "name": "balanceOf",
+    "inputs": [
+      { "name": "owner", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "name",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "symbol",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalSupply",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "decimals",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint8", "internalType": "uint8" }],
+    "stateMutability": "view"
+  },
+]
+
+export const erc721Abi: Abi = [
+  {
+    "type": "function",
+    "name": "balanceOf",
+    "inputs": [
+      { "name": "owner", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "name",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "ownerOf",
+    "inputs": [
+      { "name": "tokenId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "symbol",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenURI",
+    "inputs": [
+      { "name": "tokenId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+]
+
+export const erc1155Abi: Abi = [
+  {
+    "type": "function",
+    "name": "balanceOf",
+    "inputs": [
+      { "name": "account", "type": "address", "internalType": "address" },
+      { "name": "id", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "balanceOfBatch",
+    "inputs": [
+      {
+        "name": "accounts",
+        "type": "address[]",
+        "internalType": "address[]"
+      },
+      { "name": "ids", "type": "uint256[]", "internalType": "uint256[]" }
+    ],
+    "outputs": [
+      { "name": "", "type": "uint256[]", "internalType": "uint256[]" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "uri",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+]
+
+export const ownableAbi: Abi = [
+  {
+    "type": "event",
+    "name": "OwnershipTransferred",
+    "inputs": [
+      {
+        "name": "previousOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "renounceOwnership",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "transferOwnership",
+    "inputs": [
+      { "name": "newOwner", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+]
+
+
+
+
+export const separatedPowersAbi: Abi = [
+  {
+    "type": "constructor",
+    "inputs": [
+      { "name": "name_", "type": "string", "internalType": "string" },
+      { "name": "uri_", "type": "string", "internalType": "string" }
+    ],
+    "stateMutability": "nonpayable"
+  },
   { "type": "receive", "stateMutability": "payable" },
   {
     "type": "function",
     "name": "ADMIN_ROLE",
     "inputs": [],
-    "outputs": [{ "name": "", "type": "uint64", "internalType": "uint64" }],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "MEMBER_ROLE",
-    "inputs": [],
-    "outputs": [{ "name": "", "type": "uint64", "internalType": "uint64" }],
+    "outputs": [{ "name": "", "type": "uint32", "internalType": "uint32" }],
     "stateMutability": "view"
   },
   {
     "type": "function",
     "name": "PUBLIC_ROLE",
     "inputs": [],
-    "outputs": [{ "name": "", "type": "uint64", "internalType": "uint64" }],
+    "outputs": [{ "name": "", "type": "uint32", "internalType": "uint32" }],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "SENIOR_ROLE",
-    "inputs": [],
-    "outputs": [{ "name": "", "type": "uint64", "internalType": "uint64" }],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "WHALE_ROLE",
-    "inputs": [],
-    "outputs": [{ "name": "", "type": "uint64", "internalType": "uint64" }],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "_proposalVotes",
-    "inputs": [
-      { "name": "proposalId", "type": "uint256", "internalType": "uint256" }
-    ],
-    "outputs": [
-      {
-        "name": "againstVotes",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      { "name": "forVotes", "type": "uint256", "internalType": "uint256" },
-      { "name": "abstainVotes", "type": "uint256", "internalType": "uint256" }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "activeLaws",
+    "name": "adoptLaw",
     "inputs": [
       { "name": "law", "type": "address", "internalType": "address" }
-    ],
-    "outputs": [{ "name": "active", "type": "bool", "internalType": "bool" }],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "addRequirement",
-    "inputs": [
-      {
-        "name": "requirement",
-        "type": "bytes32",
-        "internalType": "ShortString"
-      }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
     "type": "function",
-    "name": "blacklistedAccounts",
-    "inputs": [{ "name": "", "type": "address", "internalType": "address" }],
-    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
-    "stateMutability": "view"
+    "name": "assignRole",
+    "inputs": [
+      { "name": "roleId", "type": "uint32", "internalType": "uint32" },
+      { "name": "account", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -138,48 +266,16 @@ export const agDaoAbi =  [
   },
   {
     "type": "function",
-    "name": "complete",
-    "inputs": [
-      { "name": "lawCalldata", "type": "bytes", "internalType": "bytes" },
-      {
-        "name": "descriptionHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "constitute",
     "inputs": [
       {
         "name": "constituentLaws",
         "type": "address[]",
         "internalType": "address[]"
-      },
-      {
-        "name": "constitutionalRoles",
-        "type": "tuple[]",
-        "internalType": "struct IAuthoritiesManager.ConstituentRole[]",
-        "components": [
-          { "name": "account", "type": "address", "internalType": "address" },
-          { "name": "roleId", "type": "uint64", "internalType": "uint64" }
-        ]
       }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "coreRequirements",
-    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-    "outputs": [
-      { "name": "", "type": "bytes32", "internalType": "ShortString" }
-    ],
-    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -210,11 +306,7 @@ export const agDaoAbi =  [
     "inputs": [
       { "name": "targetLaw", "type": "address", "internalType": "address" },
       { "name": "lawCalldata", "type": "bytes", "internalType": "bytes" },
-      {
-        "name": "descriptionHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
+      { "name": "description", "type": "string", "internalType": "string" }
     ],
     "outputs": [],
     "stateMutability": "payable"
@@ -232,7 +324,7 @@ export const agDaoAbi =  [
     "type": "function",
     "name": "getAmountRoleHolders",
     "inputs": [
-      { "name": "roleId", "type": "uint64", "internalType": "uint64" }
+      { "name": "roleId", "type": "uint32", "internalType": "uint32" }
     ],
     "outputs": [
       {
@@ -245,19 +337,27 @@ export const agDaoAbi =  [
   },
   {
     "type": "function",
-    "name": "getCoreValues",
-    "inputs": [],
-    "outputs": [
-      { "name": "coreValues", "type": "string[]", "internalType": "string[]" }
+    "name": "getProposalVotes",
+    "inputs": [
+      { "name": "proposalId", "type": "uint256", "internalType": "uint256" }
     ],
-    "stateMutability": "nonpayable"
+    "outputs": [
+      {
+        "name": "againstVotes",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      { "name": "forVotes", "type": "uint256", "internalType": "uint256" },
+      { "name": "abstainVotes", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
     "name": "hasRoleSince",
     "inputs": [
       { "name": "account", "type": "address", "internalType": "address" },
-      { "name": "roleId", "type": "uint64", "internalType": "uint64" }
+      { "name": "roleId", "type": "uint32", "internalType": "uint32" }
     ],
     "outputs": [
       { "name": "since", "type": "uint48", "internalType": "uint48" }
@@ -288,6 +388,15 @@ export const agDaoAbi =  [
     ],
     "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
     "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "laws",
+    "inputs": [
+      { "name": "lawAddress", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "active", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -345,23 +454,6 @@ export const agDaoAbi =  [
   },
   {
     "type": "function",
-    "name": "proposalVotes",
-    "inputs": [
-      { "name": "proposalId", "type": "uint256", "internalType": "uint256" }
-    ],
-    "outputs": [
-      {
-        "name": "againstVotes",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      { "name": "forVotes", "type": "uint256", "internalType": "uint256" },
-      { "name": "abstainVotes", "type": "uint256", "internalType": "uint256" }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "propose",
     "inputs": [
       { "name": "targetLaw", "type": "address", "internalType": "address" },
@@ -373,9 +465,19 @@ export const agDaoAbi =  [
   },
   {
     "type": "function",
-    "name": "removeRequirement",
+    "name": "revokeLaw",
     "inputs": [
-      { "name": "index", "type": "uint256", "internalType": "uint256" }
+      { "name": "law", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeRole",
+    "inputs": [
+      { "name": "roleId", "type": "uint32", "internalType": "uint32" },
+      { "name": "account", "type": "address", "internalType": "address" }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -384,7 +486,7 @@ export const agDaoAbi =  [
     "type": "function",
     "name": "roles",
     "inputs": [
-      { "name": "roleId", "type": "uint64", "internalType": "uint64" }
+      { "name": "roleId", "type": "uint32", "internalType": "uint32" }
     ],
     "outputs": [
       {
@@ -397,31 +499,9 @@ export const agDaoAbi =  [
   },
   {
     "type": "function",
-    "name": "setBlacklistAccount",
+    "name": "setUri",
     "inputs": [
-      { "name": "account", "type": "address", "internalType": "address" },
-      { "name": "isBlackListed", "type": "bool", "internalType": "bool" }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setLaw",
-    "inputs": [
-      { "name": "law", "type": "address", "internalType": "address" },
-      { "name": "active", "type": "bool", "internalType": "bool" }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setRole",
-    "inputs": [
-      { "name": "roleId", "type": "uint64", "internalType": "uint64" },
-      { "name": "account", "type": "address", "internalType": "address" },
-      { "name": "access", "type": "bool", "internalType": "bool" }
+      { "name": "newUri", "type": "string", "internalType": "string" }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -436,9 +516,16 @@ export const agDaoAbi =  [
       {
         "name": "",
         "type": "uint8",
-        "internalType": "enum ISeparatedPowers.ActionState"
+        "internalType": "enum SeparatedPowersTypes.ProposalState"
       }
     ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "uri",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
     "stateMutability": "view"
   },
   {
@@ -447,51 +534,6 @@ export const agDaoAbi =  [
     "inputs": [],
     "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
     "stateMutability": "pure"
-  },
-  {
-    "type": "event",
-    "name": "AgDao_AccountBlacklisted",
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "isBlackListed",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "AgDao_RequirementAdded",
-    "inputs": [
-      {
-        "name": "requirement",
-        "type": "bytes32",
-        "indexed": false,
-        "internalType": "ShortString"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "AgDao_RequirementRemoved",
-    "inputs": [
-      {
-        "name": "index",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
   },
   {
     "type": "event",
@@ -514,25 +556,26 @@ export const agDaoAbi =  [
   },
   {
     "type": "event",
-    "name": "LawSet",
+    "name": "LawAdopted",
     "inputs": [
       {
         "name": "law",
         "type": "address",
         "indexed": true,
         "internalType": "address"
-      },
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LawRevoked",
+    "inputs": [
       {
-        "name": "active",
-        "type": "bool",
+        "name": "law",
+        "type": "address",
         "indexed": true,
-        "internalType": "bool"
-      },
-      {
-        "name": "lawChanged",
-        "type": "bool",
-        "indexed": true,
-        "internalType": "bool"
+        "internalType": "address"
       }
     ],
     "anonymous": false
@@ -555,10 +598,28 @@ export const agDaoAbi =  [
     "name": "ProposalCompleted",
     "inputs": [
       {
-        "name": "proposalId",
-        "type": "uint256",
+        "name": "initiator",
+        "type": "address",
         "indexed": true,
-        "internalType": "uint256"
+        "internalType": "address"
+      },
+      {
+        "name": "targetLaw",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "lawCalldata",
+        "type": "bytes",
+        "indexed": false,
+        "internalType": "bytes"
+      },
+      {
+        "name": "descriptionHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
       }
     ],
     "anonymous": false
@@ -570,13 +631,13 @@ export const agDaoAbi =  [
       {
         "name": "proposalId",
         "type": "uint256",
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256"
       },
       {
         "name": "initiator",
         "type": "address",
-        "indexed": false,
+        "indexed": true,
         "internalType": "address"
       },
       {
@@ -592,7 +653,7 @@ export const agDaoAbi =  [
         "internalType": "string"
       },
       {
-        "name": "ececuteCalldata",
+        "name": "executeCalldata",
         "type": "bytes",
         "indexed": false,
         "internalType": "bytes"
@@ -620,13 +681,38 @@ export const agDaoAbi =  [
   },
   {
     "type": "event",
+    "name": "ProposalExecuted",
+    "inputs": [
+      {
+        "name": "targets",
+        "type": "address[]",
+        "indexed": false,
+        "internalType": "address[]"
+      },
+      {
+        "name": "values",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "calldatas",
+        "type": "bytes[]",
+        "indexed": false,
+        "internalType": "bytes[]"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "RoleSet",
     "inputs": [
       {
         "name": "roleId",
-        "type": "uint64",
+        "type": "uint48",
         "indexed": true,
-        "internalType": "uint64"
+        "internalType": "uint48"
       },
       {
         "name": "account",
@@ -635,7 +721,7 @@ export const agDaoAbi =  [
         "internalType": "address"
       },
       {
-        "name": "accessChanged",
+        "name": "access",
         "type": "bool",
         "indexed": true,
         "internalType": "bool"
@@ -652,6 +738,12 @@ export const agDaoAbi =  [
         "type": "address",
         "indexed": false,
         "internalType": "address"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
       }
     ],
     "anonymous": false
@@ -687,48 +779,27 @@ export const agDaoAbi =  [
     ],
     "anonymous": false
   },
+  { "type": "error", "name": "FailedCall", "inputs": [] },
+  { "type": "error", "name": "InvalidShortString", "inputs": [] },
+  { "type": "error", "name": "SeparatedPowers__AccessDenied", "inputs": [] },
   {
     "type": "error",
-    "name": "AuthoritiesManager__AlreadyCastVote",
-    "inputs": [
-      { "name": "account", "type": "address", "internalType": "address" }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "AuthoritiesManager__InvalidVoteType",
+    "name": "SeparatedPowers__AlreadyCastVote",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "AuthoritiesManager__NotAuthorized",
-    "inputs": [
-      {
-        "name": "invalidAddress",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  { "type": "error", "name": "FailedCall", "inputs": [] },
-  { "type": "error", "name": "InvalidShortString", "inputs": [] },
-  {
-    "type": "error",
-    "name": "LawsManager__IncorrectInterface",
-    "inputs": [
-      { "name": "law", "type": "address", "internalType": "address" }
-    ]
-  },
-  { "type": "error", "name": "LawsManager__NotAuthorized", "inputs": [] },
-  { "type": "error", "name": "SeparatedPowers__AccessDenied", "inputs": [] },
-  {
-    "type": "error",
-    "name": "SeparatedPowers__CompleteCallNotFromActiveLaw",
+    "name": "SeparatedPowers__CancelCallNotFromActiveLaw",
     "inputs": []
   },
   {
     "type": "error",
     "name": "SeparatedPowers__ConstitutionAlreadyExecuted",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SeparatedPowers__IncorrectInterface",
     "inputs": []
   },
   {
@@ -743,16 +814,27 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__AccessDenied",
+    "name": "SeparatedPowers__InvalidVoteType",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__OnlyProposer",
-    "inputs": [
-      { "name": "caller", "type": "address", "internalType": "address" }
-    ]
+    "name": "SeparatedPowers__LawAlreadyActive",
+    "inputs": []
   },
+  {
+    "type": "error",
+    "name": "SeparatedPowers__LawDidNotPassChecks",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SeparatedPowers__LawDoesNotNeedProposalVote",
+    "inputs": []
+  },
+  { "type": "error", "name": "SeparatedPowers__LawNotActive", "inputs": [] },
+  { "type": "error", "name": "SeparatedPowers__NoVoteNeeded", "inputs": [] },
+  { "type": "error", "name": "SeparatedPowers__NotActiveLaw", "inputs": [] },
   {
     "type": "error",
     "name": "SeparatedPowers__OnlySeparatedPowers",
@@ -775,15 +857,8 @@ export const agDaoAbi =  [
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__UnexpectedActionState",
+    "name": "SeparatedPowers__UnexpectedProposalState",
     "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "SeperatedPowers__NonExistentProposal",
-    "inputs": [
-      { "name": "proposalId", "type": "uint256", "internalType": "uint256" }
-    ]
   },
   {
     "type": "error",
@@ -792,197 +867,304 @@ export const agDaoAbi =  [
   }
 ]
 
-export const agCoinsAbi = [
+export const lawAbi: Abi = [
   {
     "type": "constructor",
     "inputs": [
-      { "name": "agDao_", "type": "address", "internalType": "address" }
+      { "name": "name_", "type": "string", "internalType": "string" },
+      { "name": "description_", "type": "string", "internalType": "string" },
+      {
+        "name": "separatedPowers_",
+        "type": "address",
+        "internalType": "address payable"
+      },
+      { "name": "allowedRole_", "type": "uint32", "internalType": "uint32" },
+      {
+        "name": "config_",
+        "type": "tuple",
+        "internalType": "struct ILaw.LawConfig",
+        "components": [
+          { "name": "quorum", "type": "uint8", "internalType": "uint8" },
+          { "name": "succeedAt", "type": "uint8", "internalType": "uint8" },
+          {
+            "name": "votingPeriod",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "needCompleted",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "needNotCompleted",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "delayExecution",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "throttleExecution",
+            "type": "uint48",
+            "internalType": "uint48"
+          }
+        ]
+      }
     ],
     "stateMutability": "nonpayable"
   },
   {
     "type": "function",
-    "name": "allowance",
-    "inputs": [
-      { "name": "owner", "type": "address", "internalType": "address" },
-      { "name": "spender", "type": "address", "internalType": "address" }
-    ],
-    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "approve",
-    "inputs": [
-      { "name": "spender", "type": "address", "internalType": "address" },
-      { "name": "value", "type": "uint256", "internalType": "uint256" }
-    ],
-    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "balanceOf",
-    "inputs": [
-      { "name": "account", "type": "address", "internalType": "address" }
-    ],
-    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "decimals",
+    "name": "allowedRole",
     "inputs": [],
-    "outputs": [{ "name": "", "type": "uint8", "internalType": "uint8" }],
+    "outputs": [{ "name": "", "type": "uint32", "internalType": "uint32" }],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "mintCoins",
+    "name": "checksAtExecute",
     "inputs": [
-      { "name": "amount", "type": "uint256", "internalType": "uint256" }
+      { "name": "initiator", "type": "address", "internalType": "address" },
+      { "name": "lawCalldata", "type": "bytes", "internalType": "bytes" },
+      {
+        "name": "descriptionHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
     ],
     "outputs": [],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "checksAtPropose",
+    "inputs": [
+      { "name": "initiator", "type": "address", "internalType": "address" },
+      { "name": "lawCalldata", "type": "bytes", "internalType": "bytes" },
+      {
+        "name": "descriptionHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "config",
+    "inputs": [],
+    "outputs": [
+      { "name": "quorum", "type": "uint8", "internalType": "uint8" },
+      { "name": "succeedAt", "type": "uint8", "internalType": "uint8" },
+      { "name": "votingPeriod", "type": "uint32", "internalType": "uint32" },
+      {
+        "name": "needCompleted",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "needNotCompleted",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "delayExecution",
+        "type": "uint48",
+        "internalType": "uint48"
+      },
+      {
+        "name": "throttleExecution",
+        "type": "uint48",
+        "internalType": "uint48"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "description",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "executeLaw",
+    "inputs": [
+      { "name": "initiator", "type": "address", "internalType": "address" },
+      { "name": "lawCalldata", "type": "bytes", "internalType": "bytes" },
+      {
+        "name": "descriptionHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      { "name": "targets", "type": "address[]", "internalType": "address[]" },
+      { "name": "values", "type": "uint256[]", "internalType": "uint256[]" },
+      { "name": "calldatas", "type": "bytes[]", "internalType": "bytes[]" }
+    ],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "executions",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [{ "name": "", "type": "uint48", "internalType": "uint48" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "inputParams",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "bytes", "internalType": "bytes" }],
+    "stateMutability": "view"
   },
   {
     "type": "function",
     "name": "name",
     "inputs": [],
-    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "outputs": [
+      { "name": "", "type": "bytes32", "internalType": "ShortString" }
+    ],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "symbol",
+    "name": "separatedPowers",
     "inputs": [],
-    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "outputs": [
+      { "name": "", "type": "address", "internalType": "address payable" }
+    ],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "totalSupply",
-    "inputs": [],
-    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "transfer",
+    "name": "simulateLaw",
     "inputs": [
-      { "name": "to", "type": "address", "internalType": "address" },
-      { "name": "value", "type": "uint256", "internalType": "uint256" }
+      { "name": "initiator", "type": "address", "internalType": "address" },
+      { "name": "lawCalldata", "type": "bytes", "internalType": "bytes" },
+      {
+        "name": "descriptionHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      { "name": "targets", "type": "address[]", "internalType": "address[]" },
+      { "name": "values", "type": "uint256[]", "internalType": "uint256[]" },
+      { "name": "calldatas", "type": "bytes[]", "internalType": "bytes[]" },
+      { "name": "stateChange", "type": "bytes", "internalType": "bytes" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "stateVars",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "bytes", "internalType": "bytes" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "supportsInterface",
+    "inputs": [
+      { "name": "interfaceId", "type": "bytes4", "internalType": "bytes4" }
     ],
     "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "transferFrom",
-    "inputs": [
-      { "name": "from", "type": "address", "internalType": "address" },
-      { "name": "to", "type": "address", "internalType": "address" },
-      { "name": "value", "type": "uint256", "internalType": "uint256" }
-    ],
-    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
-    "stateMutability": "nonpayable"
+    "stateMutability": "view"
   },
   {
     "type": "event",
-    "name": "Approval",
+    "name": "Law__Initialized",
     "inputs": [
       {
-        "name": "owner",
+        "name": "law",
         "type": "address",
         "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "spender",
+        "name": "separatedPowers",
         "type": "address",
         "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "value",
-        "type": "uint256",
+        "name": "name",
+        "type": "string",
         "indexed": false,
-        "internalType": "uint256"
+        "internalType": "string"
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "allowedRole",
+        "type": "uint48",
+        "indexed": false,
+        "internalType": "uint48"
+      },
+      {
+        "name": "config",
+        "type": "tuple",
+        "indexed": false,
+        "internalType": "struct ILaw.LawConfig",
+        "components": [
+          { "name": "quorum", "type": "uint8", "internalType": "uint8" },
+          { "name": "succeedAt", "type": "uint8", "internalType": "uint8" },
+          {
+            "name": "votingPeriod",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "needCompleted",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "needNotCompleted",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "delayExecution",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "throttleExecution",
+            "type": "uint48",
+            "internalType": "uint48"
+          }
+        ]
       }
     ],
     "anonymous": false
   },
-  {
-    "type": "event",
-    "name": "Transfer",
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "to",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "value",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  { "type": "error", "name": "AgCoins__AmountExceedsMax", "inputs": [] },
-  { "type": "error", "name": "AgCoins__ZeroAmount", "inputs": [] },
+  { "type": "error", "name": "Law__DeadlineNotPassed", "inputs": [] },
+  { "type": "error", "name": "Law__ExecutionGapTooSmall", "inputs": [] },
+  { "type": "error", "name": "Law__ExecutionLimitReached", "inputs": [] },
+  { "type": "error", "name": "Law__NoDeadlineSet", "inputs": [] },
+  { "type": "error", "name": "Law__NoZeroAddress", "inputs": [] },
+  { "type": "error", "name": "Law__OnlySeparatedPowers", "inputs": [] },
+  { "type": "error", "name": "Law__ParentBlocksCompletion", "inputs": [] },
+  { "type": "error", "name": "Law__ParentLawNotSet", "inputs": [] },
+  { "type": "error", "name": "Law__ParentNotCompleted", "inputs": [] },
+  { "type": "error", "name": "Law__ProposalNotSucceeded", "inputs": [] },
   {
     "type": "error",
-    "name": "ERC20InsufficientAllowance",
-    "inputs": [
-      { "name": "spender", "type": "address", "internalType": "address" },
-      { "name": "allowance", "type": "uint256", "internalType": "uint256" },
-      { "name": "needed", "type": "uint256", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "ERC20InsufficientBalance",
-    "inputs": [
-      { "name": "sender", "type": "address", "internalType": "address" },
-      { "name": "balance", "type": "uint256", "internalType": "uint256" },
-      { "name": "needed", "type": "uint256", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "ERC20InvalidApprover",
-    "inputs": [
-      { "name": "approver", "type": "address", "internalType": "address" }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "ERC20InvalidReceiver",
-    "inputs": [
-      { "name": "receiver", "type": "address", "internalType": "address" }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "ERC20InvalidSender",
-    "inputs": [
-      { "name": "sender", "type": "address", "internalType": "address" }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "ERC20InvalidSpender",
-    "inputs": [
-      { "name": "spender", "type": "address", "internalType": "address" }
-    ]
+    "name": "StringTooLong",
+    "inputs": [{ "name": "str", "type": "string", "internalType": "string" }]
   }
 ]
+
+
