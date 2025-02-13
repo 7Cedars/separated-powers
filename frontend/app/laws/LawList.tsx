@@ -99,7 +99,7 @@ export function LawList() {
                 key={i}
                 className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}
               >
-                <td className="text-left px-2 w-60">
+                <td className="max-h-12 text-left px-2 w-60">
                   <Button
                     showBorder={false}
                     role={
