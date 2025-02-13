@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { assignOrg, setLaw, useOrgStore } from "@/context/store";
+import { assignOrg, setAction, setLaw, useOrgStore } from "@/context/store";
 import { Button } from "@/components/Button";
 import { useRouter } from "next/navigation";
 import { Proposal } from "@/context/types";
@@ -149,15 +149,20 @@ export function ProposalList() {
                 ? 
                 <tr
                   key={i}
-                  className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}
+                  className={`text-sm text-left text-slate-800 h-full p-2 overflow-x-scroll`}
                 >
-                  <td className="flex flex-col justify-center items-start text-left px-2 py-2 w-fit">
+                  <td className="h-full flex flex-col justify-center items-center text-left w-fit p-2">
                     <Button
                       showBorder={false}
                       role={parseRole(law.allowedRole)}
                       onClick={() => {
                         setLaw(law);
                         setProposal(proposal)
+                        setAction({
+                          description: proposal.description,
+                          callData: proposal.executeCalldata,
+                          upToDate: true
+                        })
                         router.push("/proposals/proposal");
                       }}
                       align={0}

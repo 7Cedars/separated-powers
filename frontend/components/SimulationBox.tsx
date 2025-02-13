@@ -22,7 +22,6 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
       })
   const params =  bytesToParams(data as `0x${string}`)  
   const dataTypes = params.map(param => param.dataType) 
-  // const dataTypes = bytesToParams(data as `0x${string}`)
     
   useEffect(() => {
 
@@ -67,22 +66,17 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
     setJsxSimulation(sim)
   }, [simulation])
 
-  // try to do without this. Don't know if it is actually necessary.. 
-  // useEffect(() => {
-  //   setJsxSimulation([])
-  // }, [])
-
   return (
-    <>
+    <section className="w-full flex flex-col gap-6 justify-start items-center px-6">
     {dataTypes.length > 0 ? 
-      <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 pt-2 px-6">
-          <div className="w-full text-xs text-center text-slate-500 border rounded-t-md border-b-0 border-slate-300 p-2">
+      <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 border rounded-md border-slate-300 overflow-hidden">
+          <div className="w-full text-xs text-center text-slate-500 p-2 ">
             State variables to be saved in law 
           </div>
-          <div className="w-full h-fit border border-slate-300 overflow-scroll rounded-b-md">
+          <div className="w-full max-w-2xl h-fit overflow-scroll">
             <table className="table-auto w-full ">
-              <thead className="w-full">
-                <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
+              <thead className="w-full border-b border-slate-300">
+                <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500">
                     <th className="ps-6 py-2 font-light"> Data type </th>
                     <th className="font-light text-left"> Value </th>
                 </tr>
@@ -97,26 +91,36 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
         null
       }
 
-      <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 pt-2 px-6">
-        <div className="w-full text-xs text-center text-slate-500 border rounded-t-md border-b-0 border-slate-300 p-2">
+      <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 border rounded-md border-slate-300 overflow-hidden">
+        <div className="w-full text-xs text-center text-slate-500 p-2 ">
           Calldata to be send to protocol 
         </div>
-        <div className="w-full h-fit border border-slate-300 overflow-scroll rounded-b-md">
+        <div className="w-full max-w-2xl h-fit overflow-scroll">
           <table className="table-auto w-full ">
-            <thead className="w-full">
-              <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500 rounded-md border-b border-slate-200">
+            <thead className="w-full border-b border-slate-300">
+              <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500">
                   <th className="ps-6 py-2 font-light"> Target contracts </th>
-                  <th className="font-light"> Value </th>
+                  <th className="font-light pe-4"> Value </th>
                   <th className="font-light"> Calldata </th>
               </tr>
             </thead>
               <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
-                { jsxSimulation[1] ? jsxSimulation[1].map(row => {return (row)} ) : null } 
+                { 
+                  jsxSimulation[1] ? 
+                    jsxSimulation[1].map(row => {return (row)} ) 
+                  : status == "error" ?
+                    <div className="w-full flex flex-col gap-0 justify-start items-center text-red text-sm">
+                      Error: 
+                      {String(error)}
+                    </div>  
+                  :
+                  null 
+                  } 
               </tbody>
             </table>
           </div>
           
       </div>
-    </>
+    </section>
   )
 }

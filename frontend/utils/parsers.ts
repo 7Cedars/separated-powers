@@ -49,8 +49,6 @@ export const bytesToParams = (bytes: `0x${string}`): {varName: string, dataType:
     })
   })
 
-  console.log("@bytesToParams", {string, raw, cleanString, result})
-
   return result
 }
 

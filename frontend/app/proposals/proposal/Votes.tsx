@@ -46,7 +46,10 @@ export const Votes: React.FC = () => {
   const threshold = isSuccess ? Math.floor((parseVoteData(data).holders * 100) / Number(law.config.succeedAt)) : 0
 
   return (
-    <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
+    <>
+    { selectedProposal ?
+      <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72">
+      <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
         <div className="w-full flex flex-row items-center justify-between px-4 py-2 text-slate-900">
           <div className="text-left w-52">
             Votes
@@ -98,7 +101,11 @@ export const Votes: React.FC = () => {
             </div>
           </div>
         </div>
-
     </section>
+    </div>
+    :
+    null
+    }
+    </>
   )
 }

@@ -1,6 +1,6 @@
 `use client`
 
-import { useOrgStore, setProposal} from "@/context/store";
+import { useOrgStore, setProposal, setAction} from "@/context/store";
 import { Proposal } from "@/context/types";
 import { useProposal } from "@/hooks/useProposal";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
@@ -55,7 +55,7 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
       authenticated ?
         proposalsWithState && proposalsWithState.length > 0 ? 
 
-          <div className = "w-full h-full lg:h-48 flex flex-col gap-2 justify-start items-center overflow-y-scroll p-2 px-1">
+          <div className = "w-full h-fit flex flex-col gap-2 justify-start items-center overflow-y-scroll p-2 px-1">
           {
           proposalsWithState?.map((proposal: Proposal, i) => {
               const law = organisation?.laws?.find(law => law.law == proposal.targetLaw)
@@ -67,6 +67,10 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
                     onClick={
                       () => {
                         setProposal(proposal)
+                        setAction({
+                          description: proposal.description,
+                          callData: proposal.executeCalldata
+                        })
                         router.push('/proposals/proposal')
                         }
                       }>

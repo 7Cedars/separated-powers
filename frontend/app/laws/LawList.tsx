@@ -92,14 +92,14 @@ export function LawList() {
                 <th className="font-light"> Role </th>
             </tr>
         </thead>
-        <tbody className="w-full text-sm text-right text-slate-500 divide-y divide-slate-200">
+        <tbody className="w-full h-full text-sm text-right text-slate-500 divide-y divide-slate-200">
           {
             organisation.laws?.filter(law => law.allowedRole != undefined && !organisation?.deselectedRoles?.includes(BigInt(`${law.allowedRole}`)))?.map((law: Law, i) => 
               <tr
                 key={i}
                 className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}
               >
-                <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-60">
+                <td className="text-left px-2 w-60">
                   <Button
                     showBorder={false}
                     role={

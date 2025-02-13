@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { parseInput } from "@/utils/parsers";
 import { DataType, InputType } from "@/context/types";
 import { 
@@ -16,20 +16,22 @@ type InputProps = {
   onChange: (input: InputType | InputType[]) => void;
 }
 
-export function DynamicInput({dataType, varName, onChange}: InputProps) {
-  const [inputArray, setInputArray] = useState<InputType[]>(new Array<InputType>(1))
+export function DynamicInput({dataType, varName, values, onChange}: InputProps) {
+  const [inputArray, setInputArray] = useState<InputType[]>(values instanceof Array ? values : [values])
   const [itemsArray, setItemsArray] = useState<number[]>([0])
   const [error, setError] = useState<String>()
-  console.log({varName})
+
 
   const inputType = 
     dataType.indexOf('uint') > -1 ? "number"
     : dataType.indexOf('bool') > -1 ? "boolean"
     : dataType.indexOf('string') > -1 ? "string"
-    : dataType.indexOf('address') > -1 ? "address"
-    : dataType.indexOf('bytes') > -1 ? "hex"
+    : dataType.indexOf('address') > -1 ? "string"
+    : dataType.indexOf('bytes') > -1 ? "string"
     : dataType.indexOf('empty') > -1 ? "empty"
     : "unsupported"
+
+    console.log("@dynamicInput: ", {inputArray, values, dataType, inputType, itemsArray })
   
   const array = 
     dataType.indexOf('[]') > -1 ? true : false
@@ -71,6 +73,14 @@ export function DynamicInput({dataType, varName, onChange}: InputProps) {
     }
   }
 
+  useEffect(() => {
+    if (values && values instanceof Array ) {
+      setInputArray(values)
+    } else {
+      setInputArray([values])
+    } 
+  }, [values])
+
   return (
     <div className="w-full flex flex-col justify-center items-center">
       {itemsArray.map((item) =>  
@@ -80,24 +90,33 @@ export function DynamicInput({dataType, varName, onChange}: InputProps) {
             </div>
 
             {
-            inputType == "number" || inputType == "string" || inputType == "hex" || inputType == "address" ? 
-              <>
+            inputType  == "string" && typeof inputArray[item] != "boolean" ? 
                 <div className="w-full flex items-center rounded-md bg-white pl-3 outline outline-1 outline-gray-300">  
                   <input 
-                    type={
-                      inputType == "string" || inputType == "hex" || inputType == "address" ? "text" : "number" 
-                    } 
+                    type= "text" 
                     name={`input${item}`} 
                     id={`input${item}`}
+                    value = {inputArray[item] ? inputArray[item] : ""}
                     className="w-full h-8 pe-2 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
-                    placeholder={`Enter ${dataType.replace(/\[\]/g, '')} value here.`}
+                    placeholder={`Enter ${dataType} here.`}
                     onChange={(event) => handleChange({event, item})}
                     />
                 </div>
-              </>
+            : 
+            inputType == "number" ? 
+              <div className="w-full flex items-center rounded-md bg-white pl-3 outline outline-1 outline-gray-300">  
+                <input 
+                  type="number" 
+                  name={`input${item}`} 
+                  id={`input${item}`}
+                  value = {String(inputArray[item])}
+                  className="w-full h-8 pe-2 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
+                  placeholder={`Enter ${dataType} value here.`}
+                  onChange={(event) => handleChange({event, item})}
+                  />
+              </div>  
             :
             inputType == "boolean" ? 
-              <>
                 <div className = {"w-full h-8 ps-4 flex flex-row gap-4  items-center rounded-md bg-white outline outline-1 outline-gray-300" }>
                 {/* radio button true  */}
                   <div className = {"flex flex-row gap-1 "}>
@@ -132,9 +151,10 @@ export function DynamicInput({dataType, varName, onChange}: InputProps) {
                       />
                   </div>
                 </div>
-              </>
             :
-            null
+            <div className="w-full flex items-center rounded-md bg-white pl-3 outline outline-1 outline-gray-300 text-sm text-red-400 py-1">  
+              error: data not recognised.
+            </div>  
             }
             {
               array && item == itemsArray.length - 1 ?

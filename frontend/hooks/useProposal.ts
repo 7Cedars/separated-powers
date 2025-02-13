@@ -16,6 +16,7 @@ export const useProposal = () => {
   const organisation = useOrgStore()
   const [transactionHash, setTransactionHash ] = useState<`0x${string}` | undefined>()
   const [proposals, setProposals] = useState<Proposal[] | undefined>()
+  const [hasVoted, setHasVoted] = useState<boolean | undefined>()
   const [law, setLaw ] = useState<`0x${string}` | undefined>()
   const [error, setError] = useState<any | null>(null)
   const chainId = useChainId();
@@ -27,7 +28,11 @@ export const useProposal = () => {
   })
 
   useEffect(() => {
-    if (statusReceipt === "success") setStatus("success")
+    if (statusReceipt === "success") {
+      setStatus("success")
+      // refetch to update votes. 
+      fetchProposals(organisation)
+    }
     if (statusReceipt === "error") setStatus("error")
   }, [statusReceipt])
 
@@ -187,5 +192,31 @@ export const useProposal = () => {
       }
   }, [ ])
 
-  return {status, error, law, proposals, fetchProposals, propose, cancel, castVote}
+
+  // note: I did not implement castVoteWithReason -- to much work for now. 
+  const checkHasVoted = useCallback( 
+    async (
+      proposalId: bigint,
+      account: `0x${string}`
+    ) => {
+      console.log("checkHasVoted triggered")
+        setStatus("pending")
+        setLaw("0x01") // note: a dummy value to signify cast vote 
+        try {
+          const result = await readContract(wagmiConfig, {
+            abi: separatedPowersAbi,
+            address: organisation.contractAddress,
+            functionName: 'hasVoted', 
+            args: [proposalId, account]
+          })
+          console.log({result})
+          setHasVoted(result as boolean )
+          setStatus("success") 
+      } catch (error) {
+          setStatus("error") 
+          setError(error)
+      }
+  }, [ ])
+
+  return {status, error, law, proposals, hasVoted, fetchProposals, propose, cancel, castVote, checkHasVoted}
 }

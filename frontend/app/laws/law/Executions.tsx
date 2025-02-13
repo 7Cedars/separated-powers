@@ -65,14 +65,14 @@ export function Executions() {
 
         {/* execution logs block 1 */}
         {
-          organisation.proposals?.length != 0 ?
+          executions?.length != 0 ?
           <div className = "w-full flex flex-col max-h-36 lg:max-h-56 overflow-y-scroll divide-y divide-slate-300">
             {executions?.map((execution: Log, index: number) => 
               <div className = "w-full flex flex-col justify-center items-center p-2"> 
                 <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
                   <div>
                     {/* need to get the timestamp.. */}
-                    block: {execution.blockNumber}  
+                    block: {Number(execution.blockNumber)}  
                   </div>
                   {/* <div>
                     13:45
@@ -94,9 +94,9 @@ export function Executions() {
             }
             </div>
             :
-              <div className = "w-full flex flex-col justify-center items-center italic text-slate-400 p-2">
+            <div className = "w-full flex flex-col justify-center items-center italic text-slate-400 p-2">
                 No executions found. 
-              </div> 
+            </div> 
           }
         
 

@@ -25,6 +25,15 @@ const fontAlign = [
   "justify-right text-right", 
 ]
 
+// const roleColour = [  
+//   "border-blue-600", 
+//   "border-red-600", 
+//   "border-yellow-600", 
+//   "border-purple-600",
+//   "green-green-600", 
+//   "border-orange-600"
+// ] 
+
 const roleBorderColour = [
   "aria-selected:bg-blue-200 md:hover:border-blue-600 border-blue-600",
   "aria-selected:bg-red-200 md:hover:border-red-600 border-red-600",
@@ -32,9 +41,7 @@ const roleBorderColour = [
   "aria-selected:bg-purple-200 md:hover:border-purple-600 border-purple-600",
   "aria-selected:bg-green-200 md:hover:green-600 border-green-600",
   "aria-selected:bg-orange-200 md:hover:border-orange-600 border-orange-600",
-  "aria-selected:bg-stone-200 md:hover:border-stone-600 border-stone-600",
-  "aria-selected:bg-slate-200 md:hover:border-slate-600 border-slate-600",
-  "aria-selected:bg-slate-200 md:hover:border-slate-600 border-slate-300"
+  "aria-selected:bg-slate-200 md:hover:border-slate-600 border-slate-400"
 ]
 
 export const Button = ({
@@ -43,14 +50,14 @@ export const Button = ({
   selected = false, 
   size = 1, 
   align = 1,
-  role = 7,  
+  role = 6,  
   onClick,
   children,
 }: ButtonProps) => {
 
   return (
     <button 
-      className={`w-full h-full disabled:opacity-50 rounded-md border ${roleBorderColour[role]} ${fontSize[size]} ${showBorder ? "border-slate-300": "md:border-transparent"}`}  
+      className={`w-full h-full disabled:opacity-50 rounded-md border ${roleBorderColour[role % roleBorderColour.length]} ${fontSize[size]} ${showBorder ? "border-slate-300": "md:border-transparent"}`}  
       onClick={onClick} 
       disabled={statusButton != 'idle'}
       aria-selected={selected}

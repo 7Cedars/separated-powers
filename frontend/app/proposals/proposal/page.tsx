@@ -30,10 +30,7 @@ const Page: React.FC = () => {
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72">
             <Checks /> 
           </div>
-         
-          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72">
-            <Votes /> 
-          </div>
+          <Votes />  
         </div>
       </section>
     </main>

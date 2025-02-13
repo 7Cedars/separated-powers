@@ -8,18 +8,18 @@ import {
 import BlockiesSvg from 'blockies-react-svg'
 
 export const ConnectButton = () => {
-  const {wallets } = useWallets();
-  const {ready, authenticated, login, logout} = usePrivy();
+  const {wallets} = useWallets();
+  const {ready, authenticated, login, logout, connectWallet} = usePrivy();
 
   return (
     <> 
     {
       wallets[0] && authenticated ?  
       <button
-        className={`w-fit h-full flex flex-row items-center justify-center text-center rounded-md bg-slate-100 border-opacity-0 md:border-opacity-100 border border-slate-600`}  
+        className={`w-fit h-full flex flex-row items-center justify-center text-center rounded-md bg-slate-100 border-opacity-0 md:border-opacity-100 border border-slate-400 hover:border-slate-600`}  
         onClick={() => logout() }
       >
-        <div className={`flex flex-row items-center text-center text-slate-600 md:gap-2 gap-0 w-full h-full w-full md:py-1 px-1 py-0`}>
+        <div className={`flex flex-row items-center text-center text-slate-600 md:gap-2 gap-0 w-full h-full w-full md:py-1 px-2 py-0`}>
         {/* here should also be an icon. Address should disappear when screen = small. */}
           <BlockiesSvg 
             address={wallets[0].address}
@@ -33,7 +33,7 @@ export const ConnectButton = () => {
       :
       <button 
         className={`w-fit h-full`}  
-        onClick={() => login() }
+        onClick={() => connectWallet() }
         >
           <div className={`w-fit h-full flex flex-row items-center justify-center text-center rounded-md bg-slate-600 hover:bg-slate-800 text-slate-100 px-4 py-0`}>
             <PowerIcon
