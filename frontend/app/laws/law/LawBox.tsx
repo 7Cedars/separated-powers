@@ -48,10 +48,7 @@ export function LawBox() {
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
-  console.log("@lawBox", {action, paramValues})
-
   const handleChange = (input: InputType | InputType[], index: number) => {
-    console.log("@lawbox handle change triggered") 
     const currentInput = paramValues 
     currentInput[index] = input
     setParamValues(currentInput)
@@ -60,7 +57,6 @@ export function LawBox() {
   }  
   
   const handleSimulate = async (event: React.MouseEvent<HTMLButtonElement>) => {
-      console.log("@lawbox handleSimulate triggered")
       event.preventDefault() 
       setAbiEncodeError("")
       let lawCalldata: `0x${string}` | undefined
@@ -103,7 +99,6 @@ export function LawBox() {
 
   // resetting lawBox when switching laws: 
   useEffect(() => {
-    console.log("@lawbox not up to date triggered")
     setAction({
       ...action, 
       upToDate: false
@@ -112,7 +107,6 @@ export function LawBox() {
   }, [law])
 
   useEffect(() => {
-    console.log("@lawbox setting up description and calldata triggered") 
     try {
       const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), action.callData);
       const valuesParsed = parseParamValues(values)  
@@ -199,7 +193,7 @@ export function LawBox() {
             role={Number(law.allowedRole)}
             onClick={(event) => handleSimulate(event)} 
             statusButton={
-              !action.upToDate && description.length > 0 ? status : 'disabled'
+              !action.upToDate && description.length > 0 && status ? status : 'disabled'
               }> 
             Check 
           </Button>
@@ -222,8 +216,8 @@ export function LawBox() {
               checks.lawCompleted && 
               checks.lawNotCompleted && 
               checks.proposalPassed && 
-              checks.throttlePassed ? 
-              status : 'disabled'
+              checks.throttlePassed && 
+              status ? status : 'disabled' 
               }> 
             Execute
           </Button>

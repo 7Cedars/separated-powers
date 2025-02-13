@@ -50,8 +50,6 @@ export function ProposalList() {
     }
   }, []);
 
-  console.log({proposalsWithState})
-
   return (
     <div className="w-full min-w-96 flex flex-col justify-start items-center bg-slate-50 border slate-300 rounded-md overflow-hidden">
       {/* table banner:roles  */}

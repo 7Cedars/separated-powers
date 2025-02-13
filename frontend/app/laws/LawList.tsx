@@ -11,7 +11,7 @@ import { useOrganisations } from "@/hooks/useOrganisations";
 export function LawList() {
   const organisation = useOrgStore();
   const router = useRouter();
-  const {  update } = useOrganisations() 
+  const { status, update } = useOrganisations() 
 
 
   const handleRoleSelection = (role: bigint) => {

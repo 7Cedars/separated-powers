@@ -47,10 +47,7 @@ export function ProposalBox() {
   const params = bytesToParams(data as `0x${string}`)  
   const dataTypes = params.map(param => param.dataType) 
 
-  console.log("@proposalBox", {action})
-
   const handleSimulate = async () => {
-      console.log("handleSimulate triggered")
       if (dataTypes && dataTypes.length > 0 && calldata && description) {
         try {
           const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), calldata);

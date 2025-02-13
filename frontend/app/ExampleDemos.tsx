@@ -10,11 +10,8 @@ import { colourScheme } from "@/context/Theme"
 export function ExampleDemos() {
   const { organisations, status, initialise, fetch, update } = useOrganisations()
 
-  console.log({organisations})
-
   useEffect(() => {
     if (!organisations) {
-      console.log("initialise triggered")
       initialise()
     }
   }, [, organisations])

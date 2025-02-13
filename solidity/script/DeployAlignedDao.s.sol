@@ -216,7 +216,7 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new NftSelfSelect(
             "Elect self for role 1", // max 31 chars
-            "Anyone who has a mock Erc721 token can (de)select themselves for role 1. See the treasury page for the contract where to mint one.",
+            string.concat("Anyone who knows how to mint an NFT at ", Strings.toHexString(uint256(uint160(mock721_)), 20);, "can (de)select themselves for role 1."),
             dao_,
             type(uint32).max, // access role = public access
             lawConfig,

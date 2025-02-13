@@ -25,15 +25,6 @@ const fontAlign = [
   "justify-right text-right", 
 ]
 
-// const roleColour = [  
-//   "border-blue-600", 
-//   "border-red-600", 
-//   "border-yellow-600", 
-//   "border-purple-600",
-//   "green-green-600", 
-//   "border-orange-600"
-// ] 
-
 const roleBorderColour = [
   "aria-selected:bg-blue-200 md:hover:border-blue-600 border-blue-600",
   "aria-selected:bg-red-200 md:hover:border-red-600 border-red-600",

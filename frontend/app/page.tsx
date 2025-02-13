@@ -25,8 +25,6 @@ export default function Page() {
         if (organisation.name != '') router.push('/home') 
     }, [organisation])
 
-    console.log({organisations})
-
     return (
         <main className="w-full grid grid-cols-1 gap-0 overflow-y-scroll snap-y snap-mandatory overflow-x-hidden">
             

@@ -9,8 +9,6 @@ export function RunNewDemo() {
   const [newDemoAddress, setNewDemoAddress] = useState<`0x${string}`>()
   const {status, error, organisations, run} = useOrganisations()
 
-  console.log("@AddAsset:", {status, error, organisations})
-
   return (
     <section className="md:h-[80vh] h-0 flex flex-col justify-between items-center pb-8 px-4 snap-start snap-always  opacity-0 md:opacity-100 ">
       <div className = "w-full flex flex-row justify-center items-center text-3xl text-slate-600 text-center text-pretty font-bold pt-16 px-4">
@@ -22,7 +20,7 @@ export function RunNewDemo() {
           <div className="text-slate-900 text-center font-bold text-md min-w-24">
             Organisation
           </div>
-          {/* address input */}
+   
           <div className="grow min-w-28 flex items-center rounded-md bg-white pl-3 outline outline-1 outline-gray-300">  
             <input 
               type= "text" 
@@ -34,7 +32,7 @@ export function RunNewDemo() {
               />
           </div>
 
-          {/* button: add */}
+      
           <div className="h-8 flex flex-row w-20 min-w-24 text-center">
             <Button 
               size = {0} 
@@ -42,15 +40,16 @@ export function RunNewDemo() {
               onClick={() => {run(newDemoAddress ? newDemoAddress : "0x0")}}
               > 
               <div className = "text-slate-600">{
-                status == 'pending' ? <TwoSeventyRingWithBg /> : "Start"  
+                status && status == 'pending' ? <TwoSeventyRingWithBg /> : "Start"  
               }
               </div>    
             </Button>
           </div>
         </div>
       </div>
+      
         <div className = "text-sm h-fit">
-          { status == 'error' ? 
+          { status && status == 'error' ? 
               <div className = "text-red-500 pb-4">
                 {typeof error == "string" ?  error.slice(0, 30) : "Protocol not recognised"}
               </div> 

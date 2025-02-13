@@ -19,8 +19,6 @@ export function AssetList() {
   let balances: number[] = []; 
   const {status, error, tokens, native, initialise, update, fetchTokens} = useAssets()
 
-  console.log({status, error, tokens, native})
-
   useEffect(() => {
     initialise() 
   }, [])
@@ -38,7 +36,7 @@ export function AssetList() {
           >
             <ArrowPathIcon
               className="w-5 h-5 text-slate-800"
-              aria-selected={status == 'pending'}
+              aria-selected={status && status == 'pending'}
               />
         </button>
       </div>

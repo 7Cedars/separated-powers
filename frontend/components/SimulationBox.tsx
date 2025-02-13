@@ -108,7 +108,7 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
                 { 
                   jsxSimulation[1] ? 
                     jsxSimulation[1].map(row => {return (row)} ) 
-                  : status == "error" ?
+                  : status && status == "error" ?
                     <div className="w-full flex flex-col gap-0 justify-start items-center text-red text-sm">
                       Error: 
                       {String(error)}

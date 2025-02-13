@@ -10,7 +10,6 @@ export function AddAsset() {
   const [newToken, setNewToken] = useState<`0x${string}`>()
   const {status, error, tokens, native, initialise, update, fetchTokens} = useAssets()
 
-  console.log("@AddAsset:", {status, error, tokens, native})
 
   return (
     <div className="w-full flex flex-col justify-start items-center bg-slate-50 border border-slate-200 rounded-md overflow-hidden opacity-0 md:opacity-100 md:disabled">
@@ -38,19 +37,19 @@ export function AddAsset() {
             onClick={() => {update(newToken ? newToken : `0x0`)}}
             > 
             <div className = "text-slate-600">{
-              status == 'pending' ? <TwoSeventyRingWithBg /> : "Add ERC-20 Token"  
+              status && status == 'pending' ? <TwoSeventyRingWithBg /> : "Add ERC-20 Token"  
             }
             </div>    
           </Button>
         </div>
       </div>
       <div className = "text-sm">
-        { status == 'error' ? 
+        { status && status == 'error' ? 
             <div className = "text-red-500 pb-4">
               {typeof error == "string" ?  error.slice(0, 30) : "Token not recognised"}
             </div> 
           :
-          status == 'success' ? 
+          status && status == 'success' ? 
             <div className = "text-green-500  pb-4"> 
               Token added. Please refresh. 
             </div> 
