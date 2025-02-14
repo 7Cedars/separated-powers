@@ -8,7 +8,7 @@ description: >-
 
 
 
-🚧 **The documentation is under construction** 🚧
+🚧 **Documentation is under construction** 🚧
 
 
 
