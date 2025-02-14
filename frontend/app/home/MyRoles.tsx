@@ -54,7 +54,7 @@ export function MyRoles({hasRoles}: MyRolesProps ) {
                   role.role == 0n ? "Admin" : `Role ${role.role}`
                 }
               </div>
-              <div className = "w-full flex flex-row justify-end items-center text-right">
+              <div className = "w-full flex flex-row justify-end items-center text-right pe-4">
                 Since: {role.since} 
               </div>
             </div>
