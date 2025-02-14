@@ -2,6 +2,7 @@
 pragma solidity 0.8.26;
 
 import "lib/forge-std/src/Script.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 // core protocol
 import { SeparatedPowers } from "../src/SeparatedPowers.sol";
@@ -216,7 +217,7 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new NftSelfSelect(
             "Elect self for role 1", // max 31 chars
-            string.concat("Anyone who knows how to mint an NFT at ", Strings.toHexString(uint256(uint160(mock721_)), 20);, "can (de)select themselves for role 1."),
+            string.concat("Anyone who knows how to mint an NFT at ", Strings.toHexString(uint256(addressToInt(mock721_)), 20), " can (de)select themselves for role 1. Mint an NFT and claim the role!"),
             dao_,
             type(uint32).max, // access role = public access
             lawConfig,
@@ -298,5 +299,12 @@ contract DeployAlignedDao is Script {
         );
         vm.stopBroadcast();
         laws.push(address(law));
+    }
+
+    ///////////////////////////////////////////////////////
+    //                  Helper functions                //
+    //////////////////////////////////////////////////////
+    function addressToInt(address a) internal pure returns (uint256) {
+        return uint256(uint160(a));
     }
 }

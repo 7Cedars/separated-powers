@@ -4,6 +4,7 @@ pragma solidity 0.8.26;
 // test setup
 import "forge-std/Test.sol";
 import { TestSetupState } from "../../TestSetup.t.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 // protocol
 import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
@@ -22,6 +23,20 @@ contract AddressMappingTest is TestSetupState {
 
     event AddressesMapping__Added(address account);
     event AddressesMapping__Removed(address account);
+
+    // take this out later 
+    function testParsingAddress() public {
+        address mock721_ = makeAddr("mock721");
+        string memory description = string.concat("Anyone who knows how to mint an NFT at ", Strings.toHexString(uint256(addressToInt(mock721_)), 20), " can (de)select themselves for role 1."); 
+        console.log(mock721_); 
+        console.log(description); 
+
+        assertNotEq(description, "");
+    }
+
+    function addressToInt(address a) internal pure returns (uint256) {
+        return uint256(uint160(a));
+    }
 
     function testSuccessfulAddingAddress() public {
         // prep
