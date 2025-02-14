@@ -20,8 +20,7 @@ export function AdvantagesRRG() {
       <section className="h-fit flex flex-wrap gap-4 max-w-6xl justify-center items-start  ">  
           {   
             advantagesRRGs.map((advantage, index) => (
-                <div className="h-full flex flex-col justify-center items-center" key={index}> 
-                  <div className="w-72 h-60 h-full flex flex-col justify-center items-center border border-slate-300 rounded-md bg-slate-50" key={index}>  
+                  <div className="w-72 h-60 h-full flex flex-col justify-center items-center border border-slate-300 rounded-md bg-slate-50 overflow-hidden" key={index}>  
                     <div className="w-full h-fit font-bold text-slate-700 p-3 ps-5 border-b border-slate-300 bg-slate-100">
                         {advantage.advantage}
                     </div> 
@@ -31,7 +30,6 @@ export function AdvantagesRRG() {
                       }
                     </ul>
                   </div>
-                </div>
             ))
         }
 
