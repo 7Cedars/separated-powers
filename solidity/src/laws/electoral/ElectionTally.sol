@@ -65,7 +65,7 @@ contract ElectionTally is Law {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
         NOMINEES = nominees_;
-        inputParams = abi.encode("address PeerVoteContract"); // peervote address
+        inputParams = abi.encode("address VoteContract"); // peervote address
         stateVars = abi.encode("address[] Elected");
     }
 

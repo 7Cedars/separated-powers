@@ -213,7 +213,7 @@ contract DeployGovernYourTax is Script {
         // burn token 
         vm.startBroadcast();
         law = new BespokeAction(
-            " tokens",
+            "Burn tokens",
             "Governors can decide to burn tokens.",
             dao_, // separated powers
             2, // access role

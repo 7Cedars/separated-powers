@@ -23,7 +23,7 @@ export function DynamicInput({dataType, varName, values, onChange}: InputProps) 
 
 
   const inputType = 
-    dataType.indexOf('uint') > -1 ? "number"
+    dataType.indexOf('int') > -1 ? "number"
     : dataType.indexOf('bool') > -1 ? "boolean"
     : dataType.indexOf('string') > -1 ? "string"
     : dataType.indexOf('address') > -1 ? "string"

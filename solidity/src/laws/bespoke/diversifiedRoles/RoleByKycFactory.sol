@@ -41,7 +41,7 @@ contract RoleByKycFactory is Law {
             "string Description", 
             "uint32 RoleId", 
             "uint16[] Nationalities", 
-            "uint16[] ResidentCountries", 
+            "uint16[] Residencies", 
             "int64 OlderThan", 
             "int64 YoungerThan"
             );
