@@ -20,38 +20,46 @@ text here.
 * item 2
 
 ### Laws
-Laws define specific actions that a particular role can execute under certain conditions. 
 
-Example: 'Any account that has a role 2 can propose to mint tokens at contract X, but the proposal will only be accepted if 20 percent of role 2 holders vote in favour'.  
+Laws define specific actions that a particular role can execute under certain conditions.&#x20;
 
-Laws are contracts that follow the `ilaw.sol` interface. They can be created by inheriting `law.sol`. Laws have the following functions: 
+> Any account that has a role 2 can propose to mint tokens at contract X, but the proposal will only be accepted if 20 percent of role 2 holders vote in favor.
+
+Laws are contracts that follow the `ilaw.sol` interface. They can be created by inheriting `law.sol`. Laws have the following functions:
 
 * It returns a function call.
 * It can save a state.
 * It has multiple checks
-* It has a function `executeLaw` that can only be called by the SeparatePowers protocol. It runs all checks, executes &#x20;
+* It has a function `executeLaw` that can only be called by the SeparatePowers protocol. It runs all checks, executes
 
 ## Characteristics
-Role restricted governance protocols divide community governance into multiple tracks. Each track consists of several laws through which role holders can initiate, approve, stop or revert executive actions. 
 
-Each action can be conditional on votes, delays, throttling or any other check to pass.  
+Role restricted governance protocols divide community governance into multiple tracks. Each track consists of several laws through which role holders can initiate, approve, stop or revert executive actions.
+
+Each action can be conditional on votes, delays, throttling or any other check to pass.
 
 ### Composability
-text 
+
+text
 
 ### Upgradability
-text 
+
+text
 
 ### Safety
-text 
+
+text
 
 ### Flexibility
-text 
+
+text
 
 ### Efficiency
-text 
+
+text
 
 ### Engagement
-text 
+
+text
 
 ## Use cases
