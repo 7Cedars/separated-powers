@@ -5,19 +5,19 @@ import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 export function AdvantagesRRG() {
 
   return (
-    <section className="w-full min-h-[90vh] h-fit flex flex-col gap-6 justify-between items-center bg-gradient-to-b from-blue-400 to-slate-100 snap-start snap-always p-12">    
+    <main className="w-full sm:min-h-[130vh] md:min-h-[110vh] min-h-[230vh] grow h-fit flex flex-col gap-8 justify-start items-center bg-gradient-to-b from-blue-400 to-slate-100 snap-start snap-always p-12">    
       {/* title & subtitle */}
       <div className="w-full h-fit flex flex-col justify-center items-center p-4 pt-10">
-          <div className = "w-full flex flex-col gap-1 justify-center items-center text-4xl font-bold text-slate-700 max-w-4xl text-center text-pretty">
+          <div className = "w-full flex flex-col gap-1 justify-center items-center md:text-4xl text-3xl font-bold text-slate-700 max-w-4xl text-center text-pretty">
               Advantages of Role Restricted Governance
           </div>
-          <div className = "w-full flex justify-center items-center text-2xl py-4 text-slate-500 max-w-2xl text-center p-4">
+          <div className = "w-full flex justify-center items-center md:text-2xl text-xl py-4 text-slate-500 max-w-2xl text-center p-4">
               Separated Powers combines a governance engine with modular contracts, or so called laws. It is an example of an RRG and showcases its advantages.
           </div>
       </div>
 
       {/* info blocks */}
-      <section className="flex flex-wrap gap-4 max-w-4xl h-fit justify-center items-start">  
+      <section className="h-fit flex flex-wrap gap-4 max-w-6xl justify-center items-start  ">  
           {   
             advantagesRRGs.map((advantage, index) => (
                 <div className="h-full flex flex-col justify-center items-center" key={index}> 
@@ -35,29 +35,22 @@ export function AdvantagesRRG() {
             ))
         }
 
-        <div className = "w-full flex flex-row justify-center items-center items-center border border-slate-300 hover:border-slate-600 rounded-md bg-slate-100 text-center p-4"> 
+        
+
+      </section>
+      <div className = "w-full  max-w-4xl  flex flex-row justify-center items-center items-center border border-slate-300 hover:border-slate-600 rounded-md bg-slate-100 text-center p-4"> 
           <div className="h-full w-fit flex flex-row"> 
             <a
               href={`https://7cedars.gitbook.io/separated-powers`} target="_blank" rel="noopener noreferrer"
               className="w-full text-2xl text-slate-700 font-bold"
             >
-              Read the docs
+              Read the documentation
             </a>
             <ArrowUpRightIcon
               className="w-6 h-6 m-1 text-slate-700 text-center font-bold"
             />
           </div>
         </div>
-
-
-      </section>
-
-      {/* ref to the docs */}
-      <section className = "w-full flex flex-row justify-center items-center text-3xl text-slate-600  text-pretty font-bold pt-16 px-4">
-      
-      </section>
-
-
-    </section> 
+    </main> 
   )
 }
