@@ -6,6 +6,12 @@ description: >-
 
 # 😎 Welcome to Separated Powers
 
+
+
+🚧 **The documentation is under construction** 🚧
+
+
+
 ## Communities thrive with Separated Powers
 
 Separated Powers provides a framework to define roles with specific powers through programmable on-chain contracts.&#x20;
