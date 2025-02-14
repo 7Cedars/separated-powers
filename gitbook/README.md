@@ -11,8 +11,22 @@ description: >-
 🚧 **Documentation is under construction** 🚧
 
 
+## What is it 
 
-## Communities thrive with Separated Powers
+Separated Powers is a proof of concept of a role restricted governance protocol. It consists of two elements: Separated Powers and Laws.&#x20;
 
-Separated Powers provides a framework to define roles with specific powers through programmable on-chain contracts.&#x20;
+### Separated Powers
+
+text here.&#x20;
+
+
+
+### Laws
+
+
+## Characteristics
+
+ 
+## Use cases 
+
 
