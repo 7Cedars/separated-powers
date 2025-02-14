@@ -9,7 +9,7 @@ import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 export function ExampleUseCases() { 
 
   return (    
-    <section className="w-full min-h-[90vh] flex flex-col justify-between items-center bg-gradient-to-b from-blue-600 to-blue-400 snap-start snap-always pt-6 px-6">
+    <section className="w-full min-h-[95vh] flex flex-col justify-between items-center bg-gradient-to-b from-blue-600 to-blue-400 snap-start snap-always pt-6 px-6">
         {/* title  */}
           <section className="w-full min-h-64 flex flex-col justify-center items-center">
               <div className = "w-full flex flex-col gap-1 justify-center items-center md:text-4xl text-3xl font-bold text-slate-100 max-w-4xl text-center text-pretty">
@@ -34,12 +34,12 @@ export function ExampleUseCases() {
 
         {/* use cases  */}
         <section 
-          className="w-screen min-h-fit h-full flex flex-row gap-10 justify-center items-center overflow-x-scroll px-20 py-6" 
+          className="w-screen min-h-fit h-full flex flex-row gap-10 justify-start items-center overflow-x-scroll" 
           >
-            <div className = "min-w-8xl h-20" />
+            <div className = "h-20" />
             {   
               exampleUseCases.map((useCase, index) => (
-                <div className="min-w-96 max-h-[20vh] h-full flex flex-col justify-center items-center border border-green-500 rounded-md bg-slate-50 overflow-hidden" key={index}>  
+                <div className="min-w-96 max-h-[25vh] h-full flex flex-col justify-center items-center border border-slate-300 rounded-md bg-slate-50 overflow-hidden" key={index}>  
                   <div className="w-full h-fit font-bold text-slate-700 p-3 ps-5 border-b border-slate-300 bg-slate-100">
                       {useCase.challenge}
                   </div> 

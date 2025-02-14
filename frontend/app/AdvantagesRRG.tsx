@@ -5,7 +5,7 @@ import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 export function AdvantagesRRG() {
 
   return (
-    <main className="w-full sm:min-h-[130vh] md:min-h-[110vh] min-h-[230vh] grow h-fit flex flex-col gap-8 justify-start items-center bg-gradient-to-b from-blue-400 to-slate-100 snap-start snap-always p-12">    
+    <main className="w-full sm:min-h-[130vh] md:min-h-[120vh] min-h-[230vh] grow h-fit flex flex-col gap-8 justify-start items-center bg-gradient-to-b from-blue-400 to-slate-100 snap-start snap-always p-12">    
       {/* title & subtitle */}
       <div className="w-full h-fit flex flex-col justify-center items-center p-4 pt-10">
           <div className = "w-full flex flex-col gap-1 justify-center items-center md:text-4xl text-3xl font-bold text-slate-700 max-w-4xl text-center text-pretty">
