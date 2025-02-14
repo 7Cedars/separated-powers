@@ -200,7 +200,7 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
         {/* <Footer /> */}
       </div>
       : 
-        <div className=" w-full h-full flex flex-col justify-center items-center">
+        <div className="absolute w-full h-full flex flex-col justify-center items-center">
           <Header /> 
           <main className="max-w-screen-lg w-full h-full grid grid-cols-1 justify-items-start content-start overflow-y-scroll px-2 pt-20 pb-20">
             {props.children}   
