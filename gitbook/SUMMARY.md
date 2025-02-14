@@ -2,8 +2,8 @@
 
 * [😎 Welcome to Separated Powers](README.md)
 * [Using the App](using-the-app.md)
-* [Deploy a demo organization](deploy-a-demo-organization.md)
 * [For developers](for-developers.md)
+* [Deploy a demo organization](deploy-a-demo-organization.md)
 * [Example laws](example-laws/README.md)
   * [Executive Laws](example-laws/executive-laws.md)
   * [Electoral laws](example-laws/electoral-laws.md)
