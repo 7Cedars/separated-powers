@@ -11,19 +11,18 @@ import { useOrganisations } from "@/hooks/useOrganisations";
 export function LawList() {
   const organisation = useOrgStore();
   const router = useRouter();
-  const { organisations, status, initialise, fetch, update } = useOrganisations()
-  console.log({status})
-
+  const { status, update } = useOrganisations() 
   const handleRoleSelection = (role: bigint) => {
-    const index = organisation?.deselectedRoles?.indexOf(role);
+    let newDeselection: bigint[] = []
 
-    if (index == -1) {
-      assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? [...organisation?.deselectedRoles, role as bigint] : [role as bigint]})
-    } else if (index == 0) {
-      assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? organisation?.deselectedRoles.slice(1) : []})
-    } else if (index) {
-      assignOrg({...organisation, deselectedRoles: organisation?.deselectedRoles ? organisation?.deselectedRoles.toSpliced(index) : []})
+    if (organisation?.deselectedRoles?.includes(role)) {
+      newDeselection = organisation?.deselectedRoles?.filter(oldRole => oldRole != role)
+    } else if (organisation?.deselectedRoles != undefined) {
+      newDeselection = [...organisation?.deselectedRoles, role]
+    } else {
+      newDeselection = [role]
     }
+    assignOrg({...organisation, deselectedRoles: newDeselection})
   };
 
   return (
@@ -39,7 +38,7 @@ export function LawList() {
             showBorder={false}
             role={0}
             onClick={() => handleRoleSelection(0n)}
-            selected={!organisation?.deselectedRoles?.includes(0n)}
+            selected={!organisation?.deselectedRoles?.includes(0n)} 
           >
             Admin
           </Button>
@@ -84,23 +83,21 @@ export function LawList() {
       <div className="w-full overflow-scroll">
       {/* border border-t-0 */}
       <table className="w-full table-auto"> 
-      <thead className="w-full border-b border-slate-200">
+        <thead className="w-full border-b border-slate-200">
             <tr className="w-96 text-xs font-light text-left text-slate-500 ">
                 <th className="ps-4 py-2 font-light rounded-tl-md"> Name </th>
                 <th className="font-light"> Description </th>
                 <th className="font-light"> Role </th>
             </tr>
         </thead>
-        <tbody className="w-full text-sm text-right text-slate-500 divide-y divide-slate-200">
+        <tbody className="w-full h-full text-sm text-right text-slate-500 divide-y divide-slate-200">
           {
-            organisation?.laws?.map((law: Law, i) =>
-              law.allowedRole != undefined && !organisation?.deselectedRoles?.includes(BigInt(`${law.allowedRole}`) ) ? 
-              (
+            organisation.activeLaws?.filter(law => law.allowedRole != undefined && !organisation?.deselectedRoles?.includes(BigInt(`${law.allowedRole}`)))?.map((law: Law, i) => 
               <tr
                 key={i}
                 className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}
               >
-                <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-60">
+                <td className="max-h-12 text-left px-2 min-w-60">
                   <Button
                     showBorder={false}
                     role={
@@ -130,8 +127,8 @@ export function LawList() {
                     }
                 </td>
               </tr>
-            ) : null
-          )}
+            )
+          }
         </tbody>
       </table>
       </div>

@@ -6,7 +6,6 @@
 // - NavigationBar buttons: home, laws, proposals, roles, treasury --> all correspond with their pages. 
 // - address / login button -> links to privy.
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { PropsWithChildren } from "react";
 import { useRouter } from 'next/navigation'
@@ -15,7 +14,6 @@ import { useOrgStore, deleteOrg } from "../context/store";
 import Image from 'next/image'
 import { Button } from "./Button";
 import { 
-  HeartIcon, 
   MagnifyingGlassIcon, 
   HomeIcon, 
   BookOpenIcon,
@@ -23,8 +21,7 @@ import {
   ChatBubbleBottomCenterIcon,
   BuildingLibraryIcon
 } from '@heroicons/react/24/outline';
-import { useConnectWallet, useLogout, usePrivy } from "@privy-io/react-auth";
-import { useWallets } from "@privy-io/react-auth";
+import { ConnectButton } from './ConnectButton';
 
 const layoutIconBox: string = 'flex flex-row md:gap-2 gap-0 align-middle items-center'
 const layoutIcons: string = 'h-5 w-5'
@@ -108,9 +105,8 @@ const NavigationBar = () => {
 const Header = () => {
   const router = useRouter();
   const organisation = useOrgStore(); 
-  const {wallets } = useWallets();
-  const {ready, authenticated, login, logout} = usePrivy();
-
+  const path = usePathname()
+ 
   return (
     <header className="absolute grow w-screen top-0 h-fit py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
     <section className="grow flex flex-row gap-1 justify-between px-2 max-w-screen-xl">
@@ -163,29 +159,7 @@ const Header = () => {
           {organisation.name != '' ? NavigationBar() : null }
         </div>
       }
-
-      <div className="flex flex-row gap-2 min-w-40"> 
-      { 
-        wallets[0] && authenticated ? 
-        <Button 
-            size = {0} 
-            onClick={() => logout()}
-            >
-              <div className={layoutIconBox}> 
-                {wallets[0].address.slice(0, 6)}...{wallets[0].address.slice(-6)}   
-              </div> 
-        </Button>
-        : 
-        <Button 
-        size = {0} 
-        onClick={() => login()}
-        >
-          <div className={layoutIconBox}> 
-            <b> Connect Wallet </b>       
-          </div> 
-        </Button>
-      }
-      </div>
+        {path == `/` ? null : <ConnectButton /> }
     </section>
   </header>
   )
@@ -221,7 +195,7 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
         {/* <Footer /> */}
       </div>
       : 
-        <div className=" w-full h-full flex flex-col justify-center items-center">
+        <div className="absolute h-dvh w-screen flex flex-col justify-center items-center">
           <Header /> 
           <main className="max-w-screen-lg w-full h-full grid grid-cols-1 justify-items-start content-start overflow-y-scroll px-2 pt-20 pb-20">
             {props.children}   

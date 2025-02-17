@@ -106,10 +106,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <!-- CONTACT -->
 ## Contact
-
 Seven Cedars - [Github profile](https://github.com/7Cedars) - cedars7@proton.me
-
-Niy42 - [Github profile](https://github.com/niy42)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

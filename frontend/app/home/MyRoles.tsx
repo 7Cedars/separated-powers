@@ -46,7 +46,7 @@ export function MyRoles({hasRoles}: MyRolesProps ) {
         {
         myRoles?.map((role: {role: bigint, since: bigint}, i) =>
           role.role == 4294967295n ? null :
-          <div className ={`w-full p-1`}>
+          <div className ={`w-full p-1`} key = {i}>
             <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-2`}>
               <div className = "w-full flex flex-row justify-start items-center text-left">
                 {/* need to get the timestamp.. */}
@@ -54,7 +54,7 @@ export function MyRoles({hasRoles}: MyRolesProps ) {
                   role.role == 0n ? "Admin" : `Role ${role.role}`
                 }
               </div>
-              <div className = "w-full flex flex-row justify-end items-center text-right">
+              <div className = "w-full flex flex-row justify-end items-center text-right pe-4">
                 Since: {role.since} 
               </div>
             </div>

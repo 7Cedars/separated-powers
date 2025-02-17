@@ -66,10 +66,10 @@ contract DeployGovernYourTax is Script {
         mock20Taxed_ = payable(address(erc20TaxedMock)); 
         initiateConstitution(dao, mock20Taxed_);
 
-        // constitute dao.
+        // // constitute dao.
         vm.startBroadcast();
         separatedPowers.constitute(laws);
-        // transferring ownership of erc721 and erc20Taxed token contracts.. 
+        // // transferring ownership of erc721 and erc20Taxed token contracts.. 
         erc20TaxedMock.transferOwnership(address(separatedPowers));
         vm.stopBroadcast();
 
@@ -213,8 +213,8 @@ contract DeployGovernYourTax is Script {
         // burn token 
         vm.startBroadcast();
         law = new BespokeAction(
-            "Mint tokens",
-            "Governors can decide to mint tokens.",
+            "Burn tokens",
+            "Governors can decide to burn tokens.",
             dao_, // separated powers
             2, // access role
             lawConfig, // same lawConfig as laws[5] 

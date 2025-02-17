@@ -135,7 +135,7 @@ export default function Page() {
           <div className = {"w-full"}>
             <LawList /> 
           </div>
-          {/* right / top panel  */}
+          {/* right / top panel  */} 
           <div className = {"w-full pb-2 flex flex-wrap flex-col lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:flex-col lg:overflow-hidden lg:ps-2 gap-3 overflow-y-hidden overflow-x-scroll scroll-snap-x"}> 
             <Assets /> 
             

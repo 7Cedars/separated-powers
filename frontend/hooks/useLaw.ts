@@ -3,13 +3,14 @@ import { lawAbi, separatedPowersAbi } from "../context/abi";
 import { CompletedProposal, Law, ProtocolEvent, Status, LawSimulation } from "../context/types"
 import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
-import { useWaitForTransactionReceipt } from "wagmi";
+import { useChainId, useWaitForTransactionReceipt } from "wagmi";
 import { useLawStore, useOrgStore } from "@/context/store";
 import { useWallets } from "@privy-io/react-auth";
 import { publicClient } from "@/context/clients";
 import { readContract } from "wagmi/actions";
 import { useBlockNumber } from 'wagmi'
-import { parseEventLogs, ParseEventLogsReturnType } from "viem";
+import { Log, parseEventLogs, ParseEventLogsReturnType } from "viem";
+import { supportedChains } from "@/context/chains";
 
 type Checks = {
   authorised?: boolean | undefined;
@@ -26,6 +27,8 @@ export const useLaw = () => {
   const law = useLawStore()
   const blockNumber = useBlockNumber()
   const {wallets} = useWallets();
+  const chainId = useChainId();
+  const supportedChain = supportedChains.find(chain => chain.id == chainId)
   // const wallet = wallets[0];
 
   const [status, setStatus ] = useState<Status>("idle")
@@ -171,13 +174,40 @@ export const useLaw = () => {
     return result as boolean
   }
 
-  const checkThrottledExecution = () => {
-    const selectedProposals = organisation?.proposals?.filter(proposal => 
-      proposal.targetLaw === law.law && 
-      proposal.state === 4
-    )
-    if (selectedProposals && selectedProposals.length > 0) {
-      const result = selectedProposals[0].blockNumber + Number(law.config.throttleExecution) < Number(blockNumber)
+  const fetchExecutions = async () => {
+    if (publicClient) {
+      try {
+          if (organisation?.contractAddress) {
+            const logs = await publicClient.getContractEvents({ 
+              address: organisation.contractAddress as `0x${string}`,
+              abi: separatedPowersAbi, 
+              eventName: 'ProposalCompleted',
+              fromBlock: supportedChain?.genesisBlock,
+              args: {targetLaw: law.law}
+            })
+            const fetchedLogs = parseEventLogs({
+                        abi: separatedPowersAbi,
+                        eventName: 'ProposalCompleted',
+                        logs
+                      })
+            const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType  
+            return (
+              fetchedLogsTyped.sort((a: Log, b: Log) => (
+                a.blockNumber ? Number(a.blockNumber) : 0
+              ) < (b.blockNumber == null ? 0 : Number(b.blockNumber)) ? 1 : -1)) 
+          } 
+      } catch (error) {
+        setStatus("error") 
+        setError(error)
+      }
+    }
+  }
+
+  const checkThrottledExecution = async () => {
+    const fetchedExecutions = await fetchExecutions()
+
+    if (fetchedExecutions && fetchedExecutions.length > 0) {
+      const result = Number(fetchedExecutions[0].blockNumber) + Number(law.config.throttleExecution) < Number(blockNumber)
       return result as boolean
     } else {
       return true
@@ -193,7 +223,7 @@ export const useLaw = () => {
         
         // this can be written better. But ok for now. 
         results[0] = checkDelayedExecution(description, calldata)
-        results[1] = checkThrottledExecution()
+        results[1] = await checkThrottledExecution()
         results[2] = await checkAccountAuthorised()
         results[3] = checkProposalExists(description, calldata) != undefined
         results[4] = await checkProposalStatus(description, calldata)

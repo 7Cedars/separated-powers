@@ -44,7 +44,7 @@ contract Members is Law {
         inputParams = abi.encode(
             "address Account", // account
             "uint16 Nationality", // nationality
-            "uint16 ResidentCountry", // country of residence
+            "uint16 Residency", // country of residence
             "int64 DoB", // DoB
             "bool Add" // add ? (if false: remove)
         );

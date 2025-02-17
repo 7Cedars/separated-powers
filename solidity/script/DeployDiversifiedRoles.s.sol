@@ -33,7 +33,7 @@ import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
 import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
 import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
 
-contract DeployDiverseRoles is Script {
+contract DeployDiversifiedRoles is Script {
     address[] laws;
 
     function run()

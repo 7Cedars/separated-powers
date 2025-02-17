@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import React, { useState, useEffect } from "react";
 import { assignOrg } from "@/context/store";
 import { Button } from "../components/Button";
@@ -11,17 +11,22 @@ export function ExampleDemos() {
   const { organisations, status, initialise, fetch, update } = useOrganisations()
 
   useEffect(() => {
-    if (!organisations) initialise()
+    if (!organisations) {
+      initialise()
+    }
   }, [, organisations])
 
   return (
-    <section className = "w-full min-w-[60vw] min-h-[80vh] grow flex flex-col justify-start items-center snap-start px-4 pb-10"> 
+    <section className = "w-full min-w-[60vw] min-h-[100vh] h-fit flex flex-col justify-between items-center snap-start px-4 pb-10"> 
       <div> 
-        <div className = "w-full flex flex-row justify-center items-center text-3xl text-slate-600 text-center text-pretty font-bold pt-16 px-4">
+        <div className = "w-full flex flex-row justify-center items-center md:text-4xl text-2xl text-slate-600 text-center max-w-4xl text-pretty font-bold pt-16 px-4">
             Want to play around with a live demo?
         </div>
-        <div className = "w-full flex flex-row justify-center items-center text-xl text-slate-400 text-center text-pretty py-2 pb-16 px-4">
-            The protocol and examples are proof of concepts. The are meant for TESTING PURPOSES ONLY. Do not use in production.
+        <div className = "w-full flex flex-row justify-center items-center md:text-2xl text-xl text-slate-400 max-w-2xl text-center text-pretty py-2 px-4">
+            The protocol and examples are proof of concepts. These examples are for TESTING PURPOSES ONLY.
+        </div>
+        <div className = "w-full flex flex-row justify-center items-center text-md text-slate-400 max-w-2xl text-center text-pretty py-2 pb-16 px-4">
+            Really. I'm serious. The protocol has not been audited in any way, shape or form. Don't even think about it using this for anything even remotely resembling an actual community. 
         </div>
       </div> 
       {/* table with example orgs  */}
@@ -82,8 +87,13 @@ export function ExampleDemos() {
                 </div>
           </div> 
       </section>
-      {/* empty div for outlining purposes */}
-      <div className = ""/> 
+      
+      {/* arrow down */}
+      <div className = "grow flex flex-col align-center justify-center"> 
+        <ChevronDownIcon
+          className = "w-16 h-16 text-slate-700" 
+        /> 
+      </div>
     </section>
   )
 }

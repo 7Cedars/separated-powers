@@ -41,12 +41,12 @@ export function Assets() {
         </div>
       </button>
        {/* below should be a button */}
-      <div className = "w-full h-fit max-h-full lg:max-h-48 flex flex-col gap-0 justify-start items-center p-4">
+      <div className = "w-full h-fit max-h-full lg:max-h-48 flex flex-col gap-2 justify-start items-center p-4">
         <div className="w-full text-slate-800 text-left text-pretty">
-          Total value here in Eth 
+          0 ETH 
         </div>
-        <div className="flex flex-row gap-1 items-center justify-start text-left text-sm text-slate-500  w-fit">
-          Value in chosen currency: GBP, EUR or USD.
+        <div className="w-full text-left text-sm text-slate-500">
+          0 USD
         </div>
       </div>
     </div>

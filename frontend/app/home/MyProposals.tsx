@@ -1,6 +1,6 @@
 `use client`
 
-import { useOrgStore, setProposal} from "@/context/store";
+import { useOrgStore, setProposal, setAction} from "@/context/store";
 import { Proposal } from "@/context/types";
 import { useProposal } from "@/hooks/useProposal";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
@@ -9,8 +9,13 @@ import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 
 const roleColour = [  
-  "border-blue-600", "border-red-600", "border-yellow-600", "border-purple-600",
-  "green-slate-600", "border-orange-600", "border-stone-600", "border-slate-600"
+  "border-blue-600", 
+  "border-red-600", 
+  "border-yellow-600", 
+  "border-purple-600",
+  "border-green-600", 
+  "border-orange-600", 
+  "border-slate-600"
 ]
 
 type MyProposalProps = {
@@ -55,7 +60,7 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
       authenticated ?
         proposalsWithState && proposalsWithState.length > 0 ? 
 
-          <div className = "w-full h-full lg:h-48 flex flex-col gap-2 justify-start items-center overflow-y-scroll p-2 px-1">
+          <div className = "w-full h-fit flex flex-col gap-2 justify-start items-center overflow-y-scroll p-2 px-1">
           {
           proposalsWithState?.map((proposal: Proposal, i) => {
               const law = organisation?.laws?.find(law => law.law == proposal.targetLaw)
@@ -67,6 +72,10 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
                     onClick={
                       () => {
                         setProposal(proposal)
+                        setAction({
+                          description: proposal.description,
+                          callData: proposal.executeCalldata
+                        })
                         router.push('/proposals/proposal')
                         }
                       }>

@@ -15,6 +15,10 @@ import { ExampleUseCases } from "./ExampleUsecases";
 import { ExampleDemos } from "./ExampleDemos";
 import { RunNewDemo } from "./RunNewDemo";
 import { Footer } from "./Footer";
+import { AdvantagesRRG } from "./AdvantagesRRG";
+import { 
+    ChevronDownIcon
+  } from '@heroicons/react/24/outline';
 
 export default function Page() {
     const router = useRouter();
@@ -25,13 +29,9 @@ export default function Page() {
         if (organisation.name != '') router.push('/home') 
     }, [organisation])
 
-    console.log({organisations})
-
     return (
         <main className="w-full grid grid-cols-1 gap-0 overflow-y-scroll snap-y snap-mandatory overflow-x-hidden">
-            
-            {/* section 1 */}
-            <section className="w-full h-[90vh] flex flex-col justify-center items-center bg-gradient-to-b from-indigo-900 to-blue-500 snap-start snap-always border-b-0 -m-1"> 
+            <section className="w-full min-h-[100vh] h-fit flex flex-col justify-center items-center bg-gradient-to-b from-indigo-900 to-blue-600 snap-start snap-always border-b-0 -m-1"> 
             
                 {/* Title and subtitle */}
                 <section className="w-full h-fit flex flex-col justify-center items-center p-4 pt-20 pb-20">
@@ -39,17 +39,22 @@ export default function Page() {
                         Communities thrive with 
                         Separated Powers 
                     </div>
-                    {/* <div className = "w-full flex justify-center items-center text-3xl text-slate-300">
-                        R for onchain communities.
-                    </div> */}
                     <div className = "w-full flex justify-center items-center text-xl sm:text-2xl py-4 text-slate-300 max-w-xl text-center p-4">
                         Distribute power, increase security, transparency and efficiency with role restricted governance
                     </div>
                 </section> 
+
+                {/* arrow down */}
+                <div className = "flex flex-col align-center justify-end"> 
+                <ChevronDownIcon
+                    className = "w-16 h-16 text-slate-100" 
+                /> 
+                </div>
             </section>
 
             < ExampleUseCases /> 
-            < ExampleDemos /> 
+            < AdvantagesRRG /> 
+            < ExampleDemos />
             < RunNewDemo /> 
             < Footer /> 
            

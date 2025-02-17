@@ -25,7 +25,6 @@ export function RoleList() {
 
   const fetchRoleHolders = useCallback(
     async (roleIds: bigint[]) => {
-      console.log("fetchRoleHolder TRIGGERED")
       let roleId: number; 
       let rolesFetched: Roles[] = []; 
       let lawsFetched: number[]; 
