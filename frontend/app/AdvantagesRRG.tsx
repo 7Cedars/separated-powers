@@ -11,11 +11,8 @@ export function AdvantagesRRG() {
           <div className = "w-full flex flex-col gap-1 justify-center items-center md:text-4xl text-3xl font-bold text-slate-700 max-w-4xl text-center text-pretty">
               Advantages of Role Restricted Governance
           </div>
-          <div className = "w-full flex justify-center items-center md:text-2xl text-xl py-4 text-slate-500 max-w-2xl text-center p-4">
-              Separated Powers combines a governance engine with minimalistic modular contracts, or laws, that role restrict executive actions.
-          </div>
-          <div className = "w-full flex justify-center items-center md:text-2xl text-xl pt-4 text-slate-700 max-w-2xl text-center pb-4">
-              It is an example of a role restricted governance protocol and showcases its advantages.
+          <div className = "w-full flex justify-center items-center md:text-2xl text-xl py-4 text-slate-500 max-w-2xl text-center p-4 pb-20">
+              The Powers Protocol combines a governance engine with minimalistic modular contracts, or laws, to create a role restrict governance protocol.
           </div>
       </div>
 
