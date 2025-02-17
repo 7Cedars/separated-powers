@@ -35,17 +35,11 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li>
-      <a href="#about">About</a>
-      <ul>
-        <li><a href="#the-problem">The problem</a></li>
-        <li><a href="#how-it-works">How it works</a></li>
-        <li><a href="#why-use-separated-powers">Why use Separated Powers?</a></li>
-        <li><a href="#important-files-and-folders">Important files and folders</a></li>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li><a href="#license">License</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#advantages">Advantages</a></li>
+    <li><a href="#protocol-architecture">Protocol Architecture</a></li>
+    <li><a href="#important-files-and-folders">Important files and folders</a></li>
+    <li><a href="#built-with">Built With</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
 </details>
