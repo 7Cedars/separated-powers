@@ -29,7 +29,7 @@ export function AdvantagesRRG() {
                     </div> 
                     <ul className="grow flex flex-col justify-start items-start ps-5 pe-4 p-3 gap-3">
                       {
-                        advantage.examples.map((example) => <li> {example} </li> )
+                        advantage.examples.map((example, i) => <li key={i}> {example} </li> )
                       }
                     </ul>
                   </div>

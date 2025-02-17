@@ -6,7 +6,6 @@
 // - NavigationBar buttons: home, laws, proposals, roles, treasury --> all correspond with their pages. 
 // - address / login button -> links to privy.
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { PropsWithChildren } from "react";
 import { useRouter } from 'next/navigation'
@@ -15,7 +14,6 @@ import { useOrgStore, deleteOrg } from "../context/store";
 import Image from 'next/image'
 import { Button } from "./Button";
 import { 
-  HeartIcon, 
   MagnifyingGlassIcon, 
   HomeIcon, 
   BookOpenIcon,
@@ -23,8 +21,6 @@ import {
   ChatBubbleBottomCenterIcon,
   BuildingLibraryIcon
 } from '@heroicons/react/24/outline';
-import { useConnectWallet, useLogout, usePrivy } from "@privy-io/react-auth";
-import { useWallets } from "@privy-io/react-auth";
 import { ConnectButton } from './ConnectButton';
 
 const layoutIconBox: string = 'flex flex-row md:gap-2 gap-0 align-middle items-center'
@@ -109,9 +105,8 @@ const NavigationBar = () => {
 const Header = () => {
   const router = useRouter();
   const organisation = useOrgStore(); 
-  const {wallets } = useWallets();
-  const {ready, authenticated, login, logout} = usePrivy();
-
+  const path = usePathname()
+ 
   return (
     <header className="absolute grow w-screen top-0 h-fit py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
     <section className="grow flex flex-row gap-1 justify-between px-2 max-w-screen-xl">
@@ -164,7 +159,7 @@ const Header = () => {
           {organisation.name != '' ? NavigationBar() : null }
         </div>
       }
-        <ConnectButton /> 
+        {path == `/` ? null : <ConnectButton /> }
     </section>
   </header>
   )

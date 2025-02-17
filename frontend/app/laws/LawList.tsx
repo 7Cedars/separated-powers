@@ -92,7 +92,7 @@ export function LawList() {
         </thead>
         <tbody className="w-full h-full text-sm text-right text-slate-500 divide-y divide-slate-200">
           {
-            organisation.laws?.filter(law => law.allowedRole != undefined && !organisation?.deselectedRoles?.includes(BigInt(`${law.allowedRole}`)))?.map((law: Law, i) => 
+            organisation.activeLaws?.filter(law => law.allowedRole != undefined && !organisation?.deselectedRoles?.includes(BigInt(`${law.allowedRole}`)))?.map((law: Law, i) => 
               <tr
                 key={i}
                 className={`text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll`}

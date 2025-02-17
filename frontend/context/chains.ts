@@ -20,7 +20,7 @@ export const supportedChains: ChainProps[] = [
     blockExplorerUrl: "https://sepolia.arbiscan.io",
     genesisBlock: 111800000n,
     organisations: [
-      "0x40dC3d837DAfF68E2163887d9570a23bb126ECFb", // alignedDao
+      "0x95D3d8CDbBc08C6Df3113d19595eADf3b6533BE1", // alignedDao
       "0x0B52f0b406B3Aaa753717474aC1eC8F72c8dCF9d", // basicDao 
       "0xC7D21629dC327278E26F4883cb057d5f75C9fe2D", // govern Your Tax
       "0x0181A03C24183eA8F6469C88362B0958ACc474Ce" // diversified roles
