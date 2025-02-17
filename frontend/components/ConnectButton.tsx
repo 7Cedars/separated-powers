@@ -6,7 +6,6 @@ import {
   PowerIcon,
 } from '@heroicons/react/24/outline';
 import BlockiesSvg from 'blockies-react-svg'
-import { useEffect } from "react";
 
 export const ConnectButton = () => {
   const {ready: walletReady, wallets} = useWallets();
@@ -41,7 +40,7 @@ export const ConnectButton = () => {
       :
       <button 
         className={`w-fit h-full`}  
-        onClick={() => logout() }
+        onClick={() => connectWallet() }
         >
           <div className={`w-fit h-full flex flex-row items-center justify-center text-center rounded-md bg-slate-600 hover:bg-slate-800 text-slate-100 px-4 py-0`}>
             <PowerIcon

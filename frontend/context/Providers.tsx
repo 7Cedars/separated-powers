@@ -11,11 +11,12 @@ const queryClient = new QueryClient()
 const privyConfig: PrivyClientConfig = {
   defaultChain: arbitrumSepolia,
   supportedChains: [arbitrumSepolia],
-  loginMethods: ['wallet'],
+  // loginMethods: ['wallet'],
   appearance: {
       theme: 'light',
       accentColor: '#676FFF',
-      logo: '/logo.png'
+      logo: '/logo.png', 
+      walletList: ["metamask", "coinbase_wallet", "rainbow", "phantom", "zerion", "detected_wallets", "wallet_connect" ]
   }
 };
 
@@ -23,7 +24,8 @@ export function Providers({children}: {children: React.ReactNode}) {
   return (  
       <PrivyProvider
         appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID as string}
-        config={privyConfig}
+        clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID as string} 
+        config={privyConfig} 
         >
           <QueryClientProvider client={queryClient}>
             <WagmiProvider config={wagmiConfig}>

@@ -43,9 +43,9 @@ export function LawList() {
             Admin
           </Button>
         </div>
-        {organisation?.roles.map((role) => {
+        {organisation?.roles.map((role, i) => {
           return role != 0n && role != 4294967295n ? (
-            <div className="flex flex-row w-full min-w-16 h-8">
+            <div className="flex flex-row w-full min-w-16 h-8" key={i}>
             <Button
               size={0}
               showBorder={false}
