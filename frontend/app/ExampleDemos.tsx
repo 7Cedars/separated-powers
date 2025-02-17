@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import React, { useState, useEffect } from "react";
 import { assignOrg } from "@/context/store";
 import { Button } from "../components/Button";
@@ -17,7 +17,7 @@ export function ExampleDemos() {
   }, [, organisations])
 
   return (
-    <section className = "w-full min-w-[60vw] min-h-[80vh] h-fit flex flex-col justify-start items-center snap-start px-4 pb-10"> 
+    <section className = "w-full min-w-[60vw] min-h-[100vh] h-fit flex flex-col justify-between items-center snap-start px-4 pb-10"> 
       <div> 
         <div className = "w-full flex flex-row justify-center items-center md:text-4xl text-2xl text-slate-600 text-center max-w-4xl text-pretty font-bold pt-16 px-4">
             Want to play around with a live demo?
@@ -87,8 +87,13 @@ export function ExampleDemos() {
                 </div>
           </div> 
       </section>
-      {/* empty div for outlining purposes */}
-      <div className = ""/> 
+      
+      {/* arrow down */}
+      <div className = "grow flex flex-col align-center justify-center"> 
+        <ChevronDownIcon
+          className = "w-16 h-16 text-slate-700" 
+        /> 
+      </div>
     </section>
   )
 }
