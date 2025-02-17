@@ -81,8 +81,8 @@ export function DynamicInput({dataType, varName, values, onChange}: InputProps) 
 
   return (
     <div className="w-full flex flex-col justify-center items-center">
-      {itemsArray.map((item) =>  
-          <section className="w-full mt-4 flex flex-row justify-center items-center gap-4 px-6">
+      {itemsArray.map((item, i) =>  
+          <section className="w-full mt-4 flex flex-row justify-center items-center gap-4 px-6" key = {i}>
             <div className="text-sm block min-w-20 font-medium text-slate-600">
               {varName}
             </div>
