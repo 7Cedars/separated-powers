@@ -189,9 +189,9 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
         {/* <Footer /> */}
       </div>
       : 
-        <div className="w-full max-h-full flex flex-col justify-center items-center border border-blue-500">
+        <div className="w-full max-h-full flex flex-col justify-center items-center">
           <Header /> 
-          <main className="max-w-screen-lg w-full max-h-fit grid grid-cols-1 justify-items-start content-start overflow-y-scroll pb-20 border border-red-500">
+          <main className="max-w-screen-lg w-full max-h-fit grid grid-cols-1 justify-items-start content-start overflow-y-scroll pt-16 pb-20">
             {props.children}   
           </main>
           <NavigationSmallScreen /> 

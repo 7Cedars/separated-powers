@@ -14,7 +14,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
   return (
     <html lang="en">
-      <body className="h-dvh w-screen flex flex-col justify-start items-start relative bg-slate-100 border border-green-500">
+      <body className="h-dvh w-screen flex flex-col justify-start items-start relative bg-slate-100">
         <Providers>
           {/* <ThemeProvider> */}
             <NavBars > 
