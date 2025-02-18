@@ -23,9 +23,7 @@ import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
 import { NominateMe } from "../state/NominateMe.sol";
 
-contract PeerSelect is Law {
-    error PeerSelect__MaxRoleHoldersReached();
-
+contract PeerSelect is Law { 
     uint256 public immutable MAX_ROLE_HOLDERS;
     uint32 public immutable ROLE_ID;
     address public immutable NOMINEES;
@@ -72,7 +70,7 @@ contract PeerSelect is Law {
 
         if (!revoke) {
             if (_electedSorted.length >= MAX_ROLE_HOLDERS) {
-                revert PeerSelect__MaxRoleHoldersReached();
+                revert ("Max role holders reached.");
             }
             address accountElect = NominateMe(NOMINEES).nomineesSorted(index);
             calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);

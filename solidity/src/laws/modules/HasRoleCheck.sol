@@ -20,10 +20,6 @@ import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
 
 abstract contract HasRoleCheck is Law {
-    /// @notice overrides the default simulateLaw function.
-
-    error HasRoleCheck__DoesNotHaveRole();
-
     function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         view
@@ -34,10 +30,9 @@ abstract contract HasRoleCheck is Law {
         for (uint32 i = 0; i < roles.length; i++) {
             uint48 since = SeparatedPowers(separatedPowers).hasRoleSince(initiator, roles[i]);
             if (since == 0) {
-                revert HasRoleCheck__DoesNotHaveRole();
+                revert ("Does not have role.");
             }
         }
-
         super.checksAtPropose(initiator, lawCalldata, descriptionHash);
     }
 

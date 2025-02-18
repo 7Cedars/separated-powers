@@ -20,10 +20,6 @@ import { NftSelfSelect } from "../../../../src/laws/bespoke/alignedDao/NftSelfSe
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract NftSelfSelectTest is TestSetupAlignedDao {
-    error SelfSelect__AccountDoesNotHaveRole();
-    error SelfSelect__AccountAlreadyHasRole();
-    error Erc721Check__DoesNotOwnToken();
-
     function testSelfSelectPassesWithValidNft() public {
         // prep
         address nftSelfSelect = laws[0];
@@ -65,7 +61,7 @@ contract NftSelfSelectTest is TestSetupAlignedDao {
 
         // act _ assert revert
         vm.startPrank(address(daoMock));
-        vm.expectRevert(Erc721Check__DoesNotOwnToken.selector);
+        vm.expectRevert("Does not own token.");
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) = Law(nftSelfSelect)
             .executeLaw(
             alice, // alice = initiator

@@ -18,9 +18,6 @@ import { NominateMe } from "../../../src/laws/state/NominateMe.sol";
 import { PeerVote } from "../../../src/laws/state/PeerVote.sol";
 
 contract AddressMappingTest is TestSetupState {
-    error AddressesMapping__AlreadyTrue();
-    error AddressesMapping__AlreadyFalse();
-
     event AddressesMapping__Added(address account);
     event AddressesMapping__Removed(address account);
 
@@ -74,7 +71,7 @@ contract AddressMappingTest is TestSetupState {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(AddressesMapping__AlreadyTrue.selector);
+        vm.expectRevert("Already true.");
         Law(addressesMapping).executeLaw(address(0), lawCalldata, keccak256("Adding an address a second time"));
 
         // assert state
@@ -121,7 +118,7 @@ contract AddressMappingTest is TestSetupState {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(AddressesMapping__AlreadyFalse.selector);
+        vm.expectRevert("Already false.");
         Law(addressesMapping).executeLaw(address(0), lawCalldata, keccak256("Removing an address not added"));
 
         // assert state
@@ -130,8 +127,6 @@ contract AddressMappingTest is TestSetupState {
 }
 
 contract StringsArrayTest is TestSetupState {
-    error StringsArray__StringNotFound();
-
     event StringsArray__StringAdded(string str);
     event StringsArray__StringRemoved(string str);
 
@@ -186,7 +181,7 @@ contract StringsArrayTest is TestSetupState {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(StringsArray__StringNotFound.selector);
+        vm.expectRevert("String not found.");
         Law(stringsArray).executeLaw(address(0), lawCalldata, keccak256("Removing a string not added"));
     }
 
@@ -201,14 +196,12 @@ contract StringsArrayTest is TestSetupState {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(StringsArray__StringNotFound.selector);
+        vm.expectRevert("String not found.");
         Law(stringsArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a string that does not exist"));
     }
 }
 
 contract TokensArrayTest is TestSetupState {
-    error TokensArray__TokenNotFound();
-
     event TokensArray__TokenAdded(address indexed tokenAddress, TokensArray.TokenType tokenType);
     event TokensArray__TokenRemoved(address indexed tokenAddress, TokensArray.TokenType tokenType);
 
@@ -281,7 +274,7 @@ contract TokensArrayTest is TestSetupState {
 
         // act + assert revert
         vm.startPrank(address(daoMock));
-        vm.expectRevert(TokensArray__TokenNotFound.selector);
+        vm.expectRevert("Token not found.");
         Law(tokensArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a non-existent token"));
 
         // assert state
@@ -306,7 +299,7 @@ contract TokensArrayTest is TestSetupState {
 
         // act + assert revert
         vm.startPrank(address(daoMock));
-        vm.expectRevert(TokensArray__TokenNotFound.selector);
+        vm.expectRevert("Token not found.");
         Law(tokensArray).executeLaw(
             address(0), lawCalldataRemove, keccak256("Removing a token that had not been added")
         );
@@ -317,9 +310,6 @@ contract TokensArrayTest is TestSetupState {
 }
 
 contract NominateMeTest is TestSetupState {
-    error NominateMe__NomineeAlreadyNominated();
-    error NominateMe__NomineeNotNominated();
-
     event NominateMe__NominationReceived(address indexed nominee);
     event NominateMe__NominationRevoked(address indexed nominee);
 
@@ -348,7 +338,7 @@ contract NominateMeTest is TestSetupState {
 
         // and try to nominate twice.
         vm.startPrank(address(daoMock));
-        vm.expectRevert(NominateMe__NomineeAlreadyNominated.selector);
+        vm.expectRevert("Nominee already nominated.");
         Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
     }
 
@@ -378,16 +368,12 @@ contract NominateMeTest is TestSetupState {
 
         // charlotte tries to revoke nomination, without being nominated.
         vm.startPrank(address(daoMock));
-        vm.expectRevert(NominateMe__NomineeNotNominated.selector);
+        vm.expectRevert("Nominee not nominated.");
         Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
     }
 }
 
 contract PeerVoteTest is TestSetupState {
-    error PeerVote__NotNominee();
-    error PeerVote__AlreadyVoted();
-    error PeerVote__ElectionNotOpen();
-
     event PeerVote__VoteCast(address voter);
 
     function testVoteCorrectlyRegistered() public {
@@ -424,7 +410,7 @@ contract PeerVoteTest is TestSetupState {
 
         // act + assert revert
         vm.roll(40); // vote starts at block 50.
-        vm.expectRevert(PeerVote__ElectionNotOpen.selector);
+        vm.expectRevert("Election not open.");
         vm.startPrank(address(daoMock));
         Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
     }
@@ -445,7 +431,7 @@ contract PeerVoteTest is TestSetupState {
 
         // act + assert revert
         // alice votes tries to vote a second time...
-        vm.expectRevert(PeerVote__AlreadyVoted.selector);
+        vm.expectRevert("Already voted.");
         vm.startPrank(address(daoMock));
         Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
     }
@@ -457,7 +443,7 @@ contract PeerVoteTest is TestSetupState {
 
         // act + assert revert
         vm.roll(51); // vote starts at block 50.
-        vm.expectRevert(PeerVote__NotNominee.selector);
+        vm.expectRevert("Not a nominee.");
         vm.startPrank(address(daoMock));
         Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
     }

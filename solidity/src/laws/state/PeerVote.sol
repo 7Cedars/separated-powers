@@ -27,11 +27,7 @@ pragma solidity 0.8.26;
 import { Law } from "../../Law.sol";
 import { NominateMe } from "./NominateMe.sol";
 
-contract PeerVote is Law {
-    error PeerVote__NotNominee();
-    error PeerVote__AlreadyVoted();
-    error PeerVote__ElectionNotOpen();
-
+contract PeerVote is Law { 
     // the state vars that this law manages: community strings.
     mapping(address => bool) public hasVoted;
     mapping(address => uint256) public votes;
@@ -75,10 +71,10 @@ contract PeerVote is Law {
     {
         // step 0: run additional checks
         if (block.number < startVote || block.number > endVote) {
-            revert PeerVote__ElectionNotOpen();
+            revert ("Election not open.");
         }
         if (hasVoted[initiator]) {
-            revert PeerVote__AlreadyVoted();
+            revert ("Already voted.");
         }
 
         // step 1: decode law calldata
@@ -100,7 +96,7 @@ contract PeerVote is Law {
 
         // step 3: save vote
         if (since == 0) {
-            revert PeerVote__NotNominee();
+            revert ("Not a nominee.");
         }
 
         hasVoted[initiator] = true;

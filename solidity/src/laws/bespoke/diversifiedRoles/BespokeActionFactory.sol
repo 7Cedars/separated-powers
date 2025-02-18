@@ -23,9 +23,6 @@ import { BespokeAction } from "../../executive/BespokeAction.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 contract BespokeActionFactory is Law {
-    error BespokeActionFactory__AddressOccupied();
-    error BespokeActionFactory__RequestAmountExceedsAvailableFunds();
-
     LawConfig public configNewBespokeAction; // config for new grants.
 
     constructor(
@@ -71,7 +68,7 @@ contract BespokeActionFactory is Law {
         // step 1: if address is already in use, revert.
         uint256 codeSize = contractAddress.code.length;
         if (codeSize > 0) {
-            revert BespokeActionFactory__AddressOccupied();
+            revert ("Address occupied");
         }
 
         // step 3: create arrays

@@ -21,10 +21,7 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { RoleByKyc } from "./RoleByKyc.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
-contract RoleByKycFactory is Law {
-    error RoleByKycFactory__AddressOccupied();
-    error RoleByKycFactory__RequestAmountExceedsAvailableFunds();
-
+contract RoleByKycFactory is Law { 
     LawConfig public configNewGrants; // config for new grants.
     address public members;
 
@@ -75,7 +72,7 @@ contract RoleByKycFactory is Law {
         // step 1: if address is already in use, revert.
         uint256 codeSize = contractAddress.code.length;
         if (codeSize > 0) {
-            revert RoleByKycFactory__AddressOccupied();
+            revert ("Address occupied"); 
         }
 
         // step 3: create arrays

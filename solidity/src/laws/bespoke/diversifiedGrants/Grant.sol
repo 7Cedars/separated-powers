@@ -26,9 +26,6 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 // NB: no checks on what kind of Erc20 token is used. This is just an example.
 contract Grant is Law {
-    error Grant__IncorrectGrantAddress();
-    error Grant__RequestAmountExceedsAvailableFunds();
-
     enum TokenType {
         ERC20,
         ERC1155
@@ -81,10 +78,10 @@ contract Grant is Law {
 
         // step 1: run additional checks
         if (grantAddress != address(this)) {
-            revert Grant__IncorrectGrantAddress();
+            revert ("Incorrect grant address.");
         }
         if (quantity > budget - spent) {
-            revert Grant__RequestAmountExceedsAvailableFunds();
+            revert ("Request amount exceeds available funds."); 
         }
 
         // step 2: create arrays

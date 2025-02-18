@@ -18,9 +18,6 @@
 // import { RequestPayment } from "../../../src/laws/bespoke/RequestPayment.sol";
 
 // contract BlacklistAccountTest is TestSetupLaws {
-//     error BlacklistAccount__AlreadyBlacklisted();
-//     error BlacklistAccount__NotBlacklisted();
-
 //     event BlacklistAccount__Added(address account);
 //     event BlacklistAccount__Removed(address account);
 
@@ -88,8 +85,6 @@
 // }
 
 // contract CommunityValuesTest is TestSetupLaws {
-//     error CommunityValues__ValueNotFound();
-
 //     event CommunityValues__Added(string value);
 //     event CommunityValues__Removed(string value);
 
@@ -141,9 +136,6 @@
 // }
 
 // contract LawWithBlacklistCheckTest is TestSetupLaws {
-//     error LawWithBlacklistCheck__NoZeroAddress();
-//     error LawWithBlacklistCheck__AccountBlacklisted();
-
 //     function testBlacklistAccountSucceeds() public {
 //         // prep
 //         address blacklistAccount = laws[9];
@@ -179,9 +171,6 @@
 // }
 
 // contract RequestPaymentTest is TestSetupLaws {
-//     error RequestPayment__DelayNotPassed();
-//     error RequestPayment__IncompleteConstructionParams();
-
 //     function testDeployRevertsWithZeroAddress() public {
 //         // prep
 //         ILaw.LawConfig memory lawConfig;

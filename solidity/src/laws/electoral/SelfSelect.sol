@@ -30,10 +30,7 @@ pragma solidity 0.8.26;
 import { Law } from "../../Law.sol";
 import { SeparatedPowers } from "../../SeparatedPowers.sol";
 
-contract SelfSelect is Law {
-    error SelfSelect__AccountDoesNotHaveRole();
-    error SelfSelect__AccountAlreadyHasRole();
-
+contract SelfSelect is Law { 
     uint32 private immutable ROLE_ID;
 
     constructor(
@@ -66,12 +63,12 @@ contract SelfSelect is Law {
         targets[0] = separatedPowers;
         if (revoke) {
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) == 0) {
-                revert SelfSelect__AccountDoesNotHaveRole();
+                revert ("Account does not have role.");
             }
             calldatas[0] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, initiator); // selector = revokeRole
         } else {
             if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) != 0) {
-                revert SelfSelect__AccountAlreadyHasRole();
+                revert ("Account already has role.");
             }
             calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, initiator); // selector = assignRole
         }

@@ -21,9 +21,6 @@ import { Law } from "../../Law.sol";
 import { AddressesMapping } from "../state/AddressesMapping.sol";
 
 abstract contract BlacklistCheck is Law {
-    /// @notice overrides the default simulateLaw function.
-    error BlacklistCheck__Blacklisted();
-
     function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         view
@@ -31,7 +28,7 @@ abstract contract BlacklistCheck is Law {
     {
         bool blacklisted = AddressesMapping(blacklistContract()).addresses(initiator);
         if (blacklisted) {
-            revert BlacklistCheck__Blacklisted();
+            revert ("blacklisted");
         }
 
         super.checksAtPropose(initiator, lawCalldata, descriptionHash);

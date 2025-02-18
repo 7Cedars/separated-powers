@@ -20,10 +20,7 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 
-contract AddressesMapping is Law {
-    error AddressesMapping__AlreadyTrue();
-    error AddressesMapping__AlreadyFalse();
-
+contract AddressesMapping is Law { 
     mapping(address => bool) public addresses; //
 
     event AddressesMapping__Added(address account);
@@ -53,9 +50,9 @@ contract AddressesMapping is Law {
         (address account, bool add) = abi.decode(lawCalldata, (address, bool));
 
         if (add && addresses[account]) {
-            revert AddressesMapping__AlreadyTrue();
+            revert ("Already true.");
         } else if (!add && !addresses[account]) {
-            revert AddressesMapping__AlreadyFalse();
+            revert ("Already false.");
         }
 
         // step 2: return data

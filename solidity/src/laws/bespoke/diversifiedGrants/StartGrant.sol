@@ -28,9 +28,6 @@ import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 contract StartGrant is Law {
-    error StartGrant__GrantAddressAlreadyExists();
-    error StartGrant__RequestAmountExceedsAvailableFunds();
-
     LawConfig public configNewGrants; // config for new grants.
 
     constructor(
@@ -85,12 +82,12 @@ contract StartGrant is Law {
             Grant.TokenType(tokenType) == Grant.TokenType.ERC20
                 && budget > ERC20(tokenAddress).balanceOf(separatedPowers)
         ) {
-            revert StartGrant__RequestAmountExceedsAvailableFunds();
+            revert ("Request amount exceeds available funds."); 
         } else if (
             Grant.TokenType(tokenType) == Grant.TokenType.ERC1155
                 && budget > ERC1155(tokenAddress).balanceOf(separatedPowers, tokenId)
         ) {
-            revert StartGrant__RequestAmountExceedsAvailableFunds();
+            revert ("Request amount exceeds available funds."); 
         }
 
         // step 1: calculate address at which grant will be created.
@@ -100,7 +97,7 @@ contract StartGrant is Law {
         // step 2: if address is already in use, revert.
         uint256 codeSize = grantAddress.code.length;
         if (codeSize > 0) {
-            revert StartGrant__GrantAddressAlreadyExists();
+            revert ("Grant address already exists");
         }
 
         // step 3: create arrays

@@ -40,13 +40,7 @@ import { SeparatedPowers } from "../../SeparatedPowers.sol";
 import { PeerVote } from "../state/PeerVote.sol";
 import { NominateMe } from "../state/NominateMe.sol";
 
-contract ElectionTally is Law {
-    error ElectionTally__PeerVoteContractNotActive();
-    error ElectionTally__DissimilarNomineesContracts();
-    error ElectionTally__IncorrectTallyContractAtPeerVote();
-    error ElectionTally__NoNominees();
-    error ElectionTally__ElectionHasNotEnded();
-
+contract ElectionTally is Law { 
     address public immutable NOMINEES;
     uint256 public immutable MAX_ROLE_HOLDERS;
     uint32 public immutable ROLE_ID;
@@ -81,19 +75,19 @@ contract ElectionTally is Law {
 
         // step 1: run additional checks
         if (!SeparatedPowers(separatedPowers).getActiveLaw(peerVote)) {
-            revert ElectionTally__PeerVoteContractNotActive();
+            revert ("PeerVote contract not active");
         }
         if (NominateMe(NOMINEES).nomineesCount() == 0) {
-            revert ElectionTally__NoNominees();
+            revert ("No nominees.");
         }
         if (PeerVote(peerVote).endVote() > block.number) {
-            revert ElectionTally__ElectionHasNotEnded();
+            revert ("Election still active.");
         }
         if (PeerVote(peerVote).NOMINEES() != NOMINEES) {
-            revert ElectionTally__DissimilarNomineesContracts();
+            revert ("Dissimilar nominees contracts.");
         }
         if (PeerVote(peerVote).TALLY() != address(this)) {
-            revert ElectionTally__IncorrectTallyContractAtPeerVote();
+            revert ("Incorrect tally contract at peerVote");
         }
 
         // step 2: setting up array for revoking & assigning roles.

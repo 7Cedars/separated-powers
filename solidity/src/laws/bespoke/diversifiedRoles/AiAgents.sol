@@ -21,9 +21,6 @@ import { Law } from "../../../Law.sol";
 
 // @title AiAgents
 contract AiAgents is Law {
-    error AiAgents__AgentAlreadyExists();
-    error AiAgents__AgentDoesNotExist();
-
     struct AiAgent {
         string name;
         address account;
@@ -67,7 +64,7 @@ contract AiAgents is Law {
         if (add) {
             for (uint256 i = 0; i < aiAgentsCount; i++) {
                 if (aiAgentsList[i].account == account) {
-                    revert AiAgents__AgentAlreadyExists();
+                    revert ("Agent already exist");
                 }
             }
         }
@@ -81,7 +78,7 @@ contract AiAgents is Law {
                 }
             }
             if (!agentFound) {
-                revert AiAgents__AgentDoesNotExist();
+                revert ("Agent does not exist");
             }
         }
 

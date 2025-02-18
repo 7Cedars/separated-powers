@@ -23,9 +23,6 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 contract Grant1155Test is TestSetupDiversifiedGrants {
-    error Grant__IncorrectGrantAddress();
-    error Grant__RequestAmountExceedsAvailableFunds();
-
     function testErc1155GrantSuccessfulTransfer() public {
         // prep
         address grant1155 = laws[0];
@@ -77,7 +74,7 @@ contract Grant1155Test is TestSetupDiversifiedGrants {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(Grant__IncorrectGrantAddress.selector);
+        vm.expectRevert("Incorrect grant address.");
         Law(grant1155).executeLaw(
             alice, // alice = initiator
             lawCalldata,
@@ -97,7 +94,7 @@ contract Grant1155Test is TestSetupDiversifiedGrants {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(Grant__IncorrectGrantAddress.selector);
+        vm.expectRevert("Incorrect grant address.");
         Law(grant1155).executeLaw(
             alice, // alice = initiator
             lawCalldata,
@@ -117,7 +114,7 @@ contract Grant1155Test is TestSetupDiversifiedGrants {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(Grant__RequestAmountExceedsAvailableFunds.selector);
+        vm.expectRevert("Request amount exceeds available funds.");
         Law(grant1155).executeLaw(
             alice, // alice = initiator
             lawCalldata,
@@ -149,7 +146,7 @@ contract Grant1155Test is TestSetupDiversifiedGrants {
         }
 
         vm.startPrank(address(daoMock));
-        vm.expectRevert(Grant__RequestAmountExceedsAvailableFunds.selector);
+        vm.expectRevert("Request amount exceeds available funds.");
         Law(grant1155).executeLaw(
             alice, // alice = initiator
             lawCalldata,
@@ -159,9 +156,6 @@ contract Grant1155Test is TestSetupDiversifiedGrants {
 }
 
 contract Grant20Test is TestSetupDiversifiedGrants {
-    error Grant__IncorrectGrantAddress();
-    error Grant__RequestAmountExceedsAvailableFunds();
-
     function testErc20GrantSuccessfulTransfer() public {
         // prep
         address grant20 = laws[1];
@@ -196,9 +190,6 @@ contract Grant20Test is TestSetupDiversifiedGrants {
 }
 
 contract StartGrantTest is TestSetupDiversifiedGrants {
-    error StartGrant__GrantAddressAlreadyExists();
-    error StartGrant__RequestAmountExceedsAvailableFunds();
-
     Grant.LawConfig public configNewGrants; // config for new grants.
 
     function testErc20SuccessfulSetup() public {
@@ -272,7 +263,7 @@ contract StartGrantTest is TestSetupDiversifiedGrants {
         Erc20VotesMock(erc20VotesMock).mintVotes(1000); // too few tokens for grant to be created.
 
         // act
-        vm.expectRevert(StartGrant__RequestAmountExceedsAvailableFunds.selector);
+        vm.expectRevert("Request amount exceeds available funds.");
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) = Law(startGrant)
             .executeLaw(
@@ -353,7 +344,7 @@ contract StartGrantTest is TestSetupDiversifiedGrants {
         Erc1155Mock(erc1155Mock).mintCoins(1000);
 
         // act
-        vm.expectRevert(StartGrant__RequestAmountExceedsAvailableFunds.selector);
+        vm.expectRevert("Request amount exceeds available funds.");
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) = Law(startGrant)
             .executeLaw(
@@ -365,8 +356,6 @@ contract StartGrantTest is TestSetupDiversifiedGrants {
 }
 
 contract StopGrantTest is TestSetupDiversifiedGrants {
-    error StopGrant__GrantHasNotExpired();
-
     Grant.LawConfig public configNewGrants; // config for new grants.
 
     function testSuccessfulGrantStop() public {
@@ -404,7 +393,7 @@ contract StopGrantTest is TestSetupDiversifiedGrants {
         bytes memory lawCalldata = abi.encode(grantAddress);
 
         // act
-        vm.expectRevert(StopGrant__GrantHasNotExpired.selector);
+        vm.expectRevert("Grant not expired.");
         vm.prank(address(daoMock));
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) = Law(stopGrant)
             .executeLaw(
@@ -483,10 +472,6 @@ contract StopGrantTest is TestSetupDiversifiedGrants {
 }
 
 contract RoleByTaxPaidTest is TestSetupDiversifiedGrants {
-    error RoleByTaxPaid__NotEligible();
-    error RoleByTaxPaid__IsEligible();
-    error RoleByTaxPaid__NoFinishedEpochYet();
-
     function testSuccessfulRoleByTaxPaid() public {
         address roleByTaxPaid = laws[5];
         bytes memory lawCalldata = abi.encode(
@@ -533,7 +518,7 @@ contract RoleByTaxPaidTest is TestSetupDiversifiedGrants {
 
         // act
         vm.roll(block.number + epochDuration + 1);
-        vm.expectRevert(RoleByTaxPaid__NotEligible.selector);
+        vm.expectRevert("Not eligible.");
         vm.prank(address(daoMock));
         Law(roleByTaxPaid).executeLaw(
             charlotte, // charlotte = initiator
@@ -564,7 +549,7 @@ contract RoleByTaxPaidTest is TestSetupDiversifiedGrants {
 
         // act
         vm.roll(block.number + epochDuration + 1);
-        vm.expectRevert(RoleByTaxPaid__IsEligible.selector);
+        vm.expectRevert("Is eligible.");
         vm.prank(address(daoMock));
         Law(roleByTaxPaid).executeLaw(
             charlotte, // charlotte = initiator
@@ -595,7 +580,7 @@ contract RoleByTaxPaidTest is TestSetupDiversifiedGrants {
 
         // act
         vm.roll(0); // set blocknumber at genesis block
-        vm.expectRevert(RoleByTaxPaid__NoFinishedEpochYet.selector);
+        vm.expectRevert("No finished epoch yet.");
         vm.prank(address(daoMock));
         Law(roleByTaxPaid).executeLaw(
             charlotte, // charlotte = initiator

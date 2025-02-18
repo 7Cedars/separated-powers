@@ -21,8 +21,6 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { Erc721Mock } from "../../../../test/mocks/Erc721Mock.sol";
 
 contract ReinstateRole is Law {
-    error ReinstateRole__IsAlreadyMember();
-
     uint32 constant ROLE_ID = 1;
 
     address public erc721Token;

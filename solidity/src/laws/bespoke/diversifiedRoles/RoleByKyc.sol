@@ -19,9 +19,7 @@ pragma solidity 0.8.26;
 import { SelfSelect } from "../../electoral/SelfSelect.sol";
 import { Members } from "./Members.sol";
 
-contract RoleByKyc is SelfSelect {
-    error RoleByKyc__NotEligible();
-
+contract RoleByKyc is SelfSelect { 
     uint16[] public nationalities;
     uint16[] public countryOfResidences;
     int64 public olderThan; // in seconds
@@ -105,7 +103,7 @@ contract RoleByKyc is SelfSelect {
 
         // step 4: revert if any of the checks fail
         if (!nationalityOk || !residencyOk || !oldEnough || !youngEnough) {
-            revert RoleByKyc__NotEligible();
+            revert ("Not eligible."); 
         }
 
         // step 5: call super

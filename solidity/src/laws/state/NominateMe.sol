@@ -26,10 +26,7 @@ pragma solidity 0.8.26;
 import { Law } from "../../Law.sol";
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
-contract NominateMe is Law {
-    error NominateMe__NomineeAlreadyNominated();
-    error NominateMe__NomineeNotNominated();
-
+contract NominateMe is Law { 
     mapping(address => uint48) public nominees;
     address[] public nomineesSorted;
     uint256 public nomineesCount;
@@ -64,14 +61,14 @@ contract NominateMe is Law {
         // nominating //
         if (nominateMe) {
             if (nominees[initiator] != 0) {
-                revert NominateMe__NomineeAlreadyNominated();
+                revert ("Nominee already nominated.");
             }
         }
 
         // revoke nomination //
         if (!nominateMe) {
             if (nominees[initiator] == 0) {
-                revert NominateMe__NomineeNotNominated();
+                revert ("Nominee not nominated.");
             }
         }
 

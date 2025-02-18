@@ -19,10 +19,7 @@ pragma solidity 0.8.26;
 import { Law } from "../../Law.sol";
 import { ERC721 } from "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 
-abstract contract NftCheck is Law {
-    error Erc721Check__DoesNotOwnToken();
-
-    /// @notice overrides the default simulateLaw function.
+abstract contract NftCheck is Law { 
     function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         view
@@ -31,7 +28,7 @@ abstract contract NftCheck is Law {
     {
         bool hasToken = ERC721(_nftCheckAddress()).balanceOf(initiator) > 0;
         if (!hasToken) {
-            revert Erc721Check__DoesNotOwnToken();
+            revert ("Does not own token.");
         }
         super.checksAtPropose(initiator, lawCalldata, descriptionHash);
     }

@@ -21,8 +21,6 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 import { Erc721Mock } from "../../../../test/mocks/Erc721Mock.sol";
 
 contract RevokeMembership is Law {
-    error RevokeMembership__IsNotMember();
-
     uint32 constant ROLE_ID = 1;
 
     address public erc721Token;

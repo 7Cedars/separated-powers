@@ -15,9 +15,6 @@ import { ElectionTally } from "../../../src/laws/electoral/ElectionTally.sol";
 contract DirectSelectTest is TestSetupElectoral {
     using ShortStrings for *;
 
-    error DirectSelect__AccountDoesNotHaveRole();
-    error DirectSelect__AccountAlreadyHasRole();
-
     function testAssignSucceeds() public {
         // prep: check if alice does NOT have role 3
         assertEq(daoMock.hasRoleSince(charlotte, ROLE_THREE), 0);
@@ -44,7 +41,7 @@ contract DirectSelectTest is TestSetupElectoral {
 
         // act & assert
         vm.startPrank(address(daoMock));
-        vm.expectRevert(DirectSelect__AccountAlreadyHasRole.selector);
+        vm.expectRevert("Account already has role.");
         Law(directSelect).executeLaw(alice, lawCalldata, bytes32(0));
     }
 
@@ -71,7 +68,7 @@ contract DirectSelectTest is TestSetupElectoral {
         abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_THREE, charlotte);
 
         // act & assert
-        vm.expectRevert(DirectSelect__AccountDoesNotHaveRole.selector);
+        vm.expectRevert("Account does not have role.");
         vm.startPrank(address(daoMock));
         Law(directSelect).executeLaw(charlotte, lawCalldata, bytes32(0));
     }
@@ -360,11 +357,6 @@ contract DelegateSelectTest is TestSetupElectoral {
 }
 
 contract ElectionTallyTest is TestSetupElectoral {
-    error ElectionTally__PeerVoteContractNotActive();
-    error ElectionTally__DissimilarNomineesContracts();
-    error ElectionTally__IncorrectTallyContractAtPeerVote();
-    error ElectionTally__NoNominees();
-    error ElectionTally__ElectionHasNotEnded();
 
     function testNomineesCorrectlyElectedWithManyNominees() public {
         // prep: data
@@ -485,7 +477,7 @@ contract ElectionTallyTest is TestSetupElectoral {
 
         // act + assert emit
         vm.roll(endVote - 10);
-        vm.expectRevert(ElectionTally__ElectionHasNotEnded.selector);
+        vm.expectRevert("Election still active.");
         vm.startPrank(address(daoMock));
         Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
     }
@@ -505,7 +497,7 @@ contract ElectionTallyTest is TestSetupElectoral {
 
         // act + assert emit
         vm.roll(endVote + 1);
-        vm.expectRevert(ElectionTally__NoNominees.selector);
+        vm.expectRevert("No nominees.");
         vm.startPrank(address(daoMock));
         Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
     }
@@ -530,7 +522,7 @@ contract ElectionTallyTest is TestSetupElectoral {
 
         // act + assert emit
         vm.roll(endVote + 10);
-        vm.expectRevert(ElectionTally__DissimilarNomineesContracts.selector);
+        vm.expectRevert("Dissimilar nominees contracts.");
         vm.startPrank(address(daoMock));
         Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
     }
@@ -552,14 +544,13 @@ contract ElectionTallyTest is TestSetupElectoral {
 
         // act + assert emit
         vm.roll(endVote + 10);
-        vm.expectRevert(ElectionTally__IncorrectTallyContractAtPeerVote.selector);
+        vm.expectRevert("Incorrect tally contract at peerVote");
         vm.startPrank(address(daoMock));
         Law(electionTally).executeLaw(charlotte, lawCalldataTally, bytes32(0));
     }
 }
 
 contract ElectionCallTest is TestSetupElectoral {
-    error ElectionCall__PeerVoteAddressAlreadyExists();
 
     function testPeerVoteContractCorrectlyDeployed() public {
         // prep: data
@@ -603,7 +594,7 @@ contract ElectionCallTest is TestSetupElectoral {
         Law(electionCall).executeLaw(charlotte, lawCalldata, bytes32(0));
 
         // act: deploy again
-        vm.expectRevert(ElectionCall__PeerVoteAddressAlreadyExists.selector);
+        vm.expectRevert("Peer vote address already exists.");
         vm.prank(address(daoMock));
         Law(electionCall).executeLaw(charlotte, lawCalldata, bytes32(0));
     }

@@ -35,9 +35,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
-contract ElectionCall is Law {
-    error ElectionCall__PeerVoteAddressAlreadyExists();
-
+contract ElectionCall is Law { 
     uint32 public immutable VOTER_ROLE_ID;
     address public immutable NOMINEES;
     address public immutable TALLY_VOTE;
@@ -87,7 +85,7 @@ contract ElectionCall is Law {
         // step 2: if address is already in use, revert.
         uint256 codeSize = peerVoteAddress.code.length;
         if (codeSize > 0) {
-            revert ElectionCall__PeerVoteAddressAlreadyExists();
+            revert ("Peer vote address already exists.");
         }
 
         // step 3: create arrays

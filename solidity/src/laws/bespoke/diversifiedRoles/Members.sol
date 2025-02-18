@@ -19,9 +19,6 @@ pragma solidity 0.8.26;
 import { Law } from "../../../Law.sol";
 
 contract Members is Law {
-    error Members__MemberAlreadyExists(address account);
-    error Members__MemberNonExistent(address account);
-
     // see for country codes IBAN: https://www.iban.com/country-codes
     struct Member {
         uint16 nationality;
@@ -64,10 +61,10 @@ contract Members is Law {
 
         // step 1: run additional checks
         if (add && members[account].nationality != 0) {
-            revert Members__MemberAlreadyExists(account);
+            revert ("Member already exists.");
         }
         if (!add && members[account].nationality == 0) {
-            revert Members__MemberNonExistent(account);
+            revert ("Non existent member.");
         }
 
         // step 2: create arrays

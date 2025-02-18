@@ -33,9 +33,7 @@ contract TokensArray is Law {
     }
 
     Token[] public tokens;
-    uint256 public numberOfTokens;
-
-    error TokensArray__TokenNotFound();
+    uint256 public numberOfTokens; 
 
     event TokensArray__TokenAdded(address indexed tokenAddress, TokenType tokenType);
     event TokensArray__TokenRemoved(address indexed tokenAddress, TokenType tokenType);
@@ -81,7 +79,7 @@ contract TokensArray is Law {
             numberOfTokens++;
             emit TokensArray__TokenAdded(tokenAddress, tokenType);
         } else if (numberOfTokens == 0) {
-            revert TokensArray__TokenNotFound();
+            revert ("Token not found.");
         } else {
             for (uint256 index; index < numberOfTokens; index++) {
                 if (tokens[index].tokenAddress == tokenAddress) {
@@ -92,7 +90,7 @@ contract TokensArray is Law {
                 }
 
                 if (index == numberOfTokens - 1) {
-                    revert TokensArray__TokenNotFound();
+                    revert ("Token not found.");
                 }
             }
             emit TokensArray__TokenRemoved(tokenAddress, tokenType);

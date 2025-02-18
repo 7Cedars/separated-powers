@@ -22,9 +22,7 @@ import { SeparatedPowers } from "../../../SeparatedPowers.sol";
 
 import { Grant } from "./Grant.sol";
 
-contract StopGrant is Law {
-    error StopGrant__GrantHasNotExpired();
-
+contract StopGrant is Law { 
     constructor(
         string memory name_,
         string memory description_,
@@ -50,7 +48,7 @@ contract StopGrant is Law {
             Grant(grantAddress).budget() != Grant(grantAddress).spent() && 
             Grant(grantAddress).expiryBlock() > uint48(block.number)
         ) {
-            revert StopGrant__GrantHasNotExpired();
+            revert ("Grant not expired."); 
         }
 
         // step 3: create arrays
