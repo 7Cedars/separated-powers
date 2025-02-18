@@ -11,10 +11,9 @@ import { useSetActiveWallet } from "@privy-io/wagmi";
 export const ConnectButton = () => {
   const {ready: walletsReady, wallets} = useWallets();
   const {ready, user, authenticated, login, logout, connectWallet, linkWallet} = usePrivy();
-  const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === 'privy');
   const {setActiveWallet} = useSetActiveWallet();
 
-  console.log({embeddedWallet, walletsReady, wallets, authenticated, user, ready})
+  console.log({walletsReady, wallets, authenticated, user, ready})
 
   //NB see: 
   // https://github.com/privy-io/wagmi-demo/blob/main/app/page.tsx
@@ -53,7 +52,7 @@ export const ConnectButton = () => {
       </button>
     }
 
-    {
+    {/* {
       walletsReady && 
       <button
           className={`w-fit h-full flex flex-row items-center justify-center text-center rounded-md bg-slate-100 border-opacity-0 md:border-opacity-100 border border-slate-400 hover:border-slate-600`}  
@@ -81,7 +80,7 @@ export const ConnectButton = () => {
         //     {  wallets[0].address.slice(0, 6)}...{wallets[0].address.slice(-6) }
         //   </div>
         // </div>
-    }
+    } */}
 
 
       {/* :
