@@ -99,7 +99,7 @@ export function LawList() {
               >
                 <td className="max-h-12 text-left px-2 min-w-60">
                   <Button
-                    showBorder={false}
+                    showBorder={true}
                     role={
                       law.allowedRole == 4294967295n
                         ? 6

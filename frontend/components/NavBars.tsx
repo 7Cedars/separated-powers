@@ -108,7 +108,7 @@ const Header = () => {
   const path = usePathname()
  
   return (
-    <header className="absolute grow w-screen top-0 h-fit py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
+    <header className="absolute h-14 w-screen top-0 py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
     <section className="grow flex flex-row gap-1 justify-between px-2 max-w-screen-xl">
       <div className="flex flex-row gap-1 min-w-48"> 
         <Button size = {0} onClick={

@@ -17,9 +17,9 @@ export function ExampleDemos() {
   }, [, organisations])
 
   return (
-    <section className = "w-full min-w-[60vw] min-h-[100vh] h-fit flex flex-col justify-between items-center snap-start px-4 pb-10"> 
-      <div> 
-        <div className = "w-full flex flex-row justify-center items-center md:text-4xl text-2xl text-slate-600 text-center max-w-4xl text-pretty font-bold pt-16 px-4">
+    <section className = "w-full min-w-[60vw] min-h-fit flex flex-col justify-between items-center snap-start px-4 pb-10"> 
+      <div className = "h-fit flex flex-col justify-center items-center min-h-60"> 
+        <div className = "w-full flex flex-row justify-center items-center md:text-4xl text-2xl text-slate-600 text-center max-w-4xl text-pretty font-bold pt-24 px-4">
             Want to play around with a live demo?
         </div>
         <div className = "w-full flex flex-row justify-center items-center md:text-2xl text-xl text-slate-400 max-w-2xl text-center text-pretty py-2 px-4">
@@ -65,12 +65,12 @@ export function ExampleDemos() {
                             key={index}
                             className={`text-sm text-left text-slate-800 h-16 overflow-x-scroll`}
                           >
-                              <td className="min-w-12">
+                              <td className="max-w-6">
                                   <div className={`ms-4 h-6 w-6 bg-gradient-to-bl ${colourScheme[index % colourScheme.length]} rounded-full`}/>
                               </td>
-                              <td className="pe-4 text-slate-500 min-w-40">
+                              <td className="pe-4 text-slate-500 w-40">
                                   <Button 
-                                      size={1} align={0} showBorder={false} onClick={() => assignOrg({...org, colourScheme: index % colourScheme.length})}>
+                                      size={1} align={0} showBorder={true} onClick={() => assignOrg({...org, colourScheme: index % colourScheme.length})}>
                                       {org.name}
                                   </Button>
                               </td>
@@ -89,11 +89,11 @@ export function ExampleDemos() {
       </section>
       
       {/* arrow down */}
-      <div className = "grow flex flex-col align-center justify-center"> 
+      {/* <div className = "grow flex flex-col align-center justify-center"> 
         <ChevronDownIcon
           className = "w-16 h-16 text-slate-700" 
         /> 
-      </div>
+      </div> */}
     </section>
   )
 }

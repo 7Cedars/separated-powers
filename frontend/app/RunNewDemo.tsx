@@ -10,8 +10,8 @@ export function RunNewDemo() {
   const {status, error, organisations, run} = useOrganisations()
 
   return (
-    <section className="md:h-[80vh] h-0 flex flex-col justify-between items-center pb-8 px-4 snap-start snap-always  opacity-0 md:opacity-100 ">
-      <div className = "w-full flex flex-row justify-center items-center md:text-3xl text-2xl text-slate-600 text-center text-pretty font-bold pt-16 px-4">
+    <section className="h-[80vh] h-0 flex flex-col justify-between items-center pb-8 px-4 snap-start snap-always  opacity-0 md:opacity-100">
+      <div className = "w-full flex flex-row justify-center items-center md:text-3xl text-2xl text-slate-600 text-center text-pretty font-bold pt-16 pb-8 px-4">
           Or do you have a demo of your own deployed?
       </div>
 

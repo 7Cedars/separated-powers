@@ -1,7 +1,7 @@
 export const exampleUseCases = [
   {
-    title: "Managing a plurality of legal regimes for Crypto communities",
-    challenge: "Crypto communities are global communities. As a result, they face  a plurality of legal regimes (the US, EU, China, and so on) when governing their community.",
+    title: "Managing a plurality of legal regimes",
+    challenge: "Crypto communities are global. They interact with a plurality of legal regimes (the US, EU, China) when governing their community.",
     solution: "Using robust KYC mechanisms, roles can be assigned to users in specific local jurisdictions. This allows for selective in- and exclusion of users from executive actions. It creates a unified governance system that adapts to local jurisdictions.",
   },
   {
@@ -10,24 +10,24 @@ export const exampleUseCases = [
     solution: "Assigning roles to human and AI agents, role restricted governance protocols allow for flexible and bespoke guard rails for AI agents, allowing for seamless interaction with other (human and AI) agents in a community.",
   },
   {
-    title: "Increase security against hostile governance take-overs",
+    title: "Protecting against hostile takeovers",
     challenge: "Hostile governance takeovers remain a threat to on-chain governance. Solutions to address this risk have led to increased complexity in governance protocols.",
     solution: "Role restricted governance protocols have two inherent properties that decrease the chance of hostile takeovers: they allow for roles to check each others actions and disallow a direct translation of token holdings to voting power.",
   }, 
   {
     title: "Building hybrid on- and off-chain systems",
-    challenge: "Investment companies offer crypto tokens to customer through ETFs, creating the need for hybrid governance systems where token linked voting power is transferred to customers, but always within clearly defined boundaries.",
-    solution: "Role restricted governance protocols provide full control over the powers that roles have. This allows for the creation of hybrid governance systems where a corporate off-chain entity defines the range fo powers that customers have on-chain.",
+    challenge: "Following the start of crypto ETFs, a need for hybrid governance systems has emerged: giving customers voting power, but within clearly defined boundaries.",
+    solution: "Role restricted governance protocols provide full control over who has what power. It allows for hybrid governance systems where a corporate off-chain entity defines the range fo powers that customers have on-chain.",
   },
   {
-    title: "Decrease centralisation in on-chain governance", 
-    challenge: "The tendency for token holdings and delegate votes to centralise around a small set of accounts is an on-going problem in on-chain community governance, leading to a drop in voter participation.", 
-    solution: "Creating roles for builders, community leaders, token holders and any other stake holder, decentralises power by giving different groups actual influence in community governance. It will boost participation in return.",
+    title: "Facilitate decentralisation", 
+    challenge: "A problem in on-chain community governance is the tendency for token holdings and delegate votes to centralise around a small set of accounts.", 
+    solution: "The Powers protocol allows for the creation of roles for builders, community leaders, token holders and any other stake holder. Decentralising power by giving different groups actual influence in community governance.",
   }, 
   {
-    title: "Manage dynamic complexity in changing circumstances",
+    title: "Manage dynamic complexity in governance",
     challenge: "Current governance protocols give little flexibility to adapt voting procedures to changing circumstances.",
-    solution: "In a role restricted governance protocol, laws define roles and their powers. They can be adopted and revoked through internal governance mechanisms to adapt to changing circumstances, and hence provide flexibility without giving in on governance security.",
+    solution: "In the Powers Protocol, laws define roles and define their powers. They can be adopted and revoked through internal governance mechanisms to adapt to changing circumstances, and hence provide flexibility without giving in on security.",
   }, 
 ]
 
