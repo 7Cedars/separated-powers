@@ -77,7 +77,19 @@ What is not flexible, is how Powers interacts with laws. This is done through th
 
 Together, Powers and Laws define which accounts can do what in what situations. Let us explore some examples.
 
-> Example one ...
+Allow the execution of any action, but have a second role check actions, so this power cannot be abused.   
+> **Law 1** allows accounts with role 1 to propose any action. The law is subject to a vote, and the proposal will only be accepted if more than half of role 1 account holders votes in favour.
+> 
+> Alice, who has been assigned a role 1, proposes to transfer ether from the protocol to X. Bob and Charlotte, other role 1 holders, vote in favour and the proposal passes. 
+> 
+> Now *nothing* happens. Only a proposal has been formalised, no executable call is send to Power protocol. 
+>
+> **Law 2** allows accounts with role 2 to execute any actions. The law is subject to a vote and, crucially, needs the exact same proposal to have passed with Law 1. 
+> 
+> David, who has role 2, notices that a proposal has passed at Law 1. He puts the proposal up for a vote among role 2 holders. Eve and Helen, both role 2 holders, vote in favour. 
+> 
+> Following the vote, David calls the execute function and the action is implemented.   
+
 
 > Example two ...
 
