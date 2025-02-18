@@ -1,11 +1,5 @@
 "use client";
 
-// This should become the header. Has the following (from left to right): 
-// - logo -> click will bring to github page (or something about page like / documentation)
-// - A button with the name of the currently selected Dao. -> click will bring to landing page.
-// - NavigationBar buttons: home, laws, proposals, roles, treasury --> all correspond with their pages. 
-// - address / login button -> links to privy.
-
 import { usePathname } from 'next/navigation';
 import type { PropsWithChildren } from "react";
 import { useRouter } from 'next/navigation'
@@ -108,7 +102,7 @@ const Header = () => {
   const path = usePathname()
  
   return (
-    <div className="absolute h-14 w-screen top-0 py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
+    <div className="absolute top-0 z-20 h-14 w-screen py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
     <section className="grow flex flex-row gap-1 justify-between px-2 max-w-screen-xl">
       <div className="flex flex-row gap-1 min-w-48"> 
         <Button size = {0} onClick={
@@ -195,9 +189,9 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
         {/* <Footer /> */}
       </div>
       : 
-        <div className="w-full h-full flex flex-col justify-center items-center">
+        <div className="w-full max-h-full flex flex-col justify-center items-center border border-blue-500">
           <Header /> 
-          <main className="max-w-screen-lg w-full h-full grid grid-cols-1 justify-items-start content-start overflow-y-scroll px-2 pt-20 pb-20">
+          <main className="max-w-screen-lg w-full max-h-fit grid grid-cols-1 justify-items-start content-start overflow-y-scroll pb-20 border border-red-500">
             {props.children}   
           </main>
           <NavigationSmallScreen /> 
