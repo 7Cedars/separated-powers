@@ -11,6 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  document.documentElement.requestFullscreen();
+
   return (
     <html lang="en">
       <body className="h-dvh w-screen flex flex-col justify-start items-start relative bg-slate-100 border border-green-500">
