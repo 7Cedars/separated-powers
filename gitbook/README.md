@@ -18,11 +18,13 @@ It allows for the creation of checks and balances between roles, guard-railing s
 
 The challenge with creating role restricted governance protocols is that actions need to be *restricted* before they can be *role* restricted. These type of protocols only work with external contracts that pre-define which actions a specific role can do under what conditions. They become very complex, very quickly.      
 
-The Powers Protocol provides a minimalistic, but very powerful, proof of concept of a role restricted governance protocol. It consists of two elements: Powers and Laws.  
+The Powers Protocol provides a minimalistic, but very powerful, proof of concept of a role restricted governance protocol. 
+
+It consists of two elements: Powers and Laws.  
 
 ### Powers
 
-The engine of the protocol that manages governance flows. It has the following core functionalities:
+`Powers.sol` is the engine of the protocol that manages governance flows. It has the following core functionalities:
 
 * Executing actions.
 * Proposing actions. 
@@ -51,7 +53,7 @@ Laws are contracts that follow the `ilaw.sol` interface. They can be created by 
 * They have multiple (optional) checks.
 * They return a function call.
 * They can save a state.
-* They have a function `executeLaw` that can only be called by one predefined deployment of `Powers.sol`. 
+* They have a function `executeLaw` that can only be called by a preset `Powers.sol` deployment. 
 
 Many elements of laws can be changed: what function call is returned, which checks need to pass, what state (if any) is saved. Laws are the meat on the bones provided by Powers. 
 
@@ -61,12 +63,13 @@ What is not flexible, is how Powers interacts with laws. This is done through th
 * Any state change is saved to the law. 
 * A return call is returned to the Powers protocol for execution.
 
-Important: it is impossible to execute an action or change state without passing checks.
-
 ### Role restricted governance flow 
 
+Together, Powers and Laws define which accounts can do what in what situations. Let us explore some examples. 
 
-## Use cases
+> Example one ... 
+
+> Example two ... 
 
 
 ## Characteristics

@@ -145,7 +145,14 @@ contract Law is ERC165, ILaw {
                 revert Law__ParentBlocksCompletion();
             }
         }
+    }
 
+    /// @inheritdoc ILaw
+    function checksAtExecute(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
+        public
+        view
+        virtual
+    {
         /// Optional check 3: throttle how often the law can be executed.
         if (config.throttleExecution != 0) {
             uint256 numberOfExecutions = executions.length - 1;
@@ -156,14 +163,7 @@ contract Law is ERC165, ILaw {
                 revert Law__ExecutionGapTooSmall();
             }
         }
-    }
 
-    /// @inheritdoc ILaw
-    function checksAtExecute(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
-        public
-        view
-        virtual
-    {
         // Optional check 4: make law conditional on a proposal succeeding.
         if (config.quorum != 0) {
             uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
