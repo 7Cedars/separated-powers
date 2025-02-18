@@ -63,12 +63,12 @@ export function ExampleDemos() {
                         return (
                           <tr
                             key={index}
-                            className={`text-sm text-left text-slate-800 h-16 overflow-x-scroll`}
+                            className={`h-16 text-sm text-left min-w-fit text-slate-800 h-16 overflow-x-scroll`}
                           >
-                              <td className="max-w-6">
-                                  <div className={`ms-4 h-6 w-6 bg-gradient-to-bl ${colourScheme[index % colourScheme.length]} rounded-full`}/>
+                              <td className="flex flex-col h-16 items-center justify-center">
+                                  <div className={`h-8 w-8 bg-gradient-to-bl ${colourScheme[index % colourScheme.length]} rounded-full`}/>
                               </td>
-                              <td className="pe-4 text-slate-500 w-40">
+                              <td className="pe-4 text-slate-500 min-w-40 max-w-fit">
                                   <Button 
                                       size={1} align={0} showBorder={true} onClick={() => assignOrg({...org, colourScheme: index % colourScheme.length})}>
                                       {org.name}

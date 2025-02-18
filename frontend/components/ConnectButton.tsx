@@ -28,7 +28,7 @@ export const ConnectButton = () => {
     {ready && !authenticated &&  
       <button
         className={`w-fit h-full flex flex-row items-center justify-center text-center rounded-md bg-slate-100 border-opacity-0 md:border-opacity-100 border border-slate-400 hover:border-slate-600`}  
-        onClick={ connectWallet }
+        onClick={ login }
       >
         <div className={`w-fit h-full flex flex-row items-center justify-center text-center rounded-md bg-slate-600 hover:bg-slate-800 text-slate-100 px-4 py-0`}>
             <PowerIcon

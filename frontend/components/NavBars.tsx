@@ -108,7 +108,7 @@ const Header = () => {
   const path = usePathname()
  
   return (
-    <header className="absolute h-14 w-screen top-0 py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
+    <div className="absolute h-14 w-screen top-0 py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
     <section className="grow flex flex-row gap-1 justify-between px-2 max-w-screen-xl">
       <div className="flex flex-row gap-1 min-w-48"> 
         <Button size = {0} onClick={
@@ -161,15 +161,15 @@ const Header = () => {
       }
         {path == `/` ? null : <ConnectButton /> }
     </section>
-  </header>
+  </div>
   )
 }
 
 const NavigationSmallScreen = () => {  
   return (
-     <header className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:opacity-0 opacity-100 w-full text-sm px-4">
+     <div className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:opacity-0 opacity-100 w-full text-sm px-4">
         {NavigationBar()}  
-    </header>
+    </div>
   )
 }
 
@@ -195,7 +195,7 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
         {/* <Footer /> */}
       </div>
       : 
-        <div className="absolute h-full w-screen flex flex-col justify-center items-center">
+        <div className="h-full w-screen flex flex-col justify-center items-center">
           <Header /> 
           <main className="max-w-screen-lg w-full h-full grid grid-cols-1 justify-items-start content-start overflow-y-scroll px-2 pt-20 pb-20">
             {props.children}   

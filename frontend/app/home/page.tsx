@@ -71,7 +71,7 @@ export default function Page() {
         async () => {
         setStatus("pending")
 
-        if (organisation.contractAddress) {
+        if (organisation.contractAddress && organisation.contractAddress != '0x0' ) {
           const uri = await readContract(wagmiConfig, {
             abi: separatedPowersAbi,
             address: organisation.contractAddress,
