@@ -48,6 +48,8 @@ export function LawBox() {
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
+  console.log({error})
+
   const handleChange = (input: InputType | InputType[], index: number) => {
     const currentInput = paramValues 
     currentInput[index] = input

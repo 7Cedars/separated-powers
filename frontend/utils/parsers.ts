@@ -313,6 +313,29 @@ export const parseProposalStatus = (state: number | undefined): string => {
  
 };
 
+export const parseErrorMessage = (message: unknown): boolean | string  => {
+  if (typeof message == null) {
+    return false
+  }
+  try {
+    String(message)
+  } catch {
+    throw new Error('Incorrect or missing data at rawReply');
+  }
+
+  if (typeof message === 'boolean') {
+    return message
+  }
+
+  if (typeof message !== 'boolean') {
+    return String(message).split("\n")[1]
+  }
+
+  else {
+    return false 
+  }
+};
+
 
 
 // Info: supported dataType Signatures: 

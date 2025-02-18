@@ -28,6 +28,8 @@ import { ReinstateRole } from "../src/laws/bespoke/alignedDao/ReinstateRole.sol"
 import { RequestPayment } from "../src/laws/bespoke/alignedDao/RequestPayment.sol";
 import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 
+import { SelfDestructPresetAction } from "../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol"; 
+
 // mocks 
 import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
 import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
@@ -296,6 +298,42 @@ contract DeployAlignedDao is Script {
             0, // admin.
             lawConfig, //  config file.
             9 // role id to be assigned
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        // laws[12]: selfDestructPresetAction: assign initial accounts to role 3.
+        address[] memory targets = new address[](3);
+        uint256[] memory values = new uint256[](3);
+        bytes[] memory calldatas = new bytes[](3);
+        for (uint256 i = 0; i < targets.length; i++) {
+            targets[i] = dao_;
+        }
+        calldatas[0] = abi.encodeWithSelector(
+          SeparatedPowers.assignRole.selector, 
+          3, 
+          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+        );
+        calldatas[1] = abi.encodeWithSelector(
+          SeparatedPowers.assignRole.selector, 
+          3, 
+          0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+        );
+        calldatas[2] = abi.encodeWithSelector(
+          SeparatedPowers.assignRole.selector, 
+          3, 
+          0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+        );
+        vm.startBroadcast();
+        law = new SelfDestructPresetAction(
+            "Set initial roles 3", // max 31 chars
+            "The admin selects initial accounts for role 3. The law self destructs when executed.",
+            dao_, // separated powers protocol.
+            0, // admin.
+            lawConfig, //  config file.
+            targets,
+            values,
+            calldatas
         );
         vm.stopBroadcast();
         laws.push(address(law));
