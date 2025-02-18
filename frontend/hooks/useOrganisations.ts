@@ -2,7 +2,7 @@ import { Status, Proposal, Organisation, Law } from "../context/types"
 import { readContracts } from '@wagmi/core'
 import { wagmiConfig } from '../context/wagmiConfig'
 import { useCallback, useEffect, useRef, useState } from "react";
-import { lawAbi, separatedPowersAbi } from "@/context/abi";
+import { lawAbi, powersAbi } from "@/context/abi";
 import { Hex, Log, parseEventLogs, ParseEventLogsReturnType } from "viem"
 import { publicClient } from "@/context/clients"; 
 import { readContract } from "wagmi/actions";
@@ -25,7 +25,7 @@ export const useOrganisations = () => {
       try {
         for await (organisation of organisations) {
               const name = await readContract(wagmiConfig, {
-                abi: separatedPowersAbi,
+                abi: powersAbi,
                 address: organisation.contractAddress,
                 functionName: 'name'
               })
@@ -54,7 +54,7 @@ export const useOrganisations = () => {
               eventName: 'Law__Initialized',
               fromBlock: supportedChain?.genesisBlock,
               args: {
-                separatedPowers: organisation.contractAddress as `0x${string}`
+                powers: organisation.contractAddress as `0x${string}`
               }
             })
             const fetchedLogs = parseEventLogs({
@@ -93,7 +93,7 @@ export const useOrganisations = () => {
           if (organisation?.contractAddress && organisation?.laws) {
             for await (law of organisation.laws) {
               const activeLaw = await readContract(wagmiConfig, {
-                abi: separatedPowersAbi,
+                abi: powersAbi,
                 address: organisation.contractAddress,
                 functionName: 'getActiveLaw', 
                 args: [law.law]
@@ -103,7 +103,7 @@ export const useOrganisations = () => {
               if (active) activeLaws.push(law) 
             }
           } 
-          const orgActiveLaws: Law[] = activeLaws.filter(law => law.separatedPowers == organisation.contractAddress) 
+          const orgActiveLaws: Law[] = activeLaws.filter(law => law.powers == organisation.contractAddress) 
           orgsWithActiveLaws.push({...organisation, activeLaws: orgActiveLaws})
         } 
         return orgsWithActiveLaws
@@ -125,12 +125,12 @@ export const useOrganisations = () => {
           if (organisation?.contractAddress) {
             const logs = await publicClient.getContractEvents({ 
               address: organisation.contractAddress as `0x${string}`,
-              abi: separatedPowersAbi, 
+              abi: powersAbi, 
               eventName: 'ProposalCreated',
               fromBlock: supportedChain?.genesisBlock
             })
             const fetchedLogs = parseEventLogs({
-                        abi: separatedPowersAbi,
+                        abi: powersAbi,
                         eventName: 'ProposalCreated',
                         logs
                       })

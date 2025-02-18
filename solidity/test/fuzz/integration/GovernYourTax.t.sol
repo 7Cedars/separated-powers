@@ -6,8 +6,8 @@ import { Test, console, console2 } from "lib/forge-std/src/Test.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
-import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
-import { SeparatedPowersEvents } from "../../../src/interfaces/SeparatedPowersEvents.sol";
+import { Powers} from "../../../src/Powers.sol";
+import { PowersEvents } from "../../../src/interfaces/PowersEvents.sol";
 import { Law } from "../../../src/Law.sol";
 import { ILaw } from "../../../src/interfaces/ILaw.sol";
 
@@ -103,7 +103,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         if (quorumReached && voteSucceeded) {
             console.log("step 0 action: eve EXECUTES and creates new grant. Budget: ", seed);
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(
+            emit PowersEvents.ProposalCompleted(
                 eve, laws[1], lawCalldata, keccak256(bytes(description))
                 );
             vm.prank(eve);
@@ -119,7 +119,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
 
         // step 1: create proposal to request funds. 
         i = 0; 
-        while (SeparatedPowers(governYourTax).getActiveLaw(grantAddress) == true) {
+        while (Powers(governYourTax).getActiveLaw(grantAddress) == true) {
             i++;  
             console.log("Begin run: ", i); 
             description = string.concat("Request grant, request number ", Strings.toString(i));
@@ -153,7 +153,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             if (quorumReached && voteSucceeded) { // at the fourth step budget will be exhausted.
                 console.log("step 1 action: bob EXECUTES and thus formally proposes request to the grant");
                 vm.expectEmit(true, false, false, false);
-                emit SeparatedPowersEvents.ProposalCompleted(
+                emit PowersEvents.ProposalCompleted(
                     bob, 
                     laws[0], 
                     lawCalldata, 
@@ -199,7 +199,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                 (seed % 350) * i <= seed) { // at the fourth step budget will be exhausted.
                 console.log("step 2 action: Helen EXECUTES and grants grant request, money should be transferred");
                 vm.expectEmit(true, false, false, false);
-                emit SeparatedPowersEvents.ProposalCompleted(
+                emit PowersEvents.ProposalCompleted(
                     helen, 
                     grantAddress, 
                     lawCalldata, 
@@ -219,7 +219,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                 Grant(grantAddress).budget() == Grant(grantAddress).spent()
             ) {
                 vm.expectEmit(true, false, false, false);
-                emit SeparatedPowersEvents.ProposalCompleted(
+                emit PowersEvents.ProposalCompleted(
                     eve, 
                     laws[2], 
                     abi.encode(grantAddress), 
@@ -290,7 +290,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         if (quorumReached && voteSucceeded) {
             console.log("step 0 action: alice EXECUTES and stops law.");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(
+            emit PowersEvents.ProposalCompleted(
                 alice, laws[3], lawCalldata, keccak256(bytes(description))
                 );
             vm.prank(alice);
@@ -330,7 +330,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         if (quorumReached && voteSucceeded) {
             console.log("step 1 action: bob EXECUTES and restarts law.");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(
+            emit PowersEvents.ProposalCompleted(
                 bob, laws[4], lawCalldata, keccak256(bytes(description))
                 );
             vm.prank(bob);
@@ -394,7 +394,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         if (quorumReached && voteSucceeded) {
             console.log("step 0 action: alice EXECUTES and mints tokens.");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(
+            emit PowersEvents.ProposalCompleted(
                 alice, laws[5], abi.encode(mintQuantity), keccak256(bytes(description))
                 );
             vm.prank(alice);
@@ -440,7 +440,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             ) {
             console.log("step 1 action: bob EXECUTES and burns tokens.");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(
+            emit PowersEvents.ProposalCompleted(
                 bob, laws[6], abi.encode(burnQuantity), keccak256(bytes(description))
                 );
             vm.prank(bob);
@@ -507,7 +507,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             if (taxPaid[users[i]] >= 100) { // threshold set when deploying law
                 console.log("action: user claims role.");
                 vm.expectEmit(true, false, false, false);
-                emit SeparatedPowersEvents.ProposalCompleted(
+                emit PowersEvents.ProposalCompleted(
                     users[i], laws[7], lawCalldata, keccak256(bytes(description))
                     );
                 vm.prank(users[i]);
@@ -614,7 +614,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             vm.roll(currentSeed1 & 250); 
 
             if (
-                SeparatedPowers(governYourTax).canCallLaw(votingUser, peerVoteAddress) && 
+                Powers(governYourTax).canCallLaw(votingUser, peerVoteAddress) && 
                 !hasVoted[votingUser] &&
                 NominateMe(laws[8]).nominees(userReceivingVote) != 0 && 
                 block.number > PeerVote(peerVoteAddress).startVote() && 
@@ -622,7 +622,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             ) {             
                 console.log("action: user is voting.");
                 vm.expectEmit(true, false, false, false);
-                emit SeparatedPowersEvents.ProposalCompleted(
+                emit PowersEvents.ProposalCompleted(
                     votingUser, 
                     peerVoteAddress, 
                     abi.encode(userReceivingVote), 
@@ -654,7 +654,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         console.log("block number: ", block.number);
         if ( block.number >= PeerVote(peerVoteAddress).endVote() ) {
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(
+            emit PowersEvents.ProposalCompleted(
                 alice, // has role 1
                 laws[9], 
                 abi.encode(peerVoteAddress), 

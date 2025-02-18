@@ -2,7 +2,7 @@
 pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
-import { ISeparatedPowers } from "../../src/interfaces/ISeparatedPowers.sol";
+import { IPowers } from "../../src/interfaces/IPowers.sol";
 import { Law } from "../../src/Law.sol";
 import { ILaw } from "../../src/interfaces/ILaw.sol";
 import { Erc1155Mock } from "./Erc1155Mock.sol";
@@ -49,7 +49,7 @@ contract ConstitutionsMock is Test {
     //////////////////////////////////////////////////////////////
     //                  FIRST CONSTITUTION                      //
     //////////////////////////////////////////////////////////////
-    function initiateSeparatedPowersConstitution(address payable dao_, address payable mock1155_)
+    function initiatePowersConstitution(address payable dao_, address payable mock1155_)
         external
         returns (address[] memory laws)
     {
@@ -894,18 +894,18 @@ contract ConstitutionsMock is Test {
             targets[i] = dao_;
         }
 
-        calldatas[0] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, alice);
-        calldatas[1] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, bob);
-        calldatas[2] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, charlotte);
-        calldatas[3] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, david);
-        calldatas[4] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, eve);
-        calldatas[5] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, frank);
-        calldatas[6] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 1, gary);
-        calldatas[7] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 2, alice);
-        calldatas[8] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 2, bob);
-        calldatas[9] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 2, charlotte);
-        calldatas[10] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 3, alice);
-        calldatas[11] = abi.encodeWithSelector(ISeparatedPowers.assignRole.selector, 3, bob);
+        calldatas[0] = abi.encodeWithSelector(IPowers.assignRole.selector, 1, alice);
+        calldatas[1] = abi.encodeWithSelector(IPowers.assignRole.selector, 1, bob);
+        calldatas[2] = abi.encodeWithSelector(IPowers.assignRole.selector, 1, charlotte);
+        calldatas[3] = abi.encodeWithSelector(IPowers.assignRole.selector, 1, david);
+        calldatas[4] = abi.encodeWithSelector(IPowers.assignRole.selector, 1, eve);
+        calldatas[5] = abi.encodeWithSelector(IPowers.assignRole.selector, 1, frank);
+        calldatas[6] = abi.encodeWithSelector(IPowers.assignRole.selector, 1, gary);
+        calldatas[7] = abi.encodeWithSelector(IPowers.assignRole.selector, 2, alice);
+        calldatas[8] = abi.encodeWithSelector(IPowers.assignRole.selector, 2, bob);
+        calldatas[9] = abi.encodeWithSelector(IPowers.assignRole.selector, 2, charlotte);
+        calldatas[10] = abi.encodeWithSelector(IPowers.assignRole.selector, 3, alice);
+        calldatas[11] = abi.encodeWithSelector(IPowers.assignRole.selector, 3, bob);
 
         return (targets, values, calldatas);
     }

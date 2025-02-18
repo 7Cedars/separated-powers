@@ -4,7 +4,7 @@ import { useActionStore, useOrgStore, useProposalStore } from "@/context/store";
 import { useLaw } from "@/hooks/useLaw";
 import { useEffect, useState } from "react";
 import { useReadContract } from 'wagmi'
-import { separatedPowersAbi } from "@/context/abi";
+import { powersAbi } from "@/context/abi";
 import { Proposal } from "@/context/types";
 
 export const Status: React.FC = () => {
@@ -16,7 +16,7 @@ export const Status: React.FC = () => {
   const layout = `w-full flex flex-row justify-center items-center px-2 py-1 text-bold rounded-md`
   const { status: readContractStatus, data: proposalState } = useReadContract({
     address: organisation.contractAddress,
-    abi: separatedPowersAbi,  
+    abi: powersAbi,  
     functionName: 'state',
     args: [selectedProposal?.proposalId],
   })

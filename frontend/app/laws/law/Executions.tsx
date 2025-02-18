@@ -6,7 +6,7 @@ import { useChainId } from "wagmi";
 import { useCallback, useEffect, useState } from "react";
 import { Status } from "@/context/types";
 import { Log, parseEventLogs, ParseEventLogsReturnType } from "viem";
-import { separatedPowersAbi } from "@/context/abi";
+import { powersAbi } from "@/context/abi";
 import { publicClient } from "@/context/clients";
 
 
@@ -29,13 +29,13 @@ export function Executions() {
             if (organisation?.contractAddress) {
               const logs = await publicClient.getContractEvents({ 
                 address: organisation.contractAddress as `0x${string}`,
-                abi: separatedPowersAbi, 
+                abi: powersAbi, 
                 eventName: 'ProposalCompleted',
                 fromBlock: supportedChain?.genesisBlock,
                 args: {targetLaw: law.law}
               })
               const fetchedLogs = parseEventLogs({
-                          abi: separatedPowersAbi,
+                          abi: powersAbi,
                           eventName: 'ProposalCompleted',
                           logs
                         })

@@ -17,7 +17,7 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Powers} from "../../Powers.sol";
 
 abstract contract HasRoleCheck is Law {
     function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
@@ -28,7 +28,7 @@ abstract contract HasRoleCheck is Law {
         (uint32[] memory roles) = hasRoles();
 
         for (uint32 i = 0; i < roles.length; i++) {
-            uint48 since = SeparatedPowers(separatedPowers).hasRoleSince(initiator, roles[i]);
+            uint48 since = Powers(powers).hasRoleSince(initiator, roles[i]);
             if (since == 0) {
                 revert ("Does not have role.");
             }

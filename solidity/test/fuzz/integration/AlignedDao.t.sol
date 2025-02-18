@@ -5,8 +5,8 @@ import { Test, console, console2 } from "lib/forge-std/src/Test.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
-import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
-import { SeparatedPowersEvents } from "../../../src/interfaces/SeparatedPowersEvents.sol";
+import { Powers} from "../../../src/Powers.sol";
+import { PowersEvents } from "../../../src/interfaces/PowersEvents.sol";
 import { Law } from "../../../src/Law.sol";
 import { ILaw } from "../../../src/interfaces/ILaw.sol";
 
@@ -72,7 +72,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         if (stepsPassed[0]) {
             console.log("step 0 action: Bob EXECUTES and thus formally proposes new value!");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(bob, laws[0], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(bob, laws[0], lawCalldata, keccak256(bytes(description)));
             vm.prank(bob);
             alignedDao.execute(laws[0], lawCalldata, description);
         }
@@ -105,7 +105,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         if (stepsPassed[1]) {
             console.log("step 1 action: ACTION WILL BE EXECUTED");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(gary, laws[1], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(gary, laws[1], lawCalldata, keccak256(bytes(description)));
             vm.prank(gary); // has role 1
             alignedDao.execute(laws[1], lawCalldata, description);
             uint256 numberOfValuesAfter = StringsArray(laws[1]).numberOfStrings();
@@ -182,7 +182,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         if (stepsPassed[0]) {
             console.log("step 0 action: Frank EXECUTES and thus revokes membership!");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(frank, laws[2], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(frank, laws[2], lawCalldata, keccak256(bytes(description)));
             vm.prank(frank);
             alignedDao.execute(laws[2], lawCalldata, description);
         } else {
@@ -196,7 +196,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         
         // step 1: challenge revoke of membership.
         // NB: we do not know if Alice has had her role revoked, hence we need to select another person if she had. 
-        bool aliceCanCall = SeparatedPowers(alignedDao).canCallLaw(alice, laws[3]);
+        bool aliceCanCall = Powers(alignedDao).canCallLaw(alice, laws[3]);
         address caller; 
         if (!aliceCanCall) {
             caller = bob;  
@@ -230,7 +230,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         if (stepsPassed[1]) {
             console.log("step 1 action: caller EXECUTES and thus formalises challenge to revoke!");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(caller, laws[3], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(caller, laws[3], lawCalldata, keccak256(bytes(description)));
             vm.prank(caller);
             alignedDao.execute(laws[3], lawCalldata, description);
         } else {
@@ -269,7 +269,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         if (stepsPassed[2]) {
             console.log("step 2 action: david EXECUTES and reinstates membership!");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(david, laws[4], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(david, laws[4], lawCalldata, keccak256(bytes(description)));
             vm.prank(david);
             alignedDao.execute(laws[4], lawCalldata, description);
         } else {
@@ -279,7 +279,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         }
 
         if (stepsPassed[0] && stepsPassed[1] && stepsPassed[2] ) {
-            assertEq(SeparatedPowers(alignedDao).hasRoleSince(users[index], 1), block.number);        
+            assertEq(Powers(alignedDao).hasRoleSince(users[index], 1), block.number);        
         }
     }
 
@@ -313,13 +313,13 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         // Note that also with user that is not allowed to call law, we keep on trying.. 
         uint256 lastValidRequestAt; 
         uint256 numberRequests; 
-        bool canCallLaw = SeparatedPowers(alignedDao).canCallLaw(users[selectUser], laws[5]);
+        bool canCallLaw = Powers(alignedDao).canCallLaw(users[selectUser], laws[5]);
         for (uint256 i = 0; i < numberSteps; i++) {
            vm.roll(block.number + duration);
            string memory description = string.concat("request payment at block: ", Strings.toString(block.number)); 
            if (canCallLaw && block.number >= lastValidRequestAt + 2000) { // 2000 is duration as set in law. 
                 vm.expectEmit(true, false, false, false);
-                emit SeparatedPowersEvents.ProposalCompleted(
+                emit PowersEvents.ProposalCompleted(
                     users[selectUser], 
                     laws[5], 
                     abi.encode(), 
@@ -357,7 +357,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
 
             if (hasNFT) {
                 vm.expectEmit(true, false, false, false);
-                emit SeparatedPowersEvents.ProposalCompleted(users[i], laws[6], abi.encode(), keccak256(bytes(description)));
+                emit PowersEvents.ProposalCompleted(users[i], laws[6], abi.encode(), keccak256(bytes(description)));
                 vm.prank(users[i]);
                 alignedDao.execute(laws[6], abi.encode(false), description);
             } else {
@@ -466,7 +466,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         console.log(uint8(alignedDao.state(proposalId)));
         if (quorumReached && succeeded) {
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(alice, laws[10], lawCalldataSelect, keccak256(bytes(descriptionSelect)));
+            emit PowersEvents.ProposalCompleted(alice, laws[10], lawCalldataSelect, keccak256(bytes(descriptionSelect)));
             vm.prank(alice);
             alignedDao.execute(laws[10], lawCalldataSelect, descriptionSelect);
         } else {

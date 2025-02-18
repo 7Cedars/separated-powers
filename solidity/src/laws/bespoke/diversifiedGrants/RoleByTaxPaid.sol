@@ -27,7 +27,7 @@ contract RoleByTaxPaid is DirectSelect {
         // standard
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         // direct select
@@ -35,7 +35,7 @@ contract RoleByTaxPaid is DirectSelect {
         // the taxed token to check
         address erc20TaxedMock_,
         uint256 thresholdTaxPaid_
-    ) DirectSelect(name_, description_, separatedPowers_, allowedRole_, config_, roleId_) {
+    ) DirectSelect(name_, description_, powers_, allowedRole_, config_, roleId_) {
         erc20TaxedMock = erc20TaxedMock_;
         thresholdTaxPaid = thresholdTaxPaid_;
     }

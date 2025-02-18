@@ -13,18 +13,18 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 ///
-/// @notice Interface for the SeparatedPowers protocol.
+/// @notice Interface for the Powersprotocol.
 /// Code derived from OpenZeppelin's Governor.sol contract.
 ///
 /// @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
-import { SeparatedPowersErrors } from "./SeparatedPowersErrors.sol";
-import { SeparatedPowersEvents } from "./SeparatedPowersEvents.sol";
-import { SeparatedPowersTypes } from "./SeparatedPowersTypes.sol";
+import { PowersErrors } from "./PowersErrors.sol";
+import { PowersEvents } from "./PowersEvents.sol";
+import { PowersTypes } from "./PowersTypes.sol";
 import { ILaw } from "./ILaw.sol";
 
-interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, SeparatedPowersTypes {
+interface IPowers is PowersErrors, PowersEvents, PowersTypes {
     //////////////////////////////////////////////////////////////
     //                  GOVERNANCE FUNCTIONS                    //
     //////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @dev note: the arrays of targets, values and calldatas must have the same length.
     ///
     /// Note any references to proposals (as in OpenZeppelin's {Governor} contract are removed.
-    /// The mechanism of SeparatedPowers detaches proposals from execution logic.
+    /// The mechanism of Powersdetaches proposals from execution logic.
     /// Instead, proposal checks are placed in the {Law::executeLaw} function.
     function execute(address targetLaw, bytes memory lawCalldata, string memory description) external payable;
 
@@ -174,7 +174,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// returns true if the caller can call the law.
     function canCallLaw(address caller, address targetLaw) external returns (bool);
 
-    /// @dev returns the name of the protocol. This is the name of the Dao that inherits the {SeparatedPowers} contract.
+    /// @dev returns the name of the protocol. This is the name of the Dao that inherits the {Powers} contract.
     function name() external returns (string memory);
 
     /// @dev returns the version of the protocol.
@@ -191,7 +191,7 @@ interface ISeparatedPowers is SeparatedPowersErrors, SeparatedPowersEvents, Sepa
     /// @param descriptionHash : the descriptionHash of the proposal
     ///
     /// Note the difference with the original at Governor.sol
-    /// In SeparatedPowers proposals are always aimed at a single Laws, with a single slot of calldata.
+    /// In Powersproposals are always aimed at a single Laws, with a single slot of calldata.
     /// This callData can have any kind of data.
     ///
     /// The call that is executed at the Law has the traditional layout of targets[], values[], calldatas[].

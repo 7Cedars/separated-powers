@@ -1,6 +1,6 @@
 "use client";
 
-import { separatedPowersAbi } from "@/context/abi";
+import { powersAbi } from "@/context/abi";
 import { parseVoteData } from "@/utils/parsers";
 import { useActionStore, useOrgStore} from "@/context/store";
 import { Proposal } from "@/context/types";
@@ -15,19 +15,19 @@ export const Votes: React.FC = () => {
   const organisation = useOrgStore()
   const [selectedProposal, setSelectedProposal] = useState<Proposal>()
   
-  const separatedPowersContract = {
+  const powersContract = {
     address: organisation.contractAddress,
-    abi: separatedPowersAbi,
+    abi: powersAbi,
   } as const
   const { isSuccess, status, data } = useReadContracts({
     contracts: [
       {
-        ...separatedPowersContract,
+        ...powersContract,
         functionName: 'getProposalVotes',
         args: [selectedProposal?.proposalId]
       }, 
       {
-        ...separatedPowersContract,
+        ...powersContract,
         functionName: 'getAmountRoleHolders', 
         args: [law.allowedRole]
       }, 

@@ -5,7 +5,7 @@
 // import "@openzeppelin/contracts/utils/ShortStrings.sol";
 // import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
-// import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
+// import { Powers } from "../../../src/Powers.sol";
 // import { TestSetupLaws } from "../../TestSetup.t.sol";
 // import { Law } from "../../../src/Law.sol";
 // import { ILaw } from "../../../src/interfaces/ILaw.sol";

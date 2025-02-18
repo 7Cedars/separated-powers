@@ -7,7 +7,7 @@ import { TestSetupState } from "../../TestSetup.t.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 // protocol
-import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
+import { Powers } from "../../../src/Powers.sol";
 import { Law } from "../../../src/Law.sol";
 
 // law contracts being tested

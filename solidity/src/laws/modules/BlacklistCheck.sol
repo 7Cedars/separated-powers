@@ -16,7 +16,7 @@
 ///
 pragma solidity 0.8.26;
 
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Powers} from "../../Powers.sol";
 import { Law } from "../../Law.sol";
 import { AddressesMapping } from "../state/AddressesMapping.sol";
 

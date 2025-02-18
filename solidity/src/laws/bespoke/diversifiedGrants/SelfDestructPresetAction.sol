@@ -24,14 +24,14 @@ contract SelfDestructPresetAction is PresetAction, SelfDestruct {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address[] memory targets_,
         uint256[] memory values_,
         bytes[] memory calldatas_
     )
-        PresetAction(name_, description_, separatedPowers_, allowedRole_, config_, targets_, values_, calldatas_)
+        PresetAction(name_, description_, powers_, allowedRole_, config_, targets_, values_, calldatas_)
         SelfDestruct()
     { }
 

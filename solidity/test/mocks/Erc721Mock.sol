@@ -5,7 +5,7 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @dev Mock ERC721 contract for use in DAO example implementations of the SeparatedPowers protocol.
+ * @dev Mock ERC721 contract for use in DAO example implementations of the Powersprotocol.
  * IMPORTANT: This is a non-transferable NFT!
  * Note Natspecs WIP.
  */
@@ -13,7 +13,7 @@ contract Erc721Mock is ERC721, Ownable {
     error Erc721Mock__NonTransferable();
     error Erc721Mock__NftAlreadyExists();
     error Erc721Mock__IncorrectAccountTokenPair();
-    error Erc721Mock__OnlySeparatedPowers();
+    error Erc721Mock__OnlyPowers();
 
     constructor() ERC721("mock", "MOCK") Ownable(msg.sender) { }
 

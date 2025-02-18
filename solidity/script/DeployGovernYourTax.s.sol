@@ -4,10 +4,10 @@ pragma solidity 0.8.26;
 import "lib/forge-std/src/Script.sol";
 
 // core protocol
-import { SeparatedPowers } from "../src/SeparatedPowers.sol";
+import { Powers} from "../src/Powers.sol";
 import { Law } from "../src/Law.sol";
 import { ILaw } from "../src/interfaces/ILaw.sol";
-import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
+import { PowersTypes } from "../src/interfaces/PowersTypes.sol";
 
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
@@ -52,7 +52,7 @@ contract DeployGovernYourTax is Script {
         config = helperConfig.getConfigByChainId(block.chainid);
 
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers(
+        Powers powers = new Powers(
             "Govern Your Tax", 
             "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreid7bb6jueiqjn4mpkcy5ob7w6ulksfntobbwbn4feehvzjwe3tufe");
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
@@ -62,15 +62,15 @@ contract DeployGovernYourTax is Script {
         );
         vm.stopBroadcast();
 
-        dao = payable(address(separatedPowers));
+        dao = payable(address(powers));
         mock20Taxed_ = payable(address(erc20TaxedMock)); 
         initiateConstitution(dao, mock20Taxed_);
 
         // // constitute dao.
         vm.startBroadcast();
-        separatedPowers.constitute(laws);
+        powers.constitute(laws);
         // // transferring ownership of erc721 and erc20Taxed token contracts.. 
-        erc20TaxedMock.transferOwnership(address(separatedPowers));
+        erc20TaxedMock.transferOwnership(address(powers));
         vm.stopBroadcast();
 
         return (dao, laws, config, mock20Taxed_);
@@ -158,7 +158,7 @@ contract DeployGovernYourTax is Script {
             3, // access role
             lawConfig, // bespoke configs for this law
             dao_,
-            SeparatedPowers.revokeLaw.selector,
+            Powers.revokeLaw.selector,
             inputParams
         );
         vm.stopBroadcast();
@@ -180,7 +180,7 @@ contract DeployGovernYourTax is Script {
             3, // access role
             lawConfig, // bespoke configs for this law
             dao_,
-            SeparatedPowers.adoptLaw.selector,
+            Powers.adoptLaw.selector,
             inputParams // note: same inputParams as laws [2]
         );
         vm.stopBroadcast();
@@ -388,17 +388,17 @@ contract DeployGovernYourTax is Script {
             targets[i] = dao_;
         }
         calldatas[0] = abi.encodeWithSelector(
-          SeparatedPowers.assignRole.selector, 
+          Powers.assignRole.selector, 
           3, 
           0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         );
         calldatas[1] = abi.encodeWithSelector(
-          SeparatedPowers.assignRole.selector, 
+          Powers.assignRole.selector, 
           3, 
           0x70997970C51812dc3A010C7d01b50e0d17dc79C8
         );
         calldatas[2] = abi.encodeWithSelector(
-          SeparatedPowers.assignRole.selector, 
+          Powers.assignRole.selector, 
           3, 
           0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
         );

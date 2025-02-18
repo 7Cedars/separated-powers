@@ -1,9 +1,9 @@
 import { Abi } from "viem"
 
-// import separatedPowers from "../../solidity/out/SeparatedPowers.sol/SeparatedPowers.json"
+// import powers from "../../solidity/out/Powers.sol/Powers.json"
 // import law from "../../solidity/out/Law.sol/Law.json"
 
-// export const separatedPowersAbi: Abi = JSON.parse(JSON.stringify(separatedPowers.abi)) 
+// export const powersAbi: Abi = JSON.parse(JSON.stringify(powers.abi)) 
 // export const lawAbi: Abi = JSON.parse(JSON.stringify(law.abi)) 
 
 // Note: these abis only have the functions that are used in the UI
@@ -175,7 +175,7 @@ export const ownableAbi: Abi = [
 
 
 
-export const separatedPowersAbi: Abi = [
+export const powersAbi: Abi = [
   {
     "type": "constructor",
     "inputs": [
@@ -516,7 +516,7 @@ export const separatedPowersAbi: Abi = [
       {
         "name": "",
         "type": "uint8",
-        "internalType": "enum SeparatedPowersTypes.ProposalState"
+        "internalType": "enum PowersTypes.ProposalState"
       }
     ],
     "stateMutability": "view"
@@ -731,7 +731,7 @@ export const separatedPowersAbi: Abi = [
   },
   {
     "type": "event",
-    "name": "SeparatedPowers__Initialized",
+    "name": "Powers__Initialized",
     "inputs": [
       {
         "name": "contractAddress",
@@ -781,83 +781,83 @@ export const separatedPowersAbi: Abi = [
   },
   { "type": "error", "name": "FailedCall", "inputs": [] },
   { "type": "error", "name": "InvalidShortString", "inputs": [] },
-  { "type": "error", "name": "SeparatedPowers__AccessDenied", "inputs": [] },
+  { "type": "error", "name": "Powers__AccessDenied", "inputs": [] },
   {
     "type": "error",
-    "name": "SeparatedPowers__AlreadyCastVote",
+    "name": "Powers__AlreadyCastVote",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__CancelCallNotFromActiveLaw",
+    "name": "Powers__CancelCallNotFromActiveLaw",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__ConstitutionAlreadyExecuted",
+    "name": "Powers__ConstitutionAlreadyExecuted",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__IncorrectInterface",
+    "name": "Powers__IncorrectInterface",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__InvalidCallData",
+    "name": "Powers__InvalidCallData",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__InvalidProposalId",
+    "name": "Powers__InvalidProposalId",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__InvalidVoteType",
+    "name": "Powers__InvalidVoteType",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__LawAlreadyActive",
+    "name": "Powers__LawAlreadyActive",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__LawDidNotPassChecks",
+    "name": "Powers__LawDidNotPassChecks",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__LawDoesNotNeedProposalVote",
+    "name": "Powers__LawDoesNotNeedProposalVote",
     "inputs": []
   },
-  { "type": "error", "name": "SeparatedPowers__LawNotActive", "inputs": [] },
-  { "type": "error", "name": "SeparatedPowers__NoVoteNeeded", "inputs": [] },
-  { "type": "error", "name": "SeparatedPowers__NotActiveLaw", "inputs": [] },
+  { "type": "error", "name": "Powers__LawNotActive", "inputs": [] },
+  { "type": "error", "name": "Powers__NoVoteNeeded", "inputs": [] },
+  { "type": "error", "name": "Powers__NotActiveLaw", "inputs": [] },
   {
     "type": "error",
-    "name": "SeparatedPowers__OnlySeparatedPowers",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "SeparatedPowers__ProposalAlreadyCompleted",
+    "name": "Powers__OnlyPowers",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__ProposalCancelled",
+    "name": "Powers__ProposalAlreadyCompleted",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__ProposalNotActive",
+    "name": "Powers__ProposalCancelled",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "SeparatedPowers__UnexpectedProposalState",
+    "name": "Powers__ProposalNotActive",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Powers__UnexpectedProposalState",
     "inputs": []
   },
   {
@@ -874,7 +874,7 @@ export const lawAbi: Abi = [
       { "name": "name_", "type": "string", "internalType": "string" },
       { "name": "description_", "type": "string", "internalType": "string" },
       {
-        "name": "separatedPowers_",
+        "name": "powers_",
         "type": "address",
         "internalType": "address payable"
       },
@@ -1035,7 +1035,7 @@ export const lawAbi: Abi = [
   },
   {
     "type": "function",
-    "name": "separatedPowers",
+    "name": "powers",
     "inputs": [],
     "outputs": [
       { "name": "", "type": "address", "internalType": "address payable" }
@@ -1089,7 +1089,7 @@ export const lawAbi: Abi = [
         "internalType": "address"
       },
       {
-        "name": "separatedPowers",
+        "name": "powers",
         "type": "address",
         "indexed": true,
         "internalType": "address"
@@ -1155,7 +1155,7 @@ export const lawAbi: Abi = [
   { "type": "error", "name": "Law__ExecutionLimitReached", "inputs": [] },
   { "type": "error", "name": "Law__NoDeadlineSet", "inputs": [] },
   { "type": "error", "name": "Law__NoZeroAddress", "inputs": [] },
-  { "type": "error", "name": "Law__OnlySeparatedPowers", "inputs": [] },
+  { "type": "error", "name": "Law__OnlyPowers", "inputs": [] },
   { "type": "error", "name": "Law__ParentBlocksCompletion", "inputs": [] },
   { "type": "error", "name": "Law__ParentLawNotSet", "inputs": [] },
   { "type": "error", "name": "Law__ParentNotCompleted", "inputs": [] },

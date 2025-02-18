@@ -3,7 +3,7 @@ pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
-import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
+import { Powers } from "../../../src/Powers.sol";
 import { TestSetupElectoral } from "../../TestSetup.t.sol";
 import { Law } from "../../../src/Law.sol";
 import { Erc1155Mock } from "../../mocks/Erc1155Mock.sol";
@@ -21,7 +21,7 @@ contract DirectSelectTest is TestSetupElectoral {
         address directSelect = laws[2];
         bytes memory lawCalldata = abi.encode(false, charlotte); // revoke
         bytes memory expectedCalldata =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
+            abi.encodeWithSelector(Powers.assignRole.selector, ROLE_THREE, charlotte);
 
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
@@ -37,7 +37,7 @@ contract DirectSelectTest is TestSetupElectoral {
         assertNotEq(daoMock.hasRoleSince(alice, ROLE_THREE), 0);
         address directSelect = laws[2];
         bytes memory lawCalldata = abi.encode(false, alice); // revoke
-        abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, alice);
+        abi.encodeWithSelector(Powers.assignRole.selector, ROLE_THREE, alice);
 
         // act & assert
         vm.startPrank(address(daoMock));
@@ -50,7 +50,7 @@ contract DirectSelectTest is TestSetupElectoral {
         assertNotEq(daoMock.hasRoleSince(alice, ROLE_THREE), 0);
         address directSelect = laws[2];
         bytes memory lawCalldata = abi.encode(true, alice); // revoke
-        bytes memory expectedCalldata = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_THREE, alice);
+        bytes memory expectedCalldata = abi.encodeWithSelector(Powers.revokeRole.selector, ROLE_THREE, alice);
         vm.startPrank(address(daoMock));
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
             Law(directSelect).executeLaw(alice, lawCalldata, bytes32(0));
@@ -65,7 +65,7 @@ contract DirectSelectTest is TestSetupElectoral {
         assertEq(daoMock.hasRoleSince(charlotte, ROLE_THREE), 0);
         address directSelect = laws[2];
         bytes memory lawCalldata = abi.encode(true, charlotte); // revoke
-        abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_THREE, charlotte);
+        abi.encodeWithSelector(Powers.revokeRole.selector, ROLE_THREE, charlotte);
 
         // act & assert
         vm.expectRevert("Account does not have role.");
@@ -85,7 +85,7 @@ contract RandomlySelectTest is TestSetupElectoral {
         bytes memory lawCalldataNominate = abi.encode(true);
         bytes memory lawCalldataElect = abi.encode(new address[](0)); // no one to revoke
         bytes memory expectedCalldata =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
+            abi.encodeWithSelector(Powers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
         Law(nominateMe).executeLaw(charlotte, lawCalldataNominate, bytes32(0));
 
@@ -176,7 +176,7 @@ contract TokenSelectTest is TestSetupElectoral {
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
         bytes memory lawCalldataElect = abi.encode(new address[](0)); // no one to revoke
         bytes memory expectedCalldata =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
+            abi.encodeWithSelector(Powers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
         Law(nominateMe).executeLaw(charlotte, lawCalldataNominate, bytes32(0));
 
@@ -266,7 +266,7 @@ contract DelegateSelectTest is TestSetupElectoral {
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe
         bytes memory lawCalldataElect = abi.encode(); // empty calldata
         bytes memory expectedCalldata =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_THREE, charlotte);
+            abi.encodeWithSelector(Powers.assignRole.selector, ROLE_THREE, charlotte);
         vm.startPrank(address(daoMock));
         Law(nominateMe).executeLaw(charlotte, lawCalldataNominate, bytes32(0));
 
@@ -404,10 +404,10 @@ contract ElectionTallyTest is TestSetupElectoral {
         assertEq(calldatasOut.length, 2);
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
-        assertEq(calldatasOut[0], abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, alice));
+        assertEq(calldatasOut[0], abi.encodeWithSelector(Powers.assignRole.selector, 3, alice));
         assertEq(targetsOut[1], address(daoMock));
         assertEq(valuesOut[1], 0);
-        assertEq(calldatasOut[1], abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, bob));
+        assertEq(calldatasOut[1], abi.encodeWithSelector(Powers.assignRole.selector, 3, bob));
 
         // assert state
         assertEq(ElectionTally(electionTally).electedAccounts(0), alice);
@@ -448,7 +448,7 @@ contract ElectionTallyTest is TestSetupElectoral {
         assertEq(calldatasOut.length, 1);
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
-        assertEq(calldatasOut[0], abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, alice));
+        assertEq(calldatasOut[0], abi.encodeWithSelector(Powers.assignRole.selector, 3, alice));
         // assert state
         assertEq(ElectionTally(electionTally).electedAccounts(0), alice);
     }

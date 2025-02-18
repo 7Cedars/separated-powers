@@ -13,16 +13,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 ///
-/// @notice Types used in the SeparatedPowers protocol. Code derived from OpenZeppelin's Governor.sol contract.
+/// @notice Types used in the Powersprotocol. Code derived from OpenZeppelin's Governor.sol contract.
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
-interface SeparatedPowersTypes {
+interface PowersTypes {
     /// @notice struct to keep track of a proposal.
     ///
-    /// @dev in contrast to other Governance protocols, a proposal in {SeparatedPowers} always includes a reference to a law.
-    /// This enables the role restriction of governance processes in {SeparatedPowers}.
+    /// @dev in contrast to other Governance protocols, a proposal in {Powers} always includes a reference to a law.
+    /// This enables the role restriction of governance processes in {Powers}.
     ///
     /// @dev in contrast to other Governance protocols, votes are not weighted and can hence be a uint32, not a uint256.
     /// @dev votes are logged at the proposal. In on struct. This is in contrast to other governance protocols where ProposalVote is a separate struct.
@@ -45,7 +45,7 @@ interface SeparatedPowersTypes {
     /// @notice enum for the state of a proposal.
     ///
     /// @dev that a proposal cannot be set as 'executed' as in Governor.sol. It can only be set as 'completed'.
-    /// This is because execution logic in {SeparatedPowers} is separated from the proposal logic.
+    /// This is because execution logic in {Powers} is separated from the proposal logic.
     enum ProposalState {
         Active,
         Cancelled,

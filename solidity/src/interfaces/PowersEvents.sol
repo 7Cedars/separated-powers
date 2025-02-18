@@ -13,16 +13,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 ///
-/// @notice Events used in the SeparatedPowers protocol.
+/// @notice Events used in the Powersprotocol.
 /// Code derived from OpenZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
-interface SeparatedPowersEvents {
+interface PowersEvents {
     /// @notice Emitted when protocol is initialized.
     /// @param contractAddress the address of the contract
-    event SeparatedPowers__Initialized(address contractAddress, string name);
+    event Powers__Initialized(address contractAddress, string name);
 
     /// @notice Emitted when protocol receives funds/
     /// @param value the amount of funds received

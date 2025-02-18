@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { lawAbi, separatedPowersAbi } from "../context/abi";
+import { lawAbi, powersAbi } from "../context/abi";
 import { CompletedProposal, Law, ProtocolEvent, Status, LawSimulation } from "../context/types"
 import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
@@ -61,7 +61,7 @@ export const useLaw = () => {
       } else {      
         try {
           const result =  await readContract(wagmiConfig, {
-                  abi: separatedPowersAbi,
+                  abi: powersAbi,
                   address: organisation.contractAddress as `0x${string}`,
                   functionName: 'canCallLaw', 
                   args: [wallets[0].address, law.law],
@@ -90,7 +90,7 @@ export const useLaw = () => {
       if (selectedProposal) {
         try {
           const state =  await readContract(wagmiConfig, {
-                  abi: separatedPowersAbi,
+                  abi: powersAbi,
                   address: organisation.contractAddress as `0x${string}`,
                   functionName: 'state', 
                   args: [selectedProposal.proposalId],
@@ -117,7 +117,7 @@ export const useLaw = () => {
       try { 
         if (selectedProposal) {
           const state = await readContract(wagmiConfig, {
-                  abi: separatedPowersAbi,
+                  abi: powersAbi,
                   address: organisation.contractAddress as `0x${string}`,
                   functionName: 'state', 
                   args: [selectedProposal.proposalId],
@@ -145,7 +145,7 @@ export const useLaw = () => {
       try { 
         if (selectedProposal) {
           const state =  await readContract(wagmiConfig, {
-                  abi: separatedPowersAbi,
+                  abi: powersAbi,
                   address: organisation.contractAddress as `0x${string}`,
                   functionName: 'state', 
                   args: [selectedProposal.proposalId],
@@ -180,13 +180,13 @@ export const useLaw = () => {
           if (organisation?.contractAddress) {
             const logs = await publicClient.getContractEvents({ 
               address: organisation.contractAddress as `0x${string}`,
-              abi: separatedPowersAbi, 
+              abi: powersAbi, 
               eventName: 'ProposalCompleted',
               fromBlock: supportedChain?.genesisBlock,
               args: {targetLaw: law.law}
             })
             const fetchedLogs = parseEventLogs({
-                        abi: separatedPowersAbi,
+                        abi: powersAbi,
                         eventName: 'ProposalCompleted',
                         logs
                       })
@@ -273,7 +273,7 @@ export const useLaw = () => {
         setStatus("pending")
         try {
           const result = await writeContract(wagmiConfig, {
-            abi: separatedPowersAbi,
+            abi: powersAbi,
             address: organisation.contractAddress,
             functionName: 'execute', 
             args: [targetLaw, lawCalldata, description]

@@ -2,10 +2,10 @@
 pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
-import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
+import { Powers} from "../../src/Powers.sol";
 import { Law } from "../../src/Law.sol";
 import { ILaw } from "../../src/interfaces/ILaw.sol";
-import { TestSetupSeparatedPowers } from "../TestSetup.t.sol";
+import { TestSetupPowers } from "../TestSetup.t.sol";
 import { DaoMock } from "../mocks/DaoMock.sol";
 import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 
@@ -15,7 +15,7 @@ import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 //////////////////////////////////////////////////////////////
 //               CONSTRUCTOR & RECEIVE                      //
 //////////////////////////////////////////////////////////////
-contract DeployTest is TestSetupSeparatedPowers {
+contract DeployTest is TestSetupPowers {
     function testDeployAlignedDao() public view {
         assertEq(daoMock.name(), daoNames[0]);
         assertEq(daoMock.version(), "0.2");
@@ -36,7 +36,7 @@ contract DeployTest is TestSetupSeparatedPowers {
 
     function testDeployProtocolEmitsEvent() public {
         vm.expectEmit(true, false, false, false);
-        emit SeparatedPowers__Initialized(address(daoMock), "DaoMock");
+        emit Powers__Initialized(address(daoMock), "DaoMock");
 
         vm.prank(alice);
         daoMock = new DaoMock();
@@ -53,7 +53,7 @@ contract DeployTest is TestSetupSeparatedPowers {
 //////////////////////////////////////////////////////////////
 //                  GOVERNANCE LOGIC                        //
 //////////////////////////////////////////////////////////////
-contract ProposeTest is TestSetupSeparatedPowers {
+contract ProposeTest is TestSetupPowers {
     function testProposeRevertsWhenAccountLacksCredentials() public {
         uint32 lawNumber = 4;
         string memory description = "Creating a proposal";
@@ -63,7 +63,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
         assertFalse(daoMock.canCallLaw(mockAddress, laws[lawNumber]));
 
         // act & assert
-        vm.expectRevert(SeparatedPowers__AccessDenied.selector);
+        vm.expectRevert(Powers__AccessDenied.selector);
         vm.prank(mockAddress);
         daoMock.propose(laws[4], lawCalldata, description);
     }
@@ -78,7 +78,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
         vm.prank(address(daoMock));
         daoMock.revokeLaw(laws[lawNumber]);
 
-        vm.expectRevert(SeparatedPowers__NotActiveLaw.selector);
+        vm.expectRevert(Powers__NotActiveLaw.selector);
         vm.prank(charlotte);
         daoMock.propose(laws[lawNumber], lawCalldata, description);
     }
@@ -92,7 +92,7 @@ contract ProposeTest is TestSetupSeparatedPowers {
         assertTrue(daoMock.canCallLaw(david, laws[lawNumber]));
 
         vm.prank(david);
-        vm.expectRevert(SeparatedPowers__NoVoteNeeded.selector);
+        vm.expectRevert(Powers__NoVoteNeeded.selector);
         daoMock.propose(lawThatDoesNotNeedVote, lawCalldata, description);
     }
 
@@ -140,13 +140,13 @@ contract ProposeTest is TestSetupSeparatedPowers {
         vm.prank(alice);
         daoMock.propose(targetLaw, lawCalldata, description);
 
-        vm.expectRevert(SeparatedPowers__UnexpectedProposalState.selector);
+        vm.expectRevert(Powers__UnexpectedProposalState.selector);
         vm.prank(alice);
         daoMock.propose(targetLaw, lawCalldata, description);
     }
 }
 
-contract CancelTest is TestSetupSeparatedPowers {
+contract CancelTest is TestSetupPowers {
     function testCancellingProposalsEmitsCorrectEvent() public {
         // prep: create a proposal
         address targetLaw = laws[5];
@@ -188,7 +188,7 @@ contract CancelTest is TestSetupSeparatedPowers {
         daoMock.propose(targetLaw, lawCalldata, description);
 
         // act: try to cancel the proposal
-        vm.expectRevert(SeparatedPowers__AccessDenied.selector);
+        vm.expectRevert(Powers__AccessDenied.selector);
         vm.prank(helen);
         daoMock.cancel(targetLaw, lawCalldata, keccak256(bytes(description)));
     }
@@ -206,13 +206,13 @@ contract CancelTest is TestSetupSeparatedPowers {
         daoMock.cancel(targetLaw, lawCalldata, keccak256(bytes(description)));
 
         // act: try to cancel proposal a second time. Should revert
-        vm.expectRevert(SeparatedPowers__UnexpectedProposalState.selector);
+        vm.expectRevert(Powers__UnexpectedProposalState.selector);
         vm.prank(alice);
         daoMock.cancel(targetLaw, lawCalldata, keccak256(bytes(description)));
     }
 }
 
-contract VoteTest is TestSetupSeparatedPowers {
+contract VoteTest is TestSetupPowers {
     function testVotingRevertsIfAccountNotAuthorised() public {
         // prep: create a proposal
         uint32 lawNumber = 5;
@@ -226,7 +226,7 @@ contract VoteTest is TestSetupSeparatedPowers {
         assertEq(daoMock.hasRoleSince(mockAddress, Law(laws[lawNumber]).allowedRole()), 0);
 
         // act: try to vote, without credentials
-        vm.expectRevert(SeparatedPowers__AccessDenied.selector);
+        vm.expectRevert(Powers__AccessDenied.selector);
         vm.prank(mockAddress);
         daoMock.castVote(actionId, FOR);
     }
@@ -259,7 +259,7 @@ contract VoteTest is TestSetupSeparatedPowers {
         vm.roll(block.number + 4000);
 
         // act : try to vote
-        vm.expectRevert(SeparatedPowers__ProposalNotActive.selector);
+        vm.expectRevert(Powers__ProposalNotActive.selector);
         vm.prank(charlotte);
         daoMock.castVote(actionId, FOR);
     }
@@ -350,7 +350,7 @@ contract VoteTest is TestSetupSeparatedPowers {
 
         // alice tries to vote twice...
         vm.prank(alice);
-        vm.expectRevert(SeparatedPowers__AlreadyCastVote.selector);
+        vm.expectRevert(Powers__AlreadyCastVote.selector);
         daoMock.castVote(actionId, FOR);
     }
 
@@ -435,7 +435,7 @@ contract VoteTest is TestSetupSeparatedPowers {
 
         // act
         vm.prank(charlotte);
-        vm.expectRevert(SeparatedPowers__InvalidVoteType.selector);
+        vm.expectRevert(Powers__InvalidVoteType.selector);
         daoMock.castVote(actionId, 4); // = incorrect vote type
 
         // check if indeed not stored as a vote
@@ -461,7 +461,7 @@ contract VoteTest is TestSetupSeparatedPowers {
     }
 }
 
-contract ExecuteTest is TestSetupSeparatedPowers {
+contract ExecuteTest is TestSetupPowers {
     function testExecuteCanChangeState() public {
         // prep
         uint32 lawNumber = 0;
@@ -529,7 +529,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         assertEq(daoMock.hasRoleSince(mockAddress, Law(laws[lawNumber]).allowedRole()), 0);
 
         // act & assert
-        vm.expectRevert(SeparatedPowers__AccessDenied.selector);
+        vm.expectRevert(Powers__AccessDenied.selector);
         vm.prank(mockAddress);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
@@ -546,7 +546,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         daoMock.execute(laws[lawNumber], lawCalldata, description);
 
         // act: try to execute action again.
-        vm.expectRevert(SeparatedPowers__ProposalAlreadyCompleted.selector);
+        vm.expectRevert(Powers__ProposalAlreadyCompleted.selector);
         vm.prank(mockAddress);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
@@ -562,7 +562,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         daoMock.revokeLaw(laws[lawNumber]);
 
         // act & assert
-        vm.expectRevert(SeparatedPowers__NotActiveLaw.selector);
+        vm.expectRevert(Powers__NotActiveLaw.selector);
         vm.prank(mockAddress);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
@@ -624,7 +624,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         assertEq(uint8(proposalState), uint8(ProposalState.Cancelled));
 
         // act & assert: try to execute proposal.
-        vm.expectRevert(SeparatedPowers__ProposalCancelled.selector);
+        vm.expectRevert(Powers__ProposalCancelled.selector);
         vm.prank(alice);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
     }
@@ -646,7 +646,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         );
 
         // act & assert
-        vm.expectRevert(SeparatedPowers__LawDidNotPassChecks.selector);
+        vm.expectRevert(Powers__LawDidNotPassChecks.selector);
         vm.prank(charlotte);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
 
@@ -699,7 +699,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
         );
 
         // act & assert.
-        vm.expectRevert(SeparatedPowers__InvalidCallData.selector);
+        vm.expectRevert(Powers__InvalidCallData.selector);
         vm.prank(charlotte);
         daoMock.execute(laws[lawNumber], lawCalldata, description);
 
@@ -711,7 +711,7 @@ contract ExecuteTest is TestSetupSeparatedPowers {
 //////////////////////////////////////////////////////////////
 //                  ROLE AND LAW ADMIN                      //
 //////////////////////////////////////////////////////////////
-contract ConstituteTest is TestSetupSeparatedPowers {
+contract ConstituteTest is TestSetupPowers {
     function testConstituteSetsLawsToActive() public {
         vm.prank(alice);
         DaoMock daoMockTest = new DaoMock();
@@ -742,7 +742,7 @@ contract ConstituteTest is TestSetupSeparatedPowers {
         vm.prank(alice);
         daoMockTest.constitute(laws);
 
-        vm.expectRevert(SeparatedPowers__ConstitutionAlreadyExecuted.selector);
+        vm.expectRevert(Powers__ConstitutionAlreadyExecuted.selector);
         vm.prank(alice);
         daoMockTest.constitute(laws);
     }
@@ -756,14 +756,14 @@ contract ConstituteTest is TestSetupSeparatedPowers {
         laws[0] =
             address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
-        vm.expectRevert(SeparatedPowers__AccessDenied.selector);
+        vm.expectRevert(Powers__AccessDenied.selector);
         vm.prank(bob);
         daoMockTest.constitute(laws);
     }
 }
 
 contract SetLawTest is
-    TestSetupSeparatedPowers // also tests revokeLaw function
+    TestSetupPowers // also tests revokeLaw function
 {
     function testSetLawSetsNewLaw() public {
         ILaw.LawConfig memory lawConfig;
@@ -787,12 +787,12 @@ contract SetLawTest is
         daoMock.adoptLaw(newLaw);
     }
 
-    function testSetLawRevertsIfNotCalledFromSeparatedPowers() public {
+    function testSetLawRevertsIfNotCalledFromPowers() public {
         ILaw.LawConfig memory lawConfig;
         address newLaw =
             address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
-        vm.expectRevert(SeparatedPowers__OnlySeparatedPowers.selector);
+        vm.expectRevert(Powers__OnlyPowers.selector);
         vm.prank(alice);
         daoMock.adoptLaw(newLaw);
     }
@@ -800,7 +800,7 @@ contract SetLawTest is
     function testSetLawRevertsIfAddressNotALaw() public {
         address newNotALaw = address(3333);
 
-        vm.expectRevert(SeparatedPowers__IncorrectInterface.selector);
+        vm.expectRevert(Powers__IncorrectInterface.selector);
         vm.prank(address(daoMock));
         daoMock.adoptLaw(newNotALaw);
     }
@@ -808,7 +808,7 @@ contract SetLawTest is
     function testAdoptLawRevertsIfAddressAlreadyLaw() public {
         uint32 lawNumber = 0;
 
-        vm.expectRevert(SeparatedPowers__LawAlreadyActive.selector);
+        vm.expectRevert(Powers__LawAlreadyActive.selector);
         vm.prank(address(daoMock));
         daoMock.adoptLaw(laws[lawNumber]);
     }
@@ -818,13 +818,13 @@ contract SetLawTest is
         address newLaw =
             address(new OpenAction("test law", "This is a test Law", payable(address(daoMock)), ROLE_ONE, lawConfig));
 
-        vm.expectRevert(SeparatedPowers__LawNotActive.selector);
+        vm.expectRevert(Powers__LawNotActive.selector);
         vm.prank(address(daoMock));
         daoMock.revokeLaw(newLaw);
     }
 }
 
-contract SetRoleTest is TestSetupSeparatedPowers {
+contract SetRoleTest is TestSetupPowers {
     function testSetRoleSetsNewRole() public {
         // prep: check that bob does not have ROLE_THREE
         assertEq(daoMock.hasRoleSince(helen, ROLE_THREE), 0);
@@ -839,7 +839,7 @@ contract SetRoleTest is TestSetupSeparatedPowers {
 
     function testSetRoleRevertsWhenCalledFromOutsidePropotocol() public {
         vm.prank(alice);
-        vm.expectRevert(SeparatedPowers__OnlySeparatedPowers.selector);
+        vm.expectRevert(Powers__OnlyPowers.selector);
         daoMock.assignRole(ROLE_THREE, bob);
     }
 
@@ -893,7 +893,7 @@ contract SetRoleTest is TestSetupSeparatedPowers {
     }
 }
 
-contract ComplianceTest is TestSetupSeparatedPowers {
+contract ComplianceTest is TestSetupPowers {
     function testErc721Compliance() public {
         // prep
         uint256 NftToMint = 42;
@@ -955,7 +955,7 @@ contract ComplianceTest is TestSetupSeparatedPowers {
     }
 }
 
-contract DataTypeSignatureTest is TestSetupSeparatedPowers {
+contract DataTypeSignatureTest is TestSetupPowers {
     function testEncodeDataType() public {
         console.logBytes4(encodeDataType("uint8"));
         console.logBytes4(encodeDataType("uint16"));

@@ -18,7 +18,7 @@ pragma solidity 0.8.26;
 
 // protocol
 import { Law } from "../../../Law.sol";
-import { SeparatedPowers } from "../../../SeparatedPowers.sol";
+import { Powers} from "../../../Powers.sol";
 
 import { Grant } from "./Grant.sol";
 
@@ -26,10 +26,10 @@ contract StopGrant is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_ // this is the configuration for creating new grants, not of the grants themselves.
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode("address Grant"); // address of grant
     }
 
@@ -58,8 +58,8 @@ contract StopGrant is Law {
         stateChange = abi.encode("");
 
         // step 4: fill out arrays with data
-        targets[0] = separatedPowers;
-        calldatas[0] = abi.encodeWithSelector(SeparatedPowers.revokeLaw.selector, grantAddress);
+        targets[0] = powers;
+        calldatas[0] = abi.encodeWithSelector(Powers.revokeLaw.selector, grantAddress);
 
         // step 5: return data
         return (targets, values, calldatas, stateChange);

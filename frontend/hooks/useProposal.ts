@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { separatedPowersAbi } from "../context/abi";
+import { powersAbi } from "../context/abi";
 import { Organisation, Proposal, Status } from "../context/types";
 import { writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
@@ -44,12 +44,12 @@ export const useProposal = () => {
             if (organisation?.contractAddress) {
               const logs = await publicClient.getContractEvents({ 
                 address: organisation.contractAddress as `0x${string}`,
-                abi: separatedPowersAbi, 
+                abi: powersAbi, 
                 eventName: 'ProposalCreated',
                 fromBlock: supportedChain?.genesisBlock  // 
               })
               const fetchedLogs = parseEventLogs({
-                          abi: separatedPowersAbi,
+                          abi: powersAbi,
                           eventName: 'ProposalCreated',
                           logs
                         })
@@ -80,7 +80,7 @@ export const useProposal = () => {
         for await (proposal of proposals) {
           if (proposal?.proposalId) {
             const fetchedState = await readContract(wagmiConfig, {
-              abi: separatedPowersAbi,
+              abi: powersAbi,
               address: organisation.contractAddress,
               functionName: 'state', 
               args: [proposal.proposalId]
@@ -136,7 +136,7 @@ export const useProposal = () => {
         setLaw(targetLaw)
         try {
             const result = await writeContract(wagmiConfig, {
-              abi: separatedPowersAbi,
+              abi: powersAbi,
               address: organisation.contractAddress,
               functionName: 'propose', 
               args: [targetLaw, lawCalldata, description]
@@ -158,7 +158,7 @@ export const useProposal = () => {
         setLaw(targetLaw)
         try {
           const result = await writeContract(wagmiConfig, {
-            abi: separatedPowersAbi,
+            abi: powersAbi,
             address: organisation.contractAddress,
             functionName: 'cancel', 
             args: [targetLaw, lawCalldata, descriptionHash]
@@ -180,7 +180,7 @@ export const useProposal = () => {
         setLaw("0x01") // note: a dummy value to signify cast vote 
         try {
           const result = await writeContract(wagmiConfig, {
-            abi: separatedPowersAbi,
+            abi: powersAbi,
             address: organisation.contractAddress,
             functionName: 'castVote', 
             args: [proposalId, support]
@@ -204,7 +204,7 @@ export const useProposal = () => {
         setLaw("0x01") // note: a dummy value to signify cast vote 
         try {
           const result = await readContract(wagmiConfig, {
-            abi: separatedPowersAbi,
+            abi: powersAbi,
             address: organisation.contractAddress,
             functionName: 'hasVoted', 
             args: [proposalId, account]

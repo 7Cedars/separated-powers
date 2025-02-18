@@ -3,7 +3,7 @@
     {
       "hash": "0xa09da5c0dc419b5d48467eda892c2e444eeefe6271a708df35550cde9488fc36",
       "transactionType": "CREATE",
-      "contractName": "SeparatedPowers",
+      "contractName": "Powers",
       "contractAddress": "0x40dc3d837daff68e2163887d9570a23bb126ecfb",
       "function": null,
       "arguments": [
@@ -384,7 +384,7 @@
     {
       "hash": "0xe52ab7fe57081ceff2112c401c4e39fd53aa0daf525f5afa069db5d74afeb23d",
       "transactionType": "CALL",
-      "contractName": "SeparatedPowers",
+      "contractName": "Powers",
       "contractAddress": "0x40dc3d837daff68e2163887d9570a23bb126ecfb",
       "function": "constitute(address[])",
       "arguments": [

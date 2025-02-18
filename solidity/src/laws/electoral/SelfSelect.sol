@@ -28,7 +28,7 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Powers} from "../../Powers.sol";
 
 contract SelfSelect is Law { 
     uint32 private immutable ROLE_ID;
@@ -36,11 +36,11 @@ contract SelfSelect is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         uint32 roleId_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         ROLE_ID = roleId_;
         inputParams = abi.encode("bool Revoke");
     }
@@ -60,17 +60,17 @@ contract SelfSelect is Law {
         values = new uint256[](1);
         calldatas = new bytes[](1);
 
-        targets[0] = separatedPowers;
+        targets[0] = powers;
         if (revoke) {
-            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) == 0) {
+            if (Powers(payable(powers)).hasRoleSince(initiator, ROLE_ID) == 0) {
                 revert ("Account does not have role.");
             }
-            calldatas[0] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, initiator); // selector = revokeRole
+            calldatas[0] = abi.encodeWithSelector(Powers.revokeRole.selector, ROLE_ID, initiator); // selector = revokeRole
         } else {
-            if (SeparatedPowers(payable(separatedPowers)).hasRoleSince(initiator, ROLE_ID) != 0) {
+            if (Powers(payable(powers)).hasRoleSince(initiator, ROLE_ID) != 0) {
                 revert ("Account already has role.");
             }
-            calldatas[0] = abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, initiator); // selector = assignRole
+            calldatas[0] = abi.encodeWithSelector(Powers.assignRole.selector, ROLE_ID, initiator); // selector = assignRole
         }
     }
 }

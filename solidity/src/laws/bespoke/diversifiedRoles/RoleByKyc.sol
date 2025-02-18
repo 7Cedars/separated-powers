@@ -30,7 +30,7 @@ contract RoleByKyc is SelfSelect {
         // standard
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         // self select
@@ -42,7 +42,7 @@ contract RoleByKyc is SelfSelect {
         int64 youngerThan_, // in seconds
         // members state law
         address members_
-    ) SelfSelect(name_, description_, separatedPowers_, allowedRole_, config_, roleId_) {
+    ) SelfSelect(name_, description_, powers_, allowedRole_, config_, roleId_) {
         nationalities = nationalities_;
         countryOfResidences = countryOfResidences_;
         olderThan = olderThan_;

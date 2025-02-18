@@ -18,7 +18,7 @@ pragma solidity 0.8.26;
 
 // protocol
 import { Law } from "../../../Law.sol";
-import { SeparatedPowers } from "../../../SeparatedPowers.sol";
+import { Powers} from "../../../Powers.sol";
 
 import { Grant } from "./Grant.sol";
 
@@ -33,11 +33,11 @@ contract StartGrant is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_, // this is the configuration for creating new grants, not of the grants themselves.
         address proposals // the address where proposals to the grant are made.
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "string Name", // name
             "string Description", // description
@@ -80,12 +80,12 @@ contract StartGrant is Law {
         // - if budget of grant does not exceed available funds.
         if (
             Grant.TokenType(tokenType) == Grant.TokenType.ERC20
-                && budget > ERC20(tokenAddress).balanceOf(separatedPowers)
+                && budget > ERC20(tokenAddress).balanceOf(powers)
         ) {
             revert ("Request amount exceeds available funds."); 
         } else if (
             Grant.TokenType(tokenType) == Grant.TokenType.ERC1155
-                && budget > ERC1155(tokenAddress).balanceOf(separatedPowers, tokenId)
+                && budget > ERC1155(tokenAddress).balanceOf(powers, tokenId)
         ) {
             revert ("Request amount exceeds available funds."); 
         }
@@ -107,8 +107,8 @@ contract StartGrant is Law {
         stateChange = abi.encode("");
 
         // step 4: fill out arrays with data
-        targets[0] = separatedPowers;
-        calldatas[0] = abi.encodeWithSelector(SeparatedPowers.adoptLaw.selector, grantAddress);
+        targets[0] = powers;
+        calldatas[0] = abi.encodeWithSelector(Powers.adoptLaw.selector, grantAddress);
         stateChange = lawCalldata;
 
         // step 5: return data
@@ -155,7 +155,7 @@ contract StartGrant is Law {
                         // standard params
                         name,
                         description,
-                        separatedPowers,
+                        powers,
                         allowedRole,
                         configNewGrants,
                         // remaining params
@@ -186,7 +186,7 @@ contract StartGrant is Law {
             // standard params
             name,
             description,
-            separatedPowers,
+            powers,
             allowedRole,
             configNewGrants,
             // remaining params

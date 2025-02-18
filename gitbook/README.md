@@ -4,24 +4,28 @@ description: >-
   restricted governance
 ---
 
-# 😎 Welcome to Separated Powers
+# 😎 Welcome to the Powers Protocol
 
 🚧 **Documentation is under construction** 🚧
 
 ## What is it
 
-Separated Powers is a proof of concept of a role restricted governance protocol. It consists of two elements: Separated Powers and Laws.
+The Powers Protocol is a role restricted governance protocol. All governance actions in the Power Protocol are restricted along roles that are assigned to accounts. The protocol consists of two elements: Powers and Laws.
 
-### Separated Powers
+### Powers
 
-text here.
+The engine of the protocol that manages governance flows. It has the following functionalities:   
+* Proposing an action. 
+* Voting on a proposal. 
+* Executing an action. 
+* Assigning and revoking roles. 
+* Adopting and revoking laws.  
 
-* item 1
-* item 2
+In addition there is a `constitute` functionality that can be used once, and can only by called by the admin, that allows to adopt multiple laws.  
 
 ### Laws
 
-Laws define specific actions that a particular role can execute under certain conditions.&#x20;
+Laws define specific actions that a particular role can execute under certain conditions.
 
 > Any account that has a role 2 can propose to mint tokens at contract X, but the proposal will only be accepted if 20 percent of role 2 holders vote in favor.
 

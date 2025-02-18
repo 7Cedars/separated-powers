@@ -38,7 +38,7 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Powers} from "../../Powers.sol";
 import { NominateMe } from "../state/NominateMe.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
@@ -52,14 +52,14 @@ contract TokensSelect is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address payable erc1155Token_,
         address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         ERC_1155_TOKEN = erc1155Token_;
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
@@ -88,12 +88,12 @@ contract TokensSelect is Law {
         accountElects = new address[](numberNominees < MAX_ROLE_HOLDERS ? numberNominees : MAX_ROLE_HOLDERS);
 
         for (uint256 i; i < arrayLength; i++) {
-            targets[i] = separatedPowers;
+            targets[i] = powers;
         }
 
         // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts.
         for (uint256 i; i < numberElected; i++) {
-            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, electedAccounts[i]);
+            calldatas[i] = abi.encodeWithSelector(Powers.revokeRole.selector, ROLE_ID, electedAccounts[i]);
         }
 
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
@@ -101,7 +101,7 @@ contract TokensSelect is Law {
             for (uint256 i; i < numberNominees; i++) {
                 address accountElect = NominateMe(NOMINEES).nomineesSorted(i);
                 calldatas[i + numberElected] =
-                    abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
+                    abi.encodeWithSelector(Powers.assignRole.selector, ROLE_ID, accountElect);
                 accountElects[i] = accountElect;
             }
             // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
@@ -129,7 +129,7 @@ contract TokensSelect is Law {
                 // 3: assigning role if rank is less than MAX_ROLE_HOLDERS.
                 if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberElected) {
                     calldatas[index + numberElected] =
-                        abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]);
+                        abi.encodeWithSelector(Powers.assignRole.selector, ROLE_ID, _nomineesSorted[i]);
                     accountElects[i] = _nomineesSorted[i];
                     index++;
                 }

@@ -6,7 +6,7 @@ import "forge-std/Test.sol";
 import { TestSetupAlignedDao } from "../../../TestSetup.t.sol";
 
 // protocol
-import { SeparatedPowers } from "../../../../src/SeparatedPowers.sol";
+import { Powers } from "../../../../src/Powers.sol";
 import { Law } from "../../../../src/Law.sol";
 import { Erc721Mock } from "../../../mocks/Erc721Mock.sol";
 
@@ -45,7 +45,7 @@ contract NftSelfSelectTest is TestSetupAlignedDao {
         assertEq(
             calldatasOut[0],
             abi.encodeWithSelector(
-                SeparatedPowers.assignRole.selector,
+                Powers.assignRole.selector,
                 1, // roleId
                 alice
             )
@@ -80,7 +80,7 @@ contract RevokeMembershipTest is TestSetupAlignedDao {
         // assertNotEq(daoMock.hasRoleSince(alice, ROLE_ONE), 0);
         // assign alice role 1
         vm.startPrank(address(daoMock));
-        SeparatedPowers(daoMock).assignRole(1, alice);
+        Powers(daoMock).assignRole(1, alice);
         // address revokeMembership
         address revokeMembership = laws[1];
         bytes memory lawCalldata = abi.encode(
@@ -104,7 +104,7 @@ contract RevokeMembershipTest is TestSetupAlignedDao {
         assertEq(
             calldatasOut[0],
             abi.encodeWithSelector(
-                SeparatedPowers.revokeRole.selector,
+                Powers.revokeRole.selector,
                 1, // roleId
                 alice
             )
@@ -129,7 +129,7 @@ contract RevokeMembershipTest is TestSetupAlignedDao {
         // assertNotEq(daoMock.hasRoleSince(alice, ROLE_ONE), 0);
         // assign alice role 1
         vm.startPrank(address(daoMock));
-        SeparatedPowers(daoMock).assignRole(1, alice);
+        Powers(daoMock).assignRole(1, alice);
         // address revokeMembership
         address revokeMembership = laws[1];
         bytes memory lawCalldata = abi.encode(
@@ -151,7 +151,7 @@ contract RevokeMembershipTest is TestSetupAlignedDao {
         assertEq(
             calldatasOut[0],
             abi.encodeWithSelector(
-                SeparatedPowers.revokeRole.selector,
+                Powers.revokeRole.selector,
                 1, // roleId
                 alice
             )
@@ -195,7 +195,7 @@ contract ReinstateRoleTest is TestSetupAlignedDao {
         assertEq(
             calldatasOut[0],
             abi.encodeWithSelector(
-                SeparatedPowers.assignRole.selector,
+                Powers.assignRole.selector,
                 1, // roleId
                 alice
             )

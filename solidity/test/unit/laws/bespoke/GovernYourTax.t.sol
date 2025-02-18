@@ -6,7 +6,7 @@ import "forge-std/Test.sol";
 import { TestSetupDiversifiedGrants } from "../../../TestSetup.t.sol";
 
 // protocol
-import { SeparatedPowers } from "../../../../src/SeparatedPowers.sol";
+import { Powers } from "../../../../src/Powers.sol";
 import { Law } from "../../../../src/Law.sol";
 import { Erc1155Mock } from "../../../mocks/Erc1155Mock.sol";
 import { Erc20VotesMock } from "../../../mocks/Erc20VotesMock.sol";
@@ -380,7 +380,7 @@ contract StopGrantTest is TestSetupDiversifiedGrants {
         // assert output
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
-        assertEq(calldatasOut[0], abi.encodeWithSelector(SeparatedPowers.revokeLaw.selector, grantAddress));
+        assertEq(calldatasOut[0], abi.encodeWithSelector(Powers.revokeLaw.selector, grantAddress));
     }
 
     function testGrantStopRevertsWithFundsAndDurationRemaining() public {
@@ -425,7 +425,7 @@ contract StopGrantTest is TestSetupDiversifiedGrants {
         // assert output
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
-        assertEq(calldatasOut[0], abi.encodeWithSelector(SeparatedPowers.revokeLaw.selector, grantAddress));
+        assertEq(calldatasOut[0], abi.encodeWithSelector(Powers.revokeLaw.selector, grantAddress));
     }
 
     //   HELPER FUNCTIONS  //
@@ -505,7 +505,7 @@ contract RoleByTaxPaidTest is TestSetupDiversifiedGrants {
         // assert output
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
-        assertEq(calldatasOut[0], abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 3, alice));
+        assertEq(calldatasOut[0], abi.encodeWithSelector(Powers.assignRole.selector, 3, alice));
     }
 
     function testAssignRoleByTaxRevertsIfNoTaxPaid() public {
@@ -609,7 +609,7 @@ contract SelfDestructPresetActionTest is TestSetupDiversifiedGrants {
         assertEq(valuesOut[valuesOut.length - 1], 0);
         assertEq(
             calldatasOut[calldatasOut.length - 1],
-            abi.encodeWithSelector(SeparatedPowers.revokeLaw.selector, selfDestructPresetAction)
+            abi.encodeWithSelector(Powers.revokeLaw.selector, selfDestructPresetAction)
         );
     }
 }

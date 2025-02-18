@@ -5,8 +5,8 @@ import { Test, console, console2 } from "lib/forge-std/src/Test.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
-import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
-import { SeparatedPowersEvents } from "../../../src/interfaces/SeparatedPowersEvents.sol";
+import { Powers} from "../../../src/Powers.sol";
+import { PowersEvents } from "../../../src/interfaces/PowersEvents.sol";
 import { Law } from "../../../src/Law.sol";
 import { ILaw } from "../../../src/interfaces/ILaw.sol";
 
@@ -75,7 +75,7 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         if (stepsPassed[0]) {
             console.log("step 1 action: GARY EXECUTES!");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(gary, laws[0], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(gary, laws[0], lawCalldata, keccak256(bytes(description)));
             vm.prank(gary);
             basicDao.execute(laws[0], lawCalldata, description);
         }
@@ -84,7 +84,7 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         if (step1Chance > 50) {
             console.log("step 2 action: ALICE CASTS VETO!");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(alice, laws[1], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(alice, laws[1], lawCalldata, keccak256(bytes(description)));
             vm.prank(alice); // has admin role.
             basicDao.execute(laws[1], lawCalldata, description);
 
@@ -127,7 +127,7 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         if (stepsPassed[2]) {
             console.log("step 4 action: ACTION WILL BE EXECUTED");
             vm.expectEmit(true, false, false, false);
-            emit SeparatedPowersEvents.ProposalCompleted(bob, laws[2], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(bob, laws[2], lawCalldata, keccak256(bytes(description)));
             vm.prank(bob); // has role 1
             basicDao.execute(laws[2], lawCalldata, description);
             uint256 balanceAfter = erc20VotesMock.balanceOf(address(basicDao));

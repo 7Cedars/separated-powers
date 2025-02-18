@@ -13,9 +13,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 /// @title Law.sol v.0.2
-/// @notice Base implementation of a Law in the SeparatedPowers protocol. Meant to be inherited by law implementations.
+/// @notice Base implementation of a Law in the Powersprotocol. Meant to be inherited by law implementations.
 ///
-/// @dev Laws are role restricted contracts that are executed by the core SeparatedPowers protocol. The provide the following functionality:
+/// @dev Laws are role restricted contracts that are executed by the core Powersprotocol. The provide the following functionality:
 /// 1 - Role restricting DAO actions
 /// 2 - Transforming a {lawCalldata) input into an output of targets[], values[], calldatas[] to be executed by the core protocol.
 /// 3 - Adding conditions to execution of the law, such as a proposal vote, a completed parent law or a delay. Any logic can be added.
@@ -35,8 +35,8 @@
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 pragma solidity 0.8.26;
 
-import { SeparatedPowers } from "./SeparatedPowers.sol";
-import { SeparatedPowersTypes } from "./interfaces/SeparatedPowersTypes.sol";
+import { Powers} from "./Powers.sol";
+import { PowersTypes } from "./interfaces/PowersTypes.sol";
 import { ILaw } from "./interfaces/ILaw.sol";
 import { ERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
@@ -51,7 +51,7 @@ contract Law is ERC165, ILaw {
     // required parameters
     uint32 public allowedRole;
     ShortString public immutable name; // name of the law
-    address payable public separatedPowers; // the address of the core governance protocol
+    address payable public powers; // the address of the core governance protocol
     string public description; // description of the law
     bytes public inputParams; // an abi.encoded array of strings that denote the input parameters. For example: abi.encode("address", "address", "uint256", "address[]");
     bytes public stateVars; // an abi.encoded array of strings that denote the variables that are saved in state. For example: abi.encode("address", "address", "uint256", "address[]");
@@ -69,27 +69,27 @@ contract Law is ERC165, ILaw {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_
     ) {
-        separatedPowers = separatedPowers_;
+        powers = powers_;
         name = name_.toShortString();
         description = description_;
         allowedRole = allowedRole_;
         config = config_;
 
-        emit Law__Initialized(address(this), separatedPowers, name_, description, allowedRole, config);
+        emit Law__Initialized(address(this), powers, name_, description, allowedRole, config);
     }
 
-    /// note this is the function that is called by the SeparatedPowers protocol. It always runs checks before execution of law logic.
+    /// note this is the function that is called by the Powersprotocol. It always runs checks before execution of law logic.
     /// @inheritdoc ILaw
     function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        if (msg.sender != separatedPowers) {
-            revert Law__OnlySeparatedPowers();
+        if (msg.sender != powers) {
+            revert Law__OnlyPowers();
         }
         checksAtPropose(initiator, lawCalldata, descriptionHash);
         checksAtExecute(initiator, lawCalldata, descriptionHash);
@@ -127,8 +127,8 @@ contract Law is ERC165, ILaw {
         if (config.needCompleted != address(0)) {
             uint256 parentProposalId = _hashProposal(config.needCompleted, lawCalldata, descriptionHash);
             if (
-                SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
-                    != SeparatedPowersTypes.ProposalState.Completed
+                Powers(payable(powers)).state(parentProposalId)
+                    != PowersTypes.ProposalState.Completed
             ) {
                 revert Law__ParentNotCompleted();
             }
@@ -139,8 +139,8 @@ contract Law is ERC165, ILaw {
         if (config.needNotCompleted != address(0)) {
             uint256 parentProposalId = _hashProposal(config.needNotCompleted, lawCalldata, descriptionHash);
             if (
-                SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
-                    == SeparatedPowersTypes.ProposalState.Completed
+                Powers(payable(powers)).state(parentProposalId)
+                    == PowersTypes.ProposalState.Completed
             ) {
                 revert Law__ParentBlocksCompletion();
             }
@@ -168,8 +168,8 @@ contract Law is ERC165, ILaw {
         if (config.quorum != 0) {
             uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
             if (
-                SeparatedPowers(payable(separatedPowers)).state(proposalId)
-                    != SeparatedPowersTypes.ProposalState.Succeeded
+                Powers(payable(powers)).state(proposalId)
+                    != PowersTypes.ProposalState.Succeeded
             ) {
                 revert Law__ProposalNotSucceeded();
             }
@@ -179,7 +179,7 @@ contract Law is ERC165, ILaw {
         if (config.delayExecution != 0) {
             uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
             uint256 currentBlock = block.number;
-            uint256 deadline = SeparatedPowers(payable(separatedPowers)).proposalDeadline(proposalId);
+            uint256 deadline = Powers(payable(powers)).proposalDeadline(proposalId);
 
             if (deadline + config.delayExecution > currentBlock) {
                 revert Law__DeadlineNotPassed();

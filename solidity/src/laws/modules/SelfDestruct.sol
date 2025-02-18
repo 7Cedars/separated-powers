@@ -17,7 +17,7 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Powers} from "../../Powers.sol";
 
 abstract contract SelfDestruct is Law {
     /// @notice execute the law.
@@ -45,9 +45,9 @@ abstract contract SelfDestruct is Law {
         }
 
         // adding self destruct data to array
-        targetsNew[targets.length] = separatedPowers;
+        targetsNew[targets.length] = powers;
         valuesNew[values.length] = 0;
-        calldatasNew[calldatas.length] = abi.encodeWithSelector(SeparatedPowers.revokeLaw.selector, address(this));
+        calldatasNew[calldatas.length] = abi.encodeWithSelector(Powers.revokeLaw.selector, address(this));
 
         // return new arrays
         return (targetsNew, valuesNew, calldatasNew, stateChange);

@@ -41,14 +41,14 @@ contract PeerVote is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address nominateMe, // the nominateMe contract linked to this contract.
         address tallyVote, // the tallyVote contract linked to this contract.
         uint48 startVote_,
         uint48 endVote_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         NOMINEES = nominateMe;
         TALLY = tallyVote;
         startVote = startVote_;
@@ -84,7 +84,7 @@ contract PeerVote is Law {
         tar = new address[](1);
         val = new uint256[](1);
         cal = new bytes[](1);
-        tar[0] = address(1); // signals that separatedPowers should not execute anything else.
+        tar[0] = address(1); // signals that powers should not execute anything else.
 
         stateChange = abi.encode(vote, initiator);
         return (tar, val, cal, stateChange);

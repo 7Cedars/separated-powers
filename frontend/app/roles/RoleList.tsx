@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { Roles, Status } from "@/context/types";
 import { parseRole } from "@/utils/parsers";
 import { publicClient } from "@/context/clients";
-import { separatedPowersAbi } from "@/context/abi";
+import { powersAbi } from "@/context/abi";
 import { readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { setRole } from "@/context/store"
@@ -38,7 +38,7 @@ export function RoleList() {
         try {
           for await (roleId of roleIdsParsed) {
             const fetchedRoleHolders = await readContract(wagmiConfig, {
-              abi: separatedPowersAbi,
+              abi: powersAbi,
               address: organisation.contractAddress,
               functionName: 'getAmountRoleHolders', 
               args: [roleId]

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Role, Status } from "@/context/types";
 import { parseRole } from "@/utils/parsers";
 import { publicClient } from "@/context/clients";
-import { separatedPowersAbi } from "@/context/abi";
+import { powersAbi } from "@/context/abi";
 import { readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { parseEventLogs, ParseEventLogsReturnType } from "viem"
@@ -39,7 +39,7 @@ export default function Page() {
         try {
           const logs = await publicClient.getContractEvents({ 
             address: organisation.contractAddress,
-            abi: separatedPowersAbi, 
+            abi: powersAbi, 
             eventName: 'RoleSet',
             fromBlock: supportedChain?.genesisBlock,
             args: {
@@ -48,7 +48,7 @@ export default function Page() {
             },
           })
           const fetchedLogs = parseEventLogs({
-            abi: separatedPowersAbi,
+            abi: powersAbi,
             eventName: 'RoleSet',
             logs
           })
@@ -70,7 +70,7 @@ export default function Page() {
           try {
             for await (role of roles) {
               const fetchedSince = await readContract(wagmiConfig, {
-                abi: separatedPowersAbi,
+                abi: powersAbi,
                 address: organisation.contractAddress,
                 functionName: 'hasRoleSince', 
                 args: [role.account, role.roleId]

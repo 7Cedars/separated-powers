@@ -17,7 +17,7 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Powers} from "../../Powers.sol";
 
 abstract contract ThrottlePerAccount is Law { 
     mapping(address initiator => uint48 blockNumber) public lastTransaction;

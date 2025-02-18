@@ -29,14 +29,14 @@ contract RequestPayment is ThrottlePerAccount {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address erc1155_,
         uint256 tokenId_,
         uint256 amount_,
         uint48 delay_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         amount = amount_;
         delay = delay_;
         erc1155 = erc1155_;
@@ -59,7 +59,7 @@ contract RequestPayment is ThrottlePerAccount {
         targets[0] = erc1155;
         calldatas[0] = abi.encodeWithSelector(
             ERC1155.safeTransferFrom.selector, 
-            separatedPowers, 
+            powers, 
             initiator, 
             tokenId, 
             amount, 

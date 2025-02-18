@@ -3,7 +3,7 @@ pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
-import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
+import { Powers} from "../../src/Powers.sol";
 import { TestSetupLaw } from "../TestSetup.t.sol";
 import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 import { PresetAction } from "../../src/laws/executive/PresetAction.sol";
@@ -43,7 +43,7 @@ contract DeployTest is TestSetupLaw {
 
         assertEq(lawMockName, "Mock Law");
         assertEq(lawMockDescription, "This is a mock law contract");
-        assertEq(lawMock.separatedPowers(), address(123));
+        assertEq(lawMock.powers(), address(123));
     }
 
     function testDeployEmitsEvent() public {
@@ -69,15 +69,15 @@ contract DeployTest is TestSetupLaw {
         assertEq(calldatas.length, 0);
     }
 
-    function testLawRevertsIfNotCalledFromSeparatedPowers() public {
+    function testLawRevertsIfNotCalledFromPowers() public {
         bytes memory lawCalldata = abi.encode(123); // the amount of coins to mint.
         string memory description = "Executing a proposal vote";
-        address separatedPowers = address(123);
+        address powers = address(123);
 
-        Law lawMock = new Law("Mock Law", "This is a mock law contract", payable(separatedPowers), ROLE_ONE, lawConfig);
+        Law lawMock = new Law("Mock Law", "This is a mock law contract", payable(powers), ROLE_ONE, lawConfig);
 
-        vm.prank(address(1)); // =! separatedPowers
-        vm.expectRevert(Law__OnlySeparatedPowers.selector);
+        vm.prank(address(1)); // =! powers
+        vm.expectRevert(Law__OnlyPowers.selector);
         lawMock.executeLaw(address(333), lawCalldata, keccak256(bytes(description)));
     }
 }

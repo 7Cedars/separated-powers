@@ -11,7 +11,7 @@ Deploying an organization unfolds in four steps.&#x20;
 1. Deploy
 2. Deploy any additional protocols that will be controlled by the organization.&#x20;
 3. Deploy multiple instances of `Law.sol`.
-4. Run the `SeparatedPowers::constitute` function to adopt laws deployed at step 2.&#x20;
+4. Run the `Powers::constitute` function to adopt laws deployed at step 2.&#x20;
 
 That's the short version.&#x20;
 
@@ -27,7 +27,7 @@ The good news for Foundry users is that it is relatively straightforward to depl
 
 These scripts automate the following four steps. &#x20;
 
-## Step 1: Deploy `SeparatedPowers.sol`
+## Step 1: Deploy `Powers.sol`
 
 ## Step 2: Deploy any additional protocols
 

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
+import { Powers} from "../../src/Powers.sol";
 import "lib/openzeppelin-contracts/contracts/utils/ShortStrings.sol";
 
-/// @notice Example DAO contract based on the SeparatedPowers protocol.
-contract DaoMock is SeparatedPowers {
+/// @notice Example DAO contract based on the Powersprotocol.
+contract DaoMock is Powers{
     using ShortStrings for *;
 
     // Optional naming uint48 roles at initiation.
@@ -14,6 +14,6 @@ contract DaoMock is SeparatedPowers {
     uint32 public constant ROLE_THREE = 3;
 
     constructor()
-        SeparatedPowers("DaoMock", "") // name of the DAO.
+        Powers("DaoMock", "") // name of the DAO.
     { }
 }

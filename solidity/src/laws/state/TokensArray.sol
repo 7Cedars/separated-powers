@@ -41,10 +41,10 @@ contract TokensArray is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "address TokenAddress", 
             "uint256 TokenType", 
@@ -63,7 +63,7 @@ contract TokensArray is Law {
         tar = new address[](1);
         val = new uint256[](1);
         cal = new bytes[](1);
-        tar[0] = address(1); // signals that separatedPowers should not execute anything else.
+        tar[0] = address(1); // signals that powers should not execute anything else.
 
         return (tar, val, cal, lawCalldata);
     }

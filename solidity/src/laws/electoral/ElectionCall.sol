@@ -26,7 +26,7 @@ pragma solidity 0.8.26;
 
 // protocol
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Powers} from "../../Powers.sol";
 
 import { PeerVote } from "../state/PeerVote.sol";
 
@@ -43,14 +43,14 @@ contract ElectionCall is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         // bespoke params
         uint32 voterRoleId_,
         address nominees_,
         address tallyVote_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "string Description", // description = a description of the election.
             "uint48 StartVote", // startVote = the start date of the election.
@@ -95,8 +95,8 @@ contract ElectionCall is Law {
         stateChange = abi.encode("");
 
         // step 4: fill out arrays with data
-        targets[0] = separatedPowers;
-        calldatas[0] = abi.encodeWithSelector(SeparatedPowers.adoptLaw.selector, peerVoteAddress);
+        targets[0] = powers;
+        calldatas[0] = abi.encodeWithSelector(Powers.adoptLaw.selector, peerVoteAddress);
         stateChange = lawCalldata;
 
         // step 5: return data
@@ -135,7 +135,7 @@ contract ElectionCall is Law {
                         // standard params
                         "Election",
                         description,
-                        separatedPowers,
+                        powers,
                         allowedRole,
                         config,
                         // remaining params
@@ -163,7 +163,7 @@ contract ElectionCall is Law {
             // standard params
             "Election",
             description,
-            separatedPowers,
+            powers,
             allowedRole,
             config,
             // remaining params

@@ -9,7 +9,7 @@ import { Status } from "@/context/types";
 import { publicClient } from "@/context/clients";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { readContract } from "@wagmi/core";
-import { separatedPowersAbi } from "@/context/abi";
+import { powersAbi } from "@/context/abi";
 import { useWallets } from "@privy-io/react-auth";
 import { MyRoles } from "./MyRoles";
 import { Assets } from "./Assets";
@@ -45,7 +45,7 @@ export default function Page() {
           try {
             for await (role of roles) {
               const fetchedSince = await readContract(wagmiConfig, {
-                abi: separatedPowersAbi,
+                abi: powersAbi,
                 address: organisation.contractAddress,
                 functionName: 'hasRoleSince', 
                 args: [account, role]
@@ -73,7 +73,7 @@ export default function Page() {
 
         if (organisation.contractAddress && organisation.contractAddress != '0x0' ) {
           const uri = await readContract(wagmiConfig, {
-            abi: separatedPowersAbi,
+            abi: powersAbi,
             address: organisation.contractAddress,
             functionName: 'uri'
           })

@@ -4,10 +4,10 @@ pragma solidity 0.8.26;
 import "lib/forge-std/src/Script.sol";
 
 // core protocol
-import { SeparatedPowers } from "../src/SeparatedPowers.sol";
+import { Powers} from "../src/Powers.sol";
 import { Law } from "../src/Law.sol";
 import { ILaw } from "../src/interfaces/ILaw.sol";
-import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
+import { PowersTypes } from "../src/interfaces/PowersTypes.sol";
 
 // laws
 import { NominateMe } from "../src/laws/state/NominateMe.sol"; 
@@ -46,7 +46,7 @@ contract DeployBasicDao is Script {
         config = helperConfig.getConfigByChainId(block.chainid);
 
         vm.startBroadcast();
-        SeparatedPowers separatedPowers = new SeparatedPowers(
+        Powers powers = new Powers(
             "Basic Dao",
             "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreidhq4eoq3gsfbrbf6735a2lbmcokumgbsq7zqxkzaopu3daxjnkgu"
         );
@@ -54,14 +54,14 @@ contract DeployBasicDao is Script {
         Erc1155Mock erc1155Mock = new Erc1155Mock(); 
         vm.stopBroadcast();
         
-        dao = payable(address(separatedPowers)); 
+        dao = payable(address(powers)); 
         mock20_ = payable(address(erc20VotesMock)); 
         mock1155_ = payable(address(erc1155Mock));
         initiateConstitution(dao, mock20_, mock1155_);
         
         // constitute dao.
         vm.startBroadcast();
-        separatedPowers.constitute(laws);
+        powers.constitute(laws);
         vm.stopBroadcast();
 
         return (dao, laws, config, mock20_, mock1155_);
@@ -145,11 +145,11 @@ contract DeployBasicDao is Script {
             targets[i] = dao_;
         }
         calldatas[0] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 1, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+            abi.encodeWithSelector(Powers.assignRole.selector, 1, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
         calldatas[1] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 1, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
+            abi.encodeWithSelector(Powers.assignRole.selector, 1, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
         calldatas[2] =
-            abi.encodeWithSelector(SeparatedPowers.assignRole.selector, 1, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
+            abi.encodeWithSelector(Powers.assignRole.selector, 1, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
         // set config
         lawConfig.throttleExecution = type(uint48).max - uint48(block.number); // setting the throttle to max means the law can only be called once.
         // initiate law

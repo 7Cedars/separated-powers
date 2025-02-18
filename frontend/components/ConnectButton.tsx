@@ -41,7 +41,25 @@ export const ConnectButton = () => {
       </button>
     }
 
-    {ready && authenticated && 
+    {ready && authenticated && walletsReady && !wallets[0] &&
+      <button
+        className={`w-fit h-full flex flex-row items-center justify-center text-center rounded-md bg-slate-100 border-opacity-0 md:border-opacity-100 border border-slate-400 hover:border-slate-600`}  
+        onClick={ connectWallet }
+      >
+        <div className={`w-fit h-full flex flex-row items-center justify-center text-center rounded-md bg-slate-600 hover:bg-slate-800 text-slate-100 px-4 py-0`}>
+            <PowerIcon
+              className="h-4 w-4 text-bold md:w-0 md:opacity-0 opacity-100" 
+            />
+            <div
+              className="md:w-fit w-0 opacity-0 md:opacity-100" 
+             >
+              Connect wallet
+            </div>
+        </div>
+      </button>
+    }
+
+    {ready && authenticated && walletsReady && wallets[0] && 
         <button
           className={`w-fit h-full flex flex-row items-center justify-center text-center rounded-md bg-slate-100 border-opacity-0 md:border-opacity-100 border border-slate-400 hover:border-slate-600`}  
           onClick={ logout }
@@ -52,11 +70,13 @@ export const ConnectButton = () => {
               className='md:h-6 md:w-6 h-9 w-fit rounded-md border border-slate-800'
               />
             <div className="md:w-fit w-0 opacity-0 md:opacity-100">
-              {  wallets[0].address.slice(0, 6)}...{wallets[0].address.slice(-6) }
+              {`${wallets[0].address.slice(0, 6)}...${wallets[0].address.slice(-6)}`}
             </div>
           </div>
         </button> 
     }
+
+
     </>
   )
 }

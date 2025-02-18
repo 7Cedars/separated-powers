@@ -5,10 +5,10 @@ import "lib/forge-std/src/Script.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 // core protocol
-import { SeparatedPowers } from "../src/SeparatedPowers.sol";
+import { Powers} from "../src/Powers.sol";
 import { Law } from "../src/Law.sol";
 import { ILaw } from "../src/interfaces/ILaw.sol";
-import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
+import { PowersTypes } from "../src/interfaces/PowersTypes.sol";
 
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
@@ -55,7 +55,7 @@ contract DeployAlignedDao is Script {
         // deploying token contracts that will be managed by the Dao. 
         vm.startBroadcast();
         // initiating Dao
-        SeparatedPowers separatedPowers = new SeparatedPowers(
+        Powers powers = new Powers(
             "Aligned Dao", 
             "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreihwvloi4rmzeertaclrz4pom4a42fn6asbcxex2iw3kggmdmsexee"
             );
@@ -65,7 +65,7 @@ contract DeployAlignedDao is Script {
         Erc1155Mock erc1155Mock = new Erc1155Mock(); 
         vm.stopBroadcast();
 
-        dao = payable(address(separatedPowers));
+        dao = payable(address(powers));
         mock20_ = payable(address(erc20VotesMock)); 
         mock721_ = payable(address(erc721Mock));
         mock1155_ = payable(address(erc1155Mock));
@@ -75,9 +75,9 @@ contract DeployAlignedDao is Script {
 
         vm.startBroadcast();
         // constitute dao.
-        separatedPowers.constitute(laws);
+        powers.constitute(laws);
         // & transferring ownership of Erc721 token to the Dao. 
-        erc721Mock.transferOwnership(address(separatedPowers));
+        erc721Mock.transferOwnership(address(powers));
         vm.stopBroadcast();
  
         return (dao, laws, config, mock20_, mock721_, mock1155_);
@@ -310,17 +310,17 @@ contract DeployAlignedDao is Script {
             targets[i] = dao_;
         }
         calldatas[0] = abi.encodeWithSelector(
-          SeparatedPowers.assignRole.selector, 
+          Powers.assignRole.selector, 
           3, 
           0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         );
         calldatas[1] = abi.encodeWithSelector(
-          SeparatedPowers.assignRole.selector, 
+          Powers.assignRole.selector, 
           3, 
           0x70997970C51812dc3A010C7d01b50e0d17dc79C8
         );
         calldatas[2] = abi.encodeWithSelector(
-          SeparatedPowers.assignRole.selector, 
+          Powers.assignRole.selector, 
           3, 
           0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
         );

@@ -33,16 +33,16 @@
 ## How it works
 The protocol closely mirrors {Governor.sol} and includes code derived from {AccessManager.sol}. Its code layout is inspired by the Hats protocol.
 
-There are several key differences between {SeparatedPowers.sol} and openZeppelin's {Governor.sol}.  
+There are several key differences between {Powers.sol} and openZeppelin's {Governor.sol}.  
 - Any DAO action needs to be encoded in role restricted external contracts, or laws, that follow the {ILaw.sol} interface.
 - Proposing, voting, cancelling and executing actions are role restricted along the target law that is called.
-- All DAO actions need to run through the governance protocol. Calls to laws that do not need a proposal vote to be executed, still need to be executed through {SeparatedPowers::execute}.
+- All DAO actions need to run through the governance protocol. Calls to laws that do not need a proposal vote to be executed, still need to be executed through {Powers::execute}.
 - The core protocol uses a non-weighted voting mechanism: one account has one vote.
 - The core protocol is minimalistic. Any complexity (timelock, delayed execution, guardian roles, weighted votes, staking, etc.) has to be integrated through laws.
 
 Laws are role restricted contracts that provide the following functionalities:
 - Role restricting DAO actions
-- Transforming a lawCalldata input into an output of targets[], values[], calldatas[] to be executed by the SeparatedPowers protocol.
+- Transforming a lawCalldata input into an output of targets[], values[], calldatas[] to be executed by the Powersprotocol.
 - Adding conditions to the execution of the law. Any conditional logic can be added to a law, but the standard implementation supports the following:   
   - a vote quorum, threshold and period in case the law needs a proposal vote to pass before being executed.  
   - a parent law that needs to be completed before the law can be executed.
@@ -83,7 +83,7 @@ Contracts have not been verified, but can be interacted with through [our bespok
 │    └── openZeppelin-contracts                 # openZeppelin contracts  
 |
 ├── script                                      # Deployment scripts  
-│    └── DeployAlignedDao.s.sol              # Deploys the AgDao example implementation of SeparatedPowers. Also deploys laws that make up AgDao's governance. 
+│    └── DeployAlignedDao.s.sol              # Deploys the AgDao example implementation of Powers. Also deploys laws that make up AgDao's governance. 
 |
 ├── src                                         # Protocol resources
 │    ├── implementations                        # AgDao example resources.
@@ -118,14 +118,14 @@ Contracts have not been verified, but can be interacted with through [our bespok
 │    │   
 │    ├── interfaces                             # Interfaces of the protocol. 
 │    │    ├── ILaw.sol                          # Interface for Law.sol.  Includes detailed description of functions. 
-│    │    ├── ISeparatedPowers.sol              # Interface for SeparatedPowers.sol. Includes detailed description of functions. 
+│    │    ├── IPowers.sol              # Interface for Powers.sol. Includes detailed description of functions. 
 │    │    ├── LawErrors.sol                     # Law.sol errors. 
-│    │    ├── SeparatedPowersErrors.sol         # SeparatedPowers errors.   
-│    │    ├── SeparatedPowersEvents.sol         # SeparatedPowers events.   
-│    │    └── SeparatedPowersTypes.sol          # SeparatedPowers data Types. 
+│    │    ├── PowersErrors.sol         # Powerserrors.   
+│    │    ├── PowersEvents.sol         # Powersevents.   
+│    │    └── PowersTypes.sol          # Powers data Types. 
 │    │     
 │    ├── Law.sol                                # The core Law (abstract) contract. It needs to be inherited by law implementations to function. 
-│    └── SeparatedPowers.sol                    # The core protocol. It needs to be inherited by DAO implementations. 
+│    └── Powers.sol                    # The core protocol. It needs to be inherited by DAO implementations. 
 |
 ├── test                                        # Tests 
 │    ├── fuzz                                   # Fuzz tests on example implementation (wip) 

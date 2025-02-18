@@ -2,7 +2,7 @@
 pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
-import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
+import { Powers} from "../../src/Powers.sol";
 import { Erc20VotesMock } from "../mocks/Erc20VotesMock.sol";
 import { Erc20TaxedMock } from "../mocks/Erc20TaxedMock.sol";
 import { Erc721Mock } from "../mocks/Erc721Mock.sol";
@@ -55,14 +55,14 @@ contract Erc20VotesMockTest is Test {
 
 contract Erc20TaxedMockTest is Test {
     Erc20TaxedMock erc20TaxedMock;
-    SeparatedPowers daoMock;
+    Powers daoMock;
 
     function setUp() public {
         uint256 taxRate_ = 7;
         uint8 DENOMINATOR_ = 100; // this should work out at 7 percent tax per transaction.
         uint48 epochDuration_ = 19;
 
-        daoMock = new SeparatedPowers("DAO", "");
+        daoMock = new Powers("DAO", "");
         vm.startPrank(address(daoMock));
         erc20TaxedMock = new Erc20TaxedMock(taxRate_, DENOMINATOR_, epochDuration_);
         erc20TaxedMock.mint(10_000);

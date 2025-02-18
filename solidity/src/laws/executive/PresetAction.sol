@@ -15,7 +15,7 @@
 /// @notice A base contract that executes a preset action.
 ///
 /// The logic:
-/// - anythe lawCalldata includes a single bool. If the bool is set to true, it will aend the present calldatas to the execute function of the SeparatedPowers protocol.
+/// - anythe lawCalldata includes a single bool. If the bool is set to true, it will aend the present calldatas to the execute function of the Powersprotocol.
 ///
 /// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
 
@@ -32,7 +32,7 @@ contract PresetAction is Law {
     /// @notice constructor of the law
     /// @param name_ the name of the law.
     /// @param description_ the description of the law.
-    /// @param separatedPowers_ the address of the core governance protocol
+    /// @param powers_ the address of the core governance protocol
     /// @param targets_ the targets to use in the calls.
     /// @param allowedRole_ the role that is allowed to execute this law
     /// @param config_ the configuration of the law
@@ -41,13 +41,13 @@ contract PresetAction is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address[] memory targets_,
         uint256[] memory values_,
         bytes[] memory calldatas_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         targets = targets_;
         values = values_;
         calldatas = calldatas_;

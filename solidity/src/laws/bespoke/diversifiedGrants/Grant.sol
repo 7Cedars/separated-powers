@@ -18,7 +18,7 @@ pragma solidity 0.8.26;
 
 // protocol
 import { Law } from "../../../Law.sol";
-import { SeparatedPowers } from "../../../SeparatedPowers.sol";
+import { Powers} from "../../../Powers.sol";
 
 // open zeppelin contracts
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -41,7 +41,7 @@ contract Grant is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         uint48 duration_,
@@ -49,7 +49,7 @@ contract Grant is Law {
         address tokenAddress_,
         TokenType tokenType_,
         uint256 tokenId_ // only used with erc1155 funded grants
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "address Grantee", // grantee address
             "address Grant", // grant address = address(this). This is needed to make abuse of proposals across contracts impossible.
@@ -98,7 +98,7 @@ contract Grant is Law {
             calldatas[0] = abi.encodeWithSelector(ERC20.transfer.selector, grantee, quantity);
         } else if (tokenType == TokenType.ERC1155) {
             calldatas[0] = abi.encodeWithSelector(
-                ERC1155.safeTransferFrom.selector, separatedPowers, grantee, tokenId, quantity, ""
+                ERC1155.safeTransferFrom.selector, powers, grantee, tokenId, quantity, ""
             );
         }
 

@@ -40,7 +40,7 @@ export type ChainProps = {
   name: string;
   network: string; 
   id: number;
-  genesisBlock: bigint; // block at which the first SeparatedPowers Protocol was deployed. 
+  genesisBlock: bigint; // block at which the first PowersProtocol was deployed. 
   rpc?: string;
   nativeCurrency?: {
     name: string;
@@ -71,7 +71,7 @@ export type Law = {
   name?: string;
   description?: string;
   allowedRole?: bigint;
-  separatedPowers?: `0x${string}`;
+  powers?: `0x${string}`;
   config: Config;
   params?: string[];
 }

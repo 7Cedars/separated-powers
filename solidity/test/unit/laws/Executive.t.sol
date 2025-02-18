@@ -3,7 +3,7 @@ pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/utils/ShortStrings.sol";
-import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
+import { Powers } from "../../../src/Powers.sol";
 import { TestSetupExecutive } from "../../TestSetup.t.sol";
 import { Law } from "../../../src/Law.sol";
 import { Erc1155Mock } from "../../mocks/Erc1155Mock.sol";
