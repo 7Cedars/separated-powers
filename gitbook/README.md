@@ -24,7 +24,7 @@ It consists of two elements: Powers and Laws.
 
 ### Powers
 
-`Powers.sol` is the engine of the protocol that manages governance flows. It has the following core functionalities:
+`Powers.sol` is the engine of the protocol that manages governance flows. It should be deployed as is and has the following functionalities:
 
 * Executing actions.
 * Proposing actions.
@@ -34,11 +34,11 @@ It consists of two elements: Powers and Laws.
 
 In addition there is a `constitute` functionality that allows adopting multiple laws at once. It can only be called be the admin, and only once.
 
-Executing, proposing and voting can only be done in reference to a role restricted law. Roles and laws can only be assigned and revoked through the execute function of the protocol.
+The governance flow is defined by the following restrictions:
 
-Important: this means that _no one_ has direct access to assets managed by the Powers protocol. All actions, may they be subject to a vote or not, need to be done via a law.
-
-In any organization this engine should be a pure deployment of the `Powers.sol` contract.
+* Executing, proposing and voting can only be done in reference to a role restricted law. 
+* Roles and laws can only be assigned and revoked through the execute function of the protocol itself.
+* All actions, may they be subject to a vote or not, are executed via Powers' execute function in reference to a law.
 
 {% content-ref url="for-developers/powers.sol.md" %}
 [powers.sol.md](for-developers/powers.sol.md)
@@ -60,7 +60,7 @@ Laws are contracts that follow the `ilaw.sol` interface. They can be created by 
 * They can save a state.
 * They have a function `executeLaw` that can only be called by a preset `Powers.sol` deployment.
 
-Many elements of laws can be changed: what function call is returned, which checks need to pass, what state (if any) is saved. Laws are the meat on the bones provided by Powers.
+Many elements of laws can be changed: the input parameters, the function call that is returned, which checks need to pass, what state (if any) is saved. Pretty much anything is possible. Laws are the meat on the bones provided by Powers.
 
 What is not flexible, is how Powers interacts with laws. This is done through the `executeLaw` function. When this function is called:
 
@@ -75,9 +75,9 @@ What is not flexible, is how Powers interacts with laws. This is done through th
 
 ### Role restricted governance flow
 
-Together, Powers and Laws define which accounts can do what in what situations. Let us explore some examples.
+Together, Powers and Laws define which accounts can do what in what situations. Let us explore several examples.
 
-Allow the execution of any action, but have a second role check actions, so this power cannot be abused.   
+Example A: Allow the execution of any action, but have a second role check actions, so this power cannot be abused.   
 > **Law 1** allows accounts with role 1 to propose any action. The law is subject to a vote, and the proposal will only be accepted if more than half of role 1 account holders votes in favour.
 > 
 > Alice, who has been assigned a role 1, proposes to transfer ether from the protocol to X. Bob and Charlotte, other role 1 holders, vote in favour and the proposal passes. 
@@ -88,10 +88,11 @@ Allow the execution of any action, but have a second role check actions, so this
 > 
 > David, who has role 2, notices that a proposal has passed at Law 1. He puts the proposal up for a vote among role 2 holders. Eve and Helen, both role 2 holders, vote in favour. 
 > 
-> Following the vote, David calls the execute function and the action is implemented.   
+> Following the vote, David calls the execute function and the Power protocol implements the action.   
 
-
+Example B: Assign roles through Liquid Democracy and Peer Selection 
 > Example two ...
+
 
 ## Characteristics
 
