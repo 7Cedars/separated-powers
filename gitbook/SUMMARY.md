@@ -2,7 +2,7 @@
 
 * [💪 Welcome to Powers Protocol](README.md)
 * [Using the App](using-the-app.md)
-* [For developers](for-developers/README.md)
+* [For developers](for-developers.md)
   * [Powers.sol](for-developers/powers.sol.md)
   * [Law.sol](for-developers/law.sol.md)
   * [Deploy a demo organisation](for-developers/deploy-a-demo-organisation.md)

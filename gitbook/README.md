@@ -40,9 +40,9 @@ Important: this means that _no one_ has direct access to assets managed by the P
 
 In any organization this engine should be a pure deployment of the `Powers.sol` contract.
 
-For more information about Powers, see&#x20;
-
-
+{% content-ref url="for-developers/powers.sol.md" %}
+[powers.sol.md](for-developers/powers.sol.md)
+{% endcontent-ref %}
 
 ### Laws
 
@@ -52,7 +52,7 @@ Example:
 
 > Any account that has a role 2 can propose to mint tokens at contract X, but the proposal will only be accepted if 20 percent of role 2 holders vote in favor.
 
-Laws are contracts that follow the `ilaw.sol` interface. They can be created by inheriting `law.sol`. Laws have the following functions:
+Laws are contracts that follow the `ilaw.sol` interface. They can be created by inheriting `law.sol`. Laws have the following functionalities:
 
 * They are role restricted.
 * They have multiple (optional) checks.
@@ -68,6 +68,10 @@ What is not flexible, is how Powers interacts with laws. This is done through th
 * The function call is executed.
 * Any state change is saved to the law.
 * A return call is returned to the Powers protocol for execution.
+
+{% content-ref url="for-developers/law.sol.md" %}
+[law.sol.md](for-developers/law.sol.md)
+{% endcontent-ref %}
 
 ### Role restricted governance flow
 
