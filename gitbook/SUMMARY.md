@@ -1,9 +1,11 @@
 # Table of contents
 
-* [😎 Welcome to Separated Powers](README.md)
+* [💪 Welcome to Powers Protocol](README.md)
 * [Using the App](using-the-app.md)
-* [For developers](for-developers.md)
-* [Deploy a demo organization](deploy-a-demo-organization.md)
+* [For developers](for-developers/README.md)
+  * [Powers.sol](for-developers/powers.sol.md)
+  * [Law.sol](for-developers/law.sol.md)
+  * [Deploy a demo organisation](for-developers/deploy-a-demo-organisation.md)
 * [Example laws](example-laws/README.md)
   * [Executive Laws](example-laws/executive-laws.md)
   * [Electoral laws](example-laws/electoral-laws.md)
