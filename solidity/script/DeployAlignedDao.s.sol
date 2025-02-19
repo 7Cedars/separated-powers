@@ -98,7 +98,7 @@ contract DeployAlignedDao is Script {
         // laws[0]
         lawConfig.quorum = 60; // = 60% quorum needed
         lawConfig.succeedAt = 50; // = Simple majority vote needed.
-        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.votingPeriod = 150; // = number of blocks, about half an hour.  
         // setting up params
         string[] memory inputParams = new string[](2);
         inputParams[0] = "string Value";
@@ -120,7 +120,7 @@ contract DeployAlignedDao is Script {
         // laws[1]
         lawConfig.quorum = 30; // = 30% quorum needed
         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.votingPeriod = 150; // = number of blocks, about half an hour.
         lawConfig.needCompleted = laws[0];
         // initiating law.
         vm.startBroadcast();
@@ -138,7 +138,7 @@ contract DeployAlignedDao is Script {
         // laws[2]
         lawConfig.quorum = 80; // = 80% quorum needed
         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.votingPeriod = 150; // = number of blocks, about half an hour.
         // initiating law
         vm.startBroadcast();
         law = new RevokeMembership(
@@ -156,7 +156,7 @@ contract DeployAlignedDao is Script {
         // laws[3]
         lawConfig.quorum = 1; // = 1% quorum needed
         lawConfig.succeedAt = 80; // = 80 percent of the quorum needs to vote fore reinstatement.
-        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.votingPeriod = 150; // = number of blocks, about half an hour.
         lawConfig.needCompleted = laws[2];
         // input params
         inputParams = new string[](2);
@@ -179,7 +179,7 @@ contract DeployAlignedDao is Script {
         // laws[4]
         lawConfig.quorum = 20; // = 20% quorum needed
         lawConfig.succeedAt = 67; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.votingPeriod = 150; // = number of blocks, about half an hour.
         lawConfig.needCompleted = laws[3]; // NB! £todo all the law references need to be changed!
         //initiating law
         vm.startBroadcast();
@@ -207,7 +207,7 @@ contract DeployAlignedDao is Script {
             mock1155_, // token address.
             0,
             5000, // number of tokens
-            2000 // number of blocks = 30 days
+            300 // = number of blocks, about an hour.
         );
         vm.stopBroadcast();
         laws.push(address(law));
@@ -272,8 +272,7 @@ contract DeployAlignedDao is Script {
         // laws[10]
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
-        lawConfig.votingPeriod = 7200; // = duration in number of blocks to vote, about one day.
-        //
+        lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
         vm.startBroadcast();
         law = new PeerSelect(
             "Assign Role 3", // max 31 chars

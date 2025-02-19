@@ -7,6 +7,7 @@ import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useEffect } from "react";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { toFullDateFormat } from "@/utils/transformData";
 
 const roleColour = [  
   "border-blue-600", 
@@ -81,9 +82,8 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
                       }>
                       <div className ="w-full flex flex-col gap-1 text-sm text-slate-600 justify-center items-center">
                         <div className = "w-full flex flex-row justify-between items-center text-left">
-                          {/* need to get the timestamp.. */}
-                          <p> Block: </p> 
-                          <p> {proposal.blockNumber}  </p>
+                          <p> Date: </p> 
+                          <p> {toFullDateFormat(Number(proposal.voteStartBlockData?.timestamp))}  </p>
                         </div>
 
                         <div className = "w-full flex flex-row justify-between items-center text-left">

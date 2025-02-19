@@ -96,7 +96,7 @@ export function DynamicInput({dataType, varName, values, onChange}: InputProps) 
                     id={`input${item}`}
                     value = {inputArray[item] ? inputArray[item] : ""}
                     className="w-full h-8 pe-2 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
-                    placeholder={`Enter ${dataType} here.`}
+                    placeholder={`Enter ${dataType.replace(/[\[\]']+/g, '')} here.`}
                     onChange={(event) => handleChange({event, item})}
                     />
                 </div>
@@ -109,7 +109,7 @@ export function DynamicInput({dataType, varName, values, onChange}: InputProps) 
                   id={`input${item}`}
                   value = {String(inputArray[item])}
                   className="w-full h-8 pe-2 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
-                  placeholder={`Enter ${dataType} value here.`}
+                  placeholder={`Enter ${dataType.replace(/[\[\]']+/g, '')} value here.`}
                   onChange={(event) => handleChange({event, item})}
                   />
               </div>  

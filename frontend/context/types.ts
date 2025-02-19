@@ -1,4 +1,5 @@
 import { ConnectedWallet } from '@privy-io/react-auth';
+import { GetBlockReturnType } from '@wagmi/core';
 
 export type Status = "idle" | "pending" | "error" | "success"
 export type Vote = 0n | 1n | 2n  // = against, for, abstain  
@@ -41,6 +42,7 @@ export type ChainProps = {
   network: string; 
   id: number;
   genesisBlock: bigint; // block at which the first PowersProtocol was deployed. 
+  blockTimeInSeconds?: number;
   rpc?: string;
   nativeCurrency?: {
     name: string;
@@ -114,6 +116,7 @@ export type Proposal = {
   proposalId: number;
   targetLaw: `0x${string}`;
   voteStart: bigint;
+  voteStartBlockData?: GetBlockReturnType; 
   voteDuration: bigint;
   voteEnd: bigint;
   cancelled: boolean;
@@ -125,7 +128,7 @@ export type Proposal = {
   description?: string;
   executeCalldata?: `0x${string}`;
   state?: number;
-  blockNumber: number;
+  blockNumber: bigint;
   blockHash?: `0x${string}`;
 }
 

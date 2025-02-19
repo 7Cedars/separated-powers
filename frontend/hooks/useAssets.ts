@@ -24,7 +24,6 @@ export const useAssets = () => {
     address: organisation.contractAddress
   }) 
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
-  const blockNumber = useBlockNumber()
 
    const fetchErc20Or721 = async (tokenAddresses: `0x${string}`[], type: "erc20" | "erc721") => {
      let token: `0x${string}`

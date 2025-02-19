@@ -58,7 +58,7 @@ contract DeployGovernYourTax is Script {
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
             7, // rate
             100, // denominator  
-            50400 // 7% tax, (tax = 7, denominator = 2),  50400 block epoch.
+            7200 // 7% tax, (tax = 7, denominator = 2),  7200 block epoch, about one day. 
         );
         vm.stopBroadcast();
 
@@ -89,7 +89,7 @@ contract DeployGovernYourTax is Script {
         // laws[0]
         lawConfig.quorum = 60; // = 60% quorum needed
         lawConfig.succeedAt = 50; // = Simple majority vote needed.
-        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
         // setting up params
         string[] memory inputParams = new string[](3);
         inputParams[0] = "address Grantee"; // grantee
@@ -113,7 +113,7 @@ contract DeployGovernYourTax is Script {
         // laws[1]
         lawConfig.quorum = 80; // = 80% quorum needed
         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
         // initiating law
         vm.startBroadcast();
         law = new StartGrant(
@@ -145,7 +145,7 @@ contract DeployGovernYourTax is Script {
         // laws[3]
         lawConfig.quorum = 40; // = 40% quorum needed
         lawConfig.succeedAt = 80; // =  80 majority needed
-        lawConfig.votingPeriod = 120; // = number of blocks for vote.
+        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
         // input params
         inputParams = new string[](1);
         inputParams[0] = "address Law";
@@ -168,7 +168,7 @@ contract DeployGovernYourTax is Script {
         // laws[4]
         lawConfig.quorum = 50; // = 50% quorum needed
         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
         lawConfig.needCompleted = laws[3]; // NB! first a law needs to be stopped before it can be restarted!
         // This does mean that the reason given needs to be the same as when the law was stopped.
         // initiating law.
@@ -191,7 +191,7 @@ contract DeployGovernYourTax is Script {
         // mint tokens 
         lawConfig.quorum = 67; // = two-thirds quorum needed
         lawConfig.succeedAt = 67; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 1200; // = number of blocks voting period. 
+        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
         // bespoke inputParams 
         inputParams = new string[](1);
         inputParams[0] = "uint256 Quantity"; // number of tokens to mint. 
@@ -305,7 +305,7 @@ contract DeployGovernYourTax is Script {
         // laws[12]: security council: peer select. - role 3
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
-        lawConfig.votingPeriod = 7200; // = duration in number of blocks to vote, about one day.
+        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
         //
         vm.startBroadcast();
         law = new PeerSelect(
@@ -326,7 +326,7 @@ contract DeployGovernYourTax is Script {
         // lawConfig is for next three laws
         lawConfig.quorum = 70; // = 70% quorum needed
         lawConfig.succeedAt = 51; // =  simple majority sufficient
-        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
         vm.startBroadcast();
         law = new DirectSelect(
             "Elect and revoke role 4", // max 31 chars

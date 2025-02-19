@@ -7,13 +7,22 @@ import { Proposal } from "@/context/types";
 import { useLaw } from "@/hooks/useLaw";
 import { CheckIcon, XMarkIcon} from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
-import { useReadContracts } from "wagmi";
+import { useBlockNumber, useChainId, useReadContracts } from "wagmi";
+import { mainnet, sepolia } from "@wagmi/core/chains";
+import { blocksToHoursAndMinutes } from "@/utils/transformData";
+import { supportedChains } from "@/context/chains";
 
 export const Votes: React.FC = () => {
   const {law, checkProposalExists} = useLaw(); 
   const action = useActionStore();
   const organisation = useOrgStore()
   const [selectedProposal, setSelectedProposal] = useState<Proposal>()
+  const {data: blockNumber, error: errorBlockNumber} = useBlockNumber({
+    chainId: sepolia.id, // NB: reading blocks from sepolia, because arbitrum One & sepolia reference these block numbers, not their own. 
+  })
+  console.log({blockNumber, errorBlockNumber})
+  const chainId = useChainId();
+  const supportedChain = supportedChains.find(chain => chain.id === chainId)
   
   const powersContract = {
     address: organisation.contractAddress,
@@ -31,8 +40,15 @@ export const Votes: React.FC = () => {
         functionName: 'getAmountRoleHolders', 
         args: [law.allowedRole]
       }, 
+      {
+        ...powersContract,
+        functionName: 'proposalDeadline', 
+        args: [selectedProposal?.proposalId]
+      }, 
     ]
   })
+
+  console.log("@Votes", {data})
 
   useEffect(() => {
     const proposal = checkProposalExists(action.description as string, action.callData as `0x${string}`)
@@ -44,6 +60,7 @@ export const Votes: React.FC = () => {
   const allVotes = votes.reduce((acc, current) => acc + current, init)
   const quorum = isSuccess ? Math.floor((parseVoteData(data).holders * 100) / Number(law.config.quorum)) : 0
   const threshold = isSuccess ? Math.floor((parseVoteData(data).holders * 100) / Number(law.config.succeedAt)) : 0
+  const deadline = isSuccess ? parseVoteData(data).deadline : 0
 
   return (
     <>
@@ -100,6 +117,22 @@ export const Votes: React.FC = () => {
             {isSuccess ? `${votes[2]} abstain` : "na"}
             </div>
           </div>
+        </div>
+
+        {/* Vote still active block */}
+        <div className = "w-full flex flex-col justify-center items-center gap-2 py-2 px-4"> 
+          <div className = "w-full flex flex-row justify-between items-center">
+            { Number(blockNumber) >= deadline ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
+            <div>
+            { Number(blockNumber) >= deadline ? "Vote has closed" : "Vote still active"}
+            </div>
+          </div>
+          {Number(blockNumber) < deadline &&  
+            <div className = "w-full flex flex-row justify-between items-center">
+              Vote will end in 
+              {  blocksToHoursAndMinutes(deadline - Number(blockNumber), supportedChain) }
+            </div>
+          }
         </div>
     </section>
     </div>

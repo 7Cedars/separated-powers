@@ -36,6 +36,8 @@ export default function Page() {
     const chainId = useChainId();
     const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
+    console.log("@home:", {organisation})
+
     const fetchMyRoles = useCallback(
       async (account: `0x${string}`, roles: bigint[]) => {
         let role: bigint; 

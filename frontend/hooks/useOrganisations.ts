@@ -130,20 +130,15 @@ export const useOrganisations = () => {
               fromBlock: supportedChain?.genesisBlock
             })
             const fetchedLogs = parseEventLogs({
-                        abi: powersAbi,
-                        eventName: 'ProposalCreated',
-                        logs
-                      })
+              abi: powersAbi,
+              eventName: 'ProposalCreated',
+              logs
+            })
             const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
             const fetchedProposals: Proposal[] = fetchedLogsTyped.map(log => log.args as Proposal)
-            const fetchedProposalsWithBlockNumber: Proposal[] = fetchedProposals.map(
-              (proposal, index) => ({ ...proposal, 
-                blockNumber: Number(fetchedLogsTyped[index].blockNumber), 
-                blockHash: fetchedLogsTyped[index].blockHash
-              }))
-              fetchedProposalsWithBlockNumber.sort((a: Proposal, b: Proposal) => a.blockNumber > b.blockNumber ? 1 : -1)
-            if (fetchedProposalsWithBlockNumber) {
-              orgsWithProposals.push({...organisation, proposals: fetchedProposalsWithBlockNumber})
+            fetchedProposals.sort((a: Proposal, b: Proposal) => a.voteStart  > b.voteStart ? 1 : -1)
+            if (fetchedProposals) {
+              orgsWithProposals.push({...organisation, proposals: fetchedProposals})
             }
           }
         } 

@@ -87,7 +87,7 @@ contract DeployBasicDao is Script {
         // setting config.
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
-        lawConfig.votingPeriod = 50_400; // = duration in number of blocks to vote, about one week.
+        lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
         // initiating law
         vm.startBroadcast();
         law = new ProposalOnly(
@@ -119,10 +119,10 @@ contract DeployBasicDao is Script {
         // setting config.
         lawConfig.quorum = 51; // = 51 majority of seniors need to vote.
         lawConfig.succeedAt = 66; // =  two/thirds majority FOR vote needed to pass.
-        lawConfig.votingPeriod = 50_400; // = duration in number of blocks to vote, about one week.
+        lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
         lawConfig.needCompleted = laws[0]; // needs the proposal by Delegates to be completed.
         lawConfig.needNotCompleted = laws[1]; // needs the admin NOT to have cast a veto.
-        lawConfig.delayExecution = 25_200; // = duration in number of blocks (= half a week).
+        lawConfig.delayExecution = 150; // = duration in number of blocks to vote, about half an hour.
 
         // initiate law
         vm.startBroadcast();
@@ -186,7 +186,7 @@ contract DeployBasicDao is Script {
 
         // law[5]
         vm.startBroadcast();
-        lawConfig.throttleExecution = 500;
+        lawConfig.throttleExecution = 300; // once every hour
         law = new DelegateSelect(
             "Call role 2 election", // max 31 chars
             "Anyone can call (and pay for) an election to assign accounts to role 2. Address can be added to revoke roles. The nominated accounts with most delegated vote tokens will be assigned to role 2. The law can only be called once every 500 blocks.",
@@ -217,7 +217,7 @@ contract DeployBasicDao is Script {
         // law[7]
         lawConfig.quorum = 20; // = Only 20% quorum needed
         lawConfig.succeedAt = 66; // = but at least 2/3 majority needed for assigning and revoking members.
-        lawConfig.votingPeriod = 1200; // = number of blocks
+        lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
         // initiate law
         vm.startBroadcast();
         law = new PeerSelect(

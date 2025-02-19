@@ -26,9 +26,12 @@ export const Checks: React.FC = () => {
   const needCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needCompleted); 
   const needNotCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needNotCompleted); 
 
+  console.log("@Checks: ", {checks, law})
+
   useEffect(() => {
-    fetchChecks("dummy string", "0x0")
-  }, [])
+    console.log("check triggered")
+    fetchChecks(action.description , action.callData)
+  }, [, action.upToDate])
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
@@ -38,7 +41,7 @@ export const Checks: React.FC = () => {
           </div> 
         </div>
 
-        <div className = "w-full flex flex-col lg:max-h-96 lg:overflow-hidden max-h-48 overflow-y-scroll divide-y divide-slate-300">
+        <div className = "w-full flex flex-col lg:max-h-96 max-h-48 overflow-y-scroll divide-y divide-slate-300">
 
         {/* authorised block */}
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
@@ -50,12 +53,13 @@ export const Checks: React.FC = () => {
           </div>
         </div>
 
+        {/* proposal passed */}
         {law.config.quorum != 0n ?
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 justify-between items-center">
               { checks?.proposalPassed ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
               <div>
-                Proposal passed
+              { checks?.proposalPassed ? "Proposal passed" : "Proposal not passed" } 
               </div>
             </div>
             <div className = "w-full flex flex-row px-2 py-1">
@@ -65,7 +69,7 @@ export const Checks: React.FC = () => {
                 disabled = { !action.upToDate }
                 >
                 <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1  px-2 py-1`}>
-                { checks?.proposalExists ? "View Proposal" : "Create proposal" }
+                {  law.name }
                 </div>
               </button>
             </div>
@@ -73,7 +77,19 @@ export const Checks: React.FC = () => {
           : null
         }
 
-      {/* Executed */}
+        {/* proposal already executed */}
+        {
+          <div className = "w-full flex flex-col justify-center items-center p-2"> 
+            <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
+              { !checks?.proposalCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
+              <div>
+              { !checks?.proposalCompleted ? "Action not yet executed" : "Action executed" } 
+              </div>
+            </div>
+          </div>
+        }
+
+        {/* Executed */}
         {law.config.needCompleted != `0x${'0'.repeat(40)}`  ?  
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 justify-between items-center">
@@ -140,7 +156,7 @@ export const Checks: React.FC = () => {
         : null  
         }
 
-        {/* Delay */}
+        {/* Throttle */}
         {law.config.throttleExecution != 0n ? 
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
           <div className = "w-full flex flex-row px-2 justify-between items-center">

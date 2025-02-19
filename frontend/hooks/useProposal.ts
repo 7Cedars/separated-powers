@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { powersAbi } from "../context/abi";
 import { Organisation, Proposal, Status } from "../context/types";
-import { writeContract } from "@wagmi/core";
+import { GetBlockReturnType, writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { useWaitForTransactionReceipt } from "wagmi";
 import { readContract } from "wagmi/actions";
@@ -10,6 +10,8 @@ import { useOrgStore, assignOrg } from "@/context/store";
 import { parseEventLogs, ParseEventLogsReturnType } from "viem";
 import { useChainId } from 'wagmi'
 import { supportedChains } from "@/context/chains";
+import { getBlock } from '@wagmi/core'
+import { mainnet } from "@wagmi/core/chains";
 
 export const useProposal = () => {
   const [status, setStatus ] = useState<Status>("idle")
@@ -38,6 +40,7 @@ export const useProposal = () => {
 
 
   // Status //
+  // I think it should be possible to only update proposals that have not been saved yet.. 
   const getProposals = async (organisation: Organisation) => {
       if (publicClient) {
         try {
@@ -55,13 +58,8 @@ export const useProposal = () => {
                         })
               const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
               const fetchedProposals: Proposal[] = fetchedLogsTyped.map(log => log.args as Proposal)
-              const fetchedProposalsWithBlockNumber: Proposal[] = fetchedProposals.map(
-                (proposal, index) => ({ ...proposal, 
-                  blockNumber: Number(fetchedLogsTyped[index].blockNumber), 
-                  blockHash: fetchedLogsTyped[index].blockHash
-                }))
-              fetchedProposalsWithBlockNumber.sort((a: Proposal, b: Proposal) => a.blockNumber > b.blockNumber ? 1 : -1)
-              return fetchedProposalsWithBlockNumber
+              fetchedProposals.sort((a: Proposal, b: Proposal) => a.voteStart  > b.voteStart ? 1 : -1)
+              return fetchedProposals
             }
         } catch (error) {
           setStatus("error") 
@@ -79,17 +77,43 @@ export const useProposal = () => {
       try {
         for await (proposal of proposals) {
           if (proposal?.proposalId) {
-            const fetchedState = await readContract(wagmiConfig, {
-              abi: powersAbi,
-              address: organisation.contractAddress,
-              functionName: 'state', 
-              args: [proposal.proposalId]
-            })
-            if (Number(fetchedState) < 5) 
+              const fetchedState = await readContract(wagmiConfig, {
+                abi: powersAbi,
+                address: organisation.contractAddress,
+                functionName: 'state', 
+                args: [proposal.proposalId]
+              })
               state.push(Number(fetchedState)) // = 5 is a non-existent state
-          }
+            }
         } 
         return state
+      } catch (error) {
+        setStatus("error") 
+        setError(error)
+      }
+    }
+  }
+
+
+  const getBlockData = async (proposals: Proposal[]) => {
+    let proposal: Proposal
+    let blocksData: GetBlockReturnType[] = []
+
+    if (publicClient) {
+      try {
+        for await (proposal of proposals) {
+          const existingProposal = organisation.proposals?.find(proposal => proposal.proposalId == proposal.proposalId)
+          if (!existingProposal || !existingProposal.voteStartBlockData?.chainId) {
+            const fetchedBlockData = await getBlock(wagmiConfig, {
+              blockNumber: proposal.blockNumber
+            })
+            const blockDataParsed = fetchedBlockData as GetBlockReturnType
+            blocksData.push(blockDataParsed)
+          } else {
+            blocksData.push(existingProposal.voteStartBlockData ? existingProposal.voteStartBlockData : {} as GetBlockReturnType)
+          }
+        } 
+        return blocksData
       } catch (error) {
         setStatus("error") 
         setError(error)
@@ -101,7 +125,7 @@ export const useProposal = () => {
     async (organisation: Organisation) => {
       let proposals: Proposal[] | undefined;
       let states: number[] | undefined; 
-      let votes: bigint[] | undefined;
+      let blocks: GetBlockReturnType[] | undefined;
       let proposalsFull: Proposal[] | undefined;
 
       setError(null)
@@ -110,19 +134,36 @@ export const useProposal = () => {
       proposals = await getProposals(organisation)
       if (proposals) {
         states = await getProposalsState(proposals)
-        // const votes = await getProposalsVotes(proposals) 
+        blocks = await getBlockData(proposals)
       } 
-      if (states) { // + votes later.. 
+      if (states && blocks) { // + votes later.. 
         proposalsFull = proposals?.map((proposal, index) => {
           return ( 
-            {...proposal, state: states[index]}
+            {...proposal, state: states[index], voteStartBlockData: blocks[index]}
           )
         })
-      }
-
+      }  
       setProposals(proposalsFull)
       assignOrg({...organisation, proposals: proposalsFull})
-      setStatus("success") //NB note: after checking status, sets the status back to idle! 
+      setStatus("success") 
+  }, [ ]) 
+
+  const updateProposalState = useCallback(
+    async (proposal: Proposal) => {
+      setError(null)
+      setStatus("pending")
+
+      const newState = await getProposalsState([proposal])
+
+      if (newState) {
+        const oldProposals = proposals
+        const updatedProposal = {...proposal, state: newState[0]}
+        const updatedProposals = oldProposals?.map(p => p.proposalId == updatedProposal.proposalId ? updatedProposal : p) 
+        setProposals(updatedProposals)
+        assignOrg({...organisation, proposals: updatedProposals})
+      }
+      setStatus("success") 
+      
   }, [ ]) 
 
   // Actions // 
@@ -209,14 +250,13 @@ export const useProposal = () => {
             functionName: 'hasVoted', 
             args: [proposalId, account]
           })
-          console.log({result})
           setHasVoted(result as boolean )
-          setStatus("success") 
+          setStatus("idle") 
       } catch (error) {
           setStatus("error") 
           setError(error)
       }
   }, [ ])
 
-  return {status, error, law, proposals, hasVoted, fetchProposals, propose, cancel, castVote, checkHasVoted}
+  return {status, error, law, proposals, hasVoted, fetchProposals, updateProposalState, propose, cancel, castVote, checkHasVoted}
 }

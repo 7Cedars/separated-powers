@@ -46,7 +46,7 @@ const initialStateProposal: ProposalStore = {
   description: "",
   executeCalldata: `0x`,
   state: 5,
-  blockNumber: 0,
+  blockNumber: 0n,
   blockHash: `0x`
 }
 

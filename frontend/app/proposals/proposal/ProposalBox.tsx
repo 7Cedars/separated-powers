@@ -47,6 +47,8 @@ export function ProposalBox() {
   const params = bytesToParams(data as `0x${string}`)  
   const dataTypes = params.map(param => param.dataType) 
 
+  console.log({statusProposal, action})
+
   const handleSimulate = async () => {
       if (dataTypes && dataTypes.length > 0 && calldata && description) {
         try {
@@ -109,6 +111,19 @@ export function ProposalBox() {
         wallets[0].address as `0x${string}`
       )
   }, [, proposal, action])
+
+  useEffect(() => {
+    if (statusProposal == 'success' && description && calldata) {
+      // resetting action in zustand will trigger all components to reload.
+      setAction({...action, upToDate: false })
+      fetchChecks(description, calldata)
+      checkHasVoted(
+        BigInt(proposal.proposalId), 
+        wallets[0].address as `0x${string}`
+      )
+      setAction({...action, upToDate: false })
+    }
+  }, [statusProposal])
 
   return (
     <main className="w-full flex flex-col justify-start items-center">

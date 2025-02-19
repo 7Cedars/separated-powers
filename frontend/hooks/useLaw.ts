@@ -16,6 +16,7 @@ type Checks = {
   authorised?: boolean | undefined;
   proposalExists?: boolean | undefined;
   proposalPassed?: boolean | undefined;
+  proposalCompleted?: boolean | undefined;
   lawCompleted?: boolean | undefined;
   lawNotCompleted?: boolean | undefined;
   delayPassed?: boolean | undefined;
@@ -29,7 +30,8 @@ export const useLaw = () => {
   const {wallets} = useWallets();
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
-  // const wallet = wallets[0];
+
+  console.log("@useLaw: ", {organisation})
 
   const [status, setStatus ] = useState<Status>("idle")
   const [error, setError] = useState<any | null>(null)
@@ -76,16 +78,20 @@ export const useLaw = () => {
 
   const checkProposalExists = (description: string, calldata: `0x${string}`) => {
     const selectedProposal = organisation?.proposals?.find(proposal => 
-      proposal.targetLaw === law.law && 
-      proposal.executeCalldata === calldata && 
-      proposal.description === description
+      proposal.targetLaw == law.law && 
+      proposal.executeCalldata == calldata && 
+      proposal.description == description
     ) 
+    console.log("@checkProposalExists: ", {selectedProposal})
+
     return selectedProposal
   }
 
   const checkProposalStatus = useCallback(
-    async (description: string, calldata: `0x${string}`) => {
+    async (description: string, calldata: `0x${string}`, stateToCheck: number[]) => {
       const selectedProposal = checkProposalExists(description, calldata)
+
+      console.log("@checkProposalStatus: ", {selectedProposal})
     
       if (selectedProposal) {
         try {
@@ -95,7 +101,7 @@ export const useLaw = () => {
                   functionName: 'state', 
                   args: [selectedProposal.proposalId],
                 })
-          const result = Number(state) == 3
+          const result = stateToCheck.includes(Number(state)) 
           return result 
         } catch (error) {
           setStatus("error")
@@ -113,6 +119,8 @@ export const useLaw = () => {
         proposal.executeCalldata === calldata && 
         proposal.description === description
       ) 
+
+      console.log("@checkLawCompleted: ", {selectedProposal})
       
       try { 
         if (selectedProposal) {
@@ -122,6 +130,7 @@ export const useLaw = () => {
                   functionName: 'state', 
                   args: [selectedProposal.proposalId],
                 })
+          console.log("@checkLawCompleted: ", {state}) 
           const result = Number(state) == 4
           return result as boolean
         } else {
@@ -150,6 +159,7 @@ export const useLaw = () => {
                   functionName: 'state', 
                   args: [selectedProposal.proposalId],
                 })
+          console.log("@checkLawNotCompleted: ", {state}) 
           const result = Number(state) != 4
           return result as boolean
         } else {
@@ -220,13 +230,15 @@ export const useLaw = () => {
 
         setError(null)
         setStatus("pending")
+
+        console.log("law.config.quorum: ", law.config.quorum)
         
         // this can be written better. But ok for now. 
         results[0] = checkDelayedExecution(description, calldata)
         results[1] = await checkThrottledExecution()
         results[2] = await checkAccountAuthorised()
-        results[3] = checkProposalExists(description, calldata) != undefined
-        results[4] = await checkProposalStatus(description, calldata)
+        results[3] = await checkProposalStatus(description, calldata, [3, 4])
+        results[4] = await checkProposalStatus(description, calldata, [4])
         results[5] = await checkLawCompleted(description, calldata)
         results[6] = await checkLawNotCompleted(description, calldata)
 
@@ -234,12 +246,16 @@ export const useLaw = () => {
           delayPassed: law.config.delayExecution == 0n ? true : results[0],
           throttlePassed: law.config.throttleExecution == 0n ? true : results[1],
           authorised: results[2],
-          proposalExists: law.config.quorum == 0n ? true : results[3],
-          proposalPassed: law.config.quorum == 0n ? true : results[4],
-          lawCompleted: law.config.needCompleted == '0x0000000000000000000000000000000000000000' ? true : results[5],
-          lawNotCompleted: law.config.needNotCompleted == '0x0000000000000000000000000000000000000000' ? true : results[6]
+          proposalExists: law.config.quorum == 0n ? true : (checkProposalExists(description, calldata) != undefined),
+          proposalPassed: law.config.quorum == 0n ? true : results[3],
+          proposalCompleted: law.config.quorum == 0n ? true : results[4],
+          lawCompleted: law.config.needCompleted ==  `0x${'0'.repeat(40)}` ? true : results[5],
+          lawNotCompleted: law.config.needNotCompleted == `0x${'0'.repeat(40)}` ? true : results[6]
         })
-        
+
+        // results[3] = checkProposalExists(description, calldata) != undefined
+
+
         setStatus("idle") //NB note: after checking status, sets the status back to idle! 
   }, [ ])
   

@@ -9,7 +9,7 @@ import { useChainId, useReadContract, useReadContracts } from 'wagmi'
 import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { bytesToParams, parseParamValues, parseRole } from "@/utils/parsers";
+import { bytesToParams, parseLawError, parseParamValues, parseRole } from "@/utils/parsers";
 import { InputType } from "@/context/types";
 import { DynamicInput } from "@/app/laws/law/DynamicInput";
 import { notUpToDate } from "@/context/store"
@@ -48,7 +48,7 @@ export function LawBox() {
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
-  console.log({error})
+  console.log("@LawBox:", {checks, law})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     const currentInput = paramValues 
@@ -179,10 +179,10 @@ export function LawBox() {
       <div className="w-full flex flex-col gap-0 justify-start items-center text-red text-sm text-red-800 pb-4 px-6">
          {
          abiEncodeError ?
-          String(abiEncodeError)  
+          `Error: ${parseLawError(abiEncodeError)}`  
         :
         error ?   
-          "Law check failed." 
+          `Error: ${parseLawError(error)}`  
         : null
         }
       </div>
@@ -218,6 +218,7 @@ export function LawBox() {
               checks.lawCompleted && 
               checks.lawNotCompleted && 
               checks.proposalPassed && 
+              !checks.proposalCompleted && 
               checks.throttlePassed && 
               status ? status : 'disabled' 
               }> 

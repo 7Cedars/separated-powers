@@ -10,6 +10,7 @@ import { useProposal } from "@/hooks/useProposal";
 import { setProposal } from "@/context/store"
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useOrganisations } from "@/hooks/useOrganisations";
+import { toFullDateFormat } from "@/utils/transformData";
 
 
 // NB: need to delete action from store? Just in case? 
@@ -20,6 +21,8 @@ export function ProposalList() {
   const { organisations, status: statusUpdate, initialise, fetch, update } = useOrganisations()
   const {status, error, law, proposals: proposalsWithState, fetchProposals, propose, cancel, castVote} = useProposal();
   const possibleStatus: number[] = [0, 1, 2, 3, 4]; 
+
+  console.log({organisation})
 
   const handleRoleSelection = (role: bigint) => {
     let newDeselection: bigint[] = []
@@ -139,6 +142,7 @@ export function ProposalList() {
           {
             proposalsWithState?.map((proposal: Proposal, i) => {
               const law = organisation?.laws?.find(law => law.law == proposal.targetLaw)
+              console.log("timeStamp: ", proposal.voteStartBlockData?.timestamp)
               return (
                 law && 
                 law.allowedRole != undefined && 
@@ -151,7 +155,7 @@ export function ProposalList() {
                 >
                   <td className="h-full flex flex-col justify-center items-center text-left w-fit p-2">
                     <Button
-                      showBorder={false}
+                      showBorder={true}
                       role={parseRole(law.allowedRole)}
                       onClick={() => {
                         setLaw(law);
@@ -165,7 +169,9 @@ export function ProposalList() {
                       }}
                       align={0}
                     >
-                      {proposal.blockNumber}
+                      {
+                        toFullDateFormat(Number(proposal.voteStartBlockData?.timestamp))
+                      }
                     </Button>
                   </td>
                   <td className="pe-4 text-slate-500 min-w-60">{law.name}</td>

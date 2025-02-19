@@ -36,9 +36,9 @@ export function ExampleUseCases() {
 
         {/* use cases  */}
         <section 
-          className="grow w-screen min-h-fit h-full max-h-80 flex flex-row gap-10 justify-start items-center overflow-x-scroll py-10 " 
+          className="grow w-screen min-h-fit h-full max-h-80 flex flex-row gap-10 justify-start items-center overflow-x-scroll overflow-y-hidden py-10 " 
           >
-            <div className = "h-20" />
+            <div className = "h-20 " />
             {   
               exampleUseCases.map((useCase, index) => (
                 <div className="min-w-96 h-full min-h-72 flex flex-col justify-center items-center border border-slate-300 rounded-md bg-slate-50 overflow-hidden" key={index}>  

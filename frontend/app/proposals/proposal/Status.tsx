@@ -20,18 +20,13 @@ export const Status: React.FC = () => {
     functionName: 'state',
     args: [selectedProposal?.proposalId],
   })
-  // I should set Action @proposalBox, and read action here. Then the lines below can go. 
-  const description =  proposal?.description && proposal.description.length > 0 ? proposal.description 
-  : action.description && action.description.length > 0 ? action.description
-  : undefined  
-  const calldata =  proposal?.executeCalldata && proposal.executeCalldata.length > 0 ? proposal.executeCalldata 
-    : action.callData && action.callData.length > 0 ? action.callData
-    : undefined  
 
   useEffect(() => {
-    const proposal = checkProposalExists(description as string, calldata as `0x${string}`)
-    setSelectedProposal(proposal)
-  }, [])
+    if (action.callData && action.description) {
+      const proposal = checkProposalExists(action.description, action.callData)
+      setSelectedProposal(proposal)
+    }
+  }, [action])
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
