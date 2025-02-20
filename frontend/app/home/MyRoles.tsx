@@ -5,11 +5,11 @@ import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 
 type MyRolesProps = {
-  hasRoles: {role: bigint, since: bigint}[]
+  hasRoles: {role: bigint, since: bigint}[]; 
+  authenticated: boolean; 
 }
 
-export function MyRoles({hasRoles}: MyRolesProps ) {
-  const { authenticated } = usePrivy();
+export function MyRoles({hasRoles, authenticated}: MyRolesProps ) {
   const router = useRouter();
   const myRoles = hasRoles.filter(hasRole => hasRole.since != 0n)
 

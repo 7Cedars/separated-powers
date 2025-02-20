@@ -1,5 +1,6 @@
 import { ConnectedWallet } from '@privy-io/react-auth';
 import { GetBlockReturnType } from '@wagmi/core';
+import { Log } from "viem";
 
 export type Status = "idle" | "pending" | "error" | "success"
 export type Vote = 0n | 1n | 2n  // = against, for, abstain  
@@ -17,13 +18,6 @@ export type LawSimulation = [
 export type Attribute = {  
   trait_type: string | number ;  
   value: string;
-}
-
-export type Metadata = { 
-  icon: string; 
-  banner: string;
-  description: string; 
-  attributes: Attribute[]
 }
 
 export type Token = {
@@ -68,6 +62,11 @@ export type Config = {
   votingPeriod: bigint;
 }
 
+export type Execution = {
+  log: Log; 
+  blockData?: GetBlockReturnType
+}
+
 export type Law = {
   law: `0x${string}`;
   name?: string;
@@ -76,11 +75,20 @@ export type Law = {
   powers?: `0x${string}`;
   config: Config;
   params?: string[];
+  executions?: Execution[]; 
+}
+
+export type Metadata = { 
+  icon: string; 
+  banner: string;
+  description: string; 
+  attributes: Attribute[]
 }
 
 export type Organisation = {
   contractAddress: `0x${string}`;
   name?: string;
+  metadata?: Metadata; 
   colourScheme: number;
   laws?: Law[];
   activeLaws?: Law[];
@@ -103,6 +111,17 @@ export type Roles = {
   proposals?: Proposal[];
   roles?: Role[];
 };
+
+export type Checks = {
+  authorised?: boolean | undefined;
+  proposalExists?: boolean | undefined;
+  proposalPassed?: boolean | undefined;
+  proposalCompleted?: boolean | undefined;
+  lawCompleted?: boolean | undefined;
+  lawNotCompleted?: boolean | undefined;
+  delayPassed?: boolean | undefined;
+  throttlePassed?: boolean | undefined;
+}
 
 export type Action = {
   dataTypes: DataType[] | undefined;

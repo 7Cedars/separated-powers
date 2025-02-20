@@ -7,7 +7,7 @@ import { TwoSeventyRingWithBg } from "react-svg-spinners";
 
 export function RunNewDemo() {
   const [newDemoAddress, setNewDemoAddress] = useState<`0x${string}`>()
-  const {status, error, organisations, run} = useOrganisations()
+  const {status, error, organisations, addOrg} = useOrganisations()
 
   return (
     <section className="h-[80vh] h-0 flex flex-col justify-between items-center pb-8 px-4 snap-start snap-always  opacity-0 md:opacity-100">
@@ -34,16 +34,19 @@ export function RunNewDemo() {
 
       
           <div className="h-8 flex flex-row w-20 min-w-24 text-center">
-            <Button 
-              size = {0} 
-              role = {8} 
-              onClick={() => {run(newDemoAddress ? newDemoAddress : "0x0")}}
-              > 
-              <div className = "text-slate-600">{
-                status && status == 'pending' ? <TwoSeventyRingWithBg /> : "Start"  
-              }
-              </div>    
-            </Button>
+            {
+              newDemoAddress && 
+              <Button 
+                size = {0} 
+                role = {8} 
+                onClick={() => {addOrg(newDemoAddress)}}
+                > 
+                <div className = "text-slate-600">{
+                  status && status == 'pending' ? <TwoSeventyRingWithBg /> : "Start"  
+                }
+                </div>    
+              </Button>
+            }
           </div>
         </div>
       </div>

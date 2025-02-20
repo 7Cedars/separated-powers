@@ -17,9 +17,9 @@ import { toFullDateFormat } from "@/utils/transformData";
 export function ProposalList() {
   const organisation = useOrgStore();
   const router = useRouter();
-  const [deselectedStatus, setDeselectedStatus] = useState<number[]>([1, 2, 3, 4])
-  const { organisations, status: statusUpdate, initialise, fetch, update } = useOrganisations()
-  const {status, error, law, proposals: proposalsWithState, fetchProposals, propose, cancel, castVote} = useProposal();
+  const [ deselectedStatus, setDeselectedStatus] = useState<number[]>([1, 2, 3, 4])
+  const { status: statusUpdate, updateOrg } = useOrganisations()
+  
   const possibleStatus: number[] = [0, 1, 2, 3, 4]; 
 
   console.log({organisation})
@@ -46,12 +46,6 @@ export function ProposalList() {
     }
     setDeselectedStatus(newDeselection)
   };
-
-  useEffect(() => {
-    if (organisation) {
-      fetchProposals(organisation);
-    }
-  }, []);
 
   return (
     <div className="w-full min-w-96 flex flex-col justify-start items-center bg-slate-50 border slate-300 rounded-md overflow-hidden">
@@ -99,7 +93,7 @@ export function ProposalList() {
         </div>
         <button 
           className="w-fit h-fit p-1"
-          onClick = {() => update(organisation)}
+          onClick = {() => updateOrg(organisation)}
           >
             <ArrowPathIcon
               className="w-5 h-5 text-slate-800 aria-selected:animate-spin"
@@ -140,7 +134,7 @@ export function ProposalList() {
         </thead>
         <tbody className="w-full text-sm text-right text-slate-500 divide-y divide-slate-200">
           {
-            proposalsWithState?.map((proposal: Proposal, i) => {
+            organisation.proposals?.map((proposal: Proposal, i) => {
               const law = organisation?.laws?.find(law => law.law == proposal.targetLaw)
               console.log("timeStamp: ", proposal.voteStartBlockData?.timestamp)
               return (

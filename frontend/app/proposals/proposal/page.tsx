@@ -1,13 +1,30 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {ProposalBox} from "./ProposalBox";
-import {Checks} from "./Checks"; 
+import {ChecksBox} from "./ChecksBox"; 
 import {Status} from "./Status"; 
 import {Votes} from "./Votes"; 
 import {Law} from "./Law";
+import { useChecks } from "@/hooks/useChecks";
+import { useActionStore, useProposalStore } from "@/context/store";
+import { Proposal } from "@/context/types";
 
-const Page: React.FC = () => {
+const Page = () => {
+  const {checkProposalExists, checks, fetchChecks} = useChecks(); 
+  const [selectedProposal, setSelectedProposal] = useState<Proposal>()
+
+  const action = useActionStore();
+
+  useEffect(() => {
+    const proposal = checkProposalExists(action.description as string, action.callData as `0x${string}`)
+    setSelectedProposal(proposal)
+  }, [action])
+
+  useEffect(() => {
+    fetchChecks()
+  }, [])
+
   return (
     <main className="w-full h-full flex flex-col justify-center items-center">
       {/* main body  */}
@@ -25,12 +42,12 @@ const Page: React.FC = () => {
             <Law /> 
           </div>
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72">
-            <Status /> 
+            { selectedProposal && <Status proposal = {selectedProposal} /> }
           </div>
-          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72">
-            <Checks /> 
+          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72"> 
+            { checks && <ChecksBox checks = {checks} /> }  
           </div>
-          <Votes />  
+            <Votes />  
         </div>
       </section>
     </main>

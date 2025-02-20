@@ -6,16 +6,11 @@ import { assignOrg } from "@/context/store";
 import { Button } from "../components/Button";
 import { useOrganisations } from "@/hooks/useOrganisations";
 import { colourScheme } from "@/context/Theme"
+import { Organisation } from "@/context/types";
 
-export function ExampleDemos() {
-  const { organisations, status, initialise, fetch, update } = useOrganisations()
-
-  useEffect(() => {
-    if (!organisations) {
-      initialise()
-    }
-  }, [, organisations])
-
+export function ExampleDemos({organisations}: {organisations: Organisation[]}) {
+  const { status, fetchOrgs } = useOrganisations()
+ 
   return (
     <section className = "w-full min-w-[60vw] min-h-fit flex flex-col justify-between items-center snap-start px-4 pb-10"> 
       <div className = "h-fit flex flex-col justify-center items-center min-h-60"> 
@@ -47,7 +42,7 @@ export function ExampleDemos() {
                           </div> 
                           <button 
                               className="py-2 w-12 h-full flex justify-center items-center text-center aria-selected:animate-spin"
-                              onClick = {() => fetch()}
+                              onClick = {() => fetchOrgs()}
                               >
                                   <ArrowPathIcon
                                   className="w-4 h-4 text-slate-500 aria-selected:animate-spin"

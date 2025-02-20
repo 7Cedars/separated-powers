@@ -1,32 +1,20 @@
 "use client";
 
-import { useActionStore, useOrgStore, useProposalStore } from "@/context/store";
-import { useLaw } from "@/hooks/useLaw";
-import { useEffect, useState } from "react";
+import { useOrgStore } from "@/context/store";
 import { useReadContract } from 'wagmi'
 import { powersAbi } from "@/context/abi";
 import { Proposal } from "@/context/types";
 
-export const Status: React.FC = () => {
+export const Status = ({proposal}: {proposal: Proposal}) => {
   const organisation = useOrgStore()
-  const action = useActionStore();
-  const proposal = useProposalStore(); 
-  const { checkProposalExists, } = useLaw(); 
-  const [selectedProposal, setSelectedProposal] = useState<Proposal>()
+
   const layout = `w-full flex flex-row justify-center items-center px-2 py-1 text-bold rounded-md`
   const { status: readContractStatus, data: proposalState } = useReadContract({
     address: organisation.contractAddress,
     abi: powersAbi,  
     functionName: 'state',
-    args: [selectedProposal?.proposalId],
+    args: [proposal.proposalId],
   })
-
-  useEffect(() => {
-    if (action.callData && action.description) {
-      const proposal = checkProposalExists(action.description, action.callData)
-      setSelectedProposal(proposal)
-    }
-  }, [action])
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
@@ -39,7 +27,7 @@ export const Status: React.FC = () => {
         {/* authorised block */}
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
             { 
-              !selectedProposal ? 
+              !proposal ? 
                 <div className={`${layout} text-slate-500 bg-slate-100`}> No Proposal Found </div>
               :
               proposalState == 0 ? 

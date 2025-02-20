@@ -13,6 +13,16 @@ const roleColour = [
   "slate-600",
 ]
 
+const bgColour = [  
+  "bg-blue-200", 
+  "bg-red-200", 
+  "bg-yellow-200", 
+  "bg-purple-200",
+  "bg-green-200", 
+  "bg-orange-200", 
+  "bg-slate-200",
+]
+
 const roleColourRightBorder = [  
   "border-r-red-600", 
   "border-r-yellow-600", 
@@ -25,21 +35,30 @@ const roleColourRightBorder = [
 
 type LawProps = {
   title: string; 
-  description: string
+  description: string; 
+  vote?: boolean; 
+  delay?: boolean; 
+  throttle?: boolean; 
 }
 
 const dummyLaws: LawProps[] = [
   {
     title: "Propose an action", 
-    description: "here some text..."
+    description: "here some text...",
+    vote: true, 
+    delay: true, 
+    throttle: true
   }, 
   {
     title: "Veto an action", 
-    description: "here some text..."
+    description: "here some text...", 
+    delay: true, 
+    throttle: true
   }, 
   {
     title: "Execute an action", 
-    description: "here some text..."
+    description: "here some text...", 
+    vote: true, 
   }, 
 ]
 
@@ -48,14 +67,14 @@ export function GovernanceChain() {
     <section className = "relative w-full h-20 flex flex-row justify-stretch items-center">
       {
         dummyLaws.map((law, index) => 
-          <div key = {index} className = {`w-full h-full border border-${roleColour[index]} rounded-md flex flex-col justify-center items-center gap-1`}>
+          <div key = {index} className = {`w-full h-full border border-${roleColour[index]} ${bgColour[index]} rounded-md flex flex-col justify-center items-center gap-1`}>
             <div className = "text-sm font-bold">
               {law.title}
             </div>
             <div className = "flex flex-row gap-1"> 
-              <CalendarDaysIcon className = "h-6 w-6 opacity-25"/>
-              <QueueListIcon className = "h-6 w-6 opacity-25"/> 
-              <UserGroupIcon className = "h-6 w-6 opacity-25"/> 
+              { law.delay && <CalendarDaysIcon className = "h-6 w-6"/> }
+              { law.throttle &&<QueueListIcon className = "h-6 w-6"/> }
+              { law.vote && <UserGroupIcon className = "h-6 w-6"/> }
             </div>
           </div>
         )

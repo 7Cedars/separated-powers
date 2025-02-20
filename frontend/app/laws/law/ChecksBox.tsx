@@ -6,6 +6,7 @@ import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
 import { parseRole } from "@/utils/parsers";
 import { useRouter } from "next/navigation";
+import { useChecks } from "@/hooks/useChecks";
 
 const roleColour = [  
   "border-blue-600", 
@@ -17,20 +18,20 @@ const roleColour = [
   "border-slate-600"
 ]
 
-export const Checks: React.FC = () => {
-  const  {checks, law: currentLaw, fetchChecks} = useLaw(); 
-  const law = useLawStore();
+export const ChecksBox = () => {
   const router = useRouter();
+  const {checks, fetchChecks} = useChecks(); 
+  const law = useLawStore();
   const organisation = useOrgStore();
   const action = useActionStore();
-  const needCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needCompleted); 
-  const needNotCompletedLaw = organisation?.laws?.find(law => law.law == currentLaw.config.needNotCompleted); 
+  const needCompletedLaw = organisation?.laws?.find(law => law.law == law.config.needCompleted); 
+  const needNotCompletedLaw = organisation?.laws?.find(law => law.law == law.config.needNotCompleted); 
 
-  console.log("@Checks: ", {checks, law})
+  console.log("@ChecksBox: " , {checks})
 
   useEffect(() => {
     console.log("check triggered")
-    fetchChecks(action.description , action.callData)
+    fetchChecks()
   }, [, action.upToDate])
 
   return (
@@ -41,7 +42,7 @@ export const Checks: React.FC = () => {
           </div> 
         </div>
 
-        <div className = "w-full flex flex-col lg:max-h-96 max-h-48 overflow-y-scroll divide-y divide-slate-300">
+        <div className = "w-full flex flex-col lg:max-h-96 max-h-32 overflow-x-scroll divide-y divide-slate-300">
 
         {/* authorised block */}
         <div className = "w-full flex flex-col justify-center items-center p-2"> 

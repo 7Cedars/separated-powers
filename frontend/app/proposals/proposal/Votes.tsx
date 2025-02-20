@@ -2,7 +2,7 @@
 
 import { powersAbi } from "@/context/abi";
 import { parseVoteData } from "@/utils/parsers";
-import { useActionStore, useOrgStore} from "@/context/store";
+import { useActionStore, useLawStore, useOrgStore} from "@/context/store";
 import { Proposal } from "@/context/types";
 import { useLaw } from "@/hooks/useLaw";
 import { CheckIcon, XMarkIcon} from "@heroicons/react/24/outline";
@@ -11,11 +11,12 @@ import { useBlockNumber, useChainId, useReadContracts } from "wagmi";
 import { mainnet, sepolia } from "@wagmi/core/chains";
 import { blocksToHoursAndMinutes } from "@/utils/transformData";
 import { supportedChains } from "@/context/chains";
+import { useChecks } from "@/hooks/useChecks";
 
-export const Votes: React.FC = () => {
-  const {law, checkProposalExists} = useLaw(); 
-  const action = useActionStore();
-  const organisation = useOrgStore()
+export const Votes = () => {
+  const organisation = useOrgStore(); 
+  const law = useLawStore();  
+
   const [selectedProposal, setSelectedProposal] = useState<Proposal>()
   const {data: blockNumber, error: errorBlockNumber} = useBlockNumber({
     chainId: sepolia.id, // NB: reading blocks from sepolia, because arbitrum One & sepolia reference these block numbers, not their own. 
@@ -24,6 +25,7 @@ export const Votes: React.FC = () => {
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id === chainId)
   
+  // I try to avoid fetching in info blocks, but we do not do anything else with this data: only for viewing purposes.. 
   const powersContract = {
     address: organisation.contractAddress,
     abi: powersAbi,
@@ -47,14 +49,6 @@ export const Votes: React.FC = () => {
       }, 
     ]
   })
-
-  console.log("@Votes", {data})
-
-  useEffect(() => {
-    const proposal = checkProposalExists(action.description as string, action.callData as `0x${string}`)
-    setSelectedProposal(proposal)
-  }, [action])
-
   const votes = isSuccess ? parseVoteData(data).votes : [0, 0, 0]
   const init = 0
   const allVotes = votes.reduce((acc, current) => acc + current, init)

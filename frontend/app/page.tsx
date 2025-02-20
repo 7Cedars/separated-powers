@@ -24,11 +24,15 @@ import { Experiments } from "./Experiments";
 export default function Page() {
     const router = useRouter();
     const organisation = useOrgStore()
-    const { organisations, status, initialise, fetch, update } = useOrganisations()
+    const { organisations, status, initialise } = useOrganisations()
  
     useEffect(() => {
         if (organisation.name != '') router.push('/home') 
     }, [organisation])
+
+    useEffect(() => {
+        initialise() 
+    }, [ ])
 
     return (
         <main className="w-full flex flex-col gap-0 overflow-y-scroll snap-y snap-mandatory overflow-x-hidden">
@@ -54,7 +58,7 @@ export default function Page() {
 
             < ExampleUseCases /> 
             < AdvantagesRRG /> 
-            < ExampleDemos />
+            {status == "success" && organisations &&  < ExampleDemos organisations = {organisations}  /> } 
             < RunNewDemo />
             < Experiments />
             <div className = "min-h-48"/>  

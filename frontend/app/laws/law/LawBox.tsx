@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useActionStore, setAction } from "../../../context/store";
+import { useActionStore, setAction, useLawStore } from "../../../context/store";
 import { Button } from "@/components/Button";
 import { ArrowUpRightIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { SectionText } from "@/components/StandardFonts";
@@ -12,14 +12,10 @@ import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters
 import { bytesToParams, parseLawError, parseParamValues, parseRole } from "@/utils/parsers";
 import { InputType } from "@/context/types";
 import { DynamicInput } from "@/app/laws/law/DynamicInput";
-import { notUpToDate } from "@/context/store"
 import { SimulationBox } from "@/components/SimulationBox";
 import { useWallets } from "@privy-io/react-auth";
 import { supportedChains } from "@/context/chains";
-
-// CONTINUE HERE 
-/// NB! inputParams bytecode: (bytecode.length - 3) / 192 = number of params. And all params are strings.... 
-// use abi.decode to get to params!
+import { useChecks } from "@/hooks/useChecks";
 
 const roleColour = [  
   "border-blue-600", 
@@ -31,9 +27,16 @@ const roleColour = [
   "border-slate-600",
 ] 
 export function LawBox() {
+  const {wallets} = useWallets();
+  const {status, error, simulation, resetStatus, execute, fetchSimulation} = useLaw();
+  const {checks, fetchChecks} = useChecks();
   const action = useActionStore();
-  const [abiEncodeError, setAbiEncodeError] = useState<any>();
-  const {status, error, law, simulation, checks, resetStatus, execute, fetchSimulation, fetchChecks} = useLaw();
+  const law = useLawStore(); 
+
+  const chainId = useChainId();
+  const supportedChain = supportedChains.find(chain => chain.id == chainId)
+
+  const [abiEncodeError, setAbiEncodeError] = useState<any>();  
   const { data, isLoading, isError, error: errorInputParams } = useReadContract({
         abi: lawAbi,
         address: law.law,
@@ -41,16 +44,16 @@ export function LawBox() {
       })
   const params =  bytesToParams(data as `0x${string}`)  
   const dataTypes = params.map(param => param.dataType) 
-  const {wallets} = useWallets();
-
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
-  const chainId = useChainId();
-  const supportedChain = supportedChains.find(chain => chain.id == chainId)
+
+  console.log({params})
 
   console.log("@LawBox:", {checks, law})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
+    console.log("handleChange triggered", input, index)
+
     const currentInput = paramValues 
     currentInput[index] = input
     setParamValues(currentInput)
@@ -87,7 +90,7 @@ export function LawBox() {
           lawCalldata as `0x${string}`,
           keccak256(toHex(description))
         )
-        fetchChecks(description, lawCalldata) 
+        fetchChecks() 
       }
   };
 
@@ -98,15 +101,6 @@ export function LawBox() {
           action.description
       )
   };
-
-  // resetting lawBox when switching laws: 
-  useEffect(() => {
-    setAction({
-      ...action, 
-      upToDate: false
-    })
-    // resetStatus()
-  }, [law])
 
   useEffect(() => {
     try {
@@ -148,15 +142,24 @@ export function LawBox() {
       {/* dynamic form */}
       <form action="" method="get" className="w-full">
         {
-          params.map((param, index) => 
-            <DynamicInput 
-                dataType = {param.dataType} 
-                varName = {param.varName} 
-                values = {paramValues[index]} 
-                onChange = {(input)=> {handleChange(input, index)}}
-                key = {index}
-                />)
-        }
+          params.map((param, index) => {
+            console.log("@dynamic form", {
+              param,
+              index, 
+              paramValues
+            })
+            
+            return (
+              <DynamicInput 
+                  dataType = {param.dataType} 
+                  varName = {param.varName} 
+                  values = {paramValues[index]} 
+                  onChange = {(input)=> {handleChange(input, index)}}
+                  key = {index}
+                  />
+            )
+        })
+      }
         <div className="w-full mt-4 flex flex-row justify-center items-start ps-3 pe-6 pb-4 min-h-24">
           <label htmlFor="reason" className="text-sm text-slate-600 pb-1 pe-12 ps-3">Reason</label>
           <div className="w-full h-fit flex items-center text-md justify-start rounded-md bg-white pl-3 outline outline-1 outline-slate-300">

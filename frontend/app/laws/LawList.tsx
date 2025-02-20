@@ -11,7 +11,7 @@ import { useOrganisations } from "@/hooks/useOrganisations";
 export function LawList() {
   const organisation = useOrgStore();
   const router = useRouter();
-  const { status, update } = useOrganisations() 
+  const { status, updateOrg } = useOrganisations() 
   const handleRoleSelection = (role: bigint) => {
     let newDeselection: bigint[] = []
 
@@ -71,7 +71,7 @@ export function LawList() {
         </div>
         <button 
           className="w-fit h-fit p-1 rounded-md border-slate-500"
-          onClick = {() => update(organisation)}
+          onClick = {() => updateOrg(organisation)}
           >
             <ArrowPathIcon
               className="w-5 h-5 text-slate-800 aria-selected:animate-spin"

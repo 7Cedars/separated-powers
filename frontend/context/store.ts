@@ -111,7 +111,8 @@ export const deleteAction: typeof useActionStore.setState = () => {
 export const notUpToDate: typeof useActionStore.setState = () => {
   useActionStore.setState({...initialStateAction, upToDate: false})
 }
-
+  
+  
 // Role store 
 export const useRoleStore = create<RoleStore>()(() => initialStateRole);
 

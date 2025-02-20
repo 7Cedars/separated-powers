@@ -10,12 +10,13 @@ import { publicClient } from "@/context/clients";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { readContract } from "@wagmi/core";
 import { powersAbi } from "@/context/abi";
-import { useWallets } from "@privy-io/react-auth";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { MyRoles } from "./MyRoles";
 import { Assets } from "./Assets";
 import { parseMetadata } from "@/utils/parsers";
 import { useChainId } from "wagmi";
 import { supportedChains } from "@/context/chains";
+import { useProposal } from "@/hooks/useProposal";
 
 const colourScheme = [
   "from-indigo-500 to-emerald-500", 
@@ -29,6 +30,8 @@ const colourScheme = [
 export default function Page() {
     const organisation = useOrgStore()
     const {wallets} = useWallets()
+    const { proposals, fetchProposals } = useProposal();
+    const { authenticated } = usePrivy();
     const [status, setStatus] = useState<Status>()
     const [error, setError] = useState<any | null>(null)
     const [hasRoles, setHasRoles] = useState<{role: bigint; since: bigint}[]>([])
@@ -68,38 +71,12 @@ export default function Page() {
       }
     }, [wallets?.[0]?.address, fetchMyRoles, organisation.roles])
 
-
-    const fetchMetaData = useCallback(
-        async () => {
-        setStatus("pending")
-
-        if (organisation.contractAddress && organisation.contractAddress != '0x0' ) {
-          const uri = await readContract(wagmiConfig, {
-            abi: powersAbi,
-            address: organisation.contractAddress,
-            functionName: 'uri'
-          })
-
-        if (uri) {
-          try {
-            const fetchedMetadata: unknown = await(
-              await fetch(uri as string)
-              ).json()
-              const metadata = parseMetadata(fetchedMetadata)
-              setDescription(metadata.description)
-            } catch (error) {
-            setStatus("error") 
-            setError(error)
-          }
-        }
-      }
-    }, [])
-
     useEffect(() => {
       if (organisation) {
-        fetchMetaData()
+        fetchProposals(organisation);
       }
-    }, [, organisation ])
+    }, [ ])
+
  
     return (
       <main className="w-full h-full flex flex-col justify-center items-center gap-6">
@@ -141,9 +118,9 @@ export default function Page() {
           <div className = {"w-full pb-2 flex flex-wrap flex-col lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:flex-col lg:overflow-hidden lg:ps-2 gap-3 overflow-y-hidden overflow-x-scroll scroll-snap-x"}> 
             <Assets /> 
             
-            <MyProposals hasRoles = {hasRoles}/> 
+            <MyProposals hasRoles = {hasRoles} authenticated = {authenticated} proposals = {proposals} /> 
 
-            <MyRoles hasRoles = {hasRoles}/>
+            <MyRoles hasRoles = {hasRoles} authenticated = {authenticated}/>
           </div>
         </section>
       </main>

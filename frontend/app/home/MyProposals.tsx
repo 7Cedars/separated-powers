@@ -1,10 +1,7 @@
 `use client`
 
-import { useOrgStore, setProposal, setAction} from "@/context/store";
+import { useOrgStore, setProposal, setAction, setLaw} from "@/context/store";
 import { Proposal } from "@/context/types";
-import { useProposal } from "@/hooks/useProposal";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { useEffect } from "react";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { toFullDateFormat } from "@/utils/transformData";
@@ -21,20 +18,15 @@ const roleColour = [
 
 type MyProposalProps = {
   hasRoles: {role: bigint, since: bigint}[]
+  authenticated: boolean;
+  proposals: Proposal[] | undefined; 
 }
 
-export function MyProposals({hasRoles}: MyProposalProps ) {
+export function MyProposals({hasRoles, authenticated, proposals}: MyProposalProps ) {
   const organisation = useOrgStore();
-  const { proposals: proposalsWithState, fetchProposals } = useProposal();
-  const { authenticated } = usePrivy();
+
   const router = useRouter();
   const myRoles = hasRoles.filter(hasRole => hasRole.role > 0).map(hasRole => hasRole.role)
-
-  useEffect(() => {
-    if (organisation) {
-      fetchProposals(organisation);
-    }
-  }, []);
 
   return (
     <div className="w-full grow flex flex-col justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80"> 
@@ -59,11 +51,11 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
        {/* below should be a button */}
        {
       authenticated ?
-        proposalsWithState && proposalsWithState.length > 0 ? 
+        proposals && proposals.length > 0 ? 
 
-          <div className = "w-full h-fit flex flex-col gap-2 justify-start items-center overflow-y-scroll p-2 px-1">
+          <div className = "w-full h-fit lg:max-h-48 max-h-32 flex flex-col gap-2 justify-start items-center overflow-x-scroll p-2 px-1">
           {
-          proposalsWithState?.map((proposal: Proposal, i) => {
+          proposals?.map((proposal: Proposal, i) => {
               const law = organisation?.laws?.find(law => law.law == proposal.targetLaw)
               return (
               law && law.allowedRole != undefined && myRoles.includes(law.allowedRole) ? 
@@ -73,6 +65,7 @@ export function MyProposals({hasRoles}: MyProposalProps ) {
                     onClick={
                       () => {
                         setProposal(proposal)
+                        setLaw(law)
                         setAction({
                           description: proposal.description,
                           callData: proposal.executeCalldata

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { useActionStore, setAction, useProposalStore } from "@/context/store";
+import { useActionStore, setAction, useProposalStore, useLawStore } from "@/context/store";
 import { Button } from "@/components/Button";
 import { useRouter } from "next/navigation";
 import { useReadContract } from 'wagmi'
@@ -15,6 +15,7 @@ import { useProposal } from "@/hooks/useProposal";
 import { SimulationBox } from "@/components/SimulationBox";
 import { SectionText } from "@/components/StandardFonts";
 import { useWallets } from "@privy-io/react-auth";
+import { useChecks } from "@/hooks/useChecks";
 
 const roleColour = [  
   "border-blue-600", 
@@ -30,9 +31,12 @@ export function ProposalBox() {
   const router = useRouter();
   const proposal = useProposalStore();
   const action = useActionStore();
+  const law = useLawStore();
 
-  const {simulation, law, checks, resetStatus, execute, checkProposalExists, fetchSimulation, fetchChecks} = useLaw();
+  const {simulation, fetchSimulation} = useLaw();
   const {status: statusProposal, error, hasVoted, propose, castVote, checkHasVoted} = useProposal();
+  const {status: statusChecks, error: errorChecks, checks, fetchChecks, checkProposalExists} = useChecks();
+
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([])
   const [description, setDescription] = useState<string>()
   const [calldata, setCalldata] = useState<`0x${string}`>()
@@ -66,7 +70,7 @@ export function ProposalBox() {
           keccak256(toHex(description))
         )
 
-        fetchChecks(description, calldata)
+        fetchChecks()
 
         if (!action.upToDate) {
           setAction({
@@ -116,7 +120,7 @@ export function ProposalBox() {
     if (statusProposal == 'success' && description && calldata) {
       // resetting action in zustand will trigger all components to reload.
       setAction({...action, upToDate: false })
-      fetchChecks(description, calldata)
+      fetchChecks()
       checkHasVoted(
         BigInt(proposal.proposalId), 
         wallets[0].address as `0x${string}`
