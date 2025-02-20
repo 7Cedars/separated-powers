@@ -17,10 +17,10 @@ import { toFullDateFormat } from "@/utils/transformData";
 export function ProposalList() {
   const organisation = useOrgStore();
   const router = useRouter();
-  const [ deselectedStatus, setDeselectedStatus] = useState<number[]>([1, 2, 3, 4])
+  const [ deselectedStatus, setDeselectedStatus] = useState<string[]>(['1', '2', '3', '4'])
   const { status: statusUpdate, updateOrg } = useOrganisations()
   
-  const possibleStatus: number[] = [0, 1, 2, 3, 4]; 
+  const possibleStatus: string[] = ['0', '1', '2', '3', '4']; 
 
   console.log({organisation})
 
@@ -37,10 +37,10 @@ export function ProposalList() {
     assignOrg({...organisation, deselectedRoles: newDeselection})
   };
 
-  const handleStatusSelection = (proposalStatus: number) => {
-    let newDeselection: number[] = []
+  const handleStatusSelection = (proposalStatus: string) => {
+    let newDeselection: string[] = []
     if (deselectedStatus.includes(proposalStatus)) {
-      newDeselection = deselectedStatus.filter(option => option != proposalStatus)
+      newDeselection = deselectedStatus.filter(option => option !== proposalStatus)
     } else {
       newDeselection = [...deselectedStatus, proposalStatus]
     }
@@ -141,7 +141,7 @@ export function ProposalList() {
                 law && 
                 law.allowedRole != undefined && 
                 !organisation?.deselectedRoles?.includes(BigInt(`${law.allowedRole}`)) && 
-                !deselectedStatus.includes(proposal.state ? proposal.state : 9) 
+                !deselectedStatus.includes(String(proposal.state) ? String(proposal.state) : '9') 
                 ? 
                 <tr
                   key={i}
@@ -170,7 +170,7 @@ export function ProposalList() {
                   </td>
                   <td className="pe-4 text-slate-500 min-w-60">{law.name}</td>
                   <td className="pe-4 text-slate-500 min-w-48">{proposal.description}</td>
-                  <td className="pe-4 text-slate-500">{parseProposalStatus(proposal.state)}</td>
+                  <td className="pe-4 text-slate-500">{parseProposalStatus(String(proposal.state))}</td>
                   <td className="pe-4 min-w-20 text-slate-500"> { 
                     law.allowedRole == 0n ? 
                       "Admin"

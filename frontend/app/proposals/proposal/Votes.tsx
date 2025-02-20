@@ -13,11 +13,10 @@ import { blocksToHoursAndMinutes } from "@/utils/transformData";
 import { supportedChains } from "@/context/chains";
 import { useChecks } from "@/hooks/useChecks";
 
-export const Votes = () => {
+export const Votes = ({proposal}: {proposal: Proposal}) => {
   const organisation = useOrgStore(); 
   const law = useLawStore();  
 
-  const [selectedProposal, setSelectedProposal] = useState<Proposal>()
   const {data: blockNumber, error: errorBlockNumber} = useBlockNumber({
     chainId: sepolia.id, // NB: reading blocks from sepolia, because arbitrum One & sepolia reference these block numbers, not their own. 
   })
@@ -35,7 +34,7 @@ export const Votes = () => {
       {
         ...powersContract,
         functionName: 'getProposalVotes',
-        args: [selectedProposal?.proposalId]
+        args: [proposal?.proposalId]
       }, 
       {
         ...powersContract,
@@ -45,7 +44,7 @@ export const Votes = () => {
       {
         ...powersContract,
         functionName: 'proposalDeadline', 
-        args: [selectedProposal?.proposalId]
+        args: [proposal?.proposalId]
       }, 
     ]
   })
@@ -58,7 +57,7 @@ export const Votes = () => {
 
   return (
     <>
-    { selectedProposal ?
+    { proposal ?
       <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72">
       <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
         <div className="w-full flex flex-row items-center justify-between px-4 py-2 text-slate-900">

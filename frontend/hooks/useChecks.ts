@@ -27,6 +27,7 @@ export const useChecks = () => {
 
   const checkAccountAuthorised = useCallback(
     async () => {
+      console.log("@checkAccountAuthorised called: ", {wallets})
       if (!wallets[0]) {
         return false 
       } else {      
@@ -37,6 +38,7 @@ export const useChecks = () => {
                   functionName: 'canCallLaw', 
                   args: [wallets[0].address, law.law],
                 })
+          console.log("Result @checkAccountAuthorised called: ", {result})
           return result as boolean
         } catch (error) {
             setStatus("error") 
@@ -199,8 +201,6 @@ export const useChecks = () => {
 
         setError(null)
         setStatus("pending")
-
-        console.log("law.config.quorum: ", law.config.quorum)
         
         // this can be written better. But ok for now. 
         results[0] = checkDelayedExecution(action.description, action.callData)
@@ -224,7 +224,7 @@ export const useChecks = () => {
 
         setChecks(checks)
  
-        setStatus("idle") //NB note: after checking status, sets the status back to idle! 
+        setStatus("success") //NB note: after checking status, sets the status back to idle! 
   }, [ ])
 
   return {status, error, checks, fetchChecks, checkProposalExists}

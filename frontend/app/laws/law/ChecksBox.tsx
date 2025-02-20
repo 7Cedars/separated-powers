@@ -20,19 +20,17 @@ const roleColour = [
 
 export const ChecksBox = () => {
   const router = useRouter();
-  const {checks, fetchChecks} = useChecks(); 
+  const {checks, fetchChecks, status} = useChecks(); 
   const law = useLawStore();
   const organisation = useOrgStore();
   const action = useActionStore();
-  const needCompletedLaw = organisation?.laws?.find(law => law.law == law.config.needCompleted); 
-  const needNotCompletedLaw = organisation?.laws?.find(law => law.law == law.config.needNotCompleted); 
-
-  console.log("@ChecksBox: " , {checks})
+  const needCompletedLaw = organisation?.laws?.find(l => l.law == law.config.needCompleted); 
+  const needNotCompletedLaw = organisation?.laws?.find(l => l.law == law.config.needNotCompleted); 
 
   useEffect(() => {
     console.log("check triggered")
     fetchChecks()
-  }, [, action.upToDate])
+  }, [ , action.upToDate, law])
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 

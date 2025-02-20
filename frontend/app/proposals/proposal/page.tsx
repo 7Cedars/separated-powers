@@ -47,7 +47,7 @@ const Page = () => {
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72"> 
             { checks && <ChecksBox checks = {checks} /> }  
           </div>
-            <Votes />  
+            { selectedProposal && <Votes proposal = {selectedProposal} /> }
         </div>
       </section>
     </main>

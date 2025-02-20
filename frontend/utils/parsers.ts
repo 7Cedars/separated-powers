@@ -304,17 +304,17 @@ export const parse1155Metadata = (metadata: unknown): Token => {
   return result
 };
 
-export const parseProposalStatus = (state: number | undefined): string => {
-  if (!isNumber(state)) {
-    throw new Error(`Incorrect state, not a number: ${state}`);
+export const parseProposalStatus = (state: string | undefined): string => {
+  if (!isString(state)) {
+    throw new Error(`Incorrect state, not a string: ${state}`);
   }
 
   switch (state) {
-    case 0: return "Active";
-    case 1: return "Cancelled";
-    case 2: return "Defeated";
-    case 3: return "Succeeded";
-    case 4: return "Completed"; 
+    case '0': return "Active";
+    case '1': return "Cancelled";
+    case '2': return "Defeated";
+    case '3': return "Succeeded";
+    case '4': return "Completed"; 
 
     default:
       return "unsupported state";

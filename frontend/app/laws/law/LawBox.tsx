@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useActionStore, setAction, useLawStore } from "../../../context/store";
+import { useActionStore, setAction, useLawStore, notUpToDate } from "../../../context/store";
 import { Button } from "@/components/Button";
 import { ArrowUpRightIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { SectionText } from "@/components/StandardFonts";
@@ -47,9 +47,6 @@ export function LawBox() {
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
 
-  console.log({params})
-
-  console.log("@LawBox:", {checks, law})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     console.log("handleChange triggered", input, index)
@@ -59,6 +56,7 @@ export function LawBox() {
     setParamValues(currentInput)
     // reset useLaw hook  
     resetStatus()
+    notUpToDate({})
   }  
   
   const handleSimulate = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -109,10 +107,15 @@ export function LawBox() {
       setParamValues(valuesParsed)
       setDescription(action.description)
     } catch {
-      setAction({})
+      notUpToDate({})
       setDescription("")
     }
   }, [ ])
+
+  useEffect(() => {
+    resetStatus() 
+    notUpToDate({})
+  }, [law])
 
   return (
     <main className="w-full h-full">
@@ -174,6 +177,7 @@ export function LawBox() {
                 onChange={(event) => {{
                   setDescription(event.target.value); 
                   resetStatus(); 
+                  notUpToDate({})
                   }}} />
             </div>
         </div>

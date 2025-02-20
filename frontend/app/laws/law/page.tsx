@@ -8,7 +8,7 @@ import { Executions } from "./Executions";
 import { setAction, useActionStore, useLawStore } from "@/context/store";
 import { useLaw } from "@/hooks/useLaw";
 
-const Page: React.FC = () => {
+const Page = () => {
   const {status, error, fetchExecutions} = useLaw();
   const action = useActionStore();
   const law = useLawStore(); 
