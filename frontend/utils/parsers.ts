@@ -337,7 +337,7 @@ export const parseErrorMessage = (message: unknown): boolean | string  => {
   }
 
   if (typeof message !== 'boolean') {
-    return String(message).split("\n")[1]
+    return String(message) // .split("\n")[1]
   }
 
   else {

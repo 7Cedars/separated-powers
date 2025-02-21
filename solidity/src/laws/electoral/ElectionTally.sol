@@ -81,7 +81,8 @@ contract ElectionTally is Law {
         if (PeerVote(peerVote).endVote() > block.number) {
             revert ("Election still active.");
         }
-        if (PeerVote(peerVote).nominees() != nominees) {
+        (,,,,,,,address readStateFrom) = PeerVote(peerVote).config();
+        if (readStateFrom != nominees) {
             revert ("Dissimilar nominees contracts.");
         }
         if (PeerVote(peerVote).TALLY() != address(this)) {

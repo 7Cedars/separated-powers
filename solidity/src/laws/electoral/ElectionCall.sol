@@ -107,7 +107,7 @@ contract ElectionCall is Law {
             abi.decode(stateChange, (string, uint48, uint48));
 
         // stp 1: deploy new grant
-        _deployPeerVote(VOTER_ROLE_ID, nominees, TALLY_VOTE, startVote, endVote, description);
+        _deployPeerVote(VOTER_ROLE_ID, config.readStateFrom, TALLY_VOTE, startVote, endVote, description);
     }
 
     /**
@@ -116,13 +116,14 @@ contract ElectionCall is Law {
      */
     function _getPeerVoteAddress(
         uint32 allowedRole,
-        address nominateMe,
+        address nominees,
         address tallyVote,
         uint48 startVote,
         uint48 endVote,
         string memory description
     ) internal view returns (address) {
         LawConfig memory config;
+        config.readStateFrom = nominees;
 
         address peerReviewAddress = Create2.computeAddress(
             bytes32(keccak256(abi.encodePacked(description))),
@@ -137,7 +138,6 @@ contract ElectionCall is Law {
                         allowedRole,
                         config,
                         // remaining params
-                        nominateMe,
                         tallyVote,
                         startVote,
                         endVote
@@ -157,6 +157,9 @@ contract ElectionCall is Law {
         uint48 endVote,
         string memory description
     ) internal {
+        LawConfig memory config;
+        config.readStateFrom = nominateMe;
+
         PeerVote newPeerVote = new PeerVote{ salt: bytes32(keccak256(abi.encodePacked(description))) }(
             // standard params
             "Election",
@@ -165,7 +168,6 @@ contract ElectionCall is Law {
             allowedRole,
             config,
             // remaining params
-            nominateMe,
             tallyVote,
             startVote,
             endVote

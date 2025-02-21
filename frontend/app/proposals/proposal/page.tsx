@@ -7,22 +7,22 @@ import {Status} from "./Status";
 import {Votes} from "./Votes"; 
 import {Law} from "./Law";
 import { useChecks } from "@/hooks/useChecks";
-import { useActionStore, useProposalStore } from "@/context/store";
+import { useActionStore, useLawStore } from "@/context/store";
 import { Proposal } from "@/context/types";
 
 const Page = () => {
   const {checkProposalExists, checks, fetchChecks} = useChecks(); 
   const [selectedProposal, setSelectedProposal] = useState<Proposal>()
-
   const action = useActionStore();
+  const law = useLawStore(); 
 
   useEffect(() => {
-    const proposal = checkProposalExists(action.description as string, action.callData as `0x${string}`)
+    const proposal = checkProposalExists(action.description as string, action.callData as `0x${string}`, law)
     setSelectedProposal(proposal)
   }, [action])
 
   useEffect(() => {
-    fetchChecks()
+    fetchChecks(law)
   }, [])
 
   return (

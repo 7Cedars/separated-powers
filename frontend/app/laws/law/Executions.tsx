@@ -11,14 +11,14 @@ import { publicClient } from "@/context/clients";
 import { getBlock, GetBlockReturnType } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { toDateFormat, toEurTimeFormat } from "@/utils/transformData";
-
-
-export function Executions() {
+ 
+ 
+export const Executions = ({executions}: {executions: Execution[] | undefined}) => {
   const law = useLawStore();
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
-  console.log("@executions: ", {law})
+  console.log("@executions: ", {executions})
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
@@ -30,18 +30,19 @@ export function Executions() {
 
         {/* execution logs block 1 */}
         {
-          law.executions && law.executions?.length != 0 ?
+          executions && executions?.length != 0 ?
           <div className = "w-full flex flex-col max-h-36 lg:max-h-56 overflow-y-scroll divide-y divide-slate-300">
-            {law.executions?.map((execution: Execution, index: number) => 
+            {executions.map((execution: Execution, index: number) => 
               <div className = "w-full flex flex-col justify-center items-center p-2" key = {index}> 
                 <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
                   <div>
                     {/* need to get the timestamp.. */}
                     Date here
-                    {/* {toDateFormat(Number(blockData[index]?.timestamp))}  */}
+                    {/* {toDateFormat(Number(execution.blockData?.timestamp))}  */}
                   </div>
                   <div>
-                    {toEurTimeFormat(Number(execution.blockData?.timestamp))}
+                    Time here 
+                    {/* {toEurTimeFormat(Number(execution.blockData?.timestamp))} */}
                   </div>
                 </div>
                 <div className = "w-full flex flex-row px-2">

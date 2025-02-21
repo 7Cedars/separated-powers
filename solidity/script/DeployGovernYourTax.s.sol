@@ -257,6 +257,7 @@ contract DeployGovernYourTax is Script {
         laws.push(address(law));
 
         // laws[9]
+        lawConfig.readStateFrom = laws[8]; // law where nominations are made.
         vm.startBroadcast();
         law = new ElectionTally(
             "Tally role 2 election", // max 31 chars
@@ -265,13 +266,11 @@ contract DeployGovernYourTax is Script {
             1, // Note: any community member can tally the election. It can only be done after election duration has finished.
             lawConfig, //  config file.
             // bespoke configs for this law:
-            laws[8], // law where nominations are made.
             3, // max role holders,
             3 // role id that is elected
         );
         vm.stopBroadcast();
         laws.push(address(law));
-        delete lawConfig;
 
         // laws[10]
         vm.startBroadcast();
@@ -283,7 +282,6 @@ contract DeployGovernYourTax is Script {
             lawConfig, //  config file.
             // bespoke configs for this law:
             2, // role id that is allowed to vote.
-            laws[8], // law where nominations are made.
             laws[9] // law where votes are tallied.
         );
         vm.stopBroadcast();

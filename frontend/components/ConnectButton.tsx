@@ -11,8 +11,7 @@ import { useSetActiveWallet } from "@privy-io/wagmi";
 export const ConnectButton = () => {
   const {ready: walletsReady, wallets} = useWallets();
   const {ready, user, authenticated, login, logout, connectWallet, linkWallet} = usePrivy();
-  const {setActiveWallet} = useSetActiveWallet();
-
+ 
   console.log({walletsReady, wallets, authenticated, user, ready})
 
   //NB see: 

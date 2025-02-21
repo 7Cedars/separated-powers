@@ -63,7 +63,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         );
 
         // step 0 results.
-        (quorum, succeedAt, votingPeriod,,,,) = Law(laws[0]).config();
+        (quorum, succeedAt, votingPeriod,,,,,) = Law(laws[0]).config();
         quorumReached = (forVote + abstainVote) * 100 / roleCount > quorum;
         voteSucceeded = forVote * 100 / roleCount > succeedAt;
         stepsPassed[0] = quorumReached && voteSucceeded;
@@ -93,7 +93,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         );
 
         // step 1 results.
-        (quorum, succeedAt, votingPeriod,,, delayExecution,) = Law(laws[1]).config();
+        (quorum, succeedAt, votingPeriod,,, delayExecution,,) = Law(laws[1]).config();
         quorumReached = (forVote + abstainVote) * 100 / roleCount > quorum;
         voteSucceeded = forVote * 100 / roleCount > succeedAt;
         stepsPassed[1] = quorumReached && voteSucceeded;
@@ -172,7 +172,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         console.log(roleCount, againstVote, forVote, abstainVote);
 
         // step 0 results 
-        (quorum, succeedAt, votingPeriod,,, delayExecution,) = Law(laws[2]).config();
+        (quorum, succeedAt, votingPeriod,,, delayExecution,,) = Law(laws[2]).config();
         quorumReached = roleCount * quorum <= (forVote + abstainVote) * 100;
         voteSucceeded = roleCount * succeedAt <= forVote * 100;
         stepsPassed[0] = quorumReached && voteSucceeded;
@@ -220,7 +220,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         );
 
         // step 1 results 
-        (quorum, succeedAt, votingPeriod,,, delayExecution,) = Law(laws[3]).config();
+        (quorum, succeedAt, votingPeriod,,, delayExecution,,) = Law(laws[3]).config();
         quorumReached = (forVote + abstainVote) * 100 / roleCount > quorum;
         voteSucceeded = forVote * 100 / roleCount > succeedAt;
         stepsPassed[1] = quorumReached && voteSucceeded;
@@ -259,7 +259,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         );
 
         // step 2 results 
-        (quorum, succeedAt, votingPeriod,,, delayExecution,) = Law(laws[4]).config();
+        (quorum, succeedAt, votingPeriod,,, delayExecution,,) = Law(laws[4]).config();
         quorumReached = (forVote + abstainVote) * 100 / roleCount > quorum;
         voteSucceeded = forVote * 100 / roleCount > succeedAt;
         stepsPassed[2] = quorumReached && voteSucceeded;
@@ -458,7 +458,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         );
 
         // step 3:  assert that the elected accounts are correct.
-        (uint8 quorum, uint8 succeedAt, uint32 votingPeriod,,,,) = Law(laws[10]).config();
+        (uint8 quorum, uint8 succeedAt, uint32 votingPeriod,,,,,) = Law(laws[10]).config();
         bool quorumReached = (forVote + abstainVote) * 100 / roleCount > quorum;
         bool succeeded = forVote * 100 / roleCount > succeedAt;
 

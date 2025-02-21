@@ -83,6 +83,7 @@ contract ConstitutionsMock is Test {
         );
         laws[1] = address(law);
 
+        lawConfig.readStateFrom = laws[1]; // nominateMe
         law = new TokensSelect(
             "1 elects 2", // max 31 chars
             "1 holders can call (and pay for) a whale election at any time. They can also nominate themselves.",
@@ -91,7 +92,6 @@ contract ConstitutionsMock is Test {
             lawConfig, // empty config file.
             // bespoke configs for this law:
             mock1155_,
-            laws[1],
             15,
             2
         );
@@ -660,6 +660,7 @@ contract ConstitutionsMock is Test {
         );
         laws[3] = address(law);
 
+        lawConfig.readStateFrom = laws[3]; // nominate me
         law = new PeerVote(
             "Nominate for any role", // max 31 chars
             "This is a placeholder nomination law.",
@@ -667,12 +668,12 @@ contract ConstitutionsMock is Test {
             1, // access role
             lawConfig, // empty config file.
             // bespoke configs for this law:
-            laws[3], // nominate me
             address(123), // tally vote
             50, // start vote in block number
             150 // end vote in block number.
         );
         laws[4] = address(law);
+        delete lawConfig; 
 
         (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
         lawConfig.throttleExecution = type(uint48).max - uint48(block.number);

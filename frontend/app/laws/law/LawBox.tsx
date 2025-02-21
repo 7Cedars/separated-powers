@@ -42,6 +42,8 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
   const law = useLawStore(); 
   const dataTypes = params.map(param => param.dataType) 
 
+  console.log("@LawBox:", {checks})
+
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
@@ -181,12 +183,11 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
               checks && 
               checks.authorised && 
               checks.delayPassed && 
-              checks.lawCompleted && 
+              !checks.proposalCompleted && 
               checks.lawNotCompleted && 
               checks.proposalPassed && 
-              !checks.proposalCompleted && 
-              checks.throttlePassed && 
-              lawBoxStatus ? lawBoxStatus : 'disabled' 
+              checks.lawCompleted && 
+              checks.throttlePassed ? 'idle' : 'disabled' 
               }> 
             Execute
           </Button>

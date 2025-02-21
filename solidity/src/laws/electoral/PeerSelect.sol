@@ -83,6 +83,7 @@ contract PeerSelect is Law {
             _electedSorted[index] = _electedSorted[_electedSorted.length - 1];
             _electedSorted.pop();
         } else {
+            address nominees = config.readStateFrom; 
             address accountElect = NominateMe(nominees).nomineesSorted(index);
             _electedSorted.push(accountElect);
         }

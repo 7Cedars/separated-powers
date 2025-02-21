@@ -17,12 +17,14 @@ import { useWallets } from "@privy-io/react-auth";
 
 const Page = () => {
   const {wallets} = useWallets();
-  const {fetchExecutions} = useLaw();
+  const {executions, fetchExecutions} = useLaw();
   const action = useActionStore();
   const law = useLawStore(); 
   const {checks, fetchChecks} = useChecks(); 
   const [error, setError] = useState<any>(); 
   const {status, error: useLawError, simulation, resetStatus, execute, fetchSimulation} = useLaw(); 
+
+  console.log( "Law page: ", {checks, law})
 
   const { data, isLoading, isError, error: errorInputParams } = useReadContract({
         abi: lawAbi,
@@ -61,7 +63,7 @@ const Page = () => {
           lawCalldata as `0x${string}`,
           keccak256(toHex(description))
         )
-        fetchChecks() 
+        fetchChecks(law) 
       }
   };
 
@@ -81,9 +83,8 @@ const Page = () => {
       upToDate: false
     })
     fetchExecutions() 
-    fetchChecks()
-    resetStatus() 
-    notUpToDate({})
+    fetchChecks(law)
+    resetStatus()
   }, [law])
 
   // handling error messaging. 
@@ -122,8 +123,7 @@ const Page = () => {
           </div>
             <Children /> 
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
-            {/* executions are saved in zustand useOrgStore. No need to use props */}
-            <Executions /> 
+            <Executions executions = {executions}/> 
           </div>
         </div>
         

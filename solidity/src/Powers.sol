@@ -131,7 +131,7 @@ contract Powers is EIP712, IPowers {
         virtual
         returns (uint256 proposalId)
     {
-        (uint8 quorum,, uint32 votingPeriod,,,,) = Law(targetLaw).config();
+        (uint8 quorum,, uint32 votingPeriod,,,,,) = Law(targetLaw).config();
         bytes32 descriptionHash = keccak256(bytes(description));
         proposalId = hashProposal(targetLaw, lawCalldata, descriptionHash);
 
@@ -389,7 +389,7 @@ contract Powers is EIP712, IPowers {
     function _quorumReached(uint256 proposalId, address targetLaw) internal view virtual returns (bool) {
         Proposal storage proposal = _proposals[proposalId];
 
-        (uint8 quorum,,,,,,) = Law(targetLaw).config();
+        (uint8 quorum,,,,,,,) = Law(targetLaw).config();
         uint32 allowedRole = Law(targetLaw).allowedRole();
         uint256 amountMembers = roles[allowedRole].amountMembers;
 
@@ -402,7 +402,7 @@ contract Powers is EIP712, IPowers {
     /// @param targetLaw address of the law that the proposal belongs to.
     function _voteSucceeded(uint256 proposalId, address targetLaw) internal view virtual returns (bool) {
         Proposal storage proposal = _proposals[proposalId];
-        (uint8 quorum, uint8 succeedAt,,,,,) = Law(targetLaw).config();
+        (uint8 quorum, uint8 succeedAt,,,,,,) = Law(targetLaw).config();
         uint32 allowedRole = Law(targetLaw).allowedRole();
         uint256 amountMembers = roles[allowedRole].amountMembers;
 

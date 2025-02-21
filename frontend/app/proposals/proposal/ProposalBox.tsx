@@ -28,7 +28,6 @@ const roleColour = [
 ]
 
 export function ProposalBox() {
-  const router = useRouter();
   const proposal = useProposalStore();
   const action = useActionStore();
   const law = useLawStore();
@@ -70,7 +69,7 @@ export function ProposalBox() {
           keccak256(toHex(description))
         )
 
-        fetchChecks()
+        fetchChecks(law)
 
         if (!action.upToDate) {
           setAction({
@@ -93,7 +92,7 @@ export function ProposalBox() {
   };
 
   const handleCastVote = async (support: bigint) => { 
-    const selectedProposal = description && calldata ? checkProposalExists(description, calldata) : undefined
+    const selectedProposal = description && calldata ? checkProposalExists(description, calldata, law) : undefined
     if (selectedProposal) {
       setLogSupport(support)
       castVote(
@@ -120,7 +119,7 @@ export function ProposalBox() {
     if (statusProposal == 'success' && description && calldata) {
       // resetting action in zustand will trigger all components to reload.
       setAction({...action, upToDate: false })
-      fetchChecks()
+      fetchChecks(law)
       checkHasVoted(
         BigInt(proposal.proposalId), 
         wallets[0].address as `0x${string}`

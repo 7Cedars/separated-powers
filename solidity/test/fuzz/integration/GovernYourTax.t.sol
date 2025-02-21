@@ -95,7 +95,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         );
 
         // step 0 results.
-        (quorum, succeedAt, votingPeriod,,,,) = Law(laws[1]).config();
+        (quorum, succeedAt, votingPeriod,,,,,) = Law(laws[1]).config();
         quorumReached = roleCount * quorum <= (forVote + abstainVote) * 100;
         voteSucceeded = roleCount * succeedAt <= forVote * 100; 
         // role forward in time. 
@@ -143,7 +143,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             console.log("step 1 votes: ", againstVote, forVote, abstainVote);
 
             // step 1 results.
-            (quorum, succeedAt, votingPeriod,,,,) = Law(laws[0]).config();
+            (quorum, succeedAt, votingPeriod,,,,,) = Law(laws[0]).config();
             console.log("step 1 config: ", quorum, succeedAt, votingPeriod);
             quorumReached = roleCount * quorum <= (forVote + abstainVote) * 100;
             voteSucceeded = roleCount * succeedAt <= forVote * 100; 
@@ -186,7 +186,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             console.log("step 2 votes: ", againstVote, forVote, abstainVote);
 
              // step 2 results.
-            (quorum, succeedAt, votingPeriod,,,,) = Law(grantAddress).config();
+            (quorum, succeedAt, votingPeriod,,,,,) = Law(grantAddress).config();
             console.log("step 2 config: ", quorum, succeedAt, votingPeriod);
             quorumReached = roleCount * quorum <= (forVote + abstainVote) * 100;
             voteSucceeded = roleCount * succeedAt <= forVote * 100; 
@@ -232,7 +232,6 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                     "stopping grant"
                     );
             }
-            
         }
     } 
 
@@ -282,7 +281,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         );
 
         // step 0 results.
-        (quorum, succeedAt, votingPeriod,,,,) = Law(laws[3]).config();
+        (quorum, succeedAt, votingPeriod,,,,,) = Law(laws[3]).config();
         quorumReached = roleCount * quorum <= (forVote + abstainVote) * 100;
         voteSucceeded = roleCount * succeedAt <= forVote * 100; 
         // role forward in time. 
@@ -322,7 +321,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         );
 
         // step 1 results.
-        (quorum, succeedAt, votingPeriod,,,,) = Law(laws[4]).config();
+        (quorum, succeedAt, votingPeriod,,,,,) = Law(laws[4]).config();
         quorumReached = roleCount * quorum <= (forVote + abstainVote) * 100;
         voteSucceeded = roleCount * succeedAt <= forVote * 100; 
         // role forward in time. 
@@ -386,7 +385,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         );
 
         // step 0 results.
-        (quorum, succeedAt, votingPeriod,,,,) = Law(laws[5]).config();
+        (quorum, succeedAt, votingPeriod,,,,,) = Law(laws[5]).config();
         quorumReached = roleCount * quorum <= (forVote + abstainVote) * 100;
         voteSucceeded = roleCount * succeedAt <= forVote * 100; 
         // role forward in time. 
@@ -426,7 +425,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         );
 
         // step 1 results.
-        (quorum, succeedAt, votingPeriod,,,,) = Law(laws[6]).config();
+        (quorum, succeedAt, votingPeriod,,,,,) = Law(laws[6]).config();
         quorumReached = roleCount * quorum <= (forVote + abstainVote) * 100;
         voteSucceeded = roleCount * succeedAt <= forVote * 100; 
         // role forward in time. 

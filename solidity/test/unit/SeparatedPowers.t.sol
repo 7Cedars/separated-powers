@@ -119,7 +119,7 @@ contract ProposeTest is TestSetupPowers {
         assertTrue(daoMock.canCallLaw(alice, laws[lawNumber]));
 
         uint256 actionId = hashProposal(targetLaw, lawCalldata, keccak256(bytes(description)));
-        (,, uint32 duration,,,,) = Law(laws[lawNumber]).config();
+        (,, uint32 duration,,,,,) = Law(laws[lawNumber]).config();
 
         vm.expectEmit(true, false, false, false);
         emit ProposalCreated(

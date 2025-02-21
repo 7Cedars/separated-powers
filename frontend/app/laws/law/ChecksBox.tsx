@@ -24,6 +24,8 @@ export const ChecksBox = ({checks}: {checks: Checks}) => {
   const needCompletedLaw = organisation?.laws?.find(l => l.law == law.config.needCompleted); 
   const needNotCompletedLaw = organisation?.laws?.find(l => l.law == law.config.needNotCompleted); 
 
+  console.log("@fetchChecks, waypoint for, law box:", {checks} )
+
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
         <div className="w-full flex flex-row items-center justify-between px-4 py-2 text-slate-900">
@@ -72,9 +74,9 @@ export const ChecksBox = ({checks}: {checks: Checks}) => {
         {
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
-              { !checks?.proposalCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
+              { checks?.proposalCompleted == false ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
               <div>
-              { !checks?.proposalCompleted ? "Action not yet executed" : "Action executed" } 
+              { checks?.proposalCompleted == false ? "Action not yet executed" : "Action executed" } 
               </div>
             </div>
           </div>
