@@ -79,15 +79,15 @@ export default function Page() {
 
  
     return (
-      <main className="w-full h-full flex flex-col justify-center items-center gap-6">
+      <main className="w-full h-full flex flex-col justify-center items-center gap-6 px-2">
         {/* hero banner  */}
         <section className={`w-full min-h-[20vh] flex flex-col justify-center items-center text-center text-slate-50 text-5xl bg-gradient-to-bl ${colourScheme[organisation.colourScheme] } rounded-md`}> 
           {organisation?.name}
         </section>
         
         {/* Description + link to powers protocol deployment */}
-        { !description ? null : 
-        <section className="w-full h-fit flex flex-col gap-2 justify-left items-center border border-slate-200 rounded-md bg-slate-50 lg:max-w-full max-w-2xl p-4">
+        { description &&  
+        <section className="w-full h-fit flex flex-col gap-2 justify-left items-center border border-slate-200 rounded-md bg-slate-50 lg:max-w-full max-w-3xl p-4">
           <div className="w-full text-slate-800 text-left text-pretty">
             {description}
           </div>
@@ -109,7 +109,7 @@ export default function Page() {
 
         
         {/* main body  */}
-        <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-end items-start">
+        <section className="w-full lg:max-w-full h-full flex max-w-3xl lg:flex-row flex-col-reverse justify-end items-start">
           {/* left / bottom panel  */}
           <div className = {"w-full"}>
             <LawList /> 

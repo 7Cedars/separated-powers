@@ -56,6 +56,7 @@ export type Config = {
   delayExecution: bigint; 
   needNotCompleted: `0x${string}`;
   needCompleted: `0x${string}`;
+  readStateFrom: `0x${string}`;
   quorum: bigint; 
   succeedAt: bigint; 
   throttleExecution: bigint;

@@ -19,13 +19,16 @@ import { AdvantagesRRG } from "./AdvantagesRRG";
 import { 
     ChevronDownIcon
   } from '@heroicons/react/24/outline';
-import { GovernanceOverview } from "./Experiments";
 
 export default function Page() {
     const router = useRouter();
     const organisation = useOrgStore()
     const { organisations, status, initialise } = useOrganisations()
- 
+    // temp 
+    const selectedLaw = organisations && organisations[1].activeLaws ? organisations[1].activeLaws[1] : undefined 
+    // console.log(organisations[0].activeLaws)
+
+    
     useEffect(() => {
         if (organisation.name != '') router.push('/home') 
     }, [organisation])
@@ -60,7 +63,6 @@ export default function Page() {
             < AdvantagesRRG /> 
             {status == "success" && organisations &&  < ExampleDemos organisations = {organisations}  /> } 
             < RunNewDemo />
-            {status == "success" && organisations && < GovernanceOverview organisation = {organisations[1]}  /> } 
             <div className = "min-h-48"/>  
             < Footer /> 
            

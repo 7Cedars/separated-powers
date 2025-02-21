@@ -499,7 +499,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
 
         // let users claim - outcome conditional.
         i = 0; 
-        vm.roll(block.number + 50400 + 1); // 100 is 1 epoch
+        vm.roll(block.number + 7200 + 1); // 7200 is 1 epoch
         for (i; i < users.length; i++) {
             description = "claiming role!";
             lawCalldata = abi.encode(false, users[i]); 

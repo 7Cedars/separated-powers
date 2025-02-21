@@ -44,9 +44,14 @@ export const blocksToHoursAndMinutes = (blocks: number, supportedChain: ChainPro
 
 export const orgToGovernanceTracks = (organisation: Organisation): {tracks: Law[][] | undefined , orphans: Law[] | undefined}  => {  
 
-  const childLawAddresses = organisation.activeLaws?.map(law => law.config.needCompleted).concat(organisation.activeLaws?.map(law => law.config.needNotCompleted)) 
+  console.log("@orgToGovernanceTracks: ", {organisation})
+
+  const childLawAddresses = organisation.activeLaws?.map(law => law.config.needCompleted
+      ).concat(organisation.activeLaws?.map(law => law.config.needNotCompleted)
+      ).concat(organisation.activeLaws?.map(law => law.config.readStateFrom)
+    )
   const childLaws = organisation.activeLaws?.filter(law => childLawAddresses?.includes(law.law))
-  const parentLaws = organisation.activeLaws?.filter(law => law.config.needCompleted != `0x${'0'.repeat(40)}` || law.config.needNotCompleted != `0x${'0'.repeat(40)}`) 
+  const parentLaws = organisation.activeLaws?.filter(law => law.config.needCompleted != `0x${'0'.repeat(40)}` || law.config.needNotCompleted != `0x${'0'.repeat(40)}` || law.config.readStateFrom != `0x${'0'.repeat(40)}` ) 
 
   const start: Law[] | undefined = childLaws?.filter(law => parentLaws?.includes(law) == false)
   const middle: Law[] | undefined = childLaws?.filter(law => parentLaws?.includes(law) == true)
@@ -56,14 +61,14 @@ export const orgToGovernanceTracks = (organisation: Organisation): {tracks: Law[
   console.log("@orgToGovernanceTracks: ", {start, middle, end, orphans})
 
   const tracks1 = end?.map(law => {
-    const dependencies = [law.config.needCompleted, law.config.needNotCompleted]
+    const dependencies = [law.config.needCompleted, law.config.needNotCompleted, law.config.readStateFrom]
     const dependentLaws = middle?.filter(law1 => dependencies?.includes(law1.law)) 
 
     return dependentLaws ?  [law].concat(dependentLaws) : [law]
   })
 
   const tracks2 = tracks1?.map(lawList => {
-    const dependencies = lawList.map(law => law.config.needCompleted).concat(lawList.map(law => law.config.needNotCompleted)) 
+    const dependencies = lawList.map(law => law.config.needCompleted).concat(lawList.map(law => law.config.needNotCompleted)).concat(lawList.map(law => law.config.readStateFrom))
     const dependentLaws = start?.filter(law1 => dependencies?.includes(law1.law)) 
 
     return dependentLaws ?  lawList.concat(dependentLaws).reverse() : lawList.reverse()

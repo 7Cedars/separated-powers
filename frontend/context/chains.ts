@@ -23,7 +23,7 @@ export const supportedChains: ChainProps[] = [
     // ps. when using wagmi's 'getBlock' or 'useBlock' you DO get timestamps based on the L2 blocks. That's just to make thinks simpler :/  
     organisations: [
       "0x5895202E5f5B4532c72e366E78aA1bC96820b256", // alignedDao
-      "0x3d1D2106A0229A26E08254280d775B78Bf8510d8", // basicDao 
+      "0x9E14Cf656c8B678ee821828f313E72f343Acc22c", // basicDao 
       "0xC7D21629dC327278E26F4883cb057d5f75C9fe2D", // govern Your Tax
       "0x0181A03C24183eA8F6469C88362B0958ACc474Ce" // diversified roles
     ],

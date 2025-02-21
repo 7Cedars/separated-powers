@@ -289,7 +289,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         uint256 numberSteps
     ) public {
         selectUser = bound(selectUser, 0, users.length - 1); 
-        duration = bound(duration, 1000, 2000);
+        duration = bound(duration, 200, 1000);
         numberSteps = bound(numberSteps, 5, 100);
         uint256 balanceBefore = Erc1155Mock(erc1155Mock).balanceOf(users[selectUser], 0);  
         
@@ -317,7 +317,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         for (uint256 i = 0; i < numberSteps; i++) {
            vm.roll(block.number + duration);
            string memory description = string.concat("request payment at block: ", Strings.toString(block.number)); 
-           if (canCallLaw && block.number >= lastValidRequestAt + 2000) { // 2000 is duration as set in law. 
+           if (canCallLaw && block.number >= lastValidRequestAt + 300) { // 2000 is duration as set in law. 
                 vm.expectEmit(true, false, false, false);
                 emit PowersEvents.ProposalCompleted(
                     users[selectUser], 
