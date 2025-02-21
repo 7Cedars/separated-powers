@@ -370,6 +370,8 @@ contract ConstitutionsMock is Test {
         );
         laws[2] = address(law);
 
+        // Note: all laws from here on keep the same config. 
+        lawConfig.readStateFrom = laws[0];
         law = new RandomlySelect(
             "Randomly select role", // max 31 chars
             "Randomly select a role.",
@@ -377,7 +379,6 @@ contract ConstitutionsMock is Test {
             1, // access role
             lawConfig, // empty config file.
             // bespoke configs for this law:
-            laws[0],
             3, // max role holders
             3 // role id.
         );
@@ -391,7 +392,6 @@ contract ConstitutionsMock is Test {
             lawConfig, // empty config file.
             // bespoke configs for this law:
             mock1155_,
-            laws[0],
             3, // max role holders
             3 // role id.
         );
@@ -405,7 +405,6 @@ contract ConstitutionsMock is Test {
             lawConfig, // empty config file.
             // bespoke configs for this law:
             mock20Votes_,
-            laws[0], // NominateMe contract.
             3, // max role holders
             3 // role id.
         );
@@ -418,7 +417,6 @@ contract ConstitutionsMock is Test {
             1, // access role
             lawConfig, // empty config file.
             // bespoke configs for this law:
-            laws[0], // NominateMe contract.
             2, // max role holders
             3 // role id.
         );
@@ -431,7 +429,6 @@ contract ConstitutionsMock is Test {
             1, // access role
             lawConfig, // empty config file.
             // bespoke configs for this law:
-            laws[0], // NominateMe contract.
             2, // max role holders
             3 // role id.
         );
@@ -443,33 +440,32 @@ contract ConstitutionsMock is Test {
             dao_, // separated powers protocol.
             1,
             lawConfig,
-            laws[0], // NominateMe contract.
             laws[6], // ElectionTally contract.
             50, // startVote
             150 // endVote
         );
         laws[8] = address(law);
 
+        lawConfig.readStateFrom = laws[1]; // incorrect NominateMe contract.
         law = new PeerVote(
             "Mock PeerVote", // name
             "This is a placeholder PeerVote law.", // description
             dao_, // separated powers protocol.
             1,
             lawConfig,
-            laws[1], // incorrect NominateMe contract.
             laws[6], // ElectionTally contract.
             50, // startVote
             150 // endVote
         );
         laws[9] = address(law);
 
+        lawConfig.readStateFrom = laws[0]; // resetting to correct NominateMe contract.
         law = new PeerVote(
             "Mock PeerVote", // name
             "This is a placeholder PeerVote law.", // description
             dao_, // separated powers protocol.
             1,
-            lawConfig,
-            laws[0], // NominateMe contract.
+            lawConfig, 
             laws[7], // incorrect ElectionTally contract.
             50, // startVote
             150 // endVote
@@ -483,8 +479,7 @@ contract ConstitutionsMock is Test {
             1, // access role
             lawConfig, // empty config file.
             // bespoke configs for this law:
-            2, // voter role id
-            laws[0], // NominateMe contract.
+            2, // voter role id 
             laws[6] // ElectionTally contract.
         );
         laws[11] = address(law);

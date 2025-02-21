@@ -271,6 +271,7 @@ contract DeployDiversifiedRoles is Script {
 
         // laws[9]
         // peer select Role 2 (allowedRole = Role 1)
+        lawConfig.readStateFrom = laws[8]; // = nominateMe
         vm.startBroadcast();
         law = new PeerSelect(
             "Claim community role.",
@@ -280,8 +281,6 @@ contract DeployDiversifiedRoles is Script {
             lawConfig,
             //
             15,
-            // uint256 maxRoleHolders_,
-            laws[8], // address nominees_,
             2 // uint32 roleId_
         );
         vm.stopBroadcast();

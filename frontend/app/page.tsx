@@ -19,7 +19,7 @@ import { AdvantagesRRG } from "./AdvantagesRRG";
 import { 
     ChevronDownIcon
   } from '@heroicons/react/24/outline';
-import { Experiments } from "./Experiments";
+import { GovernanceOverview } from "./Experiments";
 
 export default function Page() {
     const router = useRouter();
@@ -60,7 +60,7 @@ export default function Page() {
             < AdvantagesRRG /> 
             {status == "success" && organisations &&  < ExampleDemos organisations = {organisations}  /> } 
             < RunNewDemo />
-            < Experiments />
+            {status == "success" && organisations && < GovernanceOverview organisation = {organisations[1]}  /> } 
             <div className = "min-h-48"/>  
             < Footer /> 
            

@@ -1,21 +1,32 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useActionStore, setAction, useLawStore, notUpToDate } from "../../../context/store";
+import { useActionStore,  useLawStore, notUpToDate } from "../../../context/store";
 import { Button } from "@/components/Button";
-import { ArrowUpRightIcon, GiftIcon } from "@heroicons/react/24/outline";
+import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { SectionText } from "@/components/StandardFonts";
-import { useChainId, useReadContract, useReadContracts } from 'wagmi'
-import { lawAbi } from "@/context/abi";
-import { useLaw } from "@/hooks/useLaw";
-import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { bytesToParams, parseLawError, parseParamValues, parseRole } from "@/utils/parsers";
-import { InputType } from "@/context/types";
+import { useChainId } from 'wagmi'
+import { decodeAbiParameters, parseAbiParameters, toHex } from "viem";
+import { parseLawError, parseParamValues, parseRole } from "@/utils/parsers";
+import { Checks, DataType, InputType, LawSimulation } from "@/context/types";
 import { DynamicInput } from "@/app/laws/law/DynamicInput";
 import { SimulationBox } from "@/components/SimulationBox";
-import { useWallets } from "@privy-io/react-auth";
 import { supportedChains } from "@/context/chains";
-import { useChecks } from "@/hooks/useChecks";
+import { Status } from "@/context/types";
+
+type LawBoxProps = {
+  checks: Checks;
+  params: {
+    varName: string;
+    dataType: DataType;
+    }[]; 
+  simulation?: LawSimulation;
+  status: Status; 
+  error?: any;  
+  // onChange: (input: InputType | InputType[]) => void;
+  onSimulate: (paramValues: (InputType | InputType[])[], description: string) => void;
+  onExecute: (event: React.MouseEvent<HTMLButtonElement>) => void;
+};
 
 const roleColour = [  
   "border-blue-600", 
@@ -26,27 +37,17 @@ const roleColour = [
   "border-orange-600", 
   "border-slate-600",
 ] 
-export function LawBox() {
-  const {wallets} = useWallets();
-  const {status, error, simulation, resetStatus, execute, fetchSimulation} = useLaw();
-  const {checks, fetchChecks} = useChecks();
+export function LawBox({checks, params, status, error, simulation, onSimulate, onExecute}: LawBoxProps) {
   const action = useActionStore();
   const law = useLawStore(); 
+  const dataTypes = params.map(param => param.dataType) 
 
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
-  const [abiEncodeError, setAbiEncodeError] = useState<any>();  
-  const { data, isLoading, isError, error: errorInputParams } = useReadContract({
-        abi: lawAbi,
-        address: law.law,
-        functionName: 'inputParams'
-      })
-  const params =  bytesToParams(data as `0x${string}`)  
-  const dataTypes = params.map(param => param.dataType) 
+  const [lawBoxStatus, setLawBoxStatus] = useState<Status>("idle")
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
-
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     console.log("handleChange triggered", input, index)
@@ -55,50 +56,9 @@ export function LawBox() {
     currentInput[index] = input
     setParamValues(currentInput)
     // reset useLaw hook  
-    resetStatus()
+    // resetStatus()
     notUpToDate({})
-  }  
-  
-  const handleSimulate = async (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.preventDefault() 
-      setAbiEncodeError("")
-      let lawCalldata: `0x${string}` | undefined
-      if (paramValues.length > 0 && paramValues) {
-        try {
-          lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), paramValues); 
-        } catch (error) {
-          setAbiEncodeError(error as Error)
-        }
-      } else {
-        lawCalldata = '0x0'
-      }
-        // resetting store
-      if (lawCalldata) { 
-        setAction({
-          dataTypes: dataTypes,
-          paramValues: paramValues,
-          description: description,
-          callData: lawCalldata,
-          upToDate: true
-        })
-
-        // simulating law. 
-        fetchSimulation(
-          wallets[0] ? wallets[0].address as `0x${string}` : '0x0', // needs to be wallet! 
-          lawCalldata as `0x${string}`,
-          keccak256(toHex(description))
-        )
-        fetchChecks() 
-      }
-  };
-
-  const handleExecute = async () => {
-      execute(
-          law.law as `0x${string}`,
-          action.callData as `0x${string}`,
-          action.description
-      )
-  };
+  }
 
   useEffect(() => {
     try {
@@ -113,9 +73,8 @@ export function LawBox() {
   }, [ ])
 
   useEffect(() => {
-    resetStatus() 
-    notUpToDate({})
-  }, [law])
+    setLawBoxStatus(status)
+  }, [status])
 
   return (
     <main className="w-full h-full">
@@ -176,7 +135,7 @@ export function LawBox() {
                 placeholder="Describe reason for action here."
                 onChange={(event) => {{
                   setDescription(event.target.value); 
-                  resetStatus(); 
+                  setLawBoxStatus("idle"); 
                   notUpToDate({})
                   }}} />
             </div>
@@ -185,13 +144,10 @@ export function LawBox() {
       {/* Errors */}
       <div className="w-full flex flex-col gap-0 justify-start items-center text-red text-sm text-red-800 pb-4 px-6">
          {
-         abiEncodeError ?
-          `Error: ${parseLawError(abiEncodeError)}`  
-        :
-        error ?   
-          `Error: ${parseLawError(error)}`  
-        : null
-        }
+          error ?   
+            `Error: ${parseLawError(error)}`  
+          : null
+          }
       </div>
 
 
@@ -200,9 +156,12 @@ export function LawBox() {
             size={1} 
             showBorder={true} 
             role={Number(law.allowedRole)}
-            onClick={(event) => handleSimulate(event)} 
+            onClick={(event) => {
+              event.preventDefault() 
+              onSimulate(paramValues, description)
+            }} 
             statusButton={
-              !action.upToDate && description.length > 0 && status ? status : 'disabled'
+              !action.upToDate && description.length > 0 && lawBoxStatus ? lawBoxStatus : 'disabled'
               }> 
             Check 
           </Button>
@@ -217,7 +176,7 @@ export function LawBox() {
           <Button 
             size={1} 
             role={Number(law.allowedRole)}
-            onClick={handleExecute} 
+            onClick={onExecute} 
             statusButton={
               checks && 
               checks.authorised && 
@@ -227,7 +186,7 @@ export function LawBox() {
               checks.proposalPassed && 
               !checks.proposalCompleted && 
               checks.throttlePassed && 
-              status ? status : 'disabled' 
+              lawBoxStatus ? lawBoxStatus : 'disabled' 
               }> 
             Execute
           </Button>

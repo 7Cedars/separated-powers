@@ -46,7 +46,6 @@ contract DelegateSelect is Law {
     address public immutable ERC_20_VOTE_TOKEN;
     uint256 public immutable MAX_ROLE_HOLDERS;
     uint32 public immutable ROLE_ID;
-    address public immutable NOMINEES;
     address[] public electedAccounts;
 
     constructor(
@@ -56,14 +55,12 @@ contract DelegateSelect is Law {
         uint32 allowedRole_,
         LawConfig memory config_,
         address payable erc20Token_,
-        address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
     ) Law(name_, description_, powers_, allowedRole_, config_) {
         ERC_20_VOTE_TOKEN = erc20Token_; // £todo interface should be checked here.
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
-        NOMINEES = nominees_;
         stateVars = abi.encode("address[]");
     }
 
@@ -73,10 +70,11 @@ contract DelegateSelect is Law {
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
-    {
+    {   
         // step 1: setting up array for revoking & assigning roles.
+        address nominees = config.readStateFrom;  
         address[] memory accountElects;
-        uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
+        uint256 numberNominees = NominateMe(nominees).nomineesCount();
         uint256 numberRevokees = electedAccounts.length;
         uint256 arrayLength =
             numberNominees < MAX_ROLE_HOLDERS ? numberRevokees + numberNominees : numberRevokees + MAX_ROLE_HOLDERS;
@@ -98,7 +96,7 @@ contract DelegateSelect is Law {
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
-                address accountElect = NominateMe(NOMINEES).nomineesSorted(i);
+                address accountElect = NominateMe(nominees).nomineesSorted(i);
                 calldatas[i + numberRevokees] =
                     abi.encodeWithSelector(Powers.assignRole.selector, ROLE_ID, accountElect);
                 accountElects[i] = accountElect;
@@ -110,7 +108,7 @@ contract DelegateSelect is Law {
             uint256[] memory _votes = new uint256[](numberNominees);
             address[] memory _nominees = new address[](numberNominees);
             for (uint256 i; i < numberNominees; i++) {
-                _nominees[i] = NominateMe(NOMINEES).nomineesSorted(i);
+                _nominees[i] = NominateMe(nominees).nomineesSorted(i);
                 _votes[i] = ERC20Votes(ERC_20_VOTE_TOKEN).getVotes(_nominees[i]);
             }
             // £todo: check what will happen if people have the same amount of delegated votes.

@@ -44,7 +44,7 @@ import { NominateMe } from "../state/NominateMe.sol";
 contract RandomlySelect is Law {
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
-    address private immutable NOMINEES;
+    address private immutable nominees;
     address[] public electedAccounts;
 
     constructor(
@@ -53,13 +53,11 @@ contract RandomlySelect is Law {
         address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
-        address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
     ) Law(name_, description_, powers_, allowedRole_, config_) {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
-        NOMINEES = nominees_;
         stateVars = abi.encode("address[]");
     }
 
@@ -71,8 +69,8 @@ contract RandomlySelect is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // setting up array for revoking & assigning roles.
-
-        uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
+        address nominees = config.readStateFrom;  
+        uint256 numberNominees = NominateMe(nominees).nomineesCount();
         uint256 numberRevokees = electedAccounts.length;
         uint256 arrayLength =
             numberNominees < MAX_ROLE_HOLDERS ? numberRevokees + numberNominees : numberRevokees + MAX_ROLE_HOLDERS;
@@ -94,7 +92,7 @@ contract RandomlySelect is Law {
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
-                address accountElect = NominateMe(NOMINEES).nomineesSorted(i);
+                address accountElect = NominateMe(nominees).nomineesSorted(i);
                 calldatas[i + numberRevokees] =
                     abi.encodeWithSelector(Powers.assignRole.selector, ROLE_ID, accountElect);
                 accountElects[i] = accountElect;
@@ -104,7 +102,7 @@ contract RandomlySelect is Law {
             // note: this is very inefficient, but I cannot add a getter function in NominateMe - so have to retrieve addresses one by one..
             address[] memory _nomineesSorted = new address[](numberNominees);
             for (uint256 i; i < numberNominees; i++) {
-                _nomineesSorted[i] = NominateMe(NOMINEES).nomineesSorted(i);
+                _nomineesSorted[i] = NominateMe(nominees).nomineesSorted(i);
             }
             for (uint256 i; i < MAX_ROLE_HOLDERS; i++) {
                 uint256 indexSelected = (pseudoRandomValue / 10 ** (i + 1)) % (numberNominees - i);

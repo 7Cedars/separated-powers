@@ -26,8 +26,6 @@ import { NominateMe } from "../state/NominateMe.sol";
 contract PeerSelect is Law { 
     uint256 public immutable MAX_ROLE_HOLDERS;
     uint32 public immutable ROLE_ID;
-    address public immutable NOMINEES;
-
     mapping(address => uint48) public _elected;
     address[] public _electedSorted;
 
@@ -38,12 +36,10 @@ contract PeerSelect is Law {
         uint32 allowedRole_,
         LawConfig memory config_,
         uint256 maxRoleHolders_,
-        address nominees_,
         uint32 roleId_
     ) Law(name_, description_, powers_, allowedRole_, config_) {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
-        NOMINEES = nominees_;
         string[] memory paramArray = new string[](2);
         inputParams = abi.encode(
             "uint256 Index", 
@@ -57,6 +53,7 @@ contract PeerSelect is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
+        address nominees = config.readStateFrom;  
         (uint256 index, bool revoke) = abi.decode(lawCalldata, (uint256, bool));
 
         targets = new address[](1);
@@ -72,7 +69,7 @@ contract PeerSelect is Law {
             if (_electedSorted.length >= MAX_ROLE_HOLDERS) {
                 revert ("Max role holders reached.");
             }
-            address accountElect = NominateMe(NOMINEES).nomineesSorted(index);
+            address accountElect = NominateMe(nominees).nomineesSorted(index);
             calldatas[0] = abi.encodeWithSelector(Powers.assignRole.selector, ROLE_ID, accountElect);
         }
 
@@ -86,7 +83,7 @@ contract PeerSelect is Law {
             _electedSorted[index] = _electedSorted[_electedSorted.length - 1];
             _electedSorted.pop();
         } else {
-            address accountElect = NominateMe(NOMINEES).nomineesSorted(index);
+            address accountElect = NominateMe(nominees).nomineesSorted(index);
             _electedSorted.push(accountElect);
         }
     }

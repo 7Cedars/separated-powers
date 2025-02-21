@@ -41,7 +41,6 @@ import { PeerVote } from "../state/PeerVote.sol";
 import { NominateMe } from "../state/NominateMe.sol";
 
 contract ElectionTally is Law { 
-    address public immutable NOMINEES;
     uint256 public immutable MAX_ROLE_HOLDERS;
     uint32 public immutable ROLE_ID;
     address[] public electedAccounts;
@@ -52,13 +51,11 @@ contract ElectionTally is Law {
         address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
-        address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
     ) Law(name_, description_, powers_, allowedRole_, config_) {
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
-        NOMINEES = nominees_;
         inputParams = abi.encode("address VoteContract"); // peervote address
         stateVars = abi.encode("address[] Elected");
     }
@@ -71,19 +68,20 @@ contract ElectionTally is Law {
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
         // step 0: unpacking calldata
+        address nominees = config.readStateFrom;  
         address peerVote = abi.decode(lawCalldata, (address));
 
         // step 1: run additional checks
         if (!Powers(powers).getActiveLaw(peerVote)) {
             revert ("PeerVote contract not active");
         }
-        if (NominateMe(NOMINEES).nomineesCount() == 0) {
+        if (NominateMe(nominees).nomineesCount() == 0) {
             revert ("No nominees.");
         }
         if (PeerVote(peerVote).endVote() > block.number) {
             revert ("Election still active.");
         }
-        if (PeerVote(peerVote).NOMINEES() != NOMINEES) {
+        if (PeerVote(peerVote).nominees() != nominees) {
             revert ("Dissimilar nominees contracts.");
         }
         if (PeerVote(peerVote).TALLY() != address(this)) {
@@ -92,7 +90,7 @@ contract ElectionTally is Law {
 
         // step 2: setting up array for revoking & assigning roles.
         address[] memory accountElects;
-        uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
+        uint256 numberNominees = NominateMe(nominees).nomineesCount();
         uint256 numberRevokees = electedAccounts.length;
         uint256 arrayLength =
             numberNominees < MAX_ROLE_HOLDERS ? numberRevokees + numberNominees : numberRevokees + MAX_ROLE_HOLDERS;
@@ -114,7 +112,7 @@ contract ElectionTally is Law {
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
-                address accountElect = NominateMe(NOMINEES).nomineesSorted(i);
+                address accountElect = NominateMe(nominees).nomineesSorted(i);
                 calldatas[i + numberRevokees] =
                     abi.encodeWithSelector(Powers.assignRole.selector, ROLE_ID, accountElect);
                 accountElects[i] = accountElect;
@@ -126,7 +124,7 @@ contract ElectionTally is Law {
             uint256[] memory _votes = new uint256[](numberNominees);
             address[] memory _nominees = new address[](numberNominees);
             for (uint256 i; i < numberNominees; i++) {
-                _nominees[i] = NominateMe(NOMINEES).nomineesSorted(i);
+                _nominees[i] = NominateMe(nominees).nomineesSorted(i);
                 _votes[i] = PeerVote(peerVote).votes(_nominees[i]);
             }
             // £todo: check what will happen if people have the same amount of delegated votes.

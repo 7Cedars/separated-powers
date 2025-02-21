@@ -242,6 +242,7 @@ contract DeployAlignedDao is Script {
         laws.push(address(law));
 
         // laws[8]
+        lawConfig.readStateFrom = laws[7];
         vm.startBroadcast();
         law = new DelegateSelect(
             "Call role 2 election", // max 31 chars
@@ -250,12 +251,12 @@ contract DeployAlignedDao is Script {
             9, // oracle role id designation.
             lawConfig, //  config file.
             mock20_, // the tokens that will be used as votes in the election.
-            laws[7], // nominateMe //
             5, // maximum amount of delegates
             2 // role id to be assigned
         );
         vm.stopBroadcast();
         laws.push(address(law));
+        delete lawConfig;
 
         // laws[9]
         vm.startBroadcast();
@@ -273,6 +274,7 @@ contract DeployAlignedDao is Script {
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
+        lawConfig.readStateFrom = laws[9]; // NominateMe
         vm.startBroadcast();
         law = new PeerSelect(
             "Assign Role 3", // max 31 chars
@@ -280,8 +282,7 @@ contract DeployAlignedDao is Script {
             dao_, // separated powers protocol.
             3, // role 3 id designation.
             lawConfig, //  config file.
-            3, // maximum elected to role,
-            laws[9], // nominateMe
+            3, // maximum elected to role, 
             3 // role id to be assigned
         );
         vm.stopBroadcast();

@@ -33,7 +33,7 @@ contract PeerVote is Law {
     mapping(address => uint256) public votes;
     uint48 public immutable startVote;
     uint48 public immutable endVote;
-    address public immutable NOMINEES;
+    
     address public immutable TALLY;
 
     event PeerVote__VoteCast(address voter);
@@ -49,7 +49,7 @@ contract PeerVote is Law {
         uint48 startVote_,
         uint48 endVote_
     ) Law(name_, description_, powers_, allowedRole_, config_) {
-        NOMINEES = nominateMe;
+        nominees = nominateMe;
         TALLY = tallyVote;
         startVote = startVote_;
         endVote = endVote_;
@@ -92,7 +92,7 @@ contract PeerVote is Law {
 
     function _changeStateVariables(bytes memory stateChange) internal override {
         (address nominee, address initiator) = abi.decode(stateChange, (address, address));
-        uint48 since = NominateMe(NOMINEES).nominees(nominee);
+        uint48 since = NominateMe(nominees).nominees(nominee);
 
         // step 3: save vote
         if (since == 0) {

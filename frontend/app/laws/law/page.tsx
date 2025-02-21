@@ -1,17 +1,77 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {LawBox} from "./LawBox";
+import { LawBox } from "./LawBox";
 import { ChecksBox } from "./ChecksBox";
 import { Children } from "./Children";
 import { Executions } from "./Executions";
-import { setAction, useActionStore, useLawStore } from "@/context/store";
+import { notUpToDate, setAction, useActionStore, useLawStore } from "@/context/store";
 import { useLaw } from "@/hooks/useLaw";
+import { useChecks } from "@/hooks/useChecks";
+import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
+import { lawAbi } from "@/context/abi";
+import { useReadContract } from "wagmi";
+import { bytesToParams, parseParamValues } from "@/utils/parsers";
+import { InputType } from "@/context/types";
+import { useWallets } from "@privy-io/react-auth";
 
 const Page = () => {
-  const {status, error, fetchExecutions} = useLaw();
+  const {wallets} = useWallets();
+  const {fetchExecutions} = useLaw();
   const action = useActionStore();
   const law = useLawStore(); 
+  const {checks, fetchChecks} = useChecks(); 
+  const [error, setError] = useState<any>(); 
+  const {status, error: useLawError, simulation, resetStatus, execute, fetchSimulation} = useLaw(); 
+
+  const { data, isLoading, isError, error: errorInputParams } = useReadContract({
+        abi: lawAbi,
+        address: law.law,
+        functionName: 'inputParams'
+      })
+  const params =  bytesToParams(data as `0x${string}`)  
+  const dataTypes = params.map(param => param.dataType) 
+
+  const handleSimulate = async (paramValues: (InputType | InputType[])[], description: string) => {
+      // event.preventDefault() 
+      setError("")
+      let lawCalldata: `0x${string}` | undefined
+      if (paramValues.length > 0 && paramValues) {
+        try {
+          lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), paramValues); 
+        } catch (error) {
+          setError(error as Error)
+        }
+      } else {
+        lawCalldata = '0x0'
+      }
+        // resetting store
+      if (lawCalldata) { 
+        setAction({
+          dataTypes: dataTypes,
+          paramValues: paramValues,
+          description: description,
+          callData: lawCalldata,
+          upToDate: true
+        })
+
+        // simulating law. 
+        fetchSimulation(
+          wallets[0] ? wallets[0].address as `0x${string}` : '0x0', // needs to be wallet! 
+          lawCalldata as `0x${string}`,
+          keccak256(toHex(description))
+        )
+        fetchChecks() 
+      }
+  };
+
+  const handleExecute = async () => {
+      execute(
+          law.law as `0x${string}`,
+          action.callData as `0x${string}`,
+          action.description
+      )
+  };
 
   // resetting lawBox and fetching executions when switching laws:
   // note, as of now executions are not saved in memory & fetched every time. To do for later..  
@@ -21,7 +81,21 @@ const Page = () => {
       upToDate: false
     })
     fetchExecutions() 
+    fetchChecks()
+    resetStatus() 
+    notUpToDate({})
   }, [law])
+
+  // handling error messaging. 
+  useEffect(() => {
+    if (errorInputParams) {
+      setError(errorInputParams)
+    }
+    if (useLawError) {
+      setError(useLawError)
+    }
+  }, [errorInputParams, useLawError])
+
 
   return (
     <main className="w-full h-full flex flex-col justify-center items-center">
@@ -30,16 +104,25 @@ const Page = () => {
 
         {/* left panel: writing, fetching data is done here  */}
         <div className="lg:w-5/6 w-full flex my-4"> 
-         <LawBox /> 
+          {checks && <LawBox 
+              checks = {checks} 
+              params = {params} 
+              status = {status} 
+              error = {error} 
+              simulation = {simulation} 
+              onSimulate = {handleSimulate} 
+              onExecute = {handleExecute}/> 
+              }
         </div>
 
         {/* right panel: info boxes should only reads from zustand.  */}
         <div className="flex flex-col flex-wrap lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:my-4 my-0 lg:flex-col lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-hidden overflow-y-scroll scroll-snap-x">
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
-            <ChecksBox /> 
+            {checks && <ChecksBox checks = {checks} />} 
           </div>
             <Children /> 
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
+            {/* executions are saved in zustand useOrgStore. No need to use props */}
             <Executions /> 
           </div>
         </div>
@@ -50,4 +133,5 @@ const Page = () => {
 
 }
 
-export default Page 
+export default Page
+

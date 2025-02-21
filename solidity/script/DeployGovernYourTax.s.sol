@@ -306,6 +306,7 @@ contract DeployGovernYourTax is Script {
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
+        lawConfig.readStateFrom = laws[11]; // nominateMe
         //
         vm.startBroadcast();
         law = new PeerSelect(
@@ -314,8 +315,7 @@ contract DeployGovernYourTax is Script {
             dao_, // separated powers protocol.
             3, // role 3 id designation.
             lawConfig, //  config file.
-            3, // maximum elected to role
-            laws[11], // nominateMe
+            3, // maximum elected to role 
             3 // role id to be assigned
         );
         vm.stopBroadcast();

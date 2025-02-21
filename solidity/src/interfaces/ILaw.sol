@@ -32,6 +32,7 @@ interface ILaw is IERC165, LawErrors {
         address needNotCompleted;
         uint48 delayExecution;
         uint48 throttleExecution;
+        address readStateFrom; 
     }
 
     // @notice emitted when the law is initialized

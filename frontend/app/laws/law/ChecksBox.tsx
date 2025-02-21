@@ -1,12 +1,10 @@
 "use client";
 
 import { setLaw, useActionStore, useLawStore, useOrgStore } from "@/context/store";
-import { useLaw } from "@/hooks/useLaw";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useEffect } from "react";
 import { parseRole } from "@/utils/parsers";
 import { useRouter } from "next/navigation";
-import { useChecks } from "@/hooks/useChecks";
+import { Checks } from "@/context/types";
 
 const roleColour = [  
   "border-blue-600", 
@@ -18,19 +16,13 @@ const roleColour = [
   "border-slate-600"
 ]
 
-export const ChecksBox = () => {
+export const ChecksBox = ({checks}: {checks: Checks}) => {
   const router = useRouter();
-  const {checks, fetchChecks, status} = useChecks(); 
   const law = useLawStore();
   const organisation = useOrgStore();
   const action = useActionStore();
   const needCompletedLaw = organisation?.laws?.find(l => l.law == law.config.needCompleted); 
   const needNotCompletedLaw = organisation?.laws?.find(l => l.law == law.config.needNotCompleted); 
-
-  useEffect(() => {
-    console.log("check triggered")
-    fetchChecks()
-  }, [ , action.upToDate, law])
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 

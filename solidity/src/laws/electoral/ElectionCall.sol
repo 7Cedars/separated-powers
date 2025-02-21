@@ -37,7 +37,6 @@ import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 contract ElectionCall is Law { 
     uint32 public immutable VOTER_ROLE_ID;
-    address public immutable NOMINEES;
     address public immutable TALLY_VOTE;
 
     constructor(
@@ -48,7 +47,6 @@ contract ElectionCall is Law {
         LawConfig memory config_,
         // bespoke params
         uint32 voterRoleId_,
-        address nominees_,
         address tallyVote_
     ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
@@ -57,9 +55,7 @@ contract ElectionCall is Law {
             "uint48 EndVote" // endVote = the end date of the election.
         );
         stateVars = inputParams; // Note: stateVars == inputParams.
-
         VOTER_ROLE_ID = voterRoleId_;
-        NOMINEES = nominees_;
         TALLY_VOTE = tallyVote_;
     }
 
@@ -72,6 +68,8 @@ contract ElectionCall is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
+        address nominees = config.readStateFrom;  
+        
         // step 0: decode the law calldata.
         (string memory description, uint48 startVote, uint48 endVote) =
             abi.decode(lawCalldata, (string, uint48, uint48));
@@ -80,7 +78,7 @@ contract ElectionCall is Law {
 
         // step 2: calculate address at which grant will be created.
         address peerVoteAddress =
-            _getPeerVoteAddress(VOTER_ROLE_ID, NOMINEES, TALLY_VOTE, startVote, endVote, description);
+            _getPeerVoteAddress(VOTER_ROLE_ID, nominees, TALLY_VOTE, startVote, endVote, description);
 
         // step 2: if address is already in use, revert.
         uint256 codeSize = peerVoteAddress.code.length;
@@ -109,7 +107,7 @@ contract ElectionCall is Law {
             abi.decode(stateChange, (string, uint48, uint48));
 
         // stp 1: deploy new grant
-        _deployPeerVote(VOTER_ROLE_ID, NOMINEES, TALLY_VOTE, startVote, endVote, description);
+        _deployPeerVote(VOTER_ROLE_ID, nominees, TALLY_VOTE, startVote, endVote, description);
     }
 
     /**
