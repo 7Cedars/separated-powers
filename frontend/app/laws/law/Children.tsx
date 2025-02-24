@@ -38,7 +38,6 @@ export function Children() {
                 <button 
                   className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]} disabled:opacity-50`}
                   onClick = {() => {setLaw(law)}}
-                  disabled = { !action.upToDate }
                 >
                   <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
                       {law.name}

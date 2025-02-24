@@ -696,8 +696,8 @@ contract ConstitutionsMock is Test {
     //////////////////////////////////////////////////////////////
     function initiateAlignedDaoTestConstitution(
         address payable dao_,
-        address payable mock1155_,
         address payable mock20Votes_,
+        address payable mock20Taxed_,
         address payable mock721_
     ) external returns (address[] memory laws) {
         Law law;
@@ -739,11 +739,11 @@ contract ConstitutionsMock is Test {
 
         law = new RequestPayment(
             "Request preset payment", // max 31 chars
-            "Every 100 blocks, role 1 holders can request payment of 5000 ERC1155(0) tokens.",
+            "Every 100 blocks, role 1 holders can request payment of 5000 ERC20 tokens.",
             dao_,
             1, // access role
             lawConfig, // empty config file.
-            mock1155_,
+            mock20Taxed_,
             0, // tokenId
             5000, // amount
             100 // delay

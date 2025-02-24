@@ -403,8 +403,8 @@ abstract contract TestSetupAlignedDao is BaseSetup, ConstitutionsMock {
         // initiate constitution & get founders' roles list
         (address[] memory laws_) = constitutionsMock.initiateAlignedDaoTestConstitution(
             payable(address(daoMock)),
-            payable(address(erc1155Mock)),
             payable(address(erc20VotesMock)),
+            payable(address(erc20TaxedMock)),
             payable(address(erc721Mock))
         );
         laws = laws_;
@@ -445,15 +445,12 @@ abstract contract TestSetupBasicDao_fuzzIntegration is BaseSetup {
             address payable basicDaoAddress, 
             address[] memory laws_, 
             HelperConfig.NetworkConfig memory config_,
-            address mock20_,  
-            address mock1155_
+            address mock20_ 
             ) = deployBasicDao.run();
         laws = laws_;
         config = config_;
 
         erc20VotesMock = Erc20VotesMock(mock20_);  
-        erc1155Mock = Erc1155Mock(mock1155_); 
-
         basicDao = Powers(basicDaoAddress);
     }
 }
@@ -469,17 +466,16 @@ abstract contract TestSetupAlignedDao_fuzzIntegration is BaseSetup {
             address payable alignedDaoAddress, 
             address[] memory laws_, 
             HelperConfig.NetworkConfig memory config_, 
-            address mock20_, 
-            address mock721_, 
-            address mock1155_
+            address mock20votes_, 
+            address mock20taxed_,
+            address mock721_ 
             ) = deployAlignedDao.run();
         laws = laws_;
         config = config_;
 
-        erc20VotesMock = Erc20VotesMock(mock20_); 
+        erc20VotesMock = Erc20VotesMock(mock20votes_); 
+        erc20TaxedMock = Erc20TaxedMock(mock20taxed_); 
         erc721Mock = Erc721Mock(mock721_); 
-        erc1155Mock = Erc1155Mock(mock1155_); 
-     
         alignedDao = Powers(alignedDaoAddress);
     } 
 }

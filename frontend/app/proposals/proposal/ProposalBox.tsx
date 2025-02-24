@@ -230,7 +230,7 @@ export function ProposalBox() {
               <Button 
               size={1} 
               onClick={handlePropose} 
-
+              filled={false}
               statusButton={
                 checks && 
                 checks.authorised ? 

@@ -42,14 +42,16 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
   const law = useLawStore(); 
   const dataTypes = params.map(param => param.dataType) 
 
-  console.log("@LawBox:", {checks})
+  
+
+  // !action.upToDate && description.length > 0 && lawBoxStatus ? lawBoxStatus
 
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
-
-  const [lawBoxStatus, setLawBoxStatus] = useState<Status>("idle")
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
+
+  console.log("@LawBox:", {action, description, status})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     console.log("handleChange triggered", input, index)
@@ -73,10 +75,6 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
       setDescription("")
     }
   }, [ ])
-
-  useEffect(() => {
-    setLawBoxStatus(status)
-  }, [status])
 
   return (
     <main className="w-full h-full">
@@ -137,7 +135,6 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
                 placeholder="Describe reason for action here."
                 onChange={(event) => {{
                   setDescription(event.target.value); 
-                  setLawBoxStatus("idle"); 
                   notUpToDate({})
                   }}} />
             </div>
@@ -158,12 +155,13 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
             size={1} 
             showBorder={true} 
             role={Number(law.allowedRole)}
+            filled={false}
             onClick={(event) => {
               event.preventDefault() 
               onSimulate(paramValues, description)
             }} 
             statusButton={
-              !action.upToDate && description.length > 0 && lawBoxStatus ? lawBoxStatus : 'disabled'
+              !action.upToDate && description.length > 0 && status ? status : 'disabled'
               }> 
             Check 
           </Button>
@@ -178,7 +176,11 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
           <Button 
             size={1} 
             role={Number(law.allowedRole)}
-            onClick={onExecute} 
+            onClick={(event) => {
+              event.preventDefault() 
+              onExecute
+            }} 
+            filled={false}
             statusButton={
               checks && 
               checks.authorised && 

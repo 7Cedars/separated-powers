@@ -9,6 +9,7 @@ type ButtonProps = {
   size?: 0 | 1 | 2;   
   align?: 0 | 1 | 2;   
   role?: number; 
+  filled?: boolean;
   children: any;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
@@ -26,18 +27,19 @@ const fontAlign = [
 ]
 
 const roleBorderColour = [
-  "aria-selected:bg-blue-200 hover:border-blue-600 border-blue-600/50",
-  "aria-selected:bg-red-200 hover:border-red-600 border-red-600/50",
-  "aria-selected:bg-yellow-200 hover:border-yellow-600 border-yellow-600/50",
-  "aria-selected:bg-purple-200 md:hover:border-purple-600 border-purple-600/50",
-  "aria-selected:bg-green-200 md:hover:green-600 border-green-600/50",
-  "aria-selected:bg-orange-200 md:hover:border-orange-600 border-orange-600/50",
-  "aria-selected:bg-slate-200 md:hover:border-slate-600 border-slate-400/50"
+  "bg-blue-200 border-blue-600",
+  "bg-red-200 border-red-600",
+  "bg-yellow-200 border-yellow-600",
+  "bg-purple-200 border-purple-600/50",
+  "bg-green-200 border-green-600/50",
+  "bg-orange-200 border-orange-600/50",
+  "bg-slate-200 border-slate-400/50"
 ]
 
 export const Button = ({
   statusButton = 'idle', 
   showBorder = true,
+  filled = true, 
   selected = false, 
   size = 1, 
   align = 1,
@@ -48,12 +50,12 @@ export const Button = ({
 
   return (
     <button 
-      className={`w-full h-full disabled:opacity-50 rounded-md border ${roleBorderColour[role % roleBorderColour.length]} ${fontSize[size]} ${showBorder ? "": "md:border-transparent"}`}  
+      className={`w-full h-full aria-selected:opacity-50 rounded-md border ${roleBorderColour[role % roleBorderColour.length]} ${fontSize[size]} ${showBorder ? "": "md:border-transparent"} ${filled ? "": "bg-opacity-0"}`}  
       onClick={onClick} 
       disabled={statusButton != 'idle'}
-      aria-selected={selected}
+      aria-selected={!selected}
       >
-        <div className={`flex flex-row items-center ${fontAlign[align]} text-slate-600 gap-1 w-full h-full w-full px-2 py-1`}>
+        <div className={`flex flex-row items-center ${fontAlign[align]} text-slate-700 gap-1 w-full h-full w-full px-2 py-1`}>
         {
           statusButton == 'pending' ?  
           <>

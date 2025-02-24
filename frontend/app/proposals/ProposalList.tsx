@@ -57,7 +57,7 @@ export function ProposalList() {
         <div className="flex flex-row w-full min-w-16 h-8"> 
           <Button
             size={0}
-            showBorder={false}
+            showBorder={true}
             role={0}
             onClick={() => handleRoleSelection(0n)}
             selected={!organisation?.deselectedRoles?.includes(0n)}
@@ -70,7 +70,7 @@ export function ProposalList() {
             <div className="flex flex-row w-full min-w-16 h-8">
             <Button
               size={0}
-              showBorder={false}
+              showBorder={true}
               role={Number(role)}
               selected={!organisation?.deselectedRoles?.includes(BigInt(role))}
               onClick={() => handleRoleSelection((BigInt(role)))}
@@ -83,7 +83,7 @@ export function ProposalList() {
         <div className="flex flex-row w-full min-w-16 h-8"> 
           <Button
             size={0}
-            showBorder={false}
+            showBorder={true}
             role={6}
             onClick={() => handleRoleSelection(4294967295n)}
             selected={!organisation?.deselectedRoles?.includes(4294967295n)}
@@ -162,6 +162,7 @@ export function ProposalList() {
                         router.push("/proposals/proposal");
                       }}
                       align={0}
+                      selected={true}
                     >
                       {
                         toFullDateFormat(Number(proposal.voteStartBlockData?.timestamp))

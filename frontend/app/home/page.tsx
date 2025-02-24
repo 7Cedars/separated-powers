@@ -1,7 +1,7 @@
 "use client";
  
 import React, { useCallback, useEffect, useState } from "react";
-import { useOrgStore } from "../../context/store";
+import { setLaw, useOrgStore } from "../../context/store";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { LawList } from "@/app/laws/LawList";
 import { MyProposals } from "./MyProposals";
@@ -17,6 +17,7 @@ import { parseMetadata } from "@/utils/parsers";
 import { useChainId } from "wagmi";
 import { supportedChains } from "@/context/chains";
 import { useProposal } from "@/hooks/useProposal";
+import { Overview } from "./Overview";
 
 const colourScheme = [
   "from-indigo-500 to-emerald-500", 
@@ -112,7 +113,7 @@ export default function Page() {
         <section className="w-full lg:max-w-full h-full flex max-w-3xl lg:flex-row flex-col-reverse justify-end items-start">
           {/* left / bottom panel  */}
           <div className = {"w-full"}>
-            <LawList /> 
+            <Overview /> 
           </div>
           {/* right / top panel  */} 
           <div className = {"w-full pb-2 flex flex-wrap flex-col lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:flex-col lg:overflow-hidden lg:ps-2 gap-3 overflow-y-hidden overflow-x-scroll scroll-snap-x"}> 

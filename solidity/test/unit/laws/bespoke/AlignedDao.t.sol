@@ -17,7 +17,7 @@ import { RequestPayment } from "../../../../src/laws/bespoke/alignedDao/RequestP
 import { NftSelfSelect } from "../../../../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 
 // openzeppelin contracts
-import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract NftSelfSelectTest is TestSetupAlignedDao {
     function testSelfSelectPassesWithValidNft() public {
@@ -231,17 +231,14 @@ contract RequestPaymentTest is TestSetupAlignedDao {
         );
 
         // assert output
-        assertEq(targetsOut[0], address(erc1155Mock));
+        assertEq(targetsOut[0], address(erc20TaxedMock));
         assertEq(valuesOut[0], 0);
         assertEq(
             calldatasOut[0],
             abi.encodeWithSelector(
-                ERC1155.safeTransferFrom.selector,
-                address(daoMock), // from
+                ERC20.transfer.selector,
                 alice, // to
-                0, // tokenId
-                5000, // amount
-                "" // empty data
+                5000 // amount
             )
         );
         // assert state

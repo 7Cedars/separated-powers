@@ -83,7 +83,7 @@ contract NominateMe is Law {
         (address initiator, bool nominateMe) = abi.decode(stateChange, (address, bool));
 
         if (nominateMe) {
-            nominees[initiator] = uint48(block.timestamp);
+            nominees[initiator] = uint48(block.number);
             nomineesSorted.push(initiator);
             nomineesCount++;
             emit NominateMe__NominationReceived(initiator);

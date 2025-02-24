@@ -16,7 +16,7 @@ import { useOrganisations } from "@/hooks/useOrganisations";
 
 export function RoleList() {
   const organisation = useOrgStore();
-  const { organisations, status: statusUpdate, initialise, fetch, update } = useOrganisations()
+  const { status: statusUpdate, updateOrg } = useOrganisations()
   const router = useRouter();
 
   const [status, setStatus] = useState<Status>('idle')
@@ -69,7 +69,7 @@ export function RoleList() {
         </div>
         <button 
           className="w-fit h-fit p-1 rounded-md border-slate-500"
-          onClick = {() => update(organisation)}
+          onClick = {() => updateOrg(organisation)}
           >
             <ArrowPathIcon
               className="w-5 h-5 text-slate-800 aria-selected:animate-spin"

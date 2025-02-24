@@ -20,7 +20,7 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
     //////////////////////////////////////////////////////////////
     //              CHAPTER 1: EXECUTIVE ACTIONS                //
     //////////////////////////////////////////////////////////////
-    function testFuzz_ProposeAndExecuteAnAction(
+    function testFuzz_BasicDao_ProposeAndExecuteAnAction(
         uint256 step0Chance,
         uint256 step1Chance,
         uint256 step2Chance
@@ -79,6 +79,9 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
             vm.prank(gary);
             basicDao.execute(laws[0], lawCalldata, description);
         }
+        
+        // only resume if previous step passed
+        vm.assume(stepsPassed[0]);
 
         // step 1 action: cast veto?.
         if (step1Chance > 50) {
@@ -99,8 +102,8 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
             stepsPassed[1] = true;
         }
 
-        // only resume if both steps passed
-        vm.assume(stepsPassed[0] && stepsPassed[1]);
+        // only resume if previous step passed
+        vm.assume(stepsPassed[1]);
         // step 2 action: propose and vote on action. 
         vm.prank(bob); // has role 1.
         proposalId = basicDao.propose(laws[2], lawCalldata, description);
@@ -143,12 +146,12 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
     //              CHAPTER 2: ELECT ROLES                      //
     //////////////////////////////////////////////////////////////
 
-    function testFuzz_DelegateElect(uint256 numNominees, uint256 voteTokensRandomiser) public {
+    function testFuzz_BasicDao_DelegateElect(uint256 numNominees, uint256 voteTokensRandomiser) public {
         numNominees = bound(numNominees, 4, 10);
         voteTokensRandomiser = bound(voteTokensRandomiser, 100_000, type(uint256).max);
 
-        address nominateMeLaw = laws[4];
-        address delegateSelectLaw = laws[5];
+        address nominateMeLaw = laws[3];
+        address delegateSelectLaw = laws[4];
 
         // step 0: distribute tokens. Tokens are distributed randomly.
         distributeTokens(address(erc20VotesMock), users, voteTokensRandomiser);
@@ -187,62 +190,4 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         }
     }
 
-    function testFuzz_PeerSelect(
-        uint256 passChance
-    ) public {
-        passChance = bound(passChance, 0, 100);
-        uint256 seed = 3298443729;  
-
-        // assigning necessary roles.
-        vm.startPrank(address(basicDao));
-        basicDao.assignRole(1, alice);
-        basicDao.assignRole(1, bob);
-        basicDao.assignRole(1, charlotte);
-        basicDao.assignRole(1, david);
-        vm.stopPrank();
-
-        // step 1: people nominate their accounts.
-        uint256 numNominees;
-        for (uint256 i = 0; i < users.length; i++) {
-            if (basicDao.hasRoleSince(users[i], 1) == 0) {
-                vm.prank(users[i]);
-                basicDao.execute(
-                    laws[6], abi.encode(true), string.concat("Account nominates themself", Strings.toString(i))
-                );
-            }
-            numNominees++;
-        }
-
-        // step 2: propose action and run election.
-        bytes memory lawCalldataSelect = abi.encode(0, false); // = revoke = false
-        string memory descriptionSelect = "Elect an account to role 1.";
-        vm.prank(alice); // already has role 1.
-        uint256 proposalId = basicDao.propose(laws[7], lawCalldataSelect, descriptionSelect);
-
-        (uint256 roleCount, uint256 againstVote, uint256 forVote, uint256 abstainVote) = voteOnProposal(
-            payable(address(basicDao)), 
-            laws[7], 
-            proposalId, 
-            users, 
-            seed,  
-            passChance
-        );
-
-        // step 3:  assert that the elected accounts are correct.
-        (uint8 quorum, uint8 succeedAt, uint32 votingPeriod,,,,,) = Law(laws[7]).config();
-        bool quorumReached = (forVote + abstainVote) * 100 / roleCount > quorum;
-        bool succeeded = forVote * 100 / roleCount > succeedAt;
-
-        vm.roll(block.number + votingPeriod + 1);
-        console.log(uint8(basicDao.state(proposalId)));
-        if (quorumReached && succeeded) {
-            vm.prank(alice);
-            basicDao.execute(laws[7], lawCalldataSelect, descriptionSelect);
-            assertNotEq(basicDao.hasRoleSince(users[0], 1), 0);
-        } else {
-            vm.expectRevert();
-            vm.prank(alice);
-            basicDao.execute(laws[7], lawCalldataSelect, descriptionSelect);
-        }
-    }
 }

@@ -43,7 +43,7 @@ const NavigationBar = () => {
 
             <button 
               onClick={() => router.push('/laws')}
-              aria-selected={path == `/laws`} 
+              aria-selected={path == `/laws` || path == `/laws/law`} 
               className={layoutButton}
               >
                 <div className={layoutIconBox}> 
@@ -56,7 +56,7 @@ const NavigationBar = () => {
 
             <button 
               onClick={() => router.push('/proposals')}
-              aria-selected={path == `/proposals`} 
+              aria-selected={path == `/proposals` || path == `/proposals/proposal`} 
               className={layoutButton}
               >
                 <div className={layoutIconBox}> 
@@ -111,7 +111,11 @@ const Header = () => {
               deleteOrg({})
             }
             
-            } showBorder={true}>  
+            } 
+            showBorder={true}
+            selected = {true}
+            filled = {false}
+            >  
           <Image 
             src='/logo.png' 
             width={28}
@@ -127,6 +131,8 @@ const Header = () => {
               <Button 
                 size = {0} 
                 onClick={() =>router.push('/home') }
+                selected = {true}
+                filled = {false}
                 >
                   {organisation.name}
               </Button>
@@ -135,6 +141,8 @@ const Header = () => {
             <Button 
               size = {0} 
               onClick={() => router.push('/') }
+              selected = {true}
+              filled = {false}
               >
                 <div className={"flex flex-row gap-1 justify-center items-center"}> 
                   <MagnifyingGlassIcon

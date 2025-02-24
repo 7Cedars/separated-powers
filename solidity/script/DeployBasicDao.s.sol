@@ -39,8 +39,7 @@ contract DeployBasicDao is Script {
             address payable dao, 
             address[] memory constituentLaws, 
             HelperConfig.NetworkConfig memory config, 
-            address payable mock20_, 
-            address payable mock1155_
+            address payable mock20votes_
             )
     {
         HelperConfig helperConfig = new HelperConfig();
@@ -52,26 +51,23 @@ contract DeployBasicDao is Script {
             "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreidhq4eoq3gsfbrbf6735a2lbmcokumgbsq7zqxkzaopu3daxjnkgu"
         );
         Erc20VotesMock erc20VotesMock = new Erc20VotesMock(); 
-        Erc1155Mock erc1155Mock = new Erc1155Mock(); 
         vm.stopBroadcast();
         
         dao = payable(address(powers)); 
-        mock20_ = payable(address(erc20VotesMock)); 
-        mock1155_ = payable(address(erc1155Mock));
-        initiateConstitution(dao, mock20_, mock1155_);
+        mock20votes_ = payable(address(erc20VotesMock)); 
+        initiateConstitution(dao, mock20votes_);
         
         // constitute dao.
         vm.startBroadcast();
         powers.constitute(laws);
         vm.stopBroadcast();
 
-        return (dao, laws, config, mock20_, mock1155_);
+        return (dao, laws, config, mock20votes_);
     }
 
     function initiateConstitution(
         address payable dao_, 
-        address payable mock20_, 
-        address payable mock1155_ 
+        address payable mock20votes_
         ) public {
         Law law;
         ILaw.LawConfig memory lawConfig;
@@ -108,7 +104,7 @@ contract DeployBasicDao is Script {
         vm.startBroadcast();
         law = new ProposalOnly(
             "Veto an action",
-            "The admin can veto any proposed action.",
+            "The admin can veto any proposed action. They can only veto after a proposed action has been formalised.",
             dao_,
             0, // access role
             lawConfig,
@@ -125,7 +121,7 @@ contract DeployBasicDao is Script {
         lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
         lawConfig.needCompleted = laws[0]; // needs the proposal by Delegates to be completed.
         lawConfig.needNotCompleted = laws[1]; // needs the admin NOT to have cast a veto.
-        lawConfig.delayExecution = 150; // = duration in number of blocks to vote, about half an hour.
+        lawConfig.delayExecution = 450; // = duration in number of blocks to vote, about half an hour.
         // initiate law
         vm.startBroadcast();
         law = new OpenAction(
@@ -165,7 +161,7 @@ contract DeployBasicDao is Script {
             dao_, // separated powers protocol.
             type(uint32).max, // public access
             lawConfig, //  config file.
-            mock20_, // the tokens that will be used as votes in the election.
+            mock20votes_, // the tokens that will be used as votes in the election.
             3, // maximum amount of delegates
             2 // role id to be assigned
         );

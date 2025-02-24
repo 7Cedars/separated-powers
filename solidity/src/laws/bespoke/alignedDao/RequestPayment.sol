@@ -17,7 +17,7 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
-import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { ThrottlePerAccount } from "../../modules/ThrottlePerAccount.sol";
 
 contract RequestPayment is ThrottlePerAccount {
@@ -58,12 +58,9 @@ contract RequestPayment is ThrottlePerAccount {
 
         targets[0] = erc1155;
         calldatas[0] = abi.encodeWithSelector(
-            ERC1155.safeTransferFrom.selector, 
-            powers, 
+            ERC20.transfer.selector, 
             initiator, 
-            tokenId, 
-            amount, 
-            ""
+            amount
             );
     }
 

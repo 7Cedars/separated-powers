@@ -1,19 +1,19 @@
 "use client";
 
 import { setLaw, useActionStore, useLawStore, useOrgStore } from "@/context/store";
-import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { CalendarDaysIcon, CheckIcon, QueueListIcon, UserGroupIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { parseRole } from "@/utils/parsers";
 import { useRouter } from "next/navigation";
 import { Checks } from "@/context/types";
 
 const roleColour = [  
-  "border-blue-600", 
-  "border-red-600", 
-  "border-yellow-600", 
-  "border-purple-600",
-  "border-green-600", 
-  "border-orange-600", 
-  "border-slate-600"
+  "blue-600", 
+  "red-600", 
+  "yellow-600", 
+  "purple-600",
+  "green-600", 
+  "orange-600", 
+  "slate-600"
 ]
 
 export const ChecksBox = ({checks}: {checks: Checks}) => {
@@ -34,7 +34,7 @@ export const ChecksBox = ({checks}: {checks: Checks}) => {
           </div> 
         </div>
 
-        <div className = "w-full flex flex-col lg:max-h-96 max-h-32 overflow-x-scroll divide-y divide-slate-300">
+        <div className = "w-full h-full flex flex-col lg:min-h-fit overflow-x-scroll divide-y divide-slate-300 max-h-36 lg:max-h-full overflow-y-scroll">
 
         {/* authorised block */}
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
@@ -50,14 +50,26 @@ export const ChecksBox = ({checks}: {checks: Checks}) => {
         {law.config.quorum != 0n ?
           <div className = "w-full flex flex-col justify-center items-center p-2"> 
             <div className = "w-full flex flex-row px-2 justify-between items-center">
-              { checks?.proposalPassed ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
-              <div>
-              { checks?.proposalPassed ? "Proposal passed" : "Proposal not passed" } 
-              </div>
+              { checks?.proposalPassed ? 
+                <>
+                  <CheckIcon className="w-4 h-4 text-green-600"/> 
+                  <UserGroupIcon className="w-4 h-4 text-slate-700"/>
+                  Proposal passed
+                </>
+                : 
+                <>
+                  <XMarkIcon className="w-4 h-4 text-red-600"/>
+                  <div className = "flex flex-row gap-2">
+                    <UserGroupIcon className="w-5 h-5 text-slate-700"/>
+                    Proposal not passed
+                  </div>
+                </>
+              }
+              
             </div>
             <div className = "w-full flex flex-row px-2 py-1">
               <button 
-                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[parseRole(law.allowedRole)]} disabled:opacity-50`}
+                className={`w-full h-full flex flex-row items-center justify-center rounded-md border border-${roleColour[parseRole(law.allowedRole)]} disabled:opacity-50`}
                 onClick = {() => router.push('/proposals/proposal')}
                 disabled = { !action.upToDate }
                 >
@@ -70,73 +82,13 @@ export const ChecksBox = ({checks}: {checks: Checks}) => {
           : null
         }
 
-        {/* proposal already executed */}
-        {
-          <div className = "w-full flex flex-col justify-center items-center p-2"> 
-            <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
-              { checks?.proposalCompleted == false ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
-              <div>
-              { checks?.proposalCompleted == false ? "Action not yet executed" : "Action executed" } 
-              </div>
-            </div>
-          </div>
-        }
-
-        {/* Executed */}
-        {law.config.needCompleted != `0x${'0'.repeat(40)}`  ?  
-          <div className = "w-full flex flex-col justify-center items-center p-2"> 
-            <div className = "w-full flex flex-row px-2 justify-between items-center">
-            { checks?.lawCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
-              <div>
-                Law executed
-              </div>
-            </div>
-            <div className = "w-full flex flex-row px-2 py-1">
-              <button 
-                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[parseRole(needCompletedLaw?.allowedRole)]} disabled:opacity-50`}
-                onClick = {() => {setLaw(needCompletedLaw ? needCompletedLaw : law)}}
-                disabled = { !action.upToDate }
-                >
-                <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
-                {needCompletedLaw?.name}
-                </div>
-              </button>
-            </div>
-          </div>
-          :
-          null
-        }
-
-        {/* Not executed */}
-        {law.config.needNotCompleted != `0x${'0'.repeat(40)}` ? 
-          <div className = "w-full flex flex-col justify-center items-center p-2"> 
-            <div className = "w-full flex flex-row px-2 justify-between items-center">
-            { checks?.lawNotCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
-              <div>
-                Law not executed
-              </div>
-            </div>
-            <div className = "w-full flex flex-row px-2 py-1">
-              <button 
-                className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[parseRole(needNotCompletedLaw?.allowedRole)]} disabled:opacity-50`}
-                onClick = {() => {setLaw(needNotCompletedLaw ? needNotCompletedLaw : law)}}
-                disabled = { !action.upToDate }
-                >
-                <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
-                 {needNotCompletedLaw?.name}
-                </div>
-              </button>
-            </div>
-          </div>
-          : null
-          }
-
         {/* Delay */}
         {law.config.delayExecution != 0n?
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
           <div className = "w-full flex flex-row px-2 justify-between items-center">
             { checks?.delayPassed ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
-            <div>
+            <div className = "flex flex-row gap-2">
+              <CalendarDaysIcon className="w-5 h-5 text-slate-700"/> 
               Delayed execution
             </div>
           </div>
@@ -154,7 +106,8 @@ export const ChecksBox = ({checks}: {checks: Checks}) => {
         <div className = "w-full flex flex-col justify-center items-center p-2"> 
           <div className = "w-full flex flex-row px-2 justify-between items-center">
             { checks?.throttlePassed ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
-            <div>
+            <div className = "flex flex-row gap-2">
+              <QueueListIcon className="w-5 h-5 text-slate-700"/> 
               Throttled execution
             </div>
           </div>
@@ -166,6 +119,70 @@ export const ChecksBox = ({checks}: {checks: Checks}) => {
         </div>
         : null
         }
+
+        {/* proposal already executed */}
+        {
+          <div className = "w-full flex flex-col justify-center items-center p-2"> 
+            <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
+              { checks?.proposalCompleted == false ? 
+                <>
+                  <CheckIcon className="w-4 h-4 text-green-600"/> 
+                  Action not yet executed
+                </>
+                : 
+                <>
+                  <XMarkIcon className="w-4 h-4 text-red-600"/>
+                  Action executed
+                </>
+              }
+            </div>
+          </div>
+        }
+
+        {/* Executed */}
+        {law.config.needCompleted != `0x${'0'.repeat(40)}`  ?  
+          <div className = "w-full flex flex-col justify-center items-center p-2"> 
+            <div className = "w-full flex flex-row px-2 justify-between items-center">
+            { checks?.lawCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
+              Law executed
+            </div>
+            <div className = "w-full flex flex-row px-2 py-1">
+              <button 
+                className={`w-full h-full flex flex-row items-center justify-center rounded-md border border-${roleColour[parseRole(needCompletedLaw?.allowedRole)]} disabled:opacity-50`}
+                onClick = {() => {setLaw(needCompletedLaw ? needCompletedLaw : law)}}
+                >
+                <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
+                {needCompletedLaw?.name}
+                </div>
+              </button>
+            </div>
+          </div>
+          :
+          null
+        }
+
+        {/* Not executed */}
+        {law.config.needNotCompleted != `0x${'0'.repeat(40)}` ? 
+          <div className = "w-full flex flex-col justify-center items-center p-2"> 
+            <div className = "w-full flex flex-row px-2 justify-between items-center">
+            { checks?.lawNotCompleted ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
+                Law not executed
+            </div>
+            <div className = "w-full flex flex-row px-2 py-1">
+              <button 
+                className={`w-full h-full flex flex-row items-center justify-center rounded-md border border-${roleColour[parseRole(needNotCompletedLaw?.allowedRole)]} disabled:opacity-50`}
+                onClick = {() => {setLaw(needNotCompletedLaw ? needNotCompletedLaw : law)}}
+                >
+                <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
+                 {needNotCompletedLaw?.name}
+                </div>
+              </button>
+            </div>
+          </div>
+          : null
+          }
+
+
       
       </div>
     </section>

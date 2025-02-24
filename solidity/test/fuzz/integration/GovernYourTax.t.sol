@@ -27,7 +27,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
     //              CHAPTER 1: EXECUTIVE ACTIONS                //
     //////////////////////////////////////////////////////////////
 
-    function  testFuzz_CreateUseAndStopGrants(
+    function  testFuzz_GovernYourTax_CreateUseAndStopGrants(
         uint256 seed, 
         uint256 step0Chance, 
         uint256 step1Chance
@@ -235,7 +235,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         }
     } 
 
-    function  testFuzz_StopAndRestartLaws(        
+    function  testFuzz_GovernYourTax_StopAndRestartLaws(        
         uint256 seed, 
         uint256 step0Chance, 
         uint256 step1Chance
@@ -462,7 +462,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
     //////////////////////////////////////////////////////////////
     //              CHAPTER 2: ELECT ROLES                      //
     //////////////////////////////////////////////////////////////
-    function testFuzz_ClaimRoleByTax(
+    function testFuzz_GovernYourTax_ClaimRoleByTax(
             uint256 seed,
             uint256 mintQuantity,
             uint256 burnQuantity,  
@@ -520,7 +520,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         }
     } 
 
-    function  testFuzz_CallAndTallyGovernorElections(
+    function  testFuzz_GovernYourTax_CallAndTallyGovernorElections(
         uint256 seed1, 
         uint256 seed2, 
         uint256 step0Chance, 

@@ -13,6 +13,7 @@ import { ILaw } from "../../../src/interfaces/ILaw.sol";
 import { Erc721Mock } from "../../../test/mocks/Erc721Mock.sol";
 import { Erc1155Mock } from "../../../test/mocks/Erc1155Mock.sol";
 import { Erc20VotesMock } from "../../../test/mocks/Erc20VotesMock.sol";
+import { Erc20TaxedMock } from "../../../test/mocks/Erc20TaxedMock.sol";
 import { StringsArray } from "../../../src/laws/state/StringsArray.sol";
 
 import { TestSetupAlignedDao_fuzzIntegration } from "../../../test/TestSetup.t.sol";
@@ -22,7 +23,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
     //////////////////////////////////////////////////////////////
     //              CHAPTER 1: EXECUTIVE ACTIONS                //
     //////////////////////////////////////////////////////////////
-    function testFuzz_ProposeAndAdoptValues(
+    function testFuzz_AlignedDao_ProposeAndAdoptValues(
          uint256 step1,
          uint256 step2
     ) public {
@@ -120,7 +121,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
     }
 
 
-    function testFuzz_RevokeAndReinstateMembership(
+    function testFuzz_AlignedDao_RevokeAndReinstateMembership(
         uint256 step0,
         uint256 step1,
         uint256 step2,
@@ -283,7 +284,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         }
     }
 
-    function testFuzz_MembersRequestPayment(
+    function testFuzz_AlignedDao_MembersRequestPayment(
         uint256 selectUser, 
         uint256 duration, 
         uint256 numberSteps
@@ -291,11 +292,11 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         selectUser = bound(selectUser, 0, users.length - 1); 
         duration = bound(duration, 200, 1000);
         numberSteps = bound(numberSteps, 5, 100);
-        uint256 balanceBefore = Erc1155Mock(erc1155Mock).balanceOf(users[selectUser], 0);  
+        uint256 balanceBefore = Erc20TaxedMock(erc20TaxedMock).balanceOf(users[selectUser]);  
         
         // mint funds
         vm.prank(address(alignedDao));
-        Erc1155Mock(erc1155Mock).mintCoins(1_000_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(1_000_000);
 
         // assign roles. 
         vm.startPrank(address(alignedDao));
@@ -335,14 +336,14 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
                 alignedDao.execute(laws[5], abi.encode(), description);
            }
         }
-        uint256 balanceAfter = Erc1155Mock(erc1155Mock).balanceOf(users[selectUser], 0);
+        uint256 balanceAfter = Erc20TaxedMock(erc20TaxedMock).balanceOf(users[selectUser]);
         assertEq(balanceAfter, balanceBefore + (numberRequests * 5000)); // = number tokens per request 
     }
 
     //////////////////////////////////////////////////////////////
     //              CHAPTER 2: ELECT ROLES                      //
     //////////////////////////////////////////////////////////////
-    function testFuzz_SelfSelectRoleWithNft(
+    function testFuzz_AlignedDao_SelfSelectRoleWithNft(
         uint256 seed,
         uint256 density
     ) public {
@@ -368,22 +369,50 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         }
     }
 
-    function testFuzz_DelegateElect(uint256 numNominees, uint256 voteTokensRandomiser) public {
+    function testFuzz_AlignedDao_DelegateElect(uint256 numNominees, uint256 voteTokensRandomiser) public {
         numNominees = bound(numNominees, 4, 10);
         voteTokensRandomiser = bound(voteTokensRandomiser, 100_000, type(uint256).max);
 
         address oracle = makeAddr("oracle");
+        vm.startPrank(address(alignedDao));
+        alignedDao.assignRole(1, alice); // role 1s
+        vm.stopPrank();
 
         vm.startPrank(address(alignedDao));
         alignedDao.assignRole(0, alice); // alice is assigned ADMIN ROLE
+        alignedDao.assignRole(1, bob);  // role 1s
+        alignedDao.assignRole(1, charlotte);
+        alignedDao.assignRole(1, david); 
+        alignedDao.assignRole(1, eve);
+        alignedDao.assignRole(1, frank);
+        alignedDao.assignRole(1, gary);
+        alignedDao.assignRole(1, helen);
         vm.stopPrank();
 
         // step 0a: distribute tokens. Tokens are distributed randomly.
         distributeTokens(address(erc20VotesMock), users, voteTokensRandomiser);
         // step 0b: set oracle address
-        vm.prank(alice); // alice = admin. 
-        alignedDao.execute(laws[11], abi.encode(false, oracle), "The admin sets the oracle address.");
 
+         // Admin proposes oracle
+        vm.prank(alice); // alice = admin. 
+        alignedDao.execute(laws[11], abi.encode(false, oracle), "Let's set an oracle.");
+        // Members accept oracle
+        vm.prank(bob);
+        proposalId = alignedDao.propose(laws[12], abi.encode(false, oracle), "Let's set an oracle."); 
+        (roleCount, againstVote, forVote, abstainVote) = voteOnProposal(
+            payable(address(alignedDao)),
+            laws[12],
+            proposalId,
+            users,
+            1234,  
+            99 // chance of passing vote. 
+        );
+        // executing: setting oracle. 
+        vm.roll(block.number + 200); 
+        vm.prank(bob);
+        alignedDao.execute(laws[12], abi.encode(false, oracle), "Let's set an oracle.");
+
+        // now to the actual election... 
         // step 1: people nominate their accounts.
         bytes memory lawCalldataNominate = abi.encode(true); // nominateMe = true
 
@@ -417,7 +446,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         }
     }
 
-    function testFuzz_PeerSelect( 
+    function testFuzz_AlignedDao_PeerSelect( 
         uint256 succeedPassChance
     ) public { 
         succeedPassChance = bound(succeedPassChance, 0, 100);

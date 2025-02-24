@@ -5,7 +5,7 @@ import { LawBox } from "./LawBox";
 import { ChecksBox } from "./ChecksBox";
 import { Children } from "./Children";
 import { Executions } from "./Executions";
-import { notUpToDate, setAction, useActionStore, useLawStore } from "@/context/store";
+import { notUpToDate, setAction, useActionStore, useLawStore, useOrgStore } from "@/context/store";
 import { useLaw } from "@/hooks/useLaw";
 import { useChecks } from "@/hooks/useChecks";
 import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
@@ -14,6 +14,7 @@ import { useReadContract } from "wagmi";
 import { bytesToParams, parseParamValues } from "@/utils/parsers";
 import { InputType } from "@/context/types";
 import { useWallets } from "@privy-io/react-auth";
+import { GovernanceOverview } from "@/components/GovernanceOverview";
 
 const Page = () => {
   const {wallets} = useWallets();
@@ -99,7 +100,8 @@ const Page = () => {
 
 
   return (
-    <main className="w-full h-full flex flex-col justify-center items-center">
+    <main className="w-full h-full flex flex-col justify-center items-center gap-1">
+      <GovernanceOverview law = {law} /> 
       {/* main body  */}
       <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-start items-start">
 
@@ -117,7 +119,7 @@ const Page = () => {
         </div>
 
         {/* right panel: info boxes should only reads from zustand.  */}
-        <div className="flex flex-col flex-wrap lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:my-4 my-0 lg:flex-col lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-hidden overflow-y-scroll scroll-snap-x">
+        <div className="flex flex-col flex-wrap lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:my-4 my-0 lg:flex-col lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-scroll overflow-y-hidden scroll-snap-x">
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
             {checks && <ChecksBox checks = {checks} />} 
           </div>

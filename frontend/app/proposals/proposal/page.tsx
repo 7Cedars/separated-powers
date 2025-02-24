@@ -9,6 +9,7 @@ import {Law} from "./Law";
 import { useChecks } from "@/hooks/useChecks";
 import { useActionStore, useLawStore } from "@/context/store";
 import { Proposal } from "@/context/types";
+import { GovernanceOverview } from "@/components/GovernanceOverview";
 
 const Page = () => {
   const {checkProposalExists, checks, fetchChecks} = useChecks(); 
@@ -27,6 +28,7 @@ const Page = () => {
 
   return (
     <main className="w-full h-full flex flex-col justify-center items-center">
+      <GovernanceOverview law = {law} /> 
       {/* main body  */}
       <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-start items-start">
 
