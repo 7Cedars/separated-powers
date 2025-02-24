@@ -8,11 +8,11 @@ import { Button } from "@/components/Button";
 import { Organisation } from "@/context/types";
 import { useOrganisations } from "@/hooks/useOrganisations";
 import { GovernanceOverview } from "@/components/GovernanceOverview";
+import { useEffect } from "react";
 
 export function Overview( ) {
   const organisation = useOrgStore(); 
   const { status, updateOrg } = useOrganisations() 
-
 
   const handleRoleSelection = (role: bigint) => {
     let newDeselection: bigint[] = []

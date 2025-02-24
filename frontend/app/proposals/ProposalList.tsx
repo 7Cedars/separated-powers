@@ -10,7 +10,7 @@ import { useProposal } from "@/hooks/useProposal";
 import { setProposal } from "@/context/store"
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useOrganisations } from "@/hooks/useOrganisations";
-import { toFullDateFormat } from "@/utils/transformData";
+import { toEurTimeFormat, toFullDateFormat } from "@/utils/transformData";
 
 
 // NB: need to delete action from store? Just in case? 
@@ -125,7 +125,7 @@ export function ProposalList() {
       <table className="w-full table-auto">
       <thead className="w-full border-b border-slate-200">
             <tr className="w-96 text-xs font-light text-left text-slate-500">
-                <th className="ps-6 py-2 font-light rounded-tl-md"> Block </th>
+                <th className="ps-6 py-2 font-light rounded-tl-md"> Date & time </th>
                 <th className="font-light"> Law name </th>
                 <th className="font-light"> Reason </th>
                 <th className="font-light"> Status </th>
@@ -147,7 +147,7 @@ export function ProposalList() {
                   key={i}
                   className={`text-sm text-left text-slate-800 h-full p-2 overflow-x-scroll`}
                 >
-                  <td className="h-full flex flex-col justify-center items-center text-left w-fit p-2">
+                  <td className="h-full w-full flex flex-col text-center justify-center items-center text-left p-2 px-4">
                     <Button
                       showBorder={true}
                       role={parseRole(law.allowedRole)}
@@ -163,10 +163,9 @@ export function ProposalList() {
                       }}
                       align={0}
                       selected={true}
-                    >
-                      {
-                        toFullDateFormat(Number(proposal.voteStartBlockData?.timestamp))
-                      }
+                    > <div className = "flex flex-row gap-3 w-full">
+                      {`${toFullDateFormat(Number(proposal.voteStartBlockData?.timestamp))}: ${toEurTimeFormat(Number(proposal.voteStartBlockData?.timestamp))}`}
+                      </div>
                     </Button>
                   </td>
                   <td className="pe-4 text-slate-500 min-w-60">{law.name}</td>

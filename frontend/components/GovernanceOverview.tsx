@@ -169,7 +169,18 @@ function GovernanceOrphans({orphans, roleIds, lawSelected, bgItem}: TrackProps) 
           orphans && orphans.map((law, index) => 
             <div 
               key = {index} 
-              className = {`min-w-32 max-w-full grow h-full border border-${roleColour[lawToColourCode(law)]} ${roleBgColour[lawToColourCode(law)]} rounded-md flex flex-row justify-center items-center gap-1`}>
+              className = {`min-w-32 max-w-full grow h-full aria-selected:opacity-100 opacity-50  border border-${roleColour[lawToColourCode(law)]} ${roleBgColour[lawToColourCode(law)]} rounded-md flex flex-row justify-center items-center gap-1`}
+              aria-selected = {
+                lawSelected ? 
+                law.law == lawSelected.law
+                :
+                law.allowedRole != undefined ? !roleIds?.includes(Number(law.allowedRole)) : false
+              }
+              onClick = {() => {
+                setLaw(law)
+                router.push('/laws/law')
+              }}
+            >
               <div className = "flex flex-col w-full h-full justify-center items-center gap-1">
                 <div className = "text-sm text-pretty p-1 px-4 text-center text-slate-700">
                   {law.name}
@@ -183,31 +194,8 @@ function GovernanceOrphans({orphans, roleIds, lawSelected, bgItem}: TrackProps) 
             </div> 
           )
         }
+        </div> 
 
-      {/* draws the button / selections on top of the laws */}
-      <div className = "absolute inset-x-0 z-20 w-full h-20 flex flex-row justify-between items-center">
-        {
-          orphans && orphans.map((law, index) => {
-            return (
-              <button 
-                  key = {index} 
-                  className = {`min-w-32 max-w-full grow h-full justify-center items-center gap-1 ${adaptiveBg[bgItem]} aria-selected:opacity-0 opacity-50 `} 
-                  aria-selected = {
-                    lawSelected ? 
-                    law.law == lawSelected.law
-                    :
-                    law.allowedRole != undefined ? !roleIds?.includes(Number(law.allowedRole)) : false
-                  }
-                  onClick = {() => {
-                    setLaw(law)
-                    router.push('/laws/law')
-                  }}
-                  />
-            )
-          })
-        }
-        </div>
-      </div>
     </>
 
   )

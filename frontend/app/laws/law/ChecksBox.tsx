@@ -71,7 +71,7 @@ export const ChecksBox = ({checks}: {checks: Checks}) => {
               <button 
                 className={`w-full h-full flex flex-row items-center justify-center rounded-md border border-${roleColour[parseRole(law.allowedRole)]} disabled:opacity-50`}
                 onClick = {() => router.push('/proposals/proposal')}
-                disabled = { !checks?.allPassed  }
+                disabled = { checks.proposalExists && checks.authorised == false && checks.lawCompleted == false && checks.lawNotCompleted == false }
                 >
                 <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1  px-2 py-1`}>
                 {  law.name }

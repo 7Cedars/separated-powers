@@ -20,6 +20,7 @@ const initialStateLaw: LawStore = {
     delayExecution: 0n, 
     needCompleted: `0x0`,
     needNotCompleted: `0x0`,
+    readStateFrom: `0x0`,
     quorum: 0n, 
     succeedAt: 0n, 
     throttleExecution: 0n,

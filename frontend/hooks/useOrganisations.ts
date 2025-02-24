@@ -115,13 +115,12 @@ export const useOrganisations = () => {
                 if (active) activeLaws.push(law) 
               }
             }
-
             // calculating roles
             const rolesAll = activeLaws.map((law: Law) => law.allowedRole)
             const fetchedRoles = [... new Set(rolesAll)] as bigint[]
           
             if (fetchedLaws && fetchedRoles) {
-              lawsAndRoles.push({laws: fetchedLaws, activeLaws, roles: fetchedRoles})
+              lawsAndRoles.push({laws: fetchedLaws, activeLaws: activeLaws, roles: fetchedRoles})
             }
           }
         } 
@@ -225,7 +224,7 @@ export const useOrganisations = () => {
                   metadatas: metadatas[index], 
                   colourScheme: index, 
                   laws: lawsAndRoles[index].laws, 
-                  activeLaws: lawsAndRoles[index].laws, 
+                  activeLaws: lawsAndRoles[index].activeLaws, 
                   proposals: proposalsPerOrg[index], 
                   roles: lawsAndRoles[index].roles 
                 }
@@ -262,6 +261,7 @@ export const useOrganisations = () => {
     // updates laws, roles and proposal info of an existing organisation or fetches a new organisation - and stores it in local storage.  
     async (organisation: Organisation) => {
       setStatus("pending")
+      console.log("@updateOrg: TRIGGERED")
 
       let localStore = localStorage.getItem("powersProtocol_savedOrgs")
       const saved: Organisation[] = localStore ? JSON.parse(localStore) : []
@@ -276,15 +276,16 @@ export const useOrganisations = () => {
           const updatedOrg = 
           { ...orgToUpdate,  
             laws: lawsAndRoles[0].laws, 
-            activeLaws: lawsAndRoles[0].laws, 
+            activeLaws: lawsAndRoles[0].activeLaws, 
             proposals: proposalsPerOrg[0], 
             roles: lawsAndRoles[0].roles 
           }
           
           const updatedOrgs: Organisation[] = saved.map(
-            org => updatedOrg.contractAddress == org.contractAddress ? orgToUpdate : org
+            org => org.contractAddress == updatedOrg.contractAddress ? updatedOrg : org
           )
-          
+
+          assignOrg(updatedOrg)
           setOrganisations(updatedOrgs)
           localStorage.setItem("powersProtocol_savedOrgs", JSON.stringify(updatedOrgs, (key, value) =>
             typeof value === "bigint" ? Number(value) : value,

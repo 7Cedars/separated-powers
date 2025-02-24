@@ -183,6 +183,7 @@ export function ProposalBox() {
                 <Button 
                   size={1} 
                   selected={true}
+                  filled={false}
                   onClick={() => handleCastVote(1n)} 
                   statusButton={
                     checks && !checks.authorised ? 
@@ -199,6 +200,7 @@ export function ProposalBox() {
                 <Button 
                   size={1} 
                   selected={true}
+                  filled={false}
                   onClick={() => handleCastVote(0n)} 
                   statusButton={
                     checks && !checks.authorised ? 
@@ -215,6 +217,7 @@ export function ProposalBox() {
                 <Button 
                   size={1} 
                   selected={true}
+                  filled={false}
                   onClick={() => handleCastVote(2n)} 
                   statusButton={
                     checks && !checks.authorised ? 

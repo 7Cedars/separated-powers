@@ -65,7 +65,7 @@ export type Config = {
 
 export type Execution = {
   log: Log; 
-  blockData?: GetBlockReturnType
+  blocksData?: GetBlockReturnType
 }
 
 export type Law = {

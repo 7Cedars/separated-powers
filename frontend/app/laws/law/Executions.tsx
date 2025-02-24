@@ -10,7 +10,7 @@ import { powersAbi } from "@/context/abi";
 import { publicClient } from "@/context/clients";
 import { getBlock, GetBlockReturnType } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
-import { toDateFormat, toEurTimeFormat } from "@/utils/transformData";
+import { toDateFormat, toEurTimeFormat, toFullDateFormat } from "@/utils/transformData";
  
  
 export const Executions = ({executions}: {executions: Execution[] | undefined}) => {
@@ -35,15 +35,7 @@ export const Executions = ({executions}: {executions: Execution[] | undefined}) 
             {executions.map((execution: Execution, index: number) => 
               <div className = "w-full flex flex-col justify-center items-center p-2" key = {index}> 
                 <div className = "w-full flex flex-row px-2 py-1 justify-between items-center">
-                  <div>
-                    {/* need to get the timestamp.. */}
-                    Date here
-                    {/* {toDateFormat(Number(execution.blockData?.timestamp))}  */}
-                  </div>
-                  <div>
-                    Time here 
-                    {/* {toEurTimeFormat(Number(execution.blockData?.timestamp))} */}
-                  </div>
+                    {`${toFullDateFormat(Number(execution.blocksData?.timestamp))}: ${toEurTimeFormat(Number(execution.blocksData?.timestamp))}`}
                 </div>
                 <div className = "w-full flex flex-row px-2">
                   {/* This should link to block explorer */}
