@@ -891,6 +891,14 @@ contract SetRoleTest is TestSetupPowers {
         vm.prank(address(daoMock));
         daoMock.assignRole(ROLE_THREE, helen);
     }
+
+    function testLabelRoleEmitsCorrectEvent() public {
+        // act & assert
+        vm.expectEmit(true, false, false, false);
+        emit RoleLabel(ROLE_THREE, "This is role three");
+        vm.prank(address(daoMock));
+        daoMock.labelRole(ROLE_THREE, "This is role three");
+    }
 }
 
 contract ComplianceTest is TestSetupPowers {

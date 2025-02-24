@@ -26,6 +26,9 @@ interface PowersErrors {
     /// @notice Emitted when a law is already active, when trying to set a new one.
     error Powers__LawAlreadyActive();
 
+    /// @notice Emitted when a PUBLIC or ADMIN role is attempted to be labelled.
+    error Powers__LockedRole(); 
+
     /// @notice Emitted when a law is not active.
     error Powers__NotActiveLaw();
 

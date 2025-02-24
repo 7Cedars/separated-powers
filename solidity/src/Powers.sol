@@ -358,6 +358,14 @@ contract Powers is EIP712, IPowers {
         _setRole(roleId, account, false);
     }
 
+    /// @inheritdoc IPowers
+    function labelRole(uint32 roleId, string calldata label) public virtual onlyPowers {
+        if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
+            revert Powers__LockedRole();
+        }
+        emit RoleLabel(roleId, label);
+    }
+
     /// @notice Internal version of {setRole} without access control.
     ///
     /// Emits a {SeperatedPowersEvents::RolSet} event.

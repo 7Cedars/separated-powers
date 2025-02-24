@@ -121,6 +121,15 @@ interface IPowers is PowersErrors, PowersEvents, PowersTypes {
     /// @dev this function can only be called from within {SeperatedPowers}.
     function revokeRole(uint32 roleId, address account) external;
 
+    /// @notice allows labelling of roles. Completely optional. 
+    ///
+    /// @param roleId role identifier
+    /// @param label label of role.  
+    ///
+    /// @dev this function can only be called from within {SeperatedPowers}.
+    /// @dev almost exact copy from OpenZeppelin's AccessManager.sol
+    function labelRole(uint32 roleId, string calldata label) external;
+
     //////////////////////////////////////////////////////////////
     //                      VIEW FUNCTIONS                      //
     //////////////////////////////////////////////////////////////

@@ -19,6 +19,8 @@ import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
 import { OpenAction } from "../src/laws/executive/OpenAction.sol";
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 
+import { SelfDestructPresetAction } from "../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol"; 
+
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";
 
@@ -89,7 +91,7 @@ contract DeployBasicDao is Script {
         vm.startBroadcast();
         law = new ProposalOnly(
             "Propose an action",
-            "Accounts with role 2 can propose new actions to be executed. They cannot implement them.",
+            "Seniors can propose new actions to be executed. They cannot implement them.",
             dao_,
             2, // access role
             lawConfig,
@@ -126,7 +128,7 @@ contract DeployBasicDao is Script {
         vm.startBroadcast();
         law = new OpenAction(
             "Execute an action",
-            "Accounts with role 1 can execute actions that accounts with role 2 proposed and passed the proposal vote. They can only be execute if Admin did not cast a veto.",
+            "Members can execute actions that seniors proposed and passed the proposal vote. They can only be execute if the admin did not cast a veto.",
             dao_, // separated powers
             1, // access role
             lawConfig
@@ -142,8 +144,8 @@ contract DeployBasicDao is Script {
         // law[3]
         vm.startBroadcast();
         law = new NominateMe(
-            "Nominate self for role 2", // max 31 chars
-            "Anyone can nominate themselves for role 2.",
+            "Nominate self for senior", // max 31 chars
+            "Anyone can nominate themselves for a senior role.",
             dao_,
             type(uint32).max, // access role = public access
             lawConfig
@@ -156,8 +158,8 @@ contract DeployBasicDao is Script {
         lawConfig.throttleExecution = 300; // once every hour
         lawConfig.readStateFrom = laws[3]; // nominateMe
         law = new DelegateSelect(
-            "Call role 2 election", // max 31 chars
-            "Anyone can call (and pay for) an election to assign accounts to role 2. Address can be added to revoke roles. The nominated accounts with most delegated vote tokens will be assigned to role 2. The law can only be called once every 500 blocks.",
+            "Call senior election", // max 31 chars
+            "Anyone can call (and pay for) an election to assign seniors. The nominated accounts with most delegated vote tokens will be assigned as seniors. The law can only be called once every 500 blocks.",
             dao_, // separated powers protocol.
             type(uint32).max, // public access
             lawConfig, //  config file.
@@ -172,12 +174,35 @@ contract DeployBasicDao is Script {
         // law[5]
         vm.startBroadcast();
         law = new SelfSelect(
-            "Select yourself for role 1", // max 31 chars
-            "Anyone can self select for role 1.",
+            "Select yourself as a member", // max 31 chars
+            "Anyone can self select as member of the community.",
             dao_,
             type(uint32).max, // access role = public access
             lawConfig, 
             1
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+
+        // laws[6]: selfDestructPresetAction: label roles in the DAO.
+        address[] memory targets = new address[](2);
+        uint256[] memory values = new uint256[](2);
+        bytes[] memory calldatas = new bytes[](2);
+        for (uint256 i = 0; i < targets.length; i++) {
+            targets[i] = dao_;
+        }
+        calldatas[0] = abi.encodeWithSelector(Powers.labelRole.selector, 1, "member");
+        calldatas[1] = abi.encodeWithSelector(Powers.labelRole.selector, 2, "senior");
+        vm.startBroadcast();
+        law = new SelfDestructPresetAction(
+            "Role labels",
+            "The admin can label roles. The law self destructs when executed.",
+            dao_, // separated powers protocol.
+            0, // admin.
+            lawConfig, //  config file.
+            targets,
+            values,
+            calldatas
         );
         vm.stopBroadcast();
         laws.push(address(law));

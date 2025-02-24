@@ -77,7 +77,12 @@ interface PowersEvents {
     /// @notice Emitted when a role is set.
     /// @param roleId the id of the role
     /// @param account the address of the account that has the role
-    event RoleSet(uint48 indexed roleId, address indexed account, bool indexed access);
+    event RoleSet(uint32 indexed roleId, address indexed account, bool indexed access);
+
+    /// @notice Emitted when a role is labelled.
+    /// @param roleId the id of the role. 
+    /// @param label the label assigned to the role.
+    event RoleLabel(uint32 indexed roleId, string label);  
 
     /// @notice Emitted when a law is set.
     /// @param law the address of the law
