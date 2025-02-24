@@ -164,13 +164,12 @@ function GovernanceOrphans({orphans, roleIds, lawSelected, bgItem}: TrackProps) 
   return (
     <>
       {/* draws the laws */}
-      <div className = "relative w-full h-20 flex flex-wrap justify-stretch items-center">
+      <div className = "relative w-full h-20 flex flex-wrap gap-10 justify-stretch items-center">
         {
           orphans && orphans.map((law, index) => 
             <div 
               key = {index} 
               className = {`min-w-32 max-w-full grow h-full border border-${roleColour[lawToColourCode(law)]} ${roleBgColour[lawToColourCode(law)]} rounded-md flex flex-row justify-center items-center gap-1`}>
-              { index == orphans.length - 1 &&  <div className = "w-12"/> }
               <div className = "flex flex-col w-full h-full justify-center items-center gap-1">
                 <div className = "text-sm text-pretty p-1 px-4 text-center text-slate-700">
                   {law.name}
@@ -181,7 +180,6 @@ function GovernanceOrphans({orphans, roleIds, lawSelected, bgItem}: TrackProps) 
                   { law.config.quorum != 0n && <UserGroupIcon className = "h-6 w-6 text-slate-700"/> }
               </div>
               </div>
-              { index == 0 &&  <div className = "w-12"/> }
             </div> 
           )
         }

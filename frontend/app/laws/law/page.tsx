@@ -36,7 +36,6 @@ const Page = () => {
   const dataTypes = params.map(param => param.dataType) 
 
   const handleSimulate = async (paramValues: (InputType | InputType[])[], description: string) => {
-      // event.preventDefault() 
       setError("")
       let lawCalldata: `0x${string}` | undefined
       if (paramValues.length > 0 && paramValues) {
@@ -68,11 +67,11 @@ const Page = () => {
       }
   };
 
-  const handleExecute = async () => {
+  const handleExecute = async (description: string) => {
       execute(
           law.law as `0x${string}`,
           action.callData as `0x${string}`,
-          action.description
+          description
       )
   };
 

@@ -25,7 +25,7 @@ type LawBoxProps = {
   error?: any;  
   // onChange: (input: InputType | InputType[]) => void;
   onSimulate: (paramValues: (InputType | InputType[])[], description: string) => void;
-  onExecute: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onExecute: (description: string) => void;
 };
 
 const roleColour = [  
@@ -41,27 +41,21 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
   const action = useActionStore();
   const law = useLawStore(); 
   const dataTypes = params.map(param => param.dataType) 
-
-  
-
-  // !action.upToDate && description.length > 0 && lawBoxStatus ? lawBoxStatus
-
+  const [lawBoxStatus, setLawBoxStatus] = useState<Status>() 
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
 
-  console.log("@LawBox:", {action, description, status})
+  console.log("@LawBox:", {action, description, status, lawBoxStatus, checks})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
-    console.log("handleChange triggered", input, index)
-
     const currentInput = paramValues 
     currentInput[index] = input
     setParamValues(currentInput)
-    // reset useLaw hook  
-    // resetStatus()
+
     notUpToDate({})
+    setLawBoxStatus("idle")
   }
 
   useEffect(() => {
@@ -70,6 +64,7 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
       const valuesParsed = parseParamValues(values)  
       setParamValues(valuesParsed)
       setDescription(action.description)
+
     } catch {
       notUpToDate({})
       setDescription("")
@@ -149,19 +144,20 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
           }
       </div>
 
-
         <div className="w-full flex flex-row justify-center items-center px-6 pb-4">
           <Button 
             size={1} 
             showBorder={true} 
-            role={Number(law.allowedRole)}
+            role={law.allowedRole == 4294967295n ? 6 : Number(law.allowedRole)}
             filled={false}
+            selected={true}
             onClick={(event) => {
               event.preventDefault() 
+              setLawBoxStatus("pending")
               onSimulate(paramValues, description)
             }} 
             statusButton={
-              !action.upToDate && description.length > 0 && status ? status : 'disabled'
+               !action.upToDate && description.length > 0 ? 'idle' : 'disabled'
               }> 
             Check 
           </Button>
@@ -175,21 +171,15 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
         <div className="w-full h-fit p-6">
           <Button 
             size={1} 
-            role={Number(law.allowedRole)}
+            role={law.allowedRole == 4294967295n ? 6 : Number(law.allowedRole)}
             onClick={(event) => {
               event.preventDefault() 
-              onExecute
+              onExecute(description)
             }} 
             filled={false}
+            selected={true}
             statusButton={
-              checks && 
-              checks.authorised && 
-              checks.delayPassed && 
-              !checks.proposalCompleted && 
-              checks.lawNotCompleted && 
-              checks.proposalPassed && 
-              checks.lawCompleted && 
-              checks.throttlePassed ? 'idle' : 'disabled' 
+              action.upToDate && checks.allPassed ? status : 'disabled' 
               }> 
             Execute
           </Button>

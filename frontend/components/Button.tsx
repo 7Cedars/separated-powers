@@ -30,10 +30,10 @@ const roleBorderColour = [
   "bg-blue-200 border-blue-600",
   "bg-red-200 border-red-600",
   "bg-yellow-200 border-yellow-600",
-  "bg-purple-200 border-purple-600/50",
-  "bg-green-200 border-green-600/50",
-  "bg-orange-200 border-orange-600/50",
-  "bg-slate-200 border-slate-400/50"
+  "bg-purple-200 border-purple-600",
+  "bg-green-200 border-green-600",
+  "bg-orange-200 border-orange-600",
+  "bg-slate-200 border-slate-400"
 ]
 
 export const Button = ({
@@ -50,10 +50,10 @@ export const Button = ({
 
   return (
     <button 
-      className={`w-full h-full aria-selected:opacity-50 rounded-md border ${roleBorderColour[role % roleBorderColour.length]} ${fontSize[size]} ${showBorder ? "": "md:border-transparent"} ${filled ? "": "bg-opacity-0"}`}  
+      className={`w-full h-full disabled:opacity-50 rounded-md border ${roleBorderColour[role % roleBorderColour.length]} ${fontSize[size]} ${showBorder ? "": "md:border-transparent"} ${filled ? "": "bg-opacity-0"}`}  
       onClick={onClick} 
-      disabled={statusButton != 'idle'}
       aria-selected={!selected}
+      disabled = {statusButton == "disabled"}
       >
         <div className={`flex flex-row items-center ${fontAlign[align]} text-slate-700 gap-1 w-full h-full w-full px-2 py-1`}>
         {

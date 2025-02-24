@@ -65,7 +65,7 @@ export function ExampleDemos({organisations}: {organisations: Organisation[]}) {
                               </td>
                               <td className="pe-4 text-slate-500 min-w-40 max-w-fit">
                                   <Button 
-                                      size={1} align={0} showBorder={true} onClick={() => assignOrg({...org, colourScheme: index % colourScheme.length})}>
+                                      size={1} align={0} showBorder={true} selected = {true} filled = {false} onClick={() => assignOrg({...org, colourScheme: index % colourScheme.length})}>
                                       {org.name}
                                   </Button>
                               </td>

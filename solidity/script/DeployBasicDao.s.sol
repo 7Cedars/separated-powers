@@ -195,7 +195,7 @@ contract DeployBasicDao is Script {
         calldatas[1] = abi.encodeWithSelector(Powers.labelRole.selector, 2, "senior");
         vm.startBroadcast();
         law = new SelfDestructPresetAction(
-            "Role labels",
+            "Set label roles",
             "The admin can label roles. The law self destructs when executed.",
             dao_, // separated powers protocol.
             0, // admin.

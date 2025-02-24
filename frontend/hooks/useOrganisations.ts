@@ -133,6 +133,36 @@ export const useOrganisations = () => {
     }
   }
 
+  const fetchRoleLabels = async (organisations: Organisation[]) => {
+    let organisation: Organisation
+    let names: string[] = []
+
+    if (publicClient) {
+      try {
+        for await (organisation of organisations) {
+            const logs = await publicClient.getContractEvents({ 
+              abi: powersAbi, 
+              address: organisation.contractAddress as `0x${string}`, 
+              eventName: 'RoleLabel',
+              fromBlock: supportedChain?.genesisBlock
+            })
+            const fetchedLogs = parseEventLogs({
+              abi: lawAbi,
+              eventName: 'RoleLabel',
+              logs
+            })
+            const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
+            console.log("@fetchRoleLabels:", {fetchedLogsTyped})
+            // const fetchedLaws: Law[] = fetchedLogsTyped.map(log => log.args as Law)
+          }
+          return null 
+        } catch (error) {
+          setStatus("error") 
+          setError(error)
+        }
+      }
+  }
+
   const fetchProposals = async (organisations: Organisation[]) => {
     let organisation: Organisation
     let proposalsPerOrg: Proposal[][] = []
@@ -183,6 +213,7 @@ export const useOrganisations = () => {
         const metadatas = await fetchMetaDatas(defaultOrganisations)
         const lawsAndRoles = await fetchLawsAndRoles(defaultOrganisations)
         const proposalsPerOrg = await fetchProposals(defaultOrganisations)
+        const roleLabels = await fetchRoleLabels(defaultOrganisations)
 
         console.log("waypoint 4: data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg})
 
@@ -238,6 +269,7 @@ export const useOrganisations = () => {
       
       if (orgToUpdate) {
         const lawsAndRoles = await fetchLawsAndRoles([organisation])
+        const roleLabels = await fetchRoleLabels([organisation])
         const proposalsPerOrg = await fetchProposals([organisation])
 
         if (lawsAndRoles && proposalsPerOrg) {
@@ -281,6 +313,7 @@ export const useOrganisations = () => {
         const names = await fetchNames([organisationToFetch])
         const metadatas = await fetchMetaDatas([organisationToFetch])
         const lawsAndRoles = await fetchLawsAndRoles([organisationToFetch])
+        const roleLabels = await fetchRoleLabels([organisationToFetch])
         const proposalsPerOrg = await fetchProposals([organisationToFetch])
 
         console.log("@AddOrg, data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg})

@@ -241,9 +241,9 @@ export const parseLawError = (rawReply: unknown): boolean | string  => {
   }
 
   if (typeof rawReply !== 'boolean') {
-    const splitString = String(rawReply).split("\n")
-    console.log({splitString})
-    return splitString[0]
+    const splitString = String(rawReply) 
+    // console.log({splitString})
+    return splitString
   }
 
   else {

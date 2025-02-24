@@ -182,6 +182,7 @@ export function ProposalBox() {
               <div className = "w-full flex flex-row gap-2"> 
                 <Button 
                   size={1} 
+                  selected={true}
                   onClick={() => handleCastVote(1n)} 
                   statusButton={
                     checks && !checks.authorised ? 
@@ -197,6 +198,7 @@ export function ProposalBox() {
                 </Button>
                 <Button 
                   size={1} 
+                  selected={true}
                   onClick={() => handleCastVote(0n)} 
                   statusButton={
                     checks && !checks.authorised ? 
@@ -212,6 +214,7 @@ export function ProposalBox() {
                 </Button>
                 <Button 
                   size={1} 
+                  selected={true}
                   onClick={() => handleCastVote(2n)} 
                   statusButton={
                     checks && !checks.authorised ? 
@@ -231,6 +234,7 @@ export function ProposalBox() {
               size={1} 
               onClick={handlePropose} 
               filled={false}
+              selected={true}
               statusButton={
                 checks && 
                 checks.authorised ? 

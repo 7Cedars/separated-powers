@@ -114,14 +114,15 @@ export type Roles = {
 };
 
 export type Checks = {
-  authorised?: boolean | undefined;
-  proposalExists?: boolean | undefined;
-  proposalPassed?: boolean | undefined;
-  proposalCompleted?: boolean | undefined;
-  lawCompleted?: boolean | undefined;
-  lawNotCompleted?: boolean | undefined;
-  delayPassed?: boolean | undefined;
-  throttlePassed?: boolean | undefined;
+  allPassed?: boolean; 
+  authorised?: boolean;
+  proposalExists?: boolean;
+  proposalPassed?: boolean;
+  proposalNotCompleted?: boolean;
+  lawCompleted?: boolean;
+  lawNotCompleted?: boolean;
+  delayPassed?: boolean;
+  throttlePassed?: boolean;
 }
 
 export type Action = {

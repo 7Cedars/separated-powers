@@ -92,7 +92,6 @@ export const useLaw = () => {
     }
   }
 
-
   const fetchSimulation = useCallback( 
     async (initiator: `0x${string}`, lawCalldata: `0x${string}`, description: string) => {
       setError(null)
@@ -110,6 +109,7 @@ export const useLaw = () => {
           setStatus("error") 
           setError(error)
         }
+        setStatus("idle") // immediately reset status
   }, [ ])
 
   const execute = useCallback( 
