@@ -25,7 +25,7 @@ const Page = () => {
   const [error, setError] = useState<any>(); 
   const {status, error: useLawError, simulation, resetStatus, execute, fetchSimulation} = useLaw(); 
 
-  console.log( "Law page: ", {checks, law})
+  // console.log( "Law page: ", {checks, law})
 
   const { data, isLoading, isError, error: errorInputParams } = useReadContract({
         abi: lawAbi,
@@ -36,27 +36,27 @@ const Page = () => {
   const dataTypes = params.map(param => param.dataType) 
 
   const handleSimulate = async (paramValues: (InputType | InputType[])[], description: string) => {
-      console.log("Handle Simulate called:", {paramValues, description})
+      // console.log("Handle Simulate called:", {paramValues, description})
       
       setError("")
       let lawCalldata: `0x${string}` | undefined
-      console.log("Handle Simulate waypoint 1") 
+      // console.log("Handle Simulate waypoint 1") 
       if (paramValues.length > 0 && paramValues) {
         try {
-          console.log("Handle Simulate waypoint 2a") 
+          // console.log("Handle Simulate waypoint 2a") 
           lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), paramValues); 
 
         } catch (error) {
-          console.log("Handle Simulate waypoint 2b") 
+          // console.log("Handle Simulate waypoint 2b") 
           setError(error as Error)
         }
       } else {
-        console.log("Handle Simulate waypoint 2c") 
+        // console.log("Handle Simulate waypoint 2c") 
         lawCalldata = '0x0'
       }
         // resetting store
       if (lawCalldata) { 
-        console.log("Handle Simulate waypoint 3:", {lawCalldata, dataTypes, paramValues, description}) 
+        // console.log("Handle Simulate waypoint 3:", {lawCalldata, dataTypes, paramValues, description}) 
         setAction({
           dataTypes: dataTypes,
           paramValues: paramValues,
@@ -65,7 +65,7 @@ const Page = () => {
           upToDate: true
         })
 
-        console.log("Handle Simulate called, action updated?", {action})
+        // console.log("Handle Simulate called, action updated?", {action})
 
         // simulating law. 
         fetchSimulation(
