@@ -63,7 +63,7 @@ const initialStateAction: ActionStore = {
 
 type RoleStore = Roles;
 const initialStateRole: RoleStore = {
-  roleId: 999, 
+  roleId: 999n, 
   holders: 0,
   laws: [],
   proposals: [], 

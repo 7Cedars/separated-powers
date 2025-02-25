@@ -9,6 +9,7 @@ import { publicClient } from "@/context/clients";
 import { readContract } from "wagmi/actions";
 import { GetBlockReturnType, Log, parseEventLogs, ParseEventLogsReturnType } from "viem";
 import { supportedChains } from "@/context/chains";
+import { sepolia } from "@wagmi/core/chains";
 
 export const useLaw = () => {
   const organisation = useOrgStore()
@@ -42,6 +43,7 @@ export const useLaw = () => {
   const fetchExecutions = async () => {
     let log: Log
     let blocksData: GetBlockReturnType[] = []
+    let executions2: Execution[] = []
 
     if (publicClient) {
       try {
@@ -70,20 +72,26 @@ export const useLaw = () => {
               for await (log of fetchedLogsTyped) {
                 if (log.blockNumber) {
                   const fetchedBlockData = await getBlock(wagmiConfig, {
-                    blockNumber: log.blockNumber
+                    blockNumber: log.blockNumber,
+                    chainId: sepolia.id
                   })
-                  blocksData.push(fetchedBlockData as GetBlockReturnType)
+                  if (fetchedBlockData) {
+                    executions2.push({
+                      log: log, 
+                      blocksData: {...fetchedBlockData, chainId: sepolia.id} 
+                    })
+                  }
                 } 
               } 
             }
 
-            const executionsFull = fetchedLogsTyped.map((log, index) => {
-              return {
-                log: log, 
-                blocksData: blocksData[index]
-              } as Execution
-            })
-            setExecutions(executionsFull)
+            // const executionsFull = fetchedLogsTyped.map((log, index) => {
+            //   return {
+            //     log: log, 
+            //     // blocksData: blocksData[index] as GetBlockReturnType
+            //   } as Execution
+            // })
+            setExecutions(executions2)
           } 
       } catch (error) {
         setStatus("error") 
