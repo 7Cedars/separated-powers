@@ -47,7 +47,7 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
 
-  console.log("@LawBox:", {action, description, status, lawBoxStatus, checks})
+  // console.log("@LawBox:", {action, description, status, lawBoxStatus, checks})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     const currentInput = paramValues 
@@ -100,11 +100,11 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
       <form action="" method="get" className="w-full">
         {
           params.map((param, index) => {
-            console.log("@dynamic form", {
-              param,
-              index, 
-              paramValues
-            })
+            // console.log("@dynamic form", {
+            //   param,
+            //   index, 
+            //   paramValues
+            // })
             
             return (
               <DynamicInput 

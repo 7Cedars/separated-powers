@@ -20,11 +20,10 @@ export const ChecksBox = ({checks}: {checks: Checks}) => {
   const router = useRouter();
   const law = useLawStore();
   const organisation = useOrgStore();
-  const action = useActionStore();
   const needCompletedLaw = organisation?.laws?.find(l => l.law == law.config.needCompleted); 
   const needNotCompletedLaw = organisation?.laws?.find(l => l.law == law.config.needNotCompleted); 
 
-  console.log("@fetchChecks, waypoint for, law box:", {checks} )
+  // console.log("@fetchChecks, waypoint for, law box:", {checks} )
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 

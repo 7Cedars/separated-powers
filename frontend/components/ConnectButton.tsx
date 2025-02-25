@@ -12,7 +12,7 @@ export const ConnectButton = () => {
   const {ready: walletsReady, wallets} = useWallets();
   const {ready, user, authenticated, login, logout, connectWallet, linkWallet} = usePrivy();
  
-  console.log({walletsReady, wallets, authenticated, user, ready})
+  // console.log({walletsReady, wallets, authenticated, user, ready})
 
   //NB see: 
   // https://github.com/privy-io/wagmi-demo/blob/main/app/page.tsx

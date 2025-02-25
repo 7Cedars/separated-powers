@@ -36,19 +36,27 @@ const Page = () => {
   const dataTypes = params.map(param => param.dataType) 
 
   const handleSimulate = async (paramValues: (InputType | InputType[])[], description: string) => {
+      console.log("Handle Simulate called:", {paramValues, description})
+      
       setError("")
       let lawCalldata: `0x${string}` | undefined
+      console.log("Handle Simulate waypoint 1") 
       if (paramValues.length > 0 && paramValues) {
         try {
+          console.log("Handle Simulate waypoint 2a") 
           lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), paramValues); 
+
         } catch (error) {
+          console.log("Handle Simulate waypoint 2b") 
           setError(error as Error)
         }
       } else {
+        console.log("Handle Simulate waypoint 2c") 
         lawCalldata = '0x0'
       }
         // resetting store
       if (lawCalldata) { 
+        console.log("Handle Simulate waypoint 3:", {lawCalldata, dataTypes, paramValues, description}) 
         setAction({
           dataTypes: dataTypes,
           paramValues: paramValues,
@@ -57,13 +65,16 @@ const Page = () => {
           upToDate: true
         })
 
+        console.log("Handle Simulate called, action updated?", {action})
+
         // simulating law. 
         fetchSimulation(
           wallets[0] ? wallets[0].address as `0x${string}` : '0x0', // needs to be wallet! 
           lawCalldata as `0x${string}`,
           keccak256(toHex(description))
         )
-        fetchChecks(law) 
+
+        fetchChecks(law, lawCalldata, description) 
       }
   };
 
@@ -83,7 +94,7 @@ const Page = () => {
       upToDate: false
     })
     fetchExecutions() 
-    fetchChecks(law)
+    fetchChecks(law, action.callData, action.description)
     resetStatus()
   }, [law])
 
@@ -99,7 +110,7 @@ const Page = () => {
 
 
   return (
-    <main className="w-full h-full flex flex-col justify-center items-center gap-1">
+    <main className="w-full h-full flex flex-col justify-center items-center gap-4 p-2">
       <GovernanceOverview law = {law} /> 
       {/* main body  */}
       <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-start items-start">
@@ -119,11 +130,11 @@ const Page = () => {
 
         {/* right panel: info boxes should only reads from zustand.  */}
         <div className="flex flex-col flex-wrap lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:my-4 my-0 lg:flex-col lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-scroll overflow-y-hidden scroll-snap-x">
-          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
+          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border border-slate-300 rounded-md max-w-80">
             {checks && <ChecksBox checks = {checks} />} 
           </div>
             <Children /> 
-          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80">
+          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border border-slate-300 rounded-md max-w-80">
             <Executions executions = {executions}/> 
           </div>
         </div>

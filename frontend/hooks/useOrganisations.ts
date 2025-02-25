@@ -151,7 +151,7 @@ export const useOrganisations = () => {
               logs
             })
             const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
-            console.log("@fetchRoleLabels:", {fetchedLogsTyped})
+            // console.log("@fetchRoleLabels:", {fetchedLogsTyped})
             // const fetchedLaws: Law[] = fetchedLogsTyped.map(log => log.args as Law)
           }
           return null 
@@ -200,7 +200,7 @@ export const useOrganisations = () => {
   const fetchOrgs = useCallback(
     async () => {
       setStatus("pending")
-      console.log("waypoint 3: fetchOrgs called")
+      // console.log("waypoint 3: fetchOrgs called")
 
       const defaultOrganisations = supportedChain?.organisations?.map(org => { return ({
         contractAddress: org
@@ -214,7 +214,7 @@ export const useOrganisations = () => {
         const proposalsPerOrg = await fetchProposals(defaultOrganisations)
         const roleLabels = await fetchRoleLabels(defaultOrganisations)
 
-        console.log("waypoint 4: data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg})
+        // console.log("waypoint 4: data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg})
 
         if (names && metadatas && lawsAndRoles && proposalsPerOrg) {
             const organisationsFetched = defaultOrganisations?.map((org, index) => {
@@ -231,7 +231,7 @@ export const useOrganisations = () => {
               )
             })
 
-            console.log("waypoint 5")
+            // console.log("waypoint 5")
             setOrganisations(organisationsFetched)
             localStorage.setItem("powersProtocol_savedOrgs", JSON.stringify(organisationsFetched, (key, value) =>
               typeof value === "bigint" ? Number(value) : value,
@@ -239,18 +239,18 @@ export const useOrganisations = () => {
           }  
         }
 
-        console.log("waypoint 8")
+        // console.log("waypoint 8")
         setStatus("success")
       }, []
     )
 
   const initialise = () => {
       // checks if orgs are stored in memory. If so, it does not query api and only reads from local storage.  
-      console.log("waypoint 1: initialise called")
+      // console.log("waypoint 1: initialise called")
       setStatus("pending")
       let localStore = localStorage.getItem("powersProtocol_savedOrgs")
       const saved: Organisation[] = localStore ? JSON.parse(localStore) : []
-      console.log("waypoint 2: local storage queried:", {saved})
+      // console.log("waypoint 2: local storage queried:", {saved})
 
       saved.length == 0 ? fetchOrgs() : setOrganisations(saved)
       setStatus("success")  
@@ -261,7 +261,7 @@ export const useOrganisations = () => {
     // updates laws, roles and proposal info of an existing organisation or fetches a new organisation - and stores it in local storage.  
     async (organisation: Organisation) => {
       setStatus("pending")
-      console.log("@updateOrg: TRIGGERED")
+      // console.log("@updateOrg: TRIGGERED")
 
       let localStore = localStorage.getItem("powersProtocol_savedOrgs")
       const saved: Organisation[] = localStore ? JSON.parse(localStore) : []
@@ -317,7 +317,7 @@ export const useOrganisations = () => {
         const roleLabels = await fetchRoleLabels([organisationToFetch])
         const proposalsPerOrg = await fetchProposals([organisationToFetch])
 
-        console.log("@AddOrg, data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg})
+        // console.log("@AddOrg, data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg})
 
         if (names && metadatas && lawsAndRoles && proposalsPerOrg) {
             const organisationFetched = 
@@ -331,7 +331,7 @@ export const useOrganisations = () => {
                   roles: lawsAndRoles[0].roles 
                 }  
 
-            console.log("@AddOrg", {organisationFetched})
+            // console.log("@AddOrg", {organisationFetched})
             const allOrgs = [...saved, organisationFetched]
             setOrganisations(allOrgs)
             localStorage.setItem("powersProtocol_savedOrgs", JSON.stringify(allOrgs, (key, value) =>

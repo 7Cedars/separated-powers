@@ -26,7 +26,7 @@ export default function Page() {
     const { organisations, status, initialise } = useOrganisations()
     // temp 
     const selectedLaw = organisations && organisations[1].activeLaws ? organisations[1].activeLaws[1] : undefined 
-    // console.log(organisations[0].activeLaws)
+    // // console.log(organisations[0].activeLaws)
 
     
     useEffect(() => {

@@ -4,10 +4,6 @@ import { useChainId } from "wagmi";
 
 const nameMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-export const toDateFormat = (timestamp: number): string => { 
-  return new Date(timestamp * 1000).toISOString().split('T')[0]
-}; 
-
 export const toShortDateFormat = (timestamp: number): string => {
   const date = new Date(timestamp * 1000) 
   const shortYear = date.getFullYear().toString() // .slice(2,4) 
@@ -44,7 +40,7 @@ export const blocksToHoursAndMinutes = (blocks: number, supportedChain: ChainPro
 
 export const orgToGovernanceTracks = (organisation: Organisation): {tracks: Law[][] | undefined , orphans: Law[] | undefined}  => {  
 
-  console.log("@orgToGovernanceTracks: ", {organisation})
+  // console.log("@orgToGovernanceTracks: ", {organisation})
 
   const childLawAddresses = organisation.activeLaws?.map(law => law.config.needCompleted
       ).concat(organisation.activeLaws?.map(law => law.config.needNotCompleted)
@@ -58,7 +54,7 @@ export const orgToGovernanceTracks = (organisation: Organisation): {tracks: Law[
   const end: Law[] | undefined = parentLaws?.filter(law => childLaws?.includes(law) == false)
   const orphans = organisation.activeLaws?.filter(law => childLaws?.includes(law) == false && parentLaws?.includes(law) == false)
 
-  console.log("@orgToGovernanceTracks: ", {start, middle, end, orphans})
+  // console.log("@orgToGovernanceTracks: ", {start, middle, end, orphans})
 
   const tracks1 = end?.map(law => {
     const dependencies = [law.config.needCompleted, law.config.needNotCompleted, law.config.readStateFrom]
@@ -79,7 +75,7 @@ export const orgToGovernanceTracks = (organisation: Organisation): {tracks: Law[
     orphans: orphans 
   }
 
-  console.log("@orgToGovernanceTracks: ", {result})
+  // console.log("@orgToGovernanceTracks: ", {result})
 
   return result
 

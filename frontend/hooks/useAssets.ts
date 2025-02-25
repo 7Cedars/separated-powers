@@ -32,7 +32,7 @@ export const useAssets = () => {
      if (publicClient) {
          for await (token of tokenAddresses) {
           try {
-            console.log("fetching token: ", token)
+            // console.log("fetching token: ", token)
            if (organisation?.contractAddress) {
             const name = await readContract(wagmiConfig, {
               abi: type ==  "erc20" ? erc20Abi : erc721Abi,
@@ -66,7 +66,7 @@ export const useAssets = () => {
               decimalParsed = decimal as bigint
             }
 
-            console.log({nameParsed, symbolParsed, balanceParsed, decimalParsed})
+            // console.log({nameParsed, symbolParsed, balanceParsed, decimalParsed})
 
             // NB! still need to include a conditional decimal check for ERC20s. 
 
@@ -91,7 +91,7 @@ export const useAssets = () => {
               })
             }
 
-            console.log({tokens, nameParsed, symbolParsed, balanceParsed, decimalParsed, type})
+            // console.log({tokens, nameParsed, symbolParsed, balanceParsed, decimalParsed, type})
               
            } 
          } catch (error) {
@@ -114,7 +114,7 @@ export const useAssets = () => {
         for await (token of erc1155Addresses) {
           try {
            const AccountsToCheck: `0x${string}`[] = new Array(Ids).fill(token);
-           console.log({AccountsToCheck})
+           // console.log({AccountsToCheck})
            const balancesRaw = await readContract(wagmiConfig, {
              abi: erc1155Abi,
              address: token,
@@ -123,7 +123,7 @@ export const useAssets = () => {
            })
            const balancesParsed: bigint[] = balancesRaw as bigint[]
            
-           console.log({balancesRaw, balancesParsed})
+           // console.log({balancesRaw, balancesParsed})
 
            let erc1155 = balancesParsed.map((balance, index) => {
             if (Number(balance) > 0) return ({
@@ -134,7 +134,7 @@ export const useAssets = () => {
            })
            const result: Token[] = erc1155.filter(token => token != undefined)
            erc1155s = result ? [...erc1155s, ...result] : erc1155s
-           console.log({erc1155s})     
+           // console.log({erc1155s})     
         } catch (error) {
           setStatus("error") 
           setError({token, error})
@@ -222,11 +222,11 @@ export const useAssets = () => {
   }, [ ])
 
   const initialise = () => {
-        console.log("waypoint 1: initialise called")
+        // console.log("waypoint 1: initialise called")
         setStatus("pending")
         let localStore = localStorage.getItem("powersProtocol_savedTokens")
         const saved: Token[] = localStore ? JSON.parse(localStore) : []
-        console.log("waypoint 2: local storage queried:", {saved})
+        // console.log("waypoint 2: local storage queried:", {saved})
   
         if (saved.length == 0) { fetchTokens(
           supportedChain?.erc20s ? supportedChain?.erc20s : [`0x0`], 

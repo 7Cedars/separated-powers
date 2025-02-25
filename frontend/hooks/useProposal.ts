@@ -11,7 +11,7 @@ import { parseEventLogs, ParseEventLogsReturnType } from "viem";
 import { useChainId } from 'wagmi'
 import { supportedChains } from "@/context/chains";
 import { getBlock } from '@wagmi/core'
-import { mainnet } from "@wagmi/core/chains";
+import { mainnet, sepolia } from "@wagmi/core/chains";
 
 export const useProposal = () => {
   const [status, setStatus ] = useState<Status>("idle")
@@ -102,17 +102,21 @@ export const useProposal = () => {
     if (publicClient) {
       try {
         for await (proposal of proposals) {
-          const existingProposal = organisation.proposals?.find(proposal => proposal.proposalId == proposal.proposalId)
+          const existingProposal = organisation.proposals?.find(p => p.proposalId == proposal.proposalId)
           if (!existingProposal || !existingProposal.voteStartBlockData?.chainId) {
+            // console.log("@getBlockData, waypoint 1: ", {proposal})
             const fetchedBlockData = await getBlock(wagmiConfig, {
-              blockNumber: proposal.blockNumber
+              blockNumber: proposal.voteStart,
+              chainId: sepolia.id, // NB This needs to be made dynamic. In this case need to read of sepolia because arbitrum uses mainnet block numbers.  
             })
             const blockDataParsed = fetchedBlockData as GetBlockReturnType
+            // console.log("@getBlockData, waypoint 2: ", {blockDataParsed})
             blocksData.push(blockDataParsed)
           } else {
             blocksData.push(existingProposal.voteStartBlockData ? existingProposal.voteStartBlockData : {} as GetBlockReturnType)
           }
         } 
+        // console.log("@getBlockData, waypoint 3: ", {blocksData})
         return blocksData
       } catch (error) {
         setStatus("error") 
@@ -123,19 +127,23 @@ export const useProposal = () => {
 
   const fetchProposals = useCallback(
     async (organisation: Organisation) => {
-      let proposals: Proposal[] | undefined;
-      let states: number[] | undefined; 
-      let blocks: GetBlockReturnType[] | undefined;
-      let proposalsFull: Proposal[] | undefined;
+      console.log("fetchProposals called, waypoint 1: ", {organisation})
+
+      let proposals: Proposal[] | undefined = [];
+      let states: number[] | undefined = []; 
+      let blocks: GetBlockReturnType[] | undefined = [];
+      let proposalsFull: Proposal[] | undefined = [];
 
       setError(null)
       setStatus("pending")
 
       proposals = await getProposals(organisation)
-      if (proposals) {
+      console.log("fetchProposals called, waypoint 2: ", {proposals})
+      if (proposals && proposals.length > 0) {
         states = await getProposalsState(proposals)
         blocks = await getBlockData(proposals)
       } 
+      console.log("fetchProposals called, waypoint 3: ", {states, blocks})
       if (states && blocks) { // + votes later.. 
         proposalsFull = proposals?.map((proposal, index) => {
           return ( 
@@ -143,6 +151,7 @@ export const useProposal = () => {
           )
         })
       }  
+      console.log("fetchProposals called, waypoint 4: ", {proposalsFull})
       setProposals(proposalsFull)
       assignOrg({...organisation, proposals: proposalsFull})
       setStatus("success") 
@@ -240,7 +249,7 @@ export const useProposal = () => {
       proposalId: bigint,
       account: `0x${string}`
     ) => {
-      console.log("checkHasVoted triggered")
+      // console.log("checkHasVoted triggered")
         setStatus("pending")
         setLaw("0x01") // note: a dummy value to signify cast vote 
         try {

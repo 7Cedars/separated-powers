@@ -24,7 +24,7 @@ export function Children() {
 
   return (
     childLaws?.length != 0 ? 
-    <div className="w-full flex grow flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80"> 
+    <div className="w-full flex grow flex-col gap-3 justify-start items-center bg-slate-50 border border-slate-300 rounded-md max-w-80"> 
     <section className="w-full flex flex-col text-sm text-slate-600" > 
       <div className="w-full flex flex-row items-center justify-between px-4 py-2 text-slate-900 border-b border-slate-300">
         <div className="text-left w-52">

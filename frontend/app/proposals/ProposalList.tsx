@@ -18,7 +18,7 @@ export function ProposalList() {
   const organisation = useOrgStore();
   const router = useRouter();
   const [ deselectedStatus, setDeselectedStatus] = useState<string[]>(['1', '2', '3', '4'])
-  const { status: statusUpdate, updateOrg } = useOrganisations()
+  const { status: statusFetch, fetchProposals } = useProposal()
   
   const possibleStatus: string[] = ['0', '1', '2', '3', '4']; 
 
@@ -93,11 +93,11 @@ export function ProposalList() {
         </div>
         <button 
           className="w-fit h-fit p-1"
-          onClick = {() => updateOrg(organisation)}
+          onClick = {() => fetchProposals(organisation)}
           >
             <ArrowPathIcon
               className="w-5 h-5 text-slate-800 aria-selected:animate-spin"
-              aria-selected={statusUpdate == 'pending'}
+              aria-selected={statusFetch == 'pending'}
               />
         </button>
       </div>
@@ -105,10 +105,10 @@ export function ProposalList() {
       {/* table banner:status  */}
       <div className="w-full flex flex-row gap-3 justify-between items-between py-2 overflow-y-scroll border-b border-slate-200 px-6">
       {
-        possibleStatus.map(option => {
+        possibleStatus.map((option, i) => {
           return (
             <button 
-            key = {option}
+            key = {i}
             onClick={() => handleStatusSelection(option)}
             className="w-fit h-full hover:text-slate-400 text-sm aria-selected:text-slate-800 text-slate-300"
             aria-selected = {!deselectedStatus?.includes(option)}
@@ -136,7 +136,7 @@ export function ProposalList() {
           {
             organisation.proposals?.map((proposal: Proposal, i) => {
               const law = organisation?.laws?.find(law => law.law == proposal.targetLaw)
-              console.log("timeStamp: ", proposal.voteStartBlockData?.timestamp)
+              // console.log("timeStamp: ", proposal.voteStartBlockData?.timestamp)
               return (
                 law && 
                 law.allowedRole != undefined && 

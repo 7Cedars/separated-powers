@@ -68,18 +68,19 @@ export function GovernanceOverview({law}: {law?: Law | undefined}) {
   }
 
   return (
-    <section className = "w-full h-fit flex flex-col justify-center items-center pt-2"> 
-      <div className = "w-full lg:max-w-6xl max-w-2xl h-full flex flex-wrap gap-4 justify-start items-start"> 
-      {
-        governanceTracks.tracks && governanceTracks.tracks.length > 0 && governanceTracks.tracks.map((track, index) => 
-          track && <GovernanceTrack track = {track} roleIds = {roleIdsParsed} lawSelected = {law} key = {index} bgItem = {bgItem} /> 
-        )
-      }
-      {
-        governanceTracks.orphans && governanceTracks.orphans.length > 0 && <GovernanceOrphans orphans = {governanceTracks.orphans} lawSelected = {law} roleIds = {roleIdsParsed} bgItem = {bgItem} /> 
-      }
+    <section className = "w-full h-full flex flex-col justify-start items-start pt-2 overflow-x-scroll">
+      <div className = "w-full h-full flex flex-col gap-4 min-w-[520px]">  
+        {
+          governanceTracks.tracks && governanceTracks.tracks.length > 0 && governanceTracks.tracks.map((track, index) => 
+            track && <GovernanceTrack track = {track} roleIds = {roleIdsParsed} lawSelected = {law} key = {index} bgItem = {bgItem} /> 
+          )
+        }
+        {
+          governanceTracks.orphans && governanceTracks.orphans.length > 0 && <GovernanceOrphans orphans = {governanceTracks.orphans} lawSelected = {law} roleIds = {roleIdsParsed} bgItem = {bgItem} /> 
+        }
+        
       </div> 
-    </section> 
+    </section>
   )
 }
 
@@ -167,9 +168,9 @@ function GovernanceOrphans({orphans, roleIds, lawSelected, bgItem}: TrackProps) 
       <div className = "relative w-full h-20 flex flex-wrap gap-10 justify-stretch items-center">
         {
           orphans && orphans.map((law, index) => 
-            <div 
+            <button 
               key = {index} 
-              className = {`min-w-32 max-w-full grow h-full aria-selected:opacity-100 opacity-50  border border-${roleColour[lawToColourCode(law)]} ${roleBgColour[lawToColourCode(law)]} rounded-md flex flex-row justify-center items-center gap-1`}
+              className = {`min-w-32 max-w-full grow h-full aria-selected:opacity-100 opacity-50 border border-${roleColour[lawToColourCode(law)]} ${roleBgColour[lawToColourCode(law)]} rounded-md flex flex-row justify-center items-center gap-1`}
               aria-selected = {
                 lawSelected ? 
                 law.law == lawSelected.law
@@ -191,7 +192,7 @@ function GovernanceOrphans({orphans, roleIds, lawSelected, bgItem}: TrackProps) 
                   { law.config.quorum != 0n && <UserGroupIcon className = "h-6 w-6 text-slate-700"/> }
               </div>
               </div>
-            </div> 
+            </button> 
           )
         }
         </div> 

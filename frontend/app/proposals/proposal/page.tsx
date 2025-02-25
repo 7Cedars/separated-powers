@@ -23,7 +23,7 @@ const Page = () => {
   }, [action])
 
   useEffect(() => {
-    fetchChecks(law)
+    fetchChecks(law, action.callData, action.description)
   }, [])
 
   return (
@@ -38,15 +38,15 @@ const Page = () => {
         </div>
 
         {/* right panel  */}
-        <div className="flex flex-col flex-wrap lg:flex-nowrap lg:max-h-full max-h-52 lg:w-96 lg:my-6 my-0 lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-scroll scroll-snap-x"> 
+        <div className="flex flex-col flex-wrap lg:flex-nowrap lg:max-h-full max-h-52 lg:w-96 lg:my-6 my-0 lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-scroll scroll-snap-x overflow-y-hidden"> 
       
-          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72">
+          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border border-slate-300 rounded-md max-w-72">
             <Law /> 
           </div>
-          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72">
-            { selectedProposal && <Status proposal = {selectedProposal} /> }
+          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border border-slate-300 rounded-md max-w-72">
+            { <Status proposal = {selectedProposal} /> }
           </div>
-          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72"> 
+          <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border border-slate-300 rounded-md max-w-72"> 
             { checks && <ChecksBox checks = {checks} /> }  
           </div>
             { selectedProposal && <Votes proposal = {selectedProposal} /> }

@@ -5,7 +5,7 @@ import { useReadContract } from 'wagmi'
 import { powersAbi } from "@/context/abi";
 import { Proposal } from "@/context/types";
 
-export const Status = ({proposal}: {proposal: Proposal}) => {
+export const Status = ({proposal}: {proposal?: Proposal}) => {
   const organisation = useOrgStore()
 
   const layout = `w-full flex flex-row justify-center items-center px-2 py-1 text-bold rounded-md`
@@ -13,7 +13,7 @@ export const Status = ({proposal}: {proposal: Proposal}) => {
     address: organisation.contractAddress,
     abi: powersAbi,  
     functionName: 'state',
-    args: [proposal.proposalId],
+    args: [proposal?.proposalId ? proposal.proposalId : '0x0'],
   })
 
   return (

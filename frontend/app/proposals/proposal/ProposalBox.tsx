@@ -50,7 +50,7 @@ export function ProposalBox() {
   const params = bytesToParams(data as `0x${string}`)  
   const dataTypes = params.map(param => param.dataType) 
 
-  console.log({statusProposal, action})
+  console.log("@proposalBox: ", {statusProposal, proposal, action, checks, law})
 
   const handleSimulate = async () => {
       if (dataTypes && dataTypes.length > 0 && calldata && description) {
@@ -69,7 +69,7 @@ export function ProposalBox() {
           keccak256(toHex(description))
         )
 
-        fetchChecks(law)
+        fetchChecks(law, calldata, description)
 
         if (!action.upToDate) {
           setAction({
@@ -119,7 +119,7 @@ export function ProposalBox() {
     if (statusProposal == 'success' && description && calldata) {
       // resetting action in zustand will trigger all components to reload.
       setAction({...action, upToDate: false })
-      fetchChecks(law)
+      fetchChecks(law, action.callData, action.description)
       checkHasVoted(
         BigInt(proposal.proposalId), 
         wallets[0].address as `0x${string}`
@@ -240,7 +240,10 @@ export function ProposalBox() {
               selected={true}
               statusButton={
                 checks && 
-                checks.authorised ? 
+                checks.authorised && 
+                checks.lawCompleted && 
+                checks.lawNotCompleted
+                ? 
                 statusProposal : 'disabled'
                 }> 
               Propose

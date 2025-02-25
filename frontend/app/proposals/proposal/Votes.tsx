@@ -20,7 +20,7 @@ export const Votes = ({proposal}: {proposal: Proposal}) => {
   const {data: blockNumber, error: errorBlockNumber} = useBlockNumber({
     chainId: sepolia.id, // NB: reading blocks from sepolia, because arbitrum One & sepolia reference these block numbers, not their own. 
   })
-  console.log({blockNumber, errorBlockNumber})
+  // console.log({blockNumber, errorBlockNumber})
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id === chainId)
   
