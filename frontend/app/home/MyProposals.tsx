@@ -46,7 +46,7 @@ export function MyProposals({hasRoles, authenticated, proposals}: MyProposalProp
   }) 
   const activeProposals = active?.filter(item => item != undefined)
 
-  console.log("@myProposals: ",  {activeProposals})
+  // console.log("@myProposals: ",  {activeProposals})
 
   return (
     <div className="w-full grow flex flex-col justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80"> 

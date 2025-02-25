@@ -36,7 +36,6 @@ export default function Page() {
     const [status, setStatus] = useState<Status>()
     const [error, setError] = useState<any | null>(null)
     const [hasRoles, setHasRoles] = useState<{role: bigint; since: bigint; blockData: GetBlockReturnType}[]>([])
-    const [description, setDescription] = useState<string>() 
     const chainId = useChainId();
     const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
@@ -57,8 +56,6 @@ export default function Page() {
                 functionName: 'hasRoleSince', 
                 args: [account, role]
                 })
-              
-                
                 if (fetchedSince) {
                 const fetchedBlockData = await getBlock(wagmiConfig, {
                   blockNumber: fetchedSince as bigint,
@@ -90,17 +87,17 @@ export default function Page() {
 
  
     return (
-      <main className="w-full h-full flex flex-col justify-center items-center gap-6 px-2">
+      <main className="w-full h-full flex flex-col justify-center items-center gap-3 px-2">
         {/* hero banner  */}
         <section className={`w-full min-h-[20vh] flex flex-col justify-center items-center text-center text-slate-50 text-5xl bg-gradient-to-bl ${colourScheme[organisation.colourScheme] } rounded-md`}> 
           {organisation?.name}
         </section>
         
         {/* Description + link to powers protocol deployment */}
-        { description &&  
+        { organisation?.metadatas?.description &&  
         <section className="w-full h-fit flex flex-col gap-2 justify-left items-center border border-slate-200 rounded-md bg-slate-50 lg:max-w-full max-w-3xl p-4">
           <div className="w-full text-slate-800 text-left text-pretty">
-            {description}
+            {organisation.metadatas.description}
           </div>
           <a
             href={`${supportedChain?.blockExplorerUrl}/address/${organisation.contractAddress}#code`} target="_blank" rel="noopener noreferrer"
@@ -122,7 +119,7 @@ export default function Page() {
         {/* main body  */}
         <section className="w-full lg:max-w-full h-full flex max-w-3xl lg:flex-row flex-col-reverse justify-end items-start">
           {/* left / bottom panel  */}
-          <div className = {"w-full"}>
+          <div className = {"w-full h-full min-h-fit"}>
             <Overview /> 
           </div>
           {/* right / top panel  */} 

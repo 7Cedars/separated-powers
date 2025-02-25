@@ -94,7 +94,7 @@ export type RoleLabel = {
 export type Organisation = {
   contractAddress: `0x${string}`;
   name?: string;
-  metadata?: Metadata; 
+  metadatas?: Metadata; 
   colourScheme: number;
   laws?: Law[];
   activeLaws?: Law[];

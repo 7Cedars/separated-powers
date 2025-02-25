@@ -29,9 +29,9 @@ export function Overview( ) {
   };
   
   return (
-    <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 border slate-300 rounded-md overflow-hidden">
+    <div className="w-full h-full flex flex-col gap-0 justify-start items-center bg-slate-50 border slate-300 rounded-md overflow-hidden">
     {/* table banner  */}
-    <div className="w-full flex flex-row gap-3 justify-between items-center py-2 px-4 overflow-y-scroll border-b slate-300">
+    <div className="w-full h-full flex flex-row gap-3 justify-between items-center py-2 px-4 overflow-y-scroll border-b slate-300">
       {organisation?.roles.map((role, i) => 
           <div className="flex flex-row w-full min-w-16 h-8" key={i}>
           <Button
@@ -57,7 +57,7 @@ export function Overview( ) {
     </div>
 
     {/* Overview here  */}
-    <div className = "w-full px-4 pt-2 pb-4"> 
+    <div className = "w-full h-full min-h-fit px-4 pt-2 pb-4"> 
       <GovernanceOverview /> 
     </div> 
   </div>

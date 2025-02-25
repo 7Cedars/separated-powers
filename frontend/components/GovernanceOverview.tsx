@@ -68,7 +68,7 @@ export function GovernanceOverview({law}: {law?: Law | undefined}) {
   }
 
   return (
-    <section className = "w-full h-full flex flex-col justify-start items-start pt-2 overflow-x-scroll">
+    <section className = "grow w-full h-full flex flex-col justify-start items-start pt-2 overflow-x-scroll">
       <div className = "w-full h-full flex flex-col gap-4 min-w-[520px]">  
         {
           governanceTracks.tracks && governanceTracks.tracks.length > 0 && governanceTracks.tracks.map((track, index) => 

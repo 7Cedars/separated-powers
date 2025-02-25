@@ -117,8 +117,8 @@ contract DeployGovernYourTax is Script {
         // initiating law
         vm.startBroadcast();
         law = new StartGrant(
-            "Create a grant", // max 31 chars
-            "Subject to a vote, a grant can be created. The token, budget and duration are pre-specified, as well as the role Id that will govern the grant.",
+            "Create a grant program", // max 31 chars
+            "Subject to a vote, a grant program can be created. The token, budget and duration are pre-specified, as well as the grant council that will govern the grant.",
             dao_, // separated powers
             2, // access role
             lawConfig, // bespoke configs for this law.
@@ -132,8 +132,8 @@ contract DeployGovernYourTax is Script {
         // initiating law
         vm.startBroadcast();
         law = new StopGrant(
-            "Stop a grant", // max 31 chars
-            "When a grant's budget is spent, or the grant is expired, it can be stopped.",
+            "Stop a grant program", // max 31 chars
+            "When a grant program's budget is spent, or the grant is expired, it can be stopped.",
             dao_, // separated powers
             2, // access role
             lawConfig // bespoke configs for this law.
@@ -153,7 +153,7 @@ contract DeployGovernYourTax is Script {
         vm.startBroadcast();
         law = new BespokeAction(
             "Stop law",
-            "The security Council can stop any active law.",
+            "The security council can stop any active law.",
             dao_, // separated powers
             3, // access role
             lawConfig, // bespoke configs for this law
@@ -175,7 +175,7 @@ contract DeployGovernYourTax is Script {
         vm.startBroadcast();
         law = new BespokeAction(
             "Restart law",
-            "The security Council can restart a law. They can only restart a law that they themselves stopped.",
+            "The security council can restart a law. They can only restart a law that they themselves stopped.",
             dao_, // separated powers
             3, // access role
             lawConfig, // bespoke configs for this law
@@ -232,8 +232,8 @@ contract DeployGovernYourTax is Script {
         // laws[7]
         vm.startBroadcast();
         law = new RoleByTaxPaid(
-            "Elect self for role 1", // max 31 chars
-            "Anyone who has paid sufficient tax (by using the Dao's ERC20 token) can claim a role 1. The threshold is 100MCK tokens per 100 blocks.",
+            "Elect self as community member", // max 31 chars
+            "Anyone who has paid sufficient tax (by using the Dao's ERC20 token) can become a community member. The threshold is 100MCK tokens per 100 blocks.",
             dao_,
             type(uint32).max, // access role = public access
             lawConfig,
@@ -247,8 +247,8 @@ contract DeployGovernYourTax is Script {
         // laws[8]
         vm.startBroadcast();
         law = new NominateMe(
-            "Nominate self for role 2", // max 31 chars
-            "Anyone can nominate themselves for role 2.",
+            "Nominate self for Governor", // max 31 chars
+            "Anyone can nominate themselves for a governor role.",
             dao_,
             type(uint32).max, // access role = public access
             lawConfig
@@ -260,8 +260,8 @@ contract DeployGovernYourTax is Script {
         lawConfig.readStateFrom = laws[8]; // law where nominations are made.
         vm.startBroadcast();
         law = new ElectionTally(
-            "Tally role 2 election", // max 31 chars
-            "Tally elections for role 2.",
+            "Tally governor elections", // max 31 chars
+            "Tally elections for governors.",
             dao_, // separated powers protocol.
             1, // Note: any community member can tally the election. It can only be done after election duration has finished.
             lawConfig, //  config file.
@@ -275,10 +275,10 @@ contract DeployGovernYourTax is Script {
         // laws[10]
         vm.startBroadcast();
         law = new ElectionCall(
-            "Call role 2 election", // max 31 chars
-            "An election is called by an oracle, as set by the admin. The nominated accounts with most votes from role 1 holders are then assigned to role 2.",
+            "Call role governor election", // max 31 chars
+            "An election is called by an oracle, as set by the admin. The nominated accounts with most votes from community members are then assigned as governors.",
             dao_, // separated powers protocol.
-            9, // oracle role id designation.
+            7, // oracle role id designation.
             lawConfig, //  config file.
             // bespoke configs for this law:
             2, // role id that is allowed to vote.
@@ -291,8 +291,8 @@ contract DeployGovernYourTax is Script {
         // laws[11]
         vm.startBroadcast();
         law = new NominateMe(
-            "Nominate self for role 3", // max 31 chars
-            "Nominate yourself for role 3.",
+            "Nominate self for security", // max 31 chars
+            "Nominate yourself for a position in the security council.",
             dao_,
             1, // access role = 1
             lawConfig
@@ -308,8 +308,8 @@ contract DeployGovernYourTax is Script {
         //
         vm.startBroadcast();
         law = new PeerSelect(
-            "Assign Role 3", // max 31 chars
-            "Role 3 are assigned by their peers through a majority vote.",
+            "Assign Security Council member", // max 31 chars
+            "Security Council members are assigned by their peers through a majority vote.",
             dao_, // separated powers protocol.
             3, // role 3 id designation.
             lawConfig, //  config file.
@@ -327,8 +327,8 @@ contract DeployGovernYourTax is Script {
         lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
         vm.startBroadcast();
         law = new DirectSelect(
-            "Elect and revoke role 4", // max 31 chars
-            "Elect and revoke members for role 4 (Grant council A)",
+            "Elect/revoke Grant Council A", // max 31 chars
+            "Elect and revoke members of Grant council A.",
             dao_, // separated powers protocol.
             2, // governors.
             lawConfig, //  config file.
@@ -340,8 +340,8 @@ contract DeployGovernYourTax is Script {
         // laws[14]: elect and revoke members to grant council B -- governance council votes.
         vm.startBroadcast();
         law = new DirectSelect(
-            "Elect and revoke role 5", // max 31 chars
-            "Elect and revoke members for role 5 (Grant council B)",
+            "Elect/revoke Grant Council B", // max 31 chars
+            "Elect and revoke members of Grant council B.",
             dao_, // separated powers protocol.
             2, // governors.
             lawConfig, //  config file. // same as law[9]
@@ -353,8 +353,8 @@ contract DeployGovernYourTax is Script {
         // laws[15]: elect and revoke members to grant council C -- governance council votes.
         vm.startBroadcast();
         law = new DirectSelect(
-            "Elect and revoke role 6", // max 31 chars
-            "Elect and revoke members for role 6 (Grant council C)",
+            "Elect/revoke Grant Council C", // max 31 chars
+            "Elect and revoke members of Grant council C.",
             dao_, // separated powers protocol.
             2, // governors.
             lawConfig, //  config file. // same as law[9]
@@ -369,40 +369,34 @@ contract DeployGovernYourTax is Script {
         vm.startBroadcast();
         law = new DirectSelect(
             "Set Oracle", // max 31 chars
-            "The admin selects accounts for role 9, the oracle role.",
+            "The admin selects accounts for an oracle role.",
             dao_, // separated powers protocol.
             0, // admin.
             lawConfig, //  config file.
-            9 // role id to be assigned
+            7 // role id to be assigned
         );
         vm.stopBroadcast();
         laws.push(address(law));
 
         // laws[17]: selfDestructPresetAction: assign initial accounts to security council.
-        address[] memory targets = new address[](3);
-        uint256[] memory values = new uint256[](3);
-        bytes[] memory calldatas = new bytes[](3);
+        address[] memory targets = new address[](9);
+        uint256[] memory values = new uint256[](9);
+        bytes[] memory calldatas = new bytes[](9);
         for (uint256 i = 0; i < targets.length; i++) {
             targets[i] = dao_;
         }
-        calldatas[0] = abi.encodeWithSelector(
-          Powers.assignRole.selector, 
-          3, 
-          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-        );
-        calldatas[1] = abi.encodeWithSelector(
-          Powers.assignRole.selector, 
-          3, 
-          0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-        );
-        calldatas[2] = abi.encodeWithSelector(
-          Powers.assignRole.selector, 
-          3, 
-          0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
-        );
+        calldatas[0] = abi.encodeWithSelector(Powers.assignRole.selector, 3, 0x328735d26e5Ada93610F0006c32abE2278c46211);
+        calldatas[1] = abi.encodeWithSelector(Powers.labelRole.selector, 1, "Member");
+        calldatas[2] = abi.encodeWithSelector(Powers.labelRole.selector, 2, "Governor");
+        calldatas[4] = abi.encodeWithSelector(Powers.labelRole.selector, 3, "Security Council");
+        calldatas[5] = abi.encodeWithSelector(Powers.labelRole.selector, 4, "Grant Council A");
+        calldatas[6] = abi.encodeWithSelector(Powers.labelRole.selector, 5, "Grant Council B");
+        calldatas[7] = abi.encodeWithSelector(Powers.labelRole.selector, 6, "Grant Council C");
+        calldatas[8] = abi.encodeWithSelector(Powers.labelRole.selector, 7, "Oracle");
+ 
         vm.startBroadcast();
         law = new SelfDestructPresetAction(
-            "Set initial roles 3", // max 31 chars
+            "Set initial roles and labels", // max 31 chars
             "The admin selects initial accounts for role 3. The law self destructs when executed.",
             dao_, // separated powers protocol.
             0, // admin.
