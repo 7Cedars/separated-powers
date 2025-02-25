@@ -140,22 +140,15 @@ export function ProposalList() {
                       }}
                       align={0}
                       selected={true}
-                    > <div className = "flex flex-row gap-3 w-full">
+                    > <div className = "flex flex-row gap-3 w-full min-w-48">
                       {`${toFullDateFormat(Number(proposal.voteStartBlockData?.timestamp))}: ${toEurTimeFormat(Number(proposal.voteStartBlockData?.timestamp))}`}
                       </div>
                     </Button>
                   </td>
-                  <td className="pe-4 text-slate-500 min-w-60">{law.name}</td>
+                  <td className="pe-4 text-slate-500 min-w-56">{law.name}</td>
                   <td className="pe-4 text-slate-500 min-w-48">{proposal.description}</td>
                   <td className="pe-4 text-slate-500">{parseProposalStatus(String(proposal.state))}</td>
-                  <td className="pe-4 min-w-20 text-slate-500"> { 
-                    law.allowedRole == 0n ? 
-                      "Admin"
-                    : law.allowedRole == 4294967295n ? 
-                        "Public"
-                      : 
-                        `Role ${law.allowedRole}`
-                      }
+                  <td className="pe-4 min-w-20 text-slate-500"> {bigintToRole(law.allowedRole, organisation)}
                   </td>
                 </tr>
                 : 

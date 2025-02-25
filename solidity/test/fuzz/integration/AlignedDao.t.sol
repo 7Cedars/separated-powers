@@ -375,18 +375,12 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
 
         address oracle = makeAddr("oracle");
         vm.startPrank(address(alignedDao));
-        alignedDao.assignRole(1, alice); // role 1s
-        vm.stopPrank();
-
-        vm.startPrank(address(alignedDao));
         alignedDao.assignRole(0, alice); // alice is assigned ADMIN ROLE
-        alignedDao.assignRole(1, bob);  // role 1s
-        alignedDao.assignRole(1, charlotte);
-        alignedDao.assignRole(1, david); 
-        alignedDao.assignRole(1, eve);
-        alignedDao.assignRole(1, frank);
-        alignedDao.assignRole(1, gary);
-        alignedDao.assignRole(1, helen);
+        alignedDao.assignRole(1, alice); // role 1s
+        alignedDao.assignRole(3, bob);  // role 2s
+        alignedDao.assignRole(3, charlotte);
+        alignedDao.assignRole(3, david); 
+        alignedDao.assignRole(3, eve);
         vm.stopPrank();
 
         // step 0a: distribute tokens. Tokens are distributed randomly.

@@ -133,31 +133,30 @@ export const useOrganisations = () => {
   }
 
   const fetchRoleLabels = async (organisations: Organisation[]) => {
-    console.log("@fetchRoleLabels, waypoint 1", {organisations})
+    // console.log("@fetchRoleLabels, waypoint 1", {organisations})
     let organisation: Organisation
-    let names: string[] = []
 
     if (publicClient) {
       try {
         for await (organisation of organisations) {
-            console.log("@fetchRoleLabels, waypoint 2", {organisation})
+            // console.log("@fetchRoleLabels, waypoint 2", {organisation})
             const logs = await publicClient.getContractEvents({ 
               abi: powersAbi, 
               address: organisation.contractAddress as `0x${string}`, 
               eventName: 'RoleLabel',
               fromBlock: supportedChain?.genesisBlock
             })
-            console.log("@fetchRoleLabels, waypoint 3", {logs})
+            // console.log("@fetchRoleLabels, waypoint 3", {logs})
             const fetchedLogs = parseEventLogs({
               abi: powersAbi,
               eventName: 'RoleLabel',
               logs
             })
-            console.log("@fetchRoleLabels, waypoint 4", {fetchedLogs})
+            // console.log("@fetchRoleLabels, waypoint 4", {fetchedLogs})
             const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
-            console.log("@fetchRoleLabels, waypoint 5", {fetchedLogsTyped})
+            // console.log("@fetchRoleLabels, waypoint 5", {fetchedLogsTyped})
             const fetchedRoleLabels: RoleLabel[] = fetchedLogsTyped.map(log => log.args as RoleLabel)
-            console.log("@fetchRoleLabels, waypoint 6", {fetchedRoleLabels})
+            // console.log("@fetchRoleLabels, waypoint 6", {fetchedRoleLabels})
             return fetchedRoleLabels
           }
           return null 

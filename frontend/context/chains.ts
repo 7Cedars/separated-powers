@@ -23,7 +23,7 @@ export const supportedChains: ChainProps[] = [
     blockTimeInSeconds: 12, // NB: this is the block time of mainnet because on arbitrum One & Arbitrum sepolia 'block.number' returns the block number of L1 *mainnet* not of the L2! . 
     // ps. when using wagmi's 'getBlock' or 'useBlock' you DO get timestamps based on the L2 blocks. That's just to make thinks simpler :/  
     organisations: [
-      "0x5895202E5f5B4532c72e366E78aA1bC96820b256", // alignedDao
+      "0xD54D38587694cb9E6Cfd59ba4c3e7f607A088b63", // alignedDao
       "0xE0E4241d127C301B1c60eB77c4e81E0Dd0D2E22b", // basicDao 
       "0xC7D21629dC327278E26F4883cb057d5f75C9fe2D", // govern Your Tax
       "0x0181A03C24183eA8F6469C88362B0958ACc474Ce" // diversified roles

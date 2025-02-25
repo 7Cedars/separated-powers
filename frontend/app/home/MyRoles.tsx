@@ -3,14 +3,19 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { bigintToRole } from "@/utils/bigintToRole";
+import { useOrgStore } from "@/context/store";
+import { GetBlockReturnType } from "@wagmi/core";
+import { toFullDateFormat } from "@/utils/toDates";
 
 type MyRolesProps = {
-  hasRoles: {role: bigint, since: bigint}[]; 
+  hasRoles: {role: bigint, since: bigint, blockData: GetBlockReturnType}[]; 
   authenticated: boolean; 
 }
 
 export function MyRoles({hasRoles, authenticated}: MyRolesProps ) {
   const router = useRouter();
+  const organisation = useOrgStore(); 
   const myRoles = hasRoles.filter(hasRole => hasRole.since != 0n)
 
   return (
@@ -44,18 +49,18 @@ export function MyRoles({hasRoles, authenticated}: MyRolesProps ) {
             </div>
           </div>
         {
-        myRoles?.map((role: {role: bigint, since: bigint}, i) =>
-          role.role == 4294967295n ? null :
+        myRoles?.map((role: {role: bigint, since: bigint, blockData: GetBlockReturnType}, i) =>
+          role.role != 4294967295n &&
           <div className ={`w-full p-1`} key = {i}>
             <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-2`}>
               <div className = "w-full flex flex-row justify-start items-center text-left">
                 {/* need to get the timestamp.. */}
                 {
-                  role.role == 0n ? "Admin" : `Role ${role.role}`
+                  bigintToRole(role.role, organisation)
                 }
               </div>
-              <div className = "w-full flex flex-row justify-end items-center text-right pe-4">
-                Since: {role.since} 
+              <div className = "grow w-full min-w-40 flex flex-row justify-end items-center text-right pe-4">
+                Since: {toFullDateFormat(Number(role.blockData.timestamp))} 
               </div>
             </div>
           </div>

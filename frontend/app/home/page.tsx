@@ -8,16 +8,16 @@ import { MyProposals } from "./MyProposals";
 import { Status } from "@/context/types";
 import { publicClient } from "@/context/clients";
 import { wagmiConfig } from "@/context/wagmiConfig";
-import { readContract } from "@wagmi/core";
+import { getBlock, GetBlockReturnType, readContract } from "@wagmi/core";
 import { powersAbi } from "@/context/abi";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { MyRoles } from "./MyRoles";
 import { Assets } from "./Assets";
-import { parseMetadata } from "@/utils/parsers";
 import { useChainId } from "wagmi";
 import { supportedChains } from "@/context/chains";
 import { useProposal } from "@/hooks/useProposal";
 import { Overview } from "./Overview";
+import {  sepolia } from "@wagmi/core/chains";
 
 const colourScheme = [
   "from-indigo-500 to-emerald-500", 
@@ -35,7 +35,7 @@ export default function Page() {
     const { authenticated } = usePrivy();
     const [status, setStatus] = useState<Status>()
     const [error, setError] = useState<any | null>(null)
-    const [hasRoles, setHasRoles] = useState<{role: bigint; since: bigint}[]>([])
+    const [hasRoles, setHasRoles] = useState<{role: bigint; since: bigint; blockData: GetBlockReturnType}[]>([])
     const [description, setDescription] = useState<string>() 
     const chainId = useChainId();
     const supportedChain = supportedChains.find(chain => chain.id == chainId)
@@ -45,7 +45,8 @@ export default function Page() {
     const fetchMyRoles = useCallback(
       async (account: `0x${string}`, roles: bigint[]) => {
         let role: bigint; 
-        let fetchedHasRole: {role: bigint; since: bigint}[] = []; 
+        let fetchedHasRole: {role: bigint; since: bigint; blockData: GetBlockReturnType}[] = []; 
+        let blockData: GetBlockReturnType = {} as GetBlockReturnType;
 
         if (publicClient) {
           try {
@@ -56,7 +57,16 @@ export default function Page() {
                 functionName: 'hasRoleSince', 
                 args: [account, role]
                 })
-              fetchedHasRole.push({role, since: fetchedSince as bigint})
+              
+                
+                if (fetchedSince) {
+                const fetchedBlockData = await getBlock(wagmiConfig, {
+                  blockNumber: fetchedSince as bigint,
+                  chainId: sepolia.id, // NB This needs to be made dynamic. In this case need to read of sepolia because arbitrum uses mainnet block numbers.  
+                })
+                blockData = fetchedBlockData as GetBlockReturnType
+              }
+              fetchedHasRole.push({role, since: fetchedSince as bigint, blockData: blockData as GetBlockReturnType})
               }
               setHasRoles(fetchedHasRole)
           } catch (error) {

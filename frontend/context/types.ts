@@ -112,7 +112,7 @@ export type Role = {
 }
 
 export type Roles = {
-  roleId: number;
+  roleId: bigint;
   holders?: number;
   laws?: Law[];
   proposals?: Proposal[];

@@ -41,7 +41,7 @@ contract DeployAlignedDao is Script {
     function run()
         external
         returns (
-            address payable dao, 
+            address payable dao,  
             address[] memory constituentLaws, 
             HelperConfig.NetworkConfig memory config, 
             address payable mock20votes_, 
@@ -112,7 +112,7 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new ProposalOnly(
             "Propose to add / remove value",
-            "Propose to add a new core value to or remove an existing from the Dao. Subject to a vote and cannot be implemented.",
+            "Members can propose to add a new core value to or remove an existing from the Dao. Subject to a vote and cannot be implemented.",
             dao_,
             1, // access role
             lawConfig,
@@ -131,7 +131,7 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new StringsArray(
             "Add and Remove values",
-            "Accept & implement a proposed decision to add or remove a value from the Dao.",
+            "Governors accept & implement a proposed decision to add or remove a value from the Dao.",
             dao_, // separated powers
             2, // access role
             lawConfig // bespoke configs for this law
@@ -148,7 +148,7 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new RevokeMembership(
             "Revoke membership", // max 31 chars
-            "Subject to a vote, a member's role can be revoked and their access token burned.",
+            "Seniors can, subject to a vote, revoke a member's role and have their access token burned.",
             dao_, // separated powers
             3, // access role
             lawConfig, // bespoke configs for this law.
@@ -190,7 +190,7 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new ReinstateRole(
             "Reinstate member",
-            "Members can be reinstated after a challenge was made.",
+            "Governors can reinstate a member after members formalised a challenge.",
             dao_,
             2, // access role
             lawConfig,
@@ -224,7 +224,7 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new NftSelfSelect(
             "Elect self for member role", // max 31 chars
-            string.concat("Anyone who knows how to mint an NFT at ", Strings.toHexString(uint256(addressToInt(mock721_)), 20), " can (de)select themselves for role 1, the member role. Mint an NFT and claim the role!"),
+            string.concat("Anyone who knows how to mint an NFT at ", Strings.toHexString(uint256(addressToInt(mock721_)), 20), " can (de)select themselves for a member role. Mint an NFT and claim the role!"),
             dao_,
             type(uint32).max, // access role = public access
             lawConfig,
@@ -238,7 +238,7 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for governor", // max 31 chars
-            "Anyone can nominate themselves for role 2.",
+            "Anyone can nominate themselves for a governor role.",
             dao_,
             type(uint32).max, // access role = public access
             lawConfig
@@ -251,12 +251,12 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new DelegateSelect(
             "Call governor election", // max 31 chars
-            "An election is called by an oracle, as set by the admin. The nominated accounts with most delegated vote tokens are then assigned to role 2.",
+            "Governor elections are called by an oracle, as set by the admin. The five nominated accounts with most delegated vote tokens are then assigned as governor.",
             dao_, // separated powers protocol.
-            9, // oracle role id designation.
+            4, // oracle role id designation.
             lawConfig, //  config file.
             mock20votes_, // the tokens that will be used as votes in the election.
-            5, // maximum amount of delegates
+            5, // maximum amount of governors
             2 // role id to be assigned
         );
         vm.stopBroadcast();
@@ -267,7 +267,7 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for senior", // max 31 chars
-            "Anyone can nominate themselves for role 3.",
+            "Anyone can nominate themselves as a senior.",
             dao_,
             type(uint32).max, // access role = public access
             lawConfig
@@ -302,7 +302,7 @@ contract DeployAlignedDao is Script {
         vm.startBroadcast();
         law = new ProposalOnly(
             "Propose oracle", // max 31 chars
-            "Propose an account as oracle.",
+            "The admin proposes an account as oracle.",
             dao_, // separated powers protocol.
             0, // admin.
             lawConfig, //  config file.
@@ -312,39 +312,40 @@ contract DeployAlignedDao is Script {
         laws.push(address(law));
 
         // laws[12]
-        lawConfig.quorum = 5; // = Two thirds quorum needed to pass the proposal
+        lawConfig.quorum = 30; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
-        lawConfig.readStateFrom = laws[11]; // ProposalOnly
+        lawConfig.needCompleted = laws[11]; // ProposalOnly 
         vm.startBroadcast();
         law = new DirectSelect(
             "Accept oracle", // max 31 chars
-            "Accept proposed account as oracle.",
+            "Seniors accept the proposed account as oracle.",
             dao_, // separated powers protocol.
-            1, // role 1.
+            3, // role 1.
             lawConfig, //  config file.
-            9 // role id to be assigned
+            4 // role id to be assigned
         );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
         // laws[13]: selfDestructPresetAction: assign initial accounts to role 3.
-        address[] memory targets = new address[](1);
-        uint256[] memory values = new uint256[](1);
-        bytes[] memory calldatas = new bytes[](1);
+        address[] memory targets = new address[](4);
+        uint256[] memory values = new uint256[](4);
+        bytes[] memory calldatas = new bytes[](4);
         for (uint256 i = 0; i < targets.length; i++) {
             targets[i] = dao_;
         }
-        calldatas[0] = abi.encodeWithSelector(
-          Powers.assignRole.selector, 
-          3, 
-          0x328735d26e5Ada93610F0006c32abE2278c46211
-        );
+        calldatas[0] = abi.encodeWithSelector(Powers.assignRole.selector, 3, 0x328735d26e5Ada93610F0006c32abE2278c46211);
+        calldatas[1] = abi.encodeWithSelector(Powers.labelRole.selector, 1, "Member");
+        calldatas[2] = abi.encodeWithSelector(Powers.labelRole.selector, 2, "Governor");
+        calldatas[3] = abi.encodeWithSelector(Powers.labelRole.selector, 3, "Senior");
+        calldatas[3] = abi.encodeWithSelector(Powers.labelRole.selector, 4, "Oracle");
+        
         vm.startBroadcast();
         law = new SelfDestructPresetAction(
-            "Set initial senior role", // max 31 chars
-            "The admin selects an initial senior account. The law self destructs when executed.",
+            "Set initial labels & role", // max 31 chars
+            "The admin assigns an initial account to the senior role and gives role ids their labels. The law self destructs when executed.",
             dao_, // separated powers protocol.
             0, // admin.
             lawConfig, //  config file.

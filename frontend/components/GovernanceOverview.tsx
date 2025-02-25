@@ -95,8 +95,8 @@ function GovernanceTrack({track, roleIds, lawSelected, bgItem}: TrackProps) {
           track && track.map((law, index) => 
             <div key = {index} className = {`w-full h-full flex flex-row justify-between items-center gap-1 border border-${roleColour[lawToColourCode(law)]} ${roleBgColour[lawToColourCode(law)]} rounded-md`}>
               { index == track.length - 1 &&  <div className = "w-12"/> }
-              <div className = "flex flex-col w-full h-full justify-center items-center gap-1">
-                <div className = "text-sm text-pretty p-1 px-4 text-center text-slate-700">
+              <div className = "flex flex-col w-full h-full justify-center items-center gap-0">
+                <div className = "text-sm text-pretty p-1 px-4 text-center text-slate-700 max-w-44">
                   {law.name}
                 </div>
                 <div className = "flex flex-row gap-1"> 

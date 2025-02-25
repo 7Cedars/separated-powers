@@ -13,6 +13,7 @@ import { readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { setRole } from "@/context/store"
 import { useOrganisations } from "@/hooks/useOrganisations";
+import { bigintToRole } from "@/utils/bigintToRole";
 
 export function RoleList() {
   const organisation = useOrgStore();
@@ -25,11 +26,11 @@ export function RoleList() {
 
   const fetchRoleHolders = useCallback(
     async (roleIds: bigint[]) => {
-      let roleId: number; 
+      let roleId: bigint; 
       let rolesFetched: Roles[] = []; 
       let lawsFetched: number[]; 
 
-      const roleIdsParsed = roleIds.map(roleId => Number(roleId))
+      const roleIdsParsed = roleIds.map(roleId => roleId)
 
       setError(null)
       setStatus("pending")
@@ -88,9 +89,9 @@ export function RoleList() {
         </thead>
         <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
           {
-            roles?.map((role: Roles) =>
-              <tr>
-                <td className="flex flex-col w-full max-w-60 justify-center items-start text-left rounded-bl-md px-4 py-3 w-fit">
+            roles?.map((role: Roles, i: number) =>
+              <tr key = {i}>
+                <td className="flex flex-col w-full max-w-60 min-w-40 justify-center items-start text-left rounded-bl-md px-4 py-3 w-fit">
                  <Button
                     showBorder={true}
                     selected={true}
@@ -102,14 +103,10 @@ export function RoleList() {
                     }}
                     align={0}
                   >
-                  { 
-                    role.roleId == 0 ? "Admin"
-                    : role.roleId == 4294967295 ? "Public"
-                    : `Role ${role.roleId}` 
-                  }
+                  {bigintToRole(role.roleId, organisation)} 
                   </Button>
                 </td>
-                <td className="pe-4 text-left text-slate-500 text-center">{role.roleId == 4294967295 ? 'n/a' : role.holders}</td>
+                <td className="pe-4 text-left text-slate-500 text-center">{role.roleId == 4294967295n ? '-' : role.holders}</td>
                 <td className="pe-4 text-right pe-8 text-slate-500">{role.laws?.length} </td>
               </tr> 
             )
