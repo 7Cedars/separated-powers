@@ -12,7 +12,8 @@ export function ExampleDemos({organisations}: {organisations: Organisation[]}) {
   const { status, fetchOrgs } = useOrganisations()
  
   return (
-    <section className = "w-full min-w-[60vw] min-h-fit flex flex-col justify-between items-center snap-start px-4 pb-10"> 
+    // min-w-[60vw]
+    <section className = "w-full  min-h-fit flex flex-col justify-between items-center snap-start px-4 pb-10"> 
       <div className = "h-fit flex flex-col justify-center items-center min-h-60"> 
         <div className = "w-full flex flex-row justify-center items-center md:text-4xl text-2xl text-slate-600 text-center max-w-4xl text-pretty font-bold pt-24 px-4">
             Want to play around with a live demo?

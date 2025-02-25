@@ -36,7 +36,7 @@ export function MyRoles({hasRoles, authenticated}: MyRolesProps ) {
         </button>
        {
       authenticated ? 
-      <div className = "w-full flex flex-col justify-center items-center max-h-48 overflow-y-scroll divider-slate-300 divide-y">
+      <div className = "w-full flex flex-col justify-center items-center lg:max-h-48 max-h-36 overflow-y-scroll divider-slate-300 divide-y">
            <div className ={`w-full p-1`}>
             <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-2`}>
               <div className = "w-full flex flex-row justify-start items-center text-left">
@@ -49,10 +49,8 @@ export function MyRoles({hasRoles, authenticated}: MyRolesProps ) {
             </div>
           </div>
         {
-        myRoles?.map((role: {role: bigint, since: bigint, blockData: GetBlockReturnType}, i) =>
-          role.role != 4294967295n &&
-          <div className ={`w-full p-1`} key = {i}>
-            <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-2`}>
+        myRoles?.map((role: {role: bigint, since: bigint, blockData: GetBlockReturnType}, i) => 
+            <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-3 p-1`} key = {i}>
               <div className = "w-full flex flex-row justify-start items-center text-left">
                 {/* need to get the timestamp.. */}
                 {
@@ -62,9 +60,8 @@ export function MyRoles({hasRoles, authenticated}: MyRolesProps ) {
               <div className = "grow w-full min-w-40 flex flex-row justify-end items-center text-right pe-4">
                 Since: {toFullDateFormat(Number(role.blockData.timestamp))} 
               </div>
-            </div>
-          </div>
-          )
+              </div>
+            )
         }
       </div>
   : 

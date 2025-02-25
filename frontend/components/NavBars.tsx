@@ -27,7 +27,7 @@ const NavigationBar = () => {
   const path = usePathname()
 
   return (
-    <div className="w-full h-full flex flex-row gap-1 justify-center items-center px-2 py-1 md:py-0"> 
+    <div className="w-full h-full flex flex-row gap-1 justify-center items-center px-2 py-1 md:py-0 overflow-hidden"> 
             <button 
               onClick={() => router.push('/home')}
               aria-selected={path == `/home`} 
@@ -102,7 +102,7 @@ const Header = () => {
   const path = usePathname()
  
   return (
-    <div className="absolute top-0 z-20 h-14 w-screen py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
+    <div className="absolute top-0 z-20 h-14 w-screen py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300 overflow-hidden">
     <section className="grow flex flex-row gap-1 justify-between px-2 max-w-screen-xl">
       <div className="flex flex-row gap-1 min-w-48"> 
         <Button size = {0} onClick={
@@ -169,7 +169,7 @@ const Header = () => {
 
 const NavigationSmallScreen = () => {  
   return (
-     <div className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:opacity-0 opacity-100 w-full text-sm px-4">
+     <div className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:opacity-0 opacity-100 w-full text-sm px-4 overflow-hidden">
         {NavigationBar()}  
     </div>
   )
@@ -197,9 +197,9 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
         {/* <Footer /> */}
       </div>
       : 
-        <div className="w-full max-h-full flex flex-col justify-center items-center">
+        <div className="w-full flex flex-col justify-center items-center">
           <Header /> 
-          <main className="max-w-screen-lg w-full max-h-fit grid grid-cols-1 justify-items-start content-start overflow-y-scroll pt-16 pb-20">
+          <main className="w-full h-full">
             {props.children}   
           </main>
           <NavigationSmallScreen /> 
