@@ -9,7 +9,7 @@ import { CheckIcon, XMarkIcon} from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { useBlockNumber, useChainId, useReadContracts } from "wagmi";
 import { mainnet, sepolia } from "@wagmi/core/chains";
-import { blocksToHoursAndMinutes } from "@/utils/transformData";
+import { blocksToHoursAndMinutes } from "@/utils/toDates";
 import { supportedChains } from "@/context/chains";
 import { useChecks } from "@/hooks/useChecks";
 

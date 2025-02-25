@@ -86,6 +86,11 @@ export type Metadata = {
   attributes: Attribute[]
 }
 
+export type RoleLabel = { 
+  roleId: bigint; 
+  label: string; 
+}
+
 export type Organisation = {
   contractAddress: `0x${string}`;
   name?: string;
@@ -95,6 +100,7 @@ export type Organisation = {
   activeLaws?: Law[];
   proposals?: Proposal[];
   roles: bigint[];
+  roleLabels: RoleLabel[];
   deselectedRoles?: bigint[];
 }
 

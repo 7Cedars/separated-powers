@@ -1,4 +1,4 @@
-import { Status, Proposal, Organisation, Law, Metadata } from "../context/types"
+import { Status, Proposal, Organisation, Law, Metadata, RoleLabel } from "../context/types"
 import { readContracts } from '@wagmi/core'
 import { wagmiConfig } from '../context/wagmiConfig'
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -133,26 +133,32 @@ export const useOrganisations = () => {
   }
 
   const fetchRoleLabels = async (organisations: Organisation[]) => {
+    console.log("@fetchRoleLabels, waypoint 1", {organisations})
     let organisation: Organisation
     let names: string[] = []
 
     if (publicClient) {
       try {
         for await (organisation of organisations) {
+            console.log("@fetchRoleLabels, waypoint 2", {organisation})
             const logs = await publicClient.getContractEvents({ 
               abi: powersAbi, 
               address: organisation.contractAddress as `0x${string}`, 
               eventName: 'RoleLabel',
               fromBlock: supportedChain?.genesisBlock
             })
+            console.log("@fetchRoleLabels, waypoint 3", {logs})
             const fetchedLogs = parseEventLogs({
-              abi: lawAbi,
+              abi: powersAbi,
               eventName: 'RoleLabel',
               logs
             })
+            console.log("@fetchRoleLabels, waypoint 4", {fetchedLogs})
             const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
-            // console.log("@fetchRoleLabels:", {fetchedLogsTyped})
-            // const fetchedLaws: Law[] = fetchedLogsTyped.map(log => log.args as Law)
+            console.log("@fetchRoleLabels, waypoint 5", {fetchedLogsTyped})
+            const fetchedRoleLabels: RoleLabel[] = fetchedLogsTyped.map(log => log.args as RoleLabel)
+            console.log("@fetchRoleLabels, waypoint 6", {fetchedRoleLabels})
+            return fetchedRoleLabels
           }
           return null 
         } catch (error) {
@@ -214,9 +220,9 @@ export const useOrganisations = () => {
         const proposalsPerOrg = await fetchProposals(defaultOrganisations)
         const roleLabels = await fetchRoleLabels(defaultOrganisations)
 
-        // console.log("waypoint 4: data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg})
+        console.log("waypoint 4: data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg, roleLabels})
 
-        if (names && metadatas && lawsAndRoles && proposalsPerOrg) {
+        if (names && metadatas && lawsAndRoles && proposalsPerOrg && roleLabels) {
             const organisationsFetched = defaultOrganisations?.map((org, index) => {
               return ( 
                 { ...org, 
@@ -226,7 +232,8 @@ export const useOrganisations = () => {
                   laws: lawsAndRoles[index].laws, 
                   activeLaws: lawsAndRoles[index].activeLaws, 
                   proposals: proposalsPerOrg[index], 
-                  roles: lawsAndRoles[index].roles 
+                  roles: lawsAndRoles[index].roles, 
+                  roleLabels: roleLabels
                 }
               )
             })
@@ -272,13 +279,14 @@ export const useOrganisations = () => {
         const roleLabels = await fetchRoleLabels([organisation])
         const proposalsPerOrg = await fetchProposals([organisation])
 
-        if (lawsAndRoles && proposalsPerOrg) {
+        if (lawsAndRoles && proposalsPerOrg && roleLabels) {
           const updatedOrg = 
           { ...orgToUpdate,  
             laws: lawsAndRoles[0].laws, 
             activeLaws: lawsAndRoles[0].activeLaws, 
             proposals: proposalsPerOrg[0], 
-            roles: lawsAndRoles[0].roles 
+            roles: lawsAndRoles[0].roles, 
+            roleLabels: roleLabels
           }
           
           const updatedOrgs: Organisation[] = saved.map(
@@ -319,7 +327,7 @@ export const useOrganisations = () => {
 
         // console.log("@AddOrg, data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg})
 
-        if (names && metadatas && lawsAndRoles && proposalsPerOrg) {
+        if (names && metadatas && lawsAndRoles && proposalsPerOrg && roleLabels) {
             const organisationFetched = 
                 { ...organisationToFetch, 
                   name: names[0], 
@@ -328,7 +336,8 @@ export const useOrganisations = () => {
                   laws: lawsAndRoles[0].laws, 
                   activeLaws: lawsAndRoles[0].laws, 
                   proposals: proposalsPerOrg[0], 
-                  roles: lawsAndRoles[0].roles 
+                  roles: lawsAndRoles[0].roles, 
+                  roleLabels: roleLabels
                 }  
 
             // console.log("@AddOrg", {organisationFetched})

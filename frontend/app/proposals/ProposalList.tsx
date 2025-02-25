@@ -10,7 +10,8 @@ import { useProposal } from "@/hooks/useProposal";
 import { setProposal } from "@/context/store"
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useOrganisations } from "@/hooks/useOrganisations";
-import { toEurTimeFormat, toFullDateFormat } from "@/utils/transformData";
+import { toEurTimeFormat, toFullDateFormat } from "@/utils/toDates";
+import { bigintToRole } from "@/utils/bigintToRole";
 
 
 // NB: need to delete action from store? Just in case? 
@@ -22,7 +23,7 @@ export function ProposalList() {
   
   const possibleStatus: string[] = ['0', '1', '2', '3', '4']; 
 
-  console.log({organisation})
+  // console.log({organisation})
 
   const handleRoleSelection = (role: bigint) => {
     let newDeselection: bigint[] = []
@@ -54,43 +55,19 @@ export function ProposalList() {
         <div className="text-slate-900 text-center font-bold text-lg">
           Proposals
         </div>
-        <div className="flex flex-row w-full min-w-16 h-8"> 
-          <Button
-            size={0}
-            showBorder={true}
-            role={0}
-            onClick={() => handleRoleSelection(0n)}
-            selected={!organisation?.deselectedRoles?.includes(0n)}
-          >
-            Admin
-          </Button>
-        </div>
-        {organisation?.roles.map((role) => {
-          return role != 0n && role != 4294967295n ? (
-            <div className="flex flex-row w-full min-w-16 h-8">
+        {organisation?.roles.map((role, i) => 
+            <div className="flex flex-row w-full min-w-16 h-8" key={i}>
             <Button
               size={0}
               showBorder={true}
-              role={Number(role)}
+              role={role == 4294967295n ? 6 : Number(role)}
               selected={!organisation?.deselectedRoles?.includes(BigInt(role))}
-              onClick={() => handleRoleSelection((BigInt(role)))}
+              onClick={() => handleRoleSelection(BigInt(role))}
             >
-              Role {role}
+              {bigintToRole(role, organisation)} 
             </Button>
             </div>
-          ) : null;
-        })}
-        <div className="flex flex-row w-full min-w-16 h-8"> 
-          <Button
-            size={0}
-            showBorder={true}
-            role={6}
-            onClick={() => handleRoleSelection(4294967295n)}
-            selected={!organisation?.deselectedRoles?.includes(4294967295n)}
-          >
-            Public
-          </Button>
-        </div>
+        )}
         <button 
           className="w-fit h-fit p-1"
           onClick = {() => fetchProposals(organisation)}
@@ -147,7 +124,7 @@ export function ProposalList() {
                   key={i}
                   className={`text-sm text-left text-slate-800 h-full p-2 overflow-x-scroll`}
                 >
-                  <td className="h-full w-full flex flex-col text-center justify-center items-center text-left p-2 px-4">
+                  <td className="h-full w-full flex flex-col text-center justify-center items-center text-left py-3 px-4">
                     <Button
                       showBorder={true}
                       role={parseRole(law.allowedRole)}

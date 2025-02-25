@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { CalendarDaysIcon, QueueListIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 import { Law, Organisation } from "@/context/types";
-import { orgToGovernanceTracks } from "@/utils/transformData";
+import { orgToGovernanceTracks } from "@/utils/orgToGovOverview";
 import { setLaw, useLawStore, useOrgStore } from "@/context/store";
 import { usePathname, useRouter } from "next/navigation";
 

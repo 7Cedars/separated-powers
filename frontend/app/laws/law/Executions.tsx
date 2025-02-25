@@ -10,7 +10,7 @@ import { powersAbi } from "@/context/abi";
 import { publicClient } from "@/context/clients";
 import { getBlock, GetBlockReturnType } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
-import { toEurTimeFormat, toFullDateFormat } from "@/utils/transformData";
+import { toEurTimeFormat, toFullDateFormat } from "@/utils/toDates";
  
  
 export const Executions = ({executions}: {executions: Execution[] | undefined}) => {

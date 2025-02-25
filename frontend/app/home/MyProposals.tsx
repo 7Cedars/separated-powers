@@ -4,7 +4,7 @@ import { useOrgStore, setProposal, setAction, setLaw} from "@/context/store";
 import { Proposal } from "@/context/types";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { toFullDateFormat } from "@/utils/transformData";
+import { toFullDateFormat } from "@/utils/toDates";
 
 const roleColour = [  
   "border-blue-600", 
@@ -41,7 +41,7 @@ export function MyProposals({hasRoles, authenticated, proposals}: MyProposalProp
       >
       <div className="w-full flex flex-row gap-6 items-center justify-between px-2">
         <div className="text-left text-sm text-slate-600 w-52">
-          My proposals
+          My active proposals
         </div> 
           <ArrowUpRightIcon
             className="w-4 h-4 text-slate-800"
@@ -58,7 +58,7 @@ export function MyProposals({hasRoles, authenticated, proposals}: MyProposalProp
           proposals?.map((proposal: Proposal, i) => {
               const law = organisation?.laws?.find(law => law.law == proposal.targetLaw)
               return (
-              law && law.allowedRole != undefined && myRoles.includes(law.allowedRole) ? 
+              law && law.allowedRole != undefined && myRoles.includes(law.allowedRole) && proposal.state == 0 ? 
                 <div className = "w-full px-2" key={i}>
                   <button 
                     className = {`w-full h-full disabled:opacity-50 rounded-md border ${roleColour[Number(law.allowedRole)]} text-sm p-1 px-2`} 

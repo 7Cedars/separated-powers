@@ -9,6 +9,7 @@ const initialStateOrg: OrgStore = {
   laws: [],
   proposals: [],
   roles: [],
+  roleLabels: [], 
   deselectedRoles: []
 }
 

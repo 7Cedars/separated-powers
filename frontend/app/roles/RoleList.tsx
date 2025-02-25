@@ -90,9 +90,11 @@ export function RoleList() {
           {
             roles?.map((role: Roles) =>
               <tr>
-                <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-fit">
+                <td className="flex flex-col w-full max-w-60 justify-center items-start text-left rounded-bl-md px-4 py-3 w-fit">
                  <Button
-                    showBorder={false}
+                    showBorder={true}
+                    selected={true}
+                    filled={true}
                     role={parseRole(BigInt(role.roleId))}
                     onClick={() => {
                       setRole(role);
