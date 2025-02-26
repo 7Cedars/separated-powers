@@ -110,13 +110,13 @@ const Page = () => {
 
 
   return (
-    <main className="w-full h-full flex flex-col justify-center items-center gap-4 p-2">
+    <main className="w-full h-full flex flex-col justify-start items-center gap-3 px-4 pt-16 overflow-x-scroll">
       <GovernanceOverview law = {law} /> 
       {/* main body  */}
-      <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-start items-start">
+      <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-end items-start">
 
         {/* left panel: writing, fetching data is done here  */}
-        <div className="lg:w-5/6 w-full flex my-4"> 
+        <div className="lg:w-5/6 w-full flex my-4 pb-16 min-h-fit"> 
           {checks && <LawBox 
               checks = {checks} 
               params = {params} 
@@ -129,7 +129,7 @@ const Page = () => {
         </div>
 
         {/* right panel: info boxes should only reads from zustand.  */}
-        <div className="flex flex-col flex-wrap lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:my-4 my-0 lg:flex-col lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-scroll overflow-y-hidden scroll-snap-x">
+        <div className="flex flex-col flex-wrap lg:flex-nowrap max-h-48 min-h-48 lg:max-h-full lg:w-96 lg:my-4 my-0 lg:flex-col lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-scroll overflow-y-hidden scroll-snap-x">
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border border-slate-300 rounded-md max-w-80">
             {checks && <ChecksBox checks = {checks} />} 
           </div>

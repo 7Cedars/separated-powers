@@ -64,7 +64,7 @@ export function RoleList() {
   return (
     <div className="w-full flex flex-col justify-start items-center">
       {/* table banner  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-4 px-6 rounded-t-md">
+      <div className="w-full min-h-16 flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 px-6 rounded-t-md">
         <div className="text-slate-900 text-center font-bold text-lg">
           Roles
         </div>

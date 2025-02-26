@@ -87,9 +87,9 @@ export default function Page() {
 
  
     return (
-      <main className="w-full h-full flex flex-col justify-center items-center gap-3 px-2 overflow-y-scroll">
+      <main className="w-full h-full flex flex-col justify-start items-center gap-3 px-2 overflow-y-scroll pt-20">
         {/* hero banner  */}
-        <section className={`w-full min-h-[20vh] flex flex-col justify-center items-center text-center text-slate-50 text-5xl bg-gradient-to-bl ${colourScheme[organisation.colourScheme] } rounded-md`}> 
+        <section className={`w-full min-h-64 flex flex-col justify-center items-center text-center text-slate-50 text-5xl bg-gradient-to-bl ${colourScheme[organisation.colourScheme] } rounded-md`}> 
           {organisation?.name}
         </section>
         
@@ -123,7 +123,7 @@ export default function Page() {
             <Overview /> 
           </div>
           {/* right / top panel  */} 
-          <div className = {"w-full pb-2 flex flex-wrap flex-col lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:flex-col lg:overflow-hidden lg:ps-2 gap-3 overflow-y-hidden overflow-x-scroll scroll-snap-x"}> 
+          <div className = {"w-full pb-2 flex flex-wrap flex-col lg:flex-nowrap max-h-48 min-h-48 lg:max-h-full lg:w-96 lg:flex-col lg:overflow-hidden lg:ps-2 gap-3 overflow-y-hidden overflow-x-scroll scroll-snap-x"}> 
             <Assets /> 
             
             <MyProposals hasRoles = {hasRoles} authenticated = {authenticated} proposals = {proposals} /> 

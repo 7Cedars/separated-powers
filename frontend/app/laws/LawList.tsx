@@ -28,9 +28,9 @@ export function LawList() {
   };
 
   return (
-    <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 border slate-300 rounded-md overflow-hidden">
+    <div className="w-full h-full flex flex-col gap-0 justify-start items-center bg-slate-50 border slate-300 rounded-md">
       {/* table banner  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center py-2 px-4 overflow-y-scroll border-b slate-300">
+      <div className="w-full min-h-16 flex flex-row gap-3 justify-between items-center py-3 px-4 overflow-y-scroll border-b slate-300">
         <div className="text-slate-900 text-center font-bold text-lg">
           Laws
         </div>
@@ -96,14 +96,7 @@ export function LawList() {
                   </Button>
                 </td>
                 <td className="pe-4 text-slate-500 min-w-96">{law.description}</td>
-                <td className="pe-4 min-w-20 text-slate-500"> { 
-                  law.allowedRole == 0n ? 
-                    "Admin"
-                  : law.allowedRole == 4294967295n ? 
-                      "Public"
-                    : 
-                      `Role ${law.allowedRole}`
-                    }
+                <td className="pe-4 min-w-20 text-slate-500"> {law.allowedRole != undefined ? bigintToRole(law.allowedRole, organisation) : "-"}
                 </td>
               </tr>
             )

@@ -169,7 +169,7 @@ const Header = () => {
 
 const NavigationSmallScreen = () => {  
   return (
-     <div className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:opacity-0 opacity-100 w-full text-sm px-4 overflow-hidden">
+     <div className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:collapse w-full text-sm px-4 overflow-hidden">
         {NavigationBar()}  
     </div>
   )
@@ -197,9 +197,9 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
         {/* <Footer /> */}
       </div>
       : 
-        <div className="w-full flex flex-col justify-center items-center">
+        <div className="w-full h-full flex flex-col justify-start items-center">
           <Header /> 
-          <main className="w-full h-full">
+          <main className="w-full h-full flex flex-col justify-start items-center max-w-6xl overflow-x-scroll">
             {props.children}   
           </main>
           <NavigationSmallScreen /> 
