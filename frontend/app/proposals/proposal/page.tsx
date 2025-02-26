@@ -34,7 +34,7 @@ const Page = () => {
 
         {/* left panel  */}
         <div className="lg:w-5/6 w-full flex my-4 pb-16 min-h-fit"> 
-         <ProposalBox />
+         <ProposalBox proposal = {selectedProposal}  />
         </div>
 
         {/* right panel  */}

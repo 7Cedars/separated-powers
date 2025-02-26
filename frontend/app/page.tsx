@@ -23,19 +23,13 @@ import {
 export default function Page() {
     const router = useRouter();
     const organisation = useOrgStore()
-    const { organisations, status, initialise } = useOrganisations()
-    // temp 
-    const selectedLaw = organisations && organisations[1].activeLaws ? organisations[1].activeLaws[1] : undefined 
-    // // console.log(organisations[0].activeLaws)
 
     
     useEffect(() => {
-        if (organisation.name != '') router.push('/home') 
+        organisation.name == '' ? router.push('/') : router.push('/home') 
     }, [organisation])
 
-    useEffect(() => {
-        initialise() 
-    }, [ ])
+
 
     return (
         <main className="w-full flex flex-col gap-0 overflow-y-scroll snap-y snap-mandatory overflow-x-hidden">
@@ -61,7 +55,7 @@ export default function Page() {
 
             < ExampleUseCases /> 
             < AdvantagesRRG /> 
-            {status == "success" && organisations &&  < ExampleDemos organisations = {organisations}  /> } 
+            < ExampleDemos  /> 
             < RunNewDemo />
             <div className = "min-h-48"/>  
             < Footer /> 

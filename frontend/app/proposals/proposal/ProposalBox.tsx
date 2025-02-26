@@ -9,7 +9,7 @@ import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { decodeAbiParameters,  keccak256, parseAbiParameters, toHex } from "viem";
 import { bytesToParams, parseParamValues, parseRole } from "@/utils/parsers";
-import { InputType } from "@/context/types";
+import { InputType, Proposal } from "@/context/types";
 import { StaticInput } from "./StaticInput";
 import { useProposal } from "@/hooks/useProposal";
 import { SimulationBox } from "@/components/SimulationBox";
@@ -27,8 +27,7 @@ const roleColour = [
   "border-slate-600",
 ]
 
-export function ProposalBox() {
-  const proposal = useProposalStore();
+export function ProposalBox({proposal}: {proposal?: Proposal}) {
   const action = useActionStore();
   const law = useLawStore();
 
@@ -109,7 +108,7 @@ export function ProposalBox() {
   useEffect(() => {
       setDescription(action.description)
       setCalldata(action.callData)
-      checkHasVoted(
+      if (proposal) checkHasVoted(
         BigInt(proposal.proposalId), 
         wallets[0].address as `0x${string}`
       )
@@ -120,7 +119,7 @@ export function ProposalBox() {
       // resetting action in zustand will trigger all components to reload.
       setAction({...action, upToDate: false })
       fetchChecks(law, action.callData, action.description)
-      checkHasVoted(
+      if (proposal) checkHasVoted(
         BigInt(proposal.proposalId), 
         wallets[0].address as `0x${string}`
       )
@@ -172,8 +171,7 @@ export function ProposalBox() {
 
       {/* execute button */}
         <div className="w-full h-fit p-6">
-          {
-            checks?.proposalExists ? 
+          { proposal && proposal.proposalId != 0 ? 
               hasVoted ? 
               <div className = "w-full flex flex-row justify-center items-center gap-2 text-slate-400"> 
                 Account has voted  

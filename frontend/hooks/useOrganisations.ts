@@ -211,6 +211,7 @@ export const useOrganisations = () => {
         contractAddress: org
         }) as Organisation }
       )
+      console.log("waypoint 3: data fetched: ", {defaultOrganisations})
 
       if (defaultOrganisations) {
         const names = await fetchNames(defaultOrganisations)
@@ -237,7 +238,7 @@ export const useOrganisations = () => {
               )
             })
 
-            // console.log("waypoint 5")
+            console.log("waypoint 5: ", {organisationsFetched})
             setOrganisations(organisationsFetched)
             localStorage.setItem("powersProtocol_savedOrgs", JSON.stringify(organisationsFetched, (key, value) =>
               typeof value === "bigint" ? Number(value) : value,
