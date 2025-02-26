@@ -28,7 +28,7 @@ export function ExampleUseCases() {
                 className = "p-2 rounded-md" 
                 style={{objectFit: "contain", objectPosition: "center"}}
                 fill={true}
-                alt="Screenshot Separated Powers"
+                alt="Screenshot Powers App"
                 >
             </Image>
           </section>
