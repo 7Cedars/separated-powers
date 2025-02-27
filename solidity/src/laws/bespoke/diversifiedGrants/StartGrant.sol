@@ -118,7 +118,7 @@ contract StartGrant is Law {
         ) = abi.decode(stateChange, (string, string, uint48, uint256, address, uint32, address));
 
         // stp 1: deploy new grant
-        _deployGrant(name, description, duration, budget, tokenAddress, tokenType, tokenId, grantCouncil, proposals);
+        _deployGrant(name, description, duration, budget, tokenAddress, grantCouncil, proposals);
     }
 
     /**
@@ -144,13 +144,12 @@ contract StartGrant is Law {
                         name,
                         description,
                         powers,
-                        allowedRole,
+                        grantCouncil,
                         configNewGrants,
                         // remaining params
                         duration,
                         budget,
                         tokenAddress,
-                        grantCouncil,
                         proposals
                     )
                 )
@@ -166,7 +165,8 @@ contract StartGrant is Law {
         uint48 duration,
         uint256 budget,
         address tokenAddress,
-        uint32 grantCouncil
+        uint32 grantCouncil,
+        address proposals
     ) internal {
         Grant newGrant = new Grant{ salt: bytes32(keccak256(abi.encodePacked(name, description))) }(
             // standard params
@@ -178,7 +178,8 @@ contract StartGrant is Law {
             // remaining params
             duration,
             budget,
-            tokenAddress
+            tokenAddress,
+            proposals
         );
     }
 }

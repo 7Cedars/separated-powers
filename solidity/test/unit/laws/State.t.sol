@@ -6,7 +6,7 @@ import "forge-std/Test.sol";
 import { TestSetupState } from "../../TestSetup.t.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
-// protocol
+// protocol 
 import { Powers } from "../../../src/Powers.sol";
 import { Law } from "../../../src/Law.sol";
 
@@ -15,7 +15,7 @@ import { AddressesMapping } from "../../../src/laws/state/AddressesMapping.sol";
 import { StringsArray } from "../../../src/laws/state/StringsArray.sol";
 import { TokensArray } from "../../../src/laws/state/TokensArray.sol";
 import { NominateMe } from "../../../src/laws/state/NominateMe.sol";
-import { PeerVote } from "../../../src/laws/state/PeerVote.sol";
+import { ElectionVotes } from "../../../src/laws/state/ElectionVotes.sol";
 
 contract AddressMappingTest is TestSetupState {
     event AddressesMapping__Added(address account);
@@ -24,7 +24,11 @@ contract AddressMappingTest is TestSetupState {
     // take this out later 
     function testParsingAddress() public {
         address mock721_ = makeAddr("mock721");
-        string memory description = string.concat("Anyone who knows how to mint an NFT at ", Strings.toHexString(uint256(addressToInt(mock721_)), 20), " can (de)select themselves for role 1."); 
+        string memory description = string.concat(
+            "Anyone who knows how to mint an NFT at ", 
+            Strings.toHexString(uint256(addressToInt(mock721_)), 20), 
+            " can (de)select themselves for role 1."
+            ); 
         console.log(mock721_); 
         console.log(description); 
 
@@ -47,8 +51,11 @@ contract AddressMappingTest is TestSetupState {
         vm.expectEmit(true, false, false, false);
         emit AddressesMapping__Added(address(123));
         vm.startPrank(address(daoMock));
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(addressesMapping).executeLaw(address(0), lawCalldata, keccak256("Adding an address"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut
+            ) = Law(addressesMapping).executeLaw(address(0), lawCalldata, keccak256("Adding an address"));
 
         // assert state
         assertEq(AddressesMapping(addressesMapping).addresses(address(123)), true);
@@ -97,8 +104,10 @@ contract AddressMappingTest is TestSetupState {
         vm.startPrank(address(daoMock));
         vm.expectEmit(true, false, false, false);
         emit AddressesMapping__Removed(address(123));
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(addressesMapping).executeLaw(address(0), lawCalldataRemove, keccak256("Removing an address"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut) = Law(addressesMapping).executeLaw(address(0), lawCalldataRemove, keccak256("Removing an address"));
 
         // assert state
         assertEq(AddressesMapping(addressesMapping).addresses(address(123)), false);
@@ -139,8 +148,10 @@ contract StringsArrayTest is TestSetupState {
         vm.startPrank(address(daoMock));
         vm.expectEmit(true, false, false, false);
         emit StringsArray__StringAdded("hello world");
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(stringsArray).executeLaw(address(0), lawCalldata, keccak256("Adding a string"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut) = Law(stringsArray).executeLaw(address(0), lawCalldata, keccak256("Adding a string"));
 
         // assert state
         assertEq(StringsArray(stringsArray).strings(0), "hello world");
@@ -163,8 +174,11 @@ contract StringsArrayTest is TestSetupState {
         vm.startPrank(address(daoMock));
         vm.expectEmit(true, false, false, false);
         emit StringsArray__StringRemoved("hello world");
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(stringsArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a string"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut
+            ) = Law(stringsArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a string"));
 
         // assert state
         assertEq(StringsArray(stringsArray).numberOfStrings(), 0);
@@ -218,8 +232,11 @@ contract TokensArrayTest is TestSetupState {
         vm.startPrank(address(daoMock));
         vm.expectEmit(true, false, false, false);
         emit TokensArray__TokenAdded(address(123), TokensArray.TokenType(0));
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(tokensArray).executeLaw(address(0), lawCalldata, keccak256("Adding a token"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut
+            ) = Law(tokensArray).executeLaw(address(0), lawCalldata, keccak256("Adding a token"));
 
         // assert state
         (address tokenAddress, TokensArray.TokenType tokenType) = TokensArray(tokensArray).tokens(0);
@@ -252,8 +269,10 @@ contract TokensArrayTest is TestSetupState {
         vm.startPrank(address(daoMock));
         vm.expectEmit(true, false, false, false);
         emit TokensArray__TokenRemoved(address(123), TokensArray.TokenType(0));
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(tokensArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a token"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut) = Law(tokensArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a token"));
 
         // assert state
         assertEq(TokensArray(tokensArray).numberOfTokens(), 0);
@@ -373,8 +392,8 @@ contract NominateMeTest is TestSetupState {
     }
 }
 
-contract PeerVoteTest is TestSetupState {
-    event PeerVote__VoteCast(address voter);
+contract ElectionVotesTest is TestSetupState {
+    event ElectionVotes__VoteCast(address voter);
 
     function testVoteCorrectlyRegistered() public {
         // prep
@@ -389,12 +408,12 @@ contract PeerVoteTest is TestSetupState {
         // act + assert emit
         vm.roll(51); // vote starts at block 50.
         vm.expectEmit(true, false, false, false);
-        emit PeerVote__VoteCast(charlotte);
+        emit ElectionVotes__VoteCast(charlotte);
         vm.startPrank(address(daoMock));
         Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
 
-        assertEq(PeerVote(peerVote).hasVoted(alice), true);
-        assertEq(PeerVote(peerVote).votes(charlotte), 1);
+        assertEq(ElectionVotes(peerVote).hasVoted(alice), true);
+        assertEq(ElectionVotes(peerVote).votes(charlotte), 1);
     }
 
     function testVoteRevertsIfElectionNotOpen() public {

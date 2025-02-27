@@ -119,7 +119,7 @@ export default function Page() {
         {/* main body  */}
         <section className="w-full lg:max-w-full h-full flex max-w-3xl lg:flex-row flex-col-reverse justify-end items-start">
           {/* left / bottom panel  */}
-          <div className = {"w-full h-full min-h-fit"}>
+          <div className = {"w-full h-full min-h-fit pb-16"}>
             <Overview /> 
           </div>
           {/* right / top panel  */} 

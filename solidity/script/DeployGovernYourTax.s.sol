@@ -258,6 +258,24 @@ contract DeployGovernYourTax is Script {
         laws.push(address(law));
 
         // laws[9]
+        vm.startBroadcast();
+        law = new ElectionCall(
+            "Call governor election", // max 31 chars
+            "An election is called by an oracle, as set by the admin. The nominated accounts with most votes from community members are then assigned as governors.",
+            dao_, // separated powers protocol.
+            7, // oracle role id designation.
+            lawConfig, //  config file.
+            // bespoke configs for this law:
+            2, // role id that is allowed to vote.
+            3, // role id that is being elected
+            3, // max role holders
+            laws[8] // nominateMe.
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        // laws[10]
         lawConfig.readStateFrom = laws[8]; // law where nominations are made.
         vm.startBroadcast();
         law = new ElectionTally(
@@ -267,32 +285,16 @@ contract DeployGovernYourTax is Script {
             1, // Note: any community member can tally the election. It can only be done after election duration has finished.
             lawConfig, //  config file.
             // bespoke configs for this law:
-            3, // max role holders,
-            3 // role id that is elected
+            laws[9] // electionCall contract
         );
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[10]
-        vm.startBroadcast();
-        law = new ElectionCall(
-            "Call role governor election", // max 31 chars
-            "An election is called by an oracle, as set by the admin. The nominated accounts with most votes from community members are then assigned as governors.",
-            dao_, // separated powers protocol.
-            7, // oracle role id designation.
-            lawConfig, //  config file.
-            // bespoke configs for this law:
-            2, // role id that is allowed to vote.
-            laws[9] // law where votes are tallied.
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-        delete lawConfig;
 
         // laws[11]
         vm.startBroadcast();
         law = new NominateMe(
-            "Nominate self for security", // max 31 chars
+            "Nominate for Security Council", // max 31 chars
             "Nominate yourself for a position in the security council.",
             dao_,
             1, // access role = 1

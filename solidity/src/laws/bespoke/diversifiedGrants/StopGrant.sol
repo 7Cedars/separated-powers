@@ -21,8 +21,11 @@ import { Law } from "../../../Law.sol";
 import { Powers} from "../../../Powers.sol";
 
 import { Grant } from "./Grant.sol";
+import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 contract StopGrant is Law { 
+    LawConfig public configNewGrants; // config for new grants.
+    
     constructor(
         string memory name_,
         string memory description_,

@@ -2,7 +2,7 @@
   "icon": "",
   "banner": "",
   "description": 
-    "An example of a community organised around usage of a token, instead of ownership. It governs a mock token (Erc20TaxedMock, MTXD) that collects tax on every transaction; tax payers can decide on how this tax is used. In more detail: there are four roles. A member role (1) can be claimed by anyone that paid more than 100 MTXD in tax during the last 50400 blocks (about a week). A governance role (2) is assigned by members through regular elections. Council roles (4, 5, 6) are designated by governors. And, lastly, a security council (role 3) is assigned by peers. Governors can propose new grants for grant councils, allocating a budget to the councils. Members can propose and vote on grant proposals. Councils make the final decisions on what grants to fund within their allocated budget. The security council can stop and restart any law at any time.",
+    "An example of a community organised around usage of a token, instead of ownership. It governs a mock token (Erc20TaxedMock, MTXD) that collects tax on every transaction; tax payers can decide on how this tax is used. They elect governors that can propose new grants to grant councils, allocating a budget to the councils. Members can propose and vote on grant proposals. Councils make the final decisions on what grants to fund within their allocated budget. The security council can stop and restart any law at any time.",
   "attributes": [
     {
       "trait_type": "optional trait 1",

@@ -16,8 +16,8 @@ contract Erc20VotesMockTest is Test {
         erc20VotesMock = new Erc20VotesMock();
     }
 
-    function testDeploy() public {
-        assertEq(erc20VotesMock.totalSupply(), 0);
+    function testDeploy_Erc20VotesMockTest() public {
+        assertEq(erc20VotesMock.totalSupply(), 1_000_000);
         assertEq(erc20VotesMock.name(), "mock");
         assertEq(erc20VotesMock.symbol(), "MOCK");
     }
@@ -63,19 +63,21 @@ contract Erc20TaxedMockTest is Test {
         uint48 epochDuration_ = 19;
 
         daoMock = new Powers("DAO", "");
-        vm.startPrank(address(daoMock));
+        vm.prank(address(daoMock));
         erc20TaxedMock = new Erc20TaxedMock(taxRate_, DENOMINATOR_, epochDuration_);
+        uint256 balanceBefore = erc20TaxedMock.balanceOf(address(daoMock));
+        
+        vm.prank(address(daoMock));
         erc20TaxedMock.mint(10_000);
-        vm.stopPrank();
-
-        assertEq(erc20TaxedMock.totalSupply(), 10_000);
-        assertEq(erc20TaxedMock.balanceOf(address(daoMock)), 10_000);
+        
+        assertEq(erc20TaxedMock.totalSupply(), 10_000 + balanceBefore);
+        assertEq(erc20TaxedMock.balanceOf(address(daoMock)), 10_000 + balanceBefore);
         assertEq(erc20TaxedMock.taxRate(), taxRate_);
         assertEq(erc20TaxedMock.DENOMINATOR(), DENOMINATOR_);
         assertEq(erc20TaxedMock.epochDuration(), epochDuration_);
     }
 
-    function testDeploy() public {
+    function testDeploy_Erc20TaxedMock() public {
         assertEq(erc20TaxedMock.name(), "mockTaxed");
         assertEq(erc20TaxedMock.symbol(), "MTXD");
     }

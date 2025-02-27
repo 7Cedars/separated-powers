@@ -27,7 +27,7 @@ import { StringsArray } from "../../src/laws/state/StringsArray.sol";
 import { TokensArray } from "../../src/laws/state/TokensArray.sol";
 import { AddressesMapping } from "../../src/laws/state/AddressesMapping.sol";
 import { NominateMe } from "../../src/laws/state/NominateMe.sol";
-import { PeerVote } from "../../src/laws/state/PeerVote.sol";
+import { ElectionVotes } from "../../src/laws/state/ElectionVotes.sol";
 // bespoke: aligned dao laws.
 import { NftSelfSelect } from "../../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 import { RequestPayment } from "../../src/laws/bespoke/alignedDao/RequestPayment.sol";
@@ -38,6 +38,9 @@ import { Grant } from "../../src/laws/bespoke/diversifiedGrants/Grant.sol";
 import { StartGrant } from "../../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
 import { StopGrant } from "../../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
 import { RoleByTaxPaid } from "../../src/laws/bespoke/diversifiedGrants/RoleByTaxPaid.sol";
+import { AssignCouncilRole } from "../../src/laws/bespoke/diversifiedGrants/AssignCouncilRole.sol";
+import { MintAndBurnTokens } from "../../src/laws/bespoke/diversifiedGrants/MintAndBurnTokens.sol";
+
 // bespoke: diversified roles laws.
 import { RoleByKyc } from "../../src/laws/bespoke/diversifiedRoles/RoleByKyc.sol";
 import { AiAgents } from "../../src/laws/bespoke/diversifiedRoles/AiAgents.sol";
@@ -324,16 +327,8 @@ contract ConstitutionsMock is Test {
         address payable mock20Votes_
     ) external returns (address[] memory laws) {
         Law law;
-        laws = new address[](13);
+        laws = new address[](9);
         ILaw.LawConfig memory lawConfig;
-
-        // dummy call: mint coins at mock1155 contract.
-        address[] memory targets = new address[](1);
-        uint256[] memory values = new uint256[](1);
-        bytes[] memory calldatas = new bytes[](1);
-        targets[0] = mock1155_;
-        values[0] = 0;
-        calldatas[0] = abi.encodeWithSelector(Erc1155Mock.mintCoins.selector, 123);
 
         // dummy params
         string[] memory params = new string[](0);
@@ -344,7 +339,6 @@ contract ConstitutionsMock is Test {
             dao_,
             1, // access role
             lawConfig // empty config file.
-                // bespoke configs for this law:
         );
         laws[0] = address(law);
 
@@ -354,7 +348,6 @@ contract ConstitutionsMock is Test {
             dao_,
             1, // access role
             lawConfig // empty config file.
-                // bespoke configs for this law:
         );
         laws[1] = address(law);
 
@@ -385,8 +378,8 @@ contract ConstitutionsMock is Test {
         laws[3] = address(law);
 
         law = new TokensSelect(
-            "1 can do anything", // max 31 chars
-            "1 holders have the power to execute any internal or external action.",
+            "Token select role", // max 31 chars
+            "Token select a role.",
             dao_,
             1, // access role
             lawConfig, // empty config file.
@@ -410,80 +403,31 @@ contract ConstitutionsMock is Test {
         );
         laws[5] = address(law);
 
-        law = new ElectionTally(
-            "Create election tally", // max 31 chars
-            "Create a law that will count votes and assign accounts to role 3.",
-            dao_,
-            1, // access role
-            lawConfig, // empty config file.
-            // bespoke configs for this law:
-            2, // max role holders
-            3 // role id.
-        );
-        laws[6] = address(law);
-
-        law = new ElectionTally(
-            "Create election tally", // max 31 chars
-            "Create a law that will count votes and assign accounts to role 3.",
-            dao_,
-            1, // access role
-            lawConfig, // empty config file.
-            // bespoke configs for this law:
-            2, // max role holders
-            3 // role id.
-        );
-        laws[7] = address(law);
-
-        law = new PeerVote(
-            "Mock PeerVote", // name
-            "This is a placeholder PeerVote law.", // description
-            dao_, // separated powers protocol.
-            1,
-            lawConfig,
-            laws[6], // ElectionTally contract.
-            50, // startVote
-            150 // endVote
-        );
-        laws[8] = address(law);
-
-        lawConfig.readStateFrom = laws[1]; // incorrect NominateMe contract.
-        law = new PeerVote(
-            "Mock PeerVote", // name
-            "This is a placeholder PeerVote law.", // description
-            dao_, // separated powers protocol.
-            1,
-            lawConfig,
-            laws[6], // ElectionTally contract.
-            50, // startVote
-            150 // endVote
-        );
-        laws[9] = address(law);
-
-        lawConfig.readStateFrom = laws[0]; // resetting to correct NominateMe contract.
-        law = new PeerVote(
-            "Mock PeerVote", // name
-            "This is a placeholder PeerVote law.", // description
-            dao_, // separated powers protocol.
-            1,
-            lawConfig, 
-            laws[7], // incorrect ElectionTally contract.
-            50, // startVote
-            150 // endVote
-        );
-        laws[10] = address(law);
-
         law = new ElectionCall(
             "Create Election", // max 31 chars
-            "Create and call an election for an existing TallyVote law.",
+            "Create an election for role 3.",
             dao_,
             1, // access role
             lawConfig, // empty config file.
             // bespoke configs for this law:
             2, // voter role id 
-            laws[6] // ElectionTally contract.
+            3, // elected role id
+            2, // max elected role holders
+            laws[0] // NominateMe.
         );
-        laws[11] = address(law);
+        laws[6] = address(law);
 
+        law = new ElectionTally(
+            "Tally an election", // max 31 chars
+            "Count votes of an election called through the call election law and assign roles.",
+            dao_,
+            1, // access role
+            lawConfig, // empty config file.
+            // bespoke configs for this law:
+            laws[6] // electionCall law
+        );
+        laws[7] = address(law);
+ 
         // get calldata
         (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
         // set config
@@ -504,7 +448,7 @@ contract ConstitutionsMock is Test {
             calldatasRoles
         );
         vm.stopBroadcast();
-        laws[12] = address(law);
+        laws[8] = address(law);
         delete lawConfig; // reset lawConfig
     }
 
@@ -517,7 +461,7 @@ contract ConstitutionsMock is Test {
         address payable mock20Votes_
     ) external returns (address[] memory laws) {
         Law law;
-        laws = new address[](5);
+        laws = new address[](6);
         ILaw.LawConfig memory lawConfig;
 
         // dummy call: mint coins at mock1155 contract.
@@ -584,12 +528,11 @@ contract ConstitutionsMock is Test {
             params
         );
         laws[3] = address(law);
-
-        // get calldata
-        (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
-        // set config
         delete lawConfig; // reset lawConfig
+
         // config
+         // get calldata
+        (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
         // setting the throttle to max means the law can only be called once.
         lawConfig.throttleExecution = type(uint48).max - uint48(block.number);
         // initiate law
@@ -606,6 +549,19 @@ contract ConstitutionsMock is Test {
         );
         vm.stopBroadcast();
         laws[4] = address(law);
+        delete lawConfig; // reset lawConfig
+
+        law = new SelfDestructPresetAction(
+            "Admin assigns initial roles",
+            "The admin assigns initial roles. This law will self destruct when used.",
+            dao_, // separated powers
+            0, // access role = ADMIN
+            lawConfig,
+            targetsRoles,
+            valuesRoles,
+            calldatasRoles
+        );
+        laws[5] = address(law);
         delete lawConfig; // reset lawConfig
     }
 
@@ -661,14 +617,13 @@ contract ConstitutionsMock is Test {
         laws[3] = address(law);
 
         lawConfig.readStateFrom = laws[3]; // nominate me
-        law = new PeerVote(
-            "Nominate for any role", // max 31 chars
-            "This is a placeholder nomination law.",
+        law = new ElectionVotes(
+            "Collect votes for an election", // max 31 chars
+            "This is a placeholder election law.",
             dao_,
             1, // access role
             lawConfig, // empty config file.
             // bespoke configs for this law:
-            address(123), // tally vote
             50, // start vote in block number
             150 // end vote in block number.
         );
@@ -761,40 +716,8 @@ contract ConstitutionsMock is Test {
         address payable mock1155_
     ) external returns (address[] memory laws) {
         Law law;
-        laws = new address[](7);
+        laws = new address[](6);
         ILaw.LawConfig memory lawConfig;
-
-        // initiating law.
-        law = new Grant(
-            "Open Erc1155 Grant", // max 31 chars
-            "A test grant that anyone can apply to until it is empty or it expires.",
-            dao_,
-            type(uint32).max, // access role = public.
-            lawConfig, // empty config file.
-            // grant config
-            2700, // duration
-            5000, // budget
-            mock1155_, // contract
-            Grant.TokenType.ERC1155, // token type
-            0 // token id.
-        );
-        laws[0] = address(law);
-
-        // initiating law.
-        law = new Grant(
-            "Open Erc20 Grant", // max 31 chars
-            "A test grant that anyone can apply to until it is empty or it expires.",
-            dao_,
-            type(uint32).max, // access role = public.
-            lawConfig, // empty config file.
-            // grant config
-            2700, // duration
-            5000, // budget
-            mock20Votes_, // contract
-            Grant.TokenType.ERC20, // token type
-            0 // unused param for ERC20 grants.
-        );
-        laws[1] = address(law);
 
         // grant input params.
         string[] memory inputParams = new string[](3);
@@ -811,7 +734,23 @@ contract ConstitutionsMock is Test {
             // bespoke configs for this law:
             inputParams
         );
-        laws[2] = address(law);
+        laws[0] = address(law);
+
+        // initiating law.
+        law = new Grant(
+            "Open Erc20 Grant", // max 31 chars
+            "A test grant that anyone can apply to until it is empty or it expires.",
+            dao_,
+            type(uint32).max, // access role = public.
+            lawConfig, // empty config file. 
+            // grant config
+            2700, // duration
+            5000, // budget
+            mock20Votes_, // contract
+            laws[0] // address from where proposals are made.
+        );
+        laws[1] = address(law);
+
 
         law = new StartGrant(
             "Start a grant", // max 31 chars
@@ -820,9 +759,9 @@ contract ConstitutionsMock is Test {
             2, // access role
             lawConfig, // empty config file.
             // start grant config
-            laws[2] // proposals that need to be completed before grant can be considered.
+            laws[0] // proposals that need to be completed before grant can be considered.
         );
-        laws[3] = address(law);
+        laws[2] = address(law);
 
         law = new StopGrant(
             "Stop a grant", // max 31 chars
@@ -831,7 +770,7 @@ contract ConstitutionsMock is Test {
             2, // access role
             lawConfig
         );
-        laws[4] = address(law);
+        laws[3] = address(law);
 
         law = new RoleByTaxPaid(
             "(De)select role by tax paid", // max 31 chars
@@ -843,21 +782,32 @@ contract ConstitutionsMock is Test {
             mock20Taxed_,
             100 // threshold tax paid per epoch.
         );
+        laws[4] = address(law);
+
+        law = new MintAndBurnTokens(
+            "Mint (or burn) ERC20 tokens", // max 31 chars
+            "Mint (or burn) the ERC20 token controlled by the organisation.",
+            dao_,
+            2, // access role
+            lawConfig,
+            mock20Taxed_
+        );
         laws[5] = address(law);
 
-        (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
-        law = new SelfDestructPresetAction(
-            "Admin assigns initial roles",
-            "The admin assigns initial roles. This law will self destruct when used.",
-            dao_, // separated powers
-            0, // access role = ADMIN
+
+        uint32[] memory allowedRoles = new uint32[](3);
+        allowedRoles[0] = 4; // council A
+        allowedRoles[1] = 5; // council B
+        allowedRoles[2] = 6; // council C 
+        law = new AssignCouncilRole(
+            "Assign a council role", // max 31 chars
+            "Assign accounts to grant council A (role 4), B (role 5) or C (role 6).",
+            dao_,
+            2, // access role
             lawConfig,
-            targetsRoles,
-            valuesRoles,
-            calldatasRoles
+            allowedRoles
         );
         laws[6] = address(law);
-        delete lawConfig; // reset lawConfig
     }
 
     //////////////////////////////////////////////////////////////

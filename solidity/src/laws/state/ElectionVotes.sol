@@ -27,15 +27,14 @@ pragma solidity 0.8.26;
 import { Law } from "../../Law.sol";
 import { NominateMe } from "./NominateMe.sol";
 
-contract PeerVote is Law { 
+contract ElectionVotes is Law { 
     // the state vars that this law manages: community strings.
     mapping(address => bool) public hasVoted;
     mapping(address => uint256) public votes;
     uint48 public immutable startVote;
     uint48 public immutable endVote;
-    address public immutable TALLY;
 
-    event PeerVote__VoteCast(address voter);
+    event ElectionVotes__VoteCast(address voter);
 
     constructor(
         string memory name_,
@@ -43,11 +42,10 @@ contract PeerVote is Law {
         address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
-        address tallyVote, // the tallyVote contract linked to this contract.
+        // bespoke params
         uint48 startVote_,
         uint48 endVote_
     ) Law(name_, description_, powers_, allowedRole_, config_) {
-        TALLY = tallyVote;
         startVote = startVote_;
         endVote = endVote_;
 
@@ -98,6 +96,8 @@ contract PeerVote is Law {
 
         hasVoted[initiator] = true;
         votes[nominee]++;
-        emit PeerVote__VoteCast(initiator);
+        emit ElectionVotes__VoteCast(initiator);
     }
+
+    
 }
