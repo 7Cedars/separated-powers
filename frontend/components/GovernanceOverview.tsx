@@ -55,7 +55,6 @@ const lawToColourCode = (law: Law) => {
   return (law.allowedRole == undefined || law.allowedRole == 4294967295n ? 6 : Number(law.allowedRole) % roleColour.length)
 }
 
-
 export function GovernanceOverview({law}: {law?: Law | undefined}) {
   const organisation = useOrgStore(); 
   const roleIdsParsed = organisation?.deselectedRoles?.map(id => Number(id))
@@ -69,7 +68,7 @@ export function GovernanceOverview({law}: {law?: Law | undefined}) {
 
   return (
     <section className = "w-full h-fit min-h-20 flex flex-col justify-start items-start overflow-x-scroll">
-      <div className = "w-full min-h-fit flex flex-col gap-4 min-w-[520px]">  
+      <div className = "w-full min-h-fit flex flex-col gap-4">  
         {
           governanceTracks.tracks && governanceTracks.tracks.length > 0 && governanceTracks.tracks.map((track, index) => 
             track && <GovernanceTrack track = {track} roleIds = {roleIdsParsed} lawSelected = {law} key = {index} bgItem = {bgItem} /> 
@@ -90,7 +89,7 @@ function GovernanceTrack({track, roleIds, lawSelected, bgItem}: TrackProps) {
   return (
     <> 
       {/* draws the laws */}
-      <div className = "relative w-full h-20 flex justify-stretch items-center">
+      <div className = "relative w-full h-20 flex justify-stretch items-center min-w-[520px]">
         {
           track && track.map((law, index) => 
             <div key = {index} className = {`w-full h-full flex flex-row justify-between items-center gap-1 border border-${roleColour[lawToColourCode(law)]} ${roleBgColour[lawToColourCode(law)]} rounded-md`}>
@@ -111,7 +110,7 @@ function GovernanceTrack({track, roleIds, lawSelected, bgItem}: TrackProps) {
         }
 
         {/* draws the arrows in between the laws */}
-        <div className = "absolute inset-x-0 z-10 w-full h-20 flex flex-row justify-between items-center px-6">
+        <div className = "absolute inset-x-0 z-10 w-full h-20 flex flex-row justify-between items-center px-6 min-w-[520px]">
         <div />
         {
           track && track.map((law, index) => 
@@ -134,7 +133,7 @@ function GovernanceTrack({track, roleIds, lawSelected, bgItem}: TrackProps) {
         </div>
 
         {/* draws the button / selections on top of the law arrows */}
-        <div className = "absolute inset-x-0 z-20 w-full h-20 flex flex-row justify-between items-center">
+        <div className = "absolute inset-x-0 z-20 w-full h-20 flex flex-row justify-between items-center min-w-[520px]">
         {
           track && track.map((law, index) => 
             <button 
@@ -165,7 +164,7 @@ function GovernanceOrphans({orphans, roleIds, lawSelected, bgItem}: TrackProps) 
   return (
     <>
       {/* draws the laws */}
-      <div className = "relative w-full h-20 flex flex-wrap gap-10 justify-stretch items-center">
+      <div className = "relative w-full h-20 flex flex-wrap gap-6 justify-stretch items-center">
         {
           orphans && orphans.map((law, index) => 
             <button 

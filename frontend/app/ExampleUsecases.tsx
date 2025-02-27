@@ -24,7 +24,7 @@ export function ExampleUseCases() {
 
           <section className = "grow h-full w-full flex flex-col justify-center items-center" style = {{position: 'relative', width: '100%', height: '100%'}}> 
             <Image 
-                src={"/home.png"} 
+                src={"/home2.png"} 
                 className = "p-2 rounded-md" 
                 style={{objectFit: "contain", objectPosition: "center"}}
                 fill={true}

@@ -29,9 +29,9 @@ export function Overview( ) {
   };
   
   return (
-    <div className="w-full h-fit flex flex-col gap-0 justify-start items-center bg-slate-50 border slate-300 rounded-md overflow-y-scroll">
+    <div className="w-full h-fit flex flex-col gap-0 justify-start items-center bg-slate-50 border slate-300 rounded-md">
     {/* table banner  */}
-    <div className="w-full h-fit flex flex-row gap-3 justify-between items-center py-2 px-4 border-b slate-300">
+    <div className="w-full h-fit flex flex-row gap-3 justify-between items-center py-2 px-4 border-b slate-300 overflow-y-scroll">
       {organisation?.roles.map((role, i) => 
           <div className="flex flex-row w-full min-w-16 h-8" key={i}>
           <Button
