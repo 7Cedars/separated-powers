@@ -34,7 +34,6 @@ import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol"
 import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";
 import { Erc20TaxedMock } from "../test/mocks/Erc20TaxedMock.sol";
 import { Erc721Mock } from "../test/mocks/Erc721Mock.sol";
-import { Erc1155Mock } from "../test/mocks/Erc1155Mock.sol";
 
 contract DeployGovernYourTax is Script {
     address[] laws;
@@ -92,15 +91,15 @@ contract DeployGovernYourTax is Script {
         lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
         // setting up params
         string[] memory inputParams = new string[](3);
-        inputParams[0] = "address Grantee"; // grantee
+        inputParams[0] = "address To"; // grantee
         inputParams[1] = "address Grant"; // grant Law address
         inputParams[2] = "uint256 Quantity"; // amount
         // initiating law.
         vm.startBroadcast();
         // Note: the grant has its token pre specified.
         law = new ProposalOnly(
-            "Make a proposal to a grant.",
-            "Make a grant proposal that will be voted on by community members. It has to specify the grant address in the proposal. Input [0] = grantee address to transfer to. input[1] = grant address to transfer from.  input[2] =  quantity to transfer of token.",
+            "Make a grant proposal.",
+            "Make a grant proposal that will be voted on by community members. If successful, the 'quantity' of tokens held by the Grant will be sent to the 'to' address.",
             dao_,
             1, // access role
             lawConfig,
@@ -118,7 +117,7 @@ contract DeployGovernYourTax is Script {
         vm.startBroadcast();
         law = new StartGrant(
             "Start a grant program", // max 31 chars
-            "Subject to a vote, a grant program can be created. The token, budget and duration are pre-specified, as well as the grant council that will govern the grant.",
+            "Subject to a vote, a grant program can be created. The token, budget and duration need to be specified, as well as the roleId (of the grant council) that will govern the grant.",
             dao_, // separated powers
             2, // access role
             lawConfig, // bespoke configs for this law.
@@ -134,7 +133,7 @@ contract DeployGovernYourTax is Script {
         vm.startBroadcast();
         law = new StopGrant(
             "Stop a grant program", // max 31 chars
-            "When a grant program's budget is spent, or the grant is expired, it can be stopped.",
+            "When a grant program's budget is spent, or the grant is expired, it can be stopped. This can only be done with the exact same data used when creating the grant.",
             dao_, // separated powers
             2, // access role
             lawConfig // bespoke configs for this law.
@@ -154,7 +153,7 @@ contract DeployGovernYourTax is Script {
         vm.startBroadcast();
         law = new BespokeAction(
             "Stop law",
-            "The security council can stop any active law.",
+            "The security council can stop any active law. This means that any grant program or council can be stopped if needed.",
             dao_, // separated powers
             3, // access role
             lawConfig, // bespoke configs for this law
@@ -227,13 +226,55 @@ contract DeployGovernYourTax is Script {
         laws.push(address(law));
         delete lawConfig; // here we delete lawConfig. 
 
+        // laws[7]
+        lawConfig.quorum = 15; // = two-thirds quorum needed
+        lawConfig.succeedAt = 51; // =  two/thirds majority needed for
+        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
+        // bespoke params 
+        inputParams = new string[](1);
+        inputParams[0] = "address Law"; // law 
+        // propose new law 
+        vm.startBroadcast();
+        law = new ProposalOnly(
+            "Propose new law",
+            "Subject to a vote, governors can propose to adopt a new law.",
+            dao_, // separated powers
+            2, // access role
+            lawConfig, 
+            inputParams
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig; // here we delete lawConfig. 
+
+        // laws[8]
+        lawConfig.quorum = 80; // = two-thirds quorum needed
+        lawConfig.succeedAt = 51; // =  two/thirds majority needed for
+        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
+        // bespoke params 
+        // propose new law 
+        vm.startBroadcast();
+        law = new BespokeAction(
+            "Adopt new law",
+            "Subject to a vote, the security council can accept and adopt a new law.",
+            dao_, // separated powers
+            2, // access role
+            lawConfig, 
+            dao_,
+            Powers.adoptLaw.selector,
+            inputParams // same lawConfig as laws[7]
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig; // here we delete lawConfig. 
+
         //////////////////////////////////////////////////////////////
         //              CHAPTER 2: ELECT ROLES                      //
         //////////////////////////////////////////////////////////////
-        // laws[7]
+        // laws[9]
         vm.startBroadcast();
         law = new RoleByTaxPaid(
-            "Elect self as community member", // max 31 chars
+            "Claim community member", // max 31 chars
             "Anyone who has paid sufficient tax (by using the Dao's ERC20 token) can become a community member. The threshold is 100MCK tokens per 100 blocks.",
             dao_,
             type(uint32).max, // access role = public access
@@ -245,7 +286,7 @@ contract DeployGovernYourTax is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[8]
+        // laws[10]
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for Governor", // max 31 chars
@@ -257,41 +298,41 @@ contract DeployGovernYourTax is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[9]
+        // laws[11]
         vm.startBroadcast();
         law = new ElectionCall(
             "Call governor election", // max 31 chars
-            "An election is called by an oracle, as set by the admin. The nominated accounts with most votes from community members are then assigned as governors.",
+            "Any member of the security council can create a governor election. Calling the law creates an election contract at which people can vote on nominees between the start and end block of the election.",
             dao_, // separated powers protocol.
-            7, // oracle role id designation.
+            3, // = role security council 
             lawConfig, //  config file.
             // bespoke configs for this law:
             2, // role id that is allowed to vote.
             3, // role id that is being elected
             3, // max role holders
-            laws[8] // nominateMe.
+            laws[10] // nominateMe.
         );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[10]
+        // laws[12]
         lawConfig.readStateFrom = laws[8]; // law where nominations are made.
         vm.startBroadcast();
         law = new ElectionTally(
             "Tally governor elections", // max 31 chars
-            "Tally elections for governors.",
+            "Count votes of a governor election. Any community member can call this law and pay for tallying the votes. The nominated accounts with most votes from community members are assigned as governors",
             dao_, // separated powers protocol.
             1, // Note: any community member can tally the election. It can only be done after election duration has finished.
             lawConfig, //  config file.
             // bespoke configs for this law:
-            laws[9] // electionCall contract
+            laws[11] // electionCall contract
         );
         vm.stopBroadcast();
         laws.push(address(law));
 
 
-        // laws[11]
+        // laws[13]
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate for Security Council", // max 31 chars
@@ -303,7 +344,7 @@ contract DeployGovernYourTax is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[12]: security council: peer select. - role 3
+        // laws[14]: security council: peer select. - role 3
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
@@ -323,7 +364,7 @@ contract DeployGovernYourTax is Script {
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[17]: selfDestructPresetAction: assign initial accounts to security council.
+        // laws[15]: selfDestructPresetAction: assign initial accounts to security council.
         address[] memory targets = new address[](8);
         uint256[] memory values = new uint256[](8);
         bytes[] memory calldatas = new bytes[](8);
@@ -341,7 +382,7 @@ contract DeployGovernYourTax is Script {
         vm.startBroadcast();
         law = new SelfDestructPresetAction(
             "Set initial roles and labels", // max 31 chars
-            "The admin selects initial accounts for role 3. The law self destructs when executed.",
+            "The admin selects an initial account for the security council. The Admin also assigns labels to roles. The law self destructs when executed.",
             dao_, // separated powers protocol.
             0, // admin.
             lawConfig, //  config file.

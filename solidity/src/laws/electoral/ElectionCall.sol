@@ -77,7 +77,7 @@ contract ElectionCall is Law {
         // step 2: calculate address at which grant will be created.
         address nominees = config.readStateFrom;
         address electionVotesAddress =
-            _getElectionVotesAddress(VOTER_ROLE_ID, nominees, startVote, endVote, description);
+            getElectionVotesAddress(VOTER_ROLE_ID, nominees, startVote, endVote, description);
 
         // step 2: if address is already in use, revert.
         uint256 codeSize = electionVotesAddress.code.length;
@@ -113,15 +113,15 @@ contract ElectionCall is Law {
 
     /**
      * calculate the counterfactual address of this account as it would be returned by createAccount()
-     * exact copy from SimpleAccountFactory.sol, except it takes loyaltyProgram as param
+     * exact copy from SimpleAccountFactory.sol
      */
-    function _getElectionVotesAddress(
+    function getElectionVotesAddress(
         uint32 allowedRole,
         address nominees,
         uint48 startVote,
         uint48 endVote,
         string memory description
-    ) internal view returns (address) {
+    ) public view returns (address) {
         LawConfig memory config;
         config.readStateFrom = nominees;
 

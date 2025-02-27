@@ -19,13 +19,13 @@ pragma solidity 0.8.26;
 // protocol
 import { Law } from "../../../Law.sol";
 import { Powers} from "../../../Powers.sol";
-
 import { Grant } from "./Grant.sol";
 
 // open zeppelin contracts
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+import "lib/forge-std/src/Script.sol";
 
 contract StartGrant is Law {
     LawConfig public configNewGrants; // config for new grants.
@@ -44,11 +44,12 @@ contract StartGrant is Law {
             "uint48 Duration", // duration
             "uint256 Budget", // budget
             "address Erc20Token", // tokenAddress
-            "uint32 GrantCouncil", // allowedRole
+            "uint32 GrantCouncilId", // allowedRole
             "address Proposals" // proposals
         );
         stateVars = inputParams; // Note: stateVars == inputParams.
 
+        // note: the configuration of grants is set here inside the law itself. .
         configNewGrants.quorum = 80;
         configNewGrants.succeedAt = 66;
         configNewGrants.votingPeriod = 1200;
@@ -74,6 +75,10 @@ contract StartGrant is Law {
             address proposals
         ) = abi.decode(lawCalldata, (string, string, uint48, uint256, address, uint32, address));
 
+        console.log("at startGrant"); 
+        console.log(name, description, duration, budget);
+        console.log(tokenAddress, grantCouncil, proposals);
+
         // step 0: run additional checks
         // - if budget of grant does not exceed available funds.
         if ( budget > ERC20(tokenAddress).balanceOf(powers) ) {
@@ -82,8 +87,9 @@ contract StartGrant is Law {
 
         // step 1: calculate address at which grant will be created.
         address grantAddress =
-            _getGrantAddress(name, description, duration, budget, tokenAddress, grantCouncil, proposals);
+            getGrantAddress(name, description, duration, budget, tokenAddress, grantCouncil, proposals);
 
+        console.log("calculated grantAddress at startGrant", grantAddress); 
         // step 2: if address is already in use, revert.
         uint256 codeSize = grantAddress.code.length;
         if (codeSize > 0) {
@@ -125,7 +131,7 @@ contract StartGrant is Law {
      * calculate the counterfactual address of this account as it would be returned by createAccount()
      * exact copy from SimpleAccountFactory.sol, except it takes loyaltyProgram as param
      */
-    function _getGrantAddress(
+    function getGrantAddress(
         string memory name,
         string memory description,
         uint48 duration,
@@ -133,7 +139,15 @@ contract StartGrant is Law {
         address tokenAddress,
         uint32 grantCouncil, 
         address proposals
-    ) internal view returns (address) {
+    ) public view returns (address) {
+        console.log("calculating grant address at StartGrant");
+        console.log(
+            configNewGrants.quorum, 
+            configNewGrants.succeedAt, 
+            configNewGrants.votingPeriod, 
+            configNewGrants.needCompleted
+            );
+
         address grantAddress = Create2.computeAddress(
             bytes32(keccak256(abi.encodePacked(name, description))),
             keccak256(

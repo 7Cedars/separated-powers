@@ -23,6 +23,10 @@ import { Powers} from "../../../Powers.sol";
 // open zeppelin contracts
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+
+import "lib/forge-std/src/Script.sol";
+
+
 // NB: no checks on what kind of Erc20 token is used. This is just an example.
 contract Grant is Law {
     uint48 public expiryBlock;
@@ -47,7 +51,7 @@ contract Grant is Law {
             "address Grant", // grant address = address(this). This is needed to make abuse of proposals across contracts impossible.
             "uint256 Quantity" // quantity to transfer
         );
-        stateVars = abi.encode("uint256"); //  quantity to transfer
+        stateVars = abi.encode("uint256 Quantity"); //  quantity to transfer
 
         config.needCompleted = proposals_;
         expiryBlock = duration_ + uint48(block.number);
@@ -93,7 +97,11 @@ contract Grant is Law {
     function _changeStateVariables(bytes memory stateChange) internal override {
         (uint256 quantity) = abi.decode(stateChange, (uint256));
 
+        console.log("address grant", address(this));
+        console.log("1 Grant::_changeStateVariables: spent", spent, quantity);
+
         // update spent amount in law.
         spent += quantity;
+        console.log("2 Grant::_changeStateVariables: spent", spent, quantity);
     }
 }

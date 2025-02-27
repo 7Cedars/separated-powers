@@ -21,7 +21,10 @@ import { Law } from "../../../Law.sol";
 import { Powers} from "../../../Powers.sol";
 
 import { Grant } from "./Grant.sol";
+import { StartGrant } from "./StartGrant.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
+
+import "lib/forge-std/src/Script.sol";
 
 contract StopGrant is Law { 
     LawConfig public configNewGrants; // config for new grants.
@@ -39,10 +42,16 @@ contract StopGrant is Law {
             "uint48 Duration", // duration
             "uint256 Budget", // budget
             "address Erc20Token", // tokenAddress
-            "uint32 GrantCouncil", // allowedRole
+            "uint32 GrantCouncilId", // allowedRole
             "address Proposals" // proposals
         );
         stateVars = inputParams; // Note: stateVars == inputParams.
+        (
+            configNewGrants.quorum,
+            configNewGrants.succeedAt, 
+            configNewGrants.votingPeriod, 
+            configNewGrants.needCompleted,
+            , , , ) = StartGrant(config.needCompleted).configNewGrants(); 
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
@@ -63,12 +72,19 @@ contract StopGrant is Law {
             address proposals 
         ) = abi.decode(lawCalldata, (string, string, uint48, uint256, address, uint32, address));
 
+        console.log("at stopGrant"); 
+        console.log(name, description, duration, budget);
+        console.log(tokenAddress, grantCouncil, proposals);
+
         // step 1: calculate address at which grant will be created.
-        address grantAddress = _getGrantAddress(name, description, duration, budget, tokenAddress, grantCouncil, proposals);
+        address grantAddress = StartGrant(config.needCompleted).getGrantAddress(
+            name, description, duration, budget, tokenAddress, grantCouncil, proposals
+            );
+        console.log("calculated grantAddress at stopGrant", grantAddress); 
 
         // step 2: run additional checks
         if (
-            Grant(grantAddress).budget() != Grant(grantAddress).spent() && 
+            budget != Grant(grantAddress).spent() && 
             Grant(grantAddress).expiryBlock() > uint48(block.number)
         ) {
             revert ("Grant not expired."); 
@@ -86,44 +102,5 @@ contract StopGrant is Law {
 
         // step 5: return data
         return (targets, values, calldatas, stateChange);
-    }
-
-     /**
-     * calculate the counterfactual address of this account as it would be returned by createAccount()
-     * exact copy from SimpleAccountFactory.sol, except it takes loyaltyProgram as param
-     */
-    function _getGrantAddress(
-        string memory name,
-        string memory description,
-        uint48 duration,
-        uint256 budget,
-        address tokenAddress,
-        uint32 grantCouncil, 
-        address proposals
-    ) internal view returns (address) {
-        address grantAddress = Create2.computeAddress(
-            bytes32(keccak256(abi.encodePacked(name, description))),
-            keccak256(
-                abi.encodePacked(
-                    type(Grant).creationCode,
-                    abi.encode(
-                        // standard params
-                        name,
-                        description,
-                        powers,
-                        allowedRole,
-                        configNewGrants,
-                        // remaining params
-                        duration,
-                        budget,
-                        tokenAddress,
-                        grantCouncil,
-                        proposals
-                    )
-                )
-            )
-        );
-
-        return grantAddress;
     }
 }
