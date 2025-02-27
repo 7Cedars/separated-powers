@@ -22,21 +22,13 @@ import { Powers} from "../../../Powers.sol";
 
 // open zeppelin contracts
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 // NB: no checks on what kind of Erc20 token is used. This is just an example.
 contract Grant is Law {
-    enum TokenType {
-        ERC20,
-        ERC1155
-    }
-
     uint48 public expiryBlock;
     uint256 public budget;
     uint256 public spent;
     address public tokenAddress; // grants are, in this case, always funded through ERC20 contracts
-    TokenType public tokenType;
-    uint256 public tokenId;
 
     constructor(
         string memory name_,
@@ -44,11 +36,11 @@ contract Grant is Law {
         address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
+        //
         uint48 duration_,
         uint256 budget_,
         address tokenAddress_,
-        TokenType tokenType_,
-        uint256 tokenId_ // only used with erc1155 funded grants
+        address proposals_ // address from where proposals are made. Note that these proposals need to be executed by the applicant before they can be considered by the grant council. 
     ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "address Grantee", // grantee address
@@ -57,11 +49,10 @@ contract Grant is Law {
         );
         stateVars = abi.encode("uint256"); //  quantity to transfer
 
+        config.needCompleted = proposals_;
         expiryBlock = duration_ + uint48(block.number);
         budget = budget_;
         tokenAddress = tokenAddress_;
-        tokenType = tokenType_;
-        tokenId = tokenId_;
     }
 
     /// @notice execute the law.
@@ -93,15 +84,8 @@ contract Grant is Law {
         // step 3: fill out arrays with data
         targets[0] = tokenAddress;
         stateChange = abi.encode(quantity);
-        // action: transfer tokens to grantee. Conditional on what token type is used.
-        if (tokenType == TokenType.ERC20) {
-            calldatas[0] = abi.encodeWithSelector(ERC20.transfer.selector, grantee, quantity);
-        } else if (tokenType == TokenType.ERC1155) {
-            calldatas[0] = abi.encodeWithSelector(
-                ERC1155.safeTransferFrom.selector, powers, grantee, tokenId, quantity, ""
-            );
-        }
-
+        calldatas[0] = abi.encodeWithSelector(ERC20.transfer.selector, grantee, quantity);
+        
         // step 4: return data
         return (targets, values, calldatas, stateChange);
     }

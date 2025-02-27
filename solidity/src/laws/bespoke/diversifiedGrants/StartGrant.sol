@@ -43,10 +43,9 @@ contract StartGrant is Law {
             "string Description", // description
             "uint48 Duration", // duration
             "uint256 Budget", // budget
-            "address TokenAddress", // tokenAddress
-            "uint256 TokenType", // tokenType
-            "uint256 TokenId", // tokenId
-            "uint32 RoleId" // allowedRole
+            "address Erc20Token", // tokenAddress
+            "uint32 GrantCouncil", // allowedRole
+            "address Proposals" // proposals
         );
         stateVars = inputParams; // Note: stateVars == inputParams.
 
@@ -71,28 +70,19 @@ contract StartGrant is Law {
             uint48 duration,
             uint256 budget,
             address tokenAddress,
-            uint256 tokenType,
-            uint256 tokenId,
-            uint32 allowedRole
-        ) = abi.decode(lawCalldata, (string, string, uint48, uint256, address, uint256, uint256, uint32));
+            uint32 grantCouncil, 
+            address proposals
+        ) = abi.decode(lawCalldata, (string, string, uint48, uint256, address, uint32, address));
 
         // step 0: run additional checks
         // - if budget of grant does not exceed available funds.
-        if (
-            Grant.TokenType(tokenType) == Grant.TokenType.ERC20
-                && budget > ERC20(tokenAddress).balanceOf(powers)
-        ) {
-            revert ("Request amount exceeds available funds."); 
-        } else if (
-            Grant.TokenType(tokenType) == Grant.TokenType.ERC1155
-                && budget > ERC1155(tokenAddress).balanceOf(powers, tokenId)
-        ) {
+        if ( budget > ERC20(tokenAddress).balanceOf(powers) ) {
             revert ("Request amount exceeds available funds."); 
         }
 
         // step 1: calculate address at which grant will be created.
         address grantAddress =
-            _getGrantAddress(name, description, duration, budget, tokenAddress, tokenType, tokenId, allowedRole);
+            _getGrantAddress(name, description, duration, budget, tokenAddress, grantCouncil, proposals);
 
         // step 2: if address is already in use, revert.
         uint256 codeSize = grantAddress.code.length;
@@ -123,13 +113,12 @@ contract StartGrant is Law {
             uint48 duration,
             uint256 budget,
             address tokenAddress,
-            uint256 tokenType,
-            uint256 tokenId,
-            uint32 allowedRole
-        ) = abi.decode(stateChange, (string, string, uint48, uint256, address, uint256, uint256, uint32));
+            uint32 grantCouncil, 
+            address proposals
+        ) = abi.decode(stateChange, (string, string, uint48, uint256, address, uint32, address));
 
         // stp 1: deploy new grant
-        _deployGrant(name, description, duration, budget, tokenAddress, tokenType, tokenId, allowedRole);
+        _deployGrant(name, description, duration, budget, tokenAddress, tokenType, tokenId, grantCouncil, proposals);
     }
 
     /**
@@ -142,9 +131,8 @@ contract StartGrant is Law {
         uint48 duration,
         uint256 budget,
         address tokenAddress,
-        uint256 tokenType,
-        uint256 tokenId,
-        uint32 allowedRole
+        uint32 grantCouncil, 
+        address proposals
     ) internal view returns (address) {
         address grantAddress = Create2.computeAddress(
             bytes32(keccak256(abi.encodePacked(name, description))),
@@ -162,8 +150,8 @@ contract StartGrant is Law {
                         duration,
                         budget,
                         tokenAddress,
-                        Grant.TokenType(tokenType),
-                        tokenId
+                        grantCouncil,
+                        proposals
                     )
                 )
             )
@@ -178,23 +166,19 @@ contract StartGrant is Law {
         uint48 duration,
         uint256 budget,
         address tokenAddress,
-        uint256 tokenType,
-        uint256 tokenId,
-        uint32 allowedRole
+        uint32 grantCouncil
     ) internal {
         Grant newGrant = new Grant{ salt: bytes32(keccak256(abi.encodePacked(name, description))) }(
             // standard params
             name,
             description,
             powers,
-            allowedRole,
+            grantCouncil,
             configNewGrants,
             // remaining params
             duration,
             budget,
-            tokenAddress,
-            Grant.TokenType(tokenType),
-            tokenId
+            tokenAddress
         );
     }
 }

@@ -16,32 +16,60 @@
 
 pragma solidity 0.8.26;
 
-// laws
-import { PresetAction } from "../../executive/PresetAction.sol";
-import { SelfDestruct } from "../../modules/SelfDestruct.sol";
+import { BespokeAction } from "../../executive/BespokeAction.sol";
+import { Powers } from "../../../Powers.sol";
 
-contract SelfDestructPresetAction is PresetAction, SelfDestruct {
+contract AssignCouncilRole is BespokeAction {
+    uint32[] public allowedRoles;
+    string[] public placeholder = new string[](1); 
+
     constructor(
+        // standard
         string memory name_,
         string memory description_,
         address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
-        address[] memory targets_,
-        uint256[] memory values_,
-        bytes[] memory calldatas_
-    )
-        PresetAction(name_, description_, powers_, allowedRole_, config_, targets_, values_, calldatas_)
-        SelfDestruct()
-    { }
+        // 
+        uint32[] memory allowedRoles_
+    ) BespokeAction(
+        name_, 
+        description_, 
+        powers_, 
+        allowedRole_, 
+        config_, 
+        // 
+        powers_, // address targetContract_,
+        Powers.assignRole.selector, // bytes4 targetFunction_, 
+        placeholder // string[] memory inputParams_ // note: insert empty, below these values are overwritten.
+        ) {
+        allowedRoles = allowedRoles_;
+        inputParams = abi.encode(["uint32 roleId", "address account"]);
+    }
 
     function simulateLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         view
         virtual
-        override(PresetAction, SelfDestruct)
+        override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
+        // step 0: decode the calldata.
+        (uint32 roleId, address account) = abi.decode(lawCalldata, (uint32, address));
+
+        // step 1: check if the role is allowed.
+        bool allowed = false;
+        for (uint8 i = 0; i < allowedRoles.length; i++) {
+            if (allowedRoles[i] == roleId) {
+                allowed = true;
+                break;
+            }
+        }
+        if (!allowed) {
+            revert ("Role not allowed."); 
+        }
+      
+        // step 2: call super & return values. 
         return super.simulateLaw(initiator, lawCalldata, descriptionHash);
     }
 }

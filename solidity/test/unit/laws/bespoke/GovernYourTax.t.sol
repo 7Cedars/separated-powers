@@ -15,7 +15,7 @@ import { Erc20VotesMock } from "../../../mocks/Erc20VotesMock.sol";
 import { Grant } from "../../../../src/laws/bespoke/diversifiedGrants/Grant.sol";
 import { StartGrant } from "../../../../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
 import { StopGrant } from "../../../../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
-import { SelfDestructPresetAction } from "../../../../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol";
+import { SelfDestructPresetAction } from "../../../../src/laws/executive/SelfDestructPresetAction.sol";
 
 // openzeppelin contracts
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";

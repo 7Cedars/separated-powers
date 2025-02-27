@@ -25,7 +25,7 @@ import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 import { Grant } from "../src/laws/bespoke/diversifiedGrants/Grant.sol";
 import { StartGrant } from "../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
 import { StopGrant } from "../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
-import { SelfDestructPresetAction } from "../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol";
+import { SelfDestructPresetAction } from "../src/laws/executive/SelfDestructPresetAction.sol";
 import { RoleByTaxPaid } from "../src/laws/bespoke/diversifiedGrants/RoleByTaxPaid.sol";
 // borrowing one law from another bespoke folder. Not ideal, but ok for now.
 import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
@@ -117,7 +117,7 @@ contract DeployGovernYourTax is Script {
         // initiating law
         vm.startBroadcast();
         law = new StartGrant(
-            "Create a grant program", // max 31 chars
+            "Start a grant program", // max 31 chars
             "Subject to a vote, a grant program can be created. The token, budget and duration are pre-specified, as well as the grant council that will govern the grant.",
             dao_, // separated powers
             2, // access role
@@ -129,6 +129,7 @@ contract DeployGovernYourTax is Script {
         delete lawConfig;
 
         // laws[2]
+        lawConfig.needCompleted = laws[1]; // needs the exact grant to have been completed. 
         // initiating law
         vm.startBroadcast();
         law = new StopGrant(
@@ -320,68 +321,10 @@ contract DeployGovernYourTax is Script {
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[13]: elect and revoke members to grant council A -- governance council votes.
-        // lawConfig is for next three laws
-        lawConfig.quorum = 70; // = 70% quorum needed
-        lawConfig.succeedAt = 51; // =  simple majority sufficient
-        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Elect/revoke Grant Council A", // max 31 chars
-            "Elect and revoke members of Grant council A.",
-            dao_, // separated powers protocol.
-            2, // governors.
-            lawConfig, //  config file.
-            4 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-
-        // laws[14]: elect and revoke members to grant council B -- governance council votes.
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Elect/revoke Grant Council B", // max 31 chars
-            "Elect and revoke members of Grant council B.",
-            dao_, // separated powers protocol.
-            2, // governors.
-            lawConfig, //  config file. // same as law[9]
-            5 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-
-        // laws[15]: elect and revoke members to grant council C -- governance council votes.
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Elect/revoke Grant Council C", // max 31 chars
-            "Elect and revoke members of Grant council C.",
-            dao_, // separated powers protocol.
-            2, // governors.
-            lawConfig, //  config file. // same as law[9]
-            6 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-        delete lawConfig; // here we delete the law config
-        // note at the moment not possible to resign form these roles. In reality there should be a law that allows for resignations.
-        
-        // laws[16]
-        vm.startBroadcast();
-        law = new DirectSelect(
-            "Set Oracle", // max 31 chars
-            "The admin selects accounts for an oracle role.",
-            dao_, // separated powers protocol.
-            0, // admin.
-            lawConfig, //  config file.
-            7 // role id to be assigned
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-
         // laws[17]: selfDestructPresetAction: assign initial accounts to security council.
-        address[] memory targets = new address[](9);
-        uint256[] memory values = new uint256[](9);
-        bytes[] memory calldatas = new bytes[](9);
+        address[] memory targets = new address[](8);
+        uint256[] memory values = new uint256[](8);
+        bytes[] memory calldatas = new bytes[](8);
         for (uint256 i = 0; i < targets.length; i++) {
             targets[i] = dao_;
         }
@@ -392,7 +335,6 @@ contract DeployGovernYourTax is Script {
         calldatas[5] = abi.encodeWithSelector(Powers.labelRole.selector, 4, "Grant Council A");
         calldatas[6] = abi.encodeWithSelector(Powers.labelRole.selector, 5, "Grant Council B");
         calldatas[7] = abi.encodeWithSelector(Powers.labelRole.selector, 6, "Grant Council C");
-        calldatas[8] = abi.encodeWithSelector(Powers.labelRole.selector, 7, "Oracle");
  
         vm.startBroadcast();
         law = new SelfDestructPresetAction(

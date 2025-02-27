@@ -111,7 +111,9 @@ const Page = () => {
 
   return (
     <main className="w-full h-full flex flex-col justify-start items-center gap-3 px-4 pt-16 overflow-x-scroll">
-      <GovernanceOverview law = {law} /> 
+      <div className = "h-fit w-full">
+        <GovernanceOverview law = {law} /> 
+      </div>
       {/* main body  */}
       <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-end items-start">
 

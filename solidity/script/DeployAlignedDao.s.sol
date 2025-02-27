@@ -28,7 +28,7 @@ import { ReinstateRole } from "../src/laws/bespoke/alignedDao/ReinstateRole.sol"
 import { RequestPayment } from "../src/laws/bespoke/alignedDao/RequestPayment.sol";
 import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 
-import { SelfDestructPresetAction } from "../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol"; 
+import { SelfDestructPresetAction } from "../src/laws/executive/SelfDestructPresetAction.sol"; 
 
 // mocks 
 import { Erc20VotesMock } from "../test/mocks/Erc20VotesMock.sol";

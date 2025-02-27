@@ -19,7 +19,7 @@ import { ProposalOnly } from "../src/laws/executive/ProposalOnly.sol";
 import { OpenAction } from "../src/laws/executive/OpenAction.sol";
 import { PresetAction } from "../src/laws/executive/PresetAction.sol";
 
-import { SelfDestructPresetAction } from "../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol"; 
+import { SelfDestructPresetAction } from "../src/laws/executive/SelfDestructPresetAction.sol"; 
 
 // config
 import { HelperConfig } from "./HelperConfig.s.sol";

@@ -21,6 +21,7 @@ import { ProposalOnly } from "../../src/laws/executive/ProposalOnly.sol";
 import { OpenAction } from "../../src/laws/executive/OpenAction.sol";
 import { PresetAction } from "../../src/laws/executive/PresetAction.sol";
 import { BespokeAction } from "../../src/laws/executive/BespokeAction.sol";
+import { SelfDestructPresetAction } from "../../src/laws/executive/SelfDestructPresetAction.sol";
 // state laws.
 import { StringsArray } from "../../src/laws/state/StringsArray.sol";
 import { TokensArray } from "../../src/laws/state/TokensArray.sol";
@@ -37,7 +38,6 @@ import { Grant } from "../../src/laws/bespoke/diversifiedGrants/Grant.sol";
 import { StartGrant } from "../../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
 import { StopGrant } from "../../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
 import { RoleByTaxPaid } from "../../src/laws/bespoke/diversifiedGrants/RoleByTaxPaid.sol";
-import { SelfDestructPresetAction } from "../../src/laws/bespoke/diversifiedGrants/SelfDestructPresetAction.sol";
 // bespoke: diversified roles laws.
 import { RoleByKyc } from "../../src/laws/bespoke/diversifiedRoles/RoleByKyc.sol";
 import { AiAgents } from "../../src/laws/bespoke/diversifiedRoles/AiAgents.sol";

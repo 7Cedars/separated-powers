@@ -30,7 +30,16 @@ contract StopGrant is Law {
         uint32 allowedRole_,
         LawConfig memory config_ // this is the configuration for creating new grants, not of the grants themselves.
     ) Law(name_, description_, powers_, allowedRole_, config_) {
-        inputParams = abi.encode("address Grant"); // address of grant
+        inputParams = abi.encode(
+            "string Name", // name
+            "string Description", // description
+            "uint48 Duration", // duration
+            "uint256 Budget", // budget
+            "address Erc20Token", // tokenAddress
+            "uint32 GrantCouncil", // allowedRole
+            "address Proposals" // proposals
+        );
+        stateVars = inputParams; // Note: stateVars == inputParams.
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
@@ -40,8 +49,19 @@ contract StopGrant is Law {
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
     {
-        // step 1: decode data from stateChange
-        (address grantAddress) = abi.decode(lawCalldata, (address));
+        // step 0: decode data from stateChange
+        (
+            string memory name,
+            string memory description,
+            uint48 duration,
+            uint256 budget,
+            address tokenAddress,
+            uint32 grantCouncil, 
+            address proposals 
+        ) = abi.decode(lawCalldata, (string, string, uint48, uint256, address, uint32, address));
+
+        // step 1: calculate address at which grant will be created.
+        address grantAddress = _getGrantAddress(name, description, duration, budget, tokenAddress, grantCouncil, proposals);
 
         // step 2: run additional checks
         if (
@@ -63,5 +83,44 @@ contract StopGrant is Law {
 
         // step 5: return data
         return (targets, values, calldatas, stateChange);
+    }
+
+     /**
+     * calculate the counterfactual address of this account as it would be returned by createAccount()
+     * exact copy from SimpleAccountFactory.sol, except it takes loyaltyProgram as param
+     */
+    function _getGrantAddress(
+        string memory name,
+        string memory description,
+        uint48 duration,
+        uint256 budget,
+        address tokenAddress,
+        uint32 grantCouncil, 
+        address proposals
+    ) internal view returns (address) {
+        address grantAddress = Create2.computeAddress(
+            bytes32(keccak256(abi.encodePacked(name, description))),
+            keccak256(
+                abi.encodePacked(
+                    type(Grant).creationCode,
+                    abi.encode(
+                        // standard params
+                        name,
+                        description,
+                        powers,
+                        allowedRole,
+                        configNewGrants,
+                        // remaining params
+                        duration,
+                        budget,
+                        tokenAddress,
+                        grantCouncil,
+                        proposals
+                    )
+                )
+            )
+        );
+
+        return grantAddress;
     }
 }

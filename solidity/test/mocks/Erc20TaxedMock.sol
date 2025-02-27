@@ -24,6 +24,7 @@ contract Erc20TaxedMock is ERC20, Ownable {
         taxRate = taxRate_;
         DENOMINATOR = DENOMINATOR_;
         epochDuration = epochDuration_;
+        _mint(msg.sender, 1_000_000); // start with one million tokens. 
     }
 
     // a public non-restricted function that allows anyone to mint coins. Only restricted by max allowed coins to mint.
