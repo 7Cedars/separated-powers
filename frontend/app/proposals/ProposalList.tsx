@@ -56,7 +56,7 @@ export function ProposalList() {
           Proposals
         </div>
         {organisation?.roles.map((role, i) => 
-            <div className="flex flex-row w-full min-w-16 h-8" key={i}>
+            <div className="flex flex-row w-full min-w-fit h-8" key={i}>
             <Button
               size={0}
               showBorder={true}

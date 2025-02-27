@@ -33,7 +33,7 @@ export function Overview( ) {
     {/* table banner  */}
     <div className="w-full h-fit flex flex-row gap-3 justify-between items-center py-2 px-4 border-b slate-300 overflow-y-scroll">
       {organisation?.roles.map((role, i) => 
-          <div className="flex flex-row w-full min-w-16 h-8" key={i}>
+          <div className="flex flex-row w-full min-w-fit h-8" key={i}>
           <Button
             size={0}
             showBorder={true}
@@ -57,7 +57,7 @@ export function Overview( ) {
     </div>
 
     {/* Overview here  */}
-    <div className = "w-full h-fit px-4 pt-2 pb-20"> 
+    <div className = "w-full h-fit px-4 pt-2 pb-4"> 
       <GovernanceOverview /> 
     </div> 
   </div>
