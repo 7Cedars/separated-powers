@@ -211,7 +211,7 @@ export const useOrganisations = () => {
         contractAddress: org
         }) as Organisation }
       )
-      console.log("waypoint 3: data fetched: ", {defaultOrganisations})
+      // console.log("waypoint 3: data fetched: ", {defaultOrganisations})
 
       if (defaultOrganisations) {
         const names = await fetchNames(defaultOrganisations)
@@ -220,7 +220,7 @@ export const useOrganisations = () => {
         const proposalsPerOrg = await fetchProposals(defaultOrganisations)
         const roleLabels = await fetchRoleLabels(defaultOrganisations)
 
-        console.log("waypoint 4: data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg, roleLabels})
+        // console.log("waypoint 4: data fetched: ", {names, metadatas, lawsAndRoles, proposalsPerOrg, roleLabels})
 
         if (names && metadatas && lawsAndRoles && proposalsPerOrg && roleLabels) {
             const organisationsFetched = defaultOrganisations?.map((org, index) => {
@@ -238,7 +238,7 @@ export const useOrganisations = () => {
               )
             })
 
-            console.log("waypoint 5: ", {organisationsFetched})
+            // console.log("waypoint 5: ", {organisationsFetched})
             setOrganisations(organisationsFetched)
             localStorage.setItem("powersProtocol_savedOrgs", JSON.stringify(organisationsFetched, (key, value) =>
               typeof value === "bigint" ? Number(value) : value,

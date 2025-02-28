@@ -13,7 +13,7 @@ export function StaticInput({dataType, varName, values}: InputProps) {
     dataType.indexOf('[]') > -1 ? true : false
   const itemsArray = array ? values as Array<InputType> : [values] as Array<InputType>
 
-  console.log("@itemsArray: ", {itemsArray} )
+  // console.log("@itemsArray: ", {itemsArray} )
 
   return (
     <div className="w-full flex flex-col justify-center items-center">

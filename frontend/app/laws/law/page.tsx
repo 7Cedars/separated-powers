@@ -24,7 +24,7 @@ const Page = () => {
   const {checks, fetchChecks} = useChecks(); 
   const [error, setError] = useState<any>(); 
 
-  console.log( "Law page: ", {executions, errorUseLaw, checks, law})
+  // console.log( "Law page: ", {executions, errorUseLaw, checks, law})
 
   const { data, isLoading, isError, error: errorInputParams } = useReadContract({
         abi: lawAbi,
@@ -117,7 +117,7 @@ const Page = () => {
       <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-end items-start">
 
         {/* left panel: writing, fetching data is done here  */}
-        <div className="lg:w-5/6 w-full flex my-4 pb-16 min-h-fit"> 
+        <div className="lg:w-5/6 max-w-3xl w-full flex my-4 pb-16 min-h-fit"> 
           {checks && <LawBox 
               checks = {checks} 
               params = {params} 

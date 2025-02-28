@@ -150,13 +150,13 @@ export const useChecks = () => {
   }, []) 
 
   const checkDelayedExecution = (description: string, calldata: `0x${string}`, law: Law) => {
-    console.log("CheckDelayedExecution triggered")
+    // console.log("CheckDelayedExecution triggered")
     const selectedProposal = organisation?.proposals?.find(proposal => 
       proposal.targetLaw === law.law && 
       proposal.executeCalldata === calldata && 
       proposal.description === description
     ) 
-    console.log("waypoint 1, CheckDelayedExecution: ", {selectedProposal, blockNumber})
+    // console.log("waypoint 1, CheckDelayedExecution: ", {selectedProposal, blockNumber})
     const result = Number(selectedProposal?.voteEnd) + Number(law.config.delayExecution) < Number(blockNumber)
     return result as boolean
   }
@@ -205,7 +205,7 @@ export const useChecks = () => {
 
   const fetchChecks = useCallback( 
     async (law: Law, callData: `0x${string}`, description: string) => {
-      console.log("fetchChecks triggered")
+      // console.log("fetchChecks triggered")
         let results: boolean[] = new Array<boolean>(8)
         setError(null)
         setStatus("pending")

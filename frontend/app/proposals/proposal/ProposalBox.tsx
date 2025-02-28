@@ -49,7 +49,7 @@ export function ProposalBox({proposal}: {proposal?: Proposal}) {
   const params = bytesToParams(data as `0x${string}`)  
   const dataTypes = params.map(param => param.dataType) 
 
-  console.log("@proposalBox: ", {statusProposal, proposal, action, checks, law})
+  // console.log("@proposalBox: ", {statusProposal, proposal, action, checks, law})
 
   const handleSimulate = async () => {
       if (dataTypes && dataTypes.length > 0 && calldata && description) {

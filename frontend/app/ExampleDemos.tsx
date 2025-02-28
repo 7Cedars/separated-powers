@@ -17,7 +17,7 @@ export function ExampleDemos() {
       initialise() 
   }, [ ])
 
-  console.log("@landing page:", {status, organisations})
+  // console.log("@landing page:", {status, organisations})
  
   return (
     // min-w-[60vw]
