@@ -46,8 +46,7 @@ contract ElectionCall is Law {
         // bespoke params
         uint32 voterRoleId_, // who can vote in the election.
         uint32 electedRoleId_, // what role Id is assigned through the elections 
-        uint256 maxElectedRoleHolders_, // how many people can be elected.
-        address nominees_ // the contract that holds the nominees. 
+        uint256 maxElectedRoleHolders_ // how many people can be elected.
     ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "string Description", // description = a description of the election.
@@ -58,7 +57,6 @@ contract ElectionCall is Law {
         VOTER_ROLE_ID = voterRoleId_;
         MAX_ROLE_HOLDERS = maxElectedRoleHolders_;
         ELECTED_ROLE_ID = electedRoleId_;
-        config.readStateFrom = nominees_;
     }
 
     /// @notice execute the law.
@@ -76,13 +74,16 @@ contract ElectionCall is Law {
 
         // step 2: calculate address at which grant will be created.
         address nominees = config.readStateFrom;
+        if (nominees == address(0)) {
+            revert("Nominees contract not set at `config.readStateFrom`.");
+        }
         address electionVotesAddress =
             getElectionVotesAddress(VOTER_ROLE_ID, nominees, startVote, endVote, description);
 
         // step 2: if address is already in use, revert.
         uint256 codeSize = electionVotesAddress.code.length;
         if (codeSize > 0) {
-            revert ("Election Votes address already exists.");
+            revert("Election Votes address already exists.");
         }
 
         // step 3: create arrays

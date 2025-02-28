@@ -18,6 +18,7 @@ pragma solidity 0.8.26;
 
 import { BespokeAction } from "../../executive/BespokeAction.sol";
 import { Powers } from "../../../Powers.sol";
+import { NominateMe } from "../../state/NominateMe.sol";
 
 contract AssignCouncilRole is BespokeAction {
     uint32[] public allowedRoles;
@@ -56,7 +57,7 @@ contract AssignCouncilRole is BespokeAction {
     {
         // step 0: decode the calldata.
         (uint32 roleId, address account) = abi.decode(lawCalldata, (uint32, address));
-
+        
         // step 1: check if the role is allowed.
         bool allowed = false;
         for (uint8 i = 0; i < allowedRoles.length; i++) {
@@ -67,6 +68,11 @@ contract AssignCouncilRole is BespokeAction {
         }
         if (!allowed) {
             revert ("Role not allowed."); 
+        }
+
+        // step 2: check if the account is nominated.
+        if (NominateMe(config.readStateFrom).nominees(account) == 0) {
+            revert ("Account not nominated.");
         }
       
         // step 2: call super & return values. 

@@ -39,8 +39,7 @@ import { StartGrant } from "../../src/laws/bespoke/diversifiedGrants/StartGrant.
 import { StopGrant } from "../../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
 import { RoleByTaxPaid } from "../../src/laws/bespoke/diversifiedGrants/RoleByTaxPaid.sol";
 import { AssignCouncilRole } from "../../src/laws/bespoke/diversifiedGrants/AssignCouncilRole.sol";
-import { MintAndBurnTokens } from "../../src/laws/bespoke/diversifiedGrants/MintAndBurnTokens.sol";
-
+ 
 // bespoke: diversified roles laws.
 import { RoleByKyc } from "../../src/laws/bespoke/diversifiedRoles/RoleByKyc.sol";
 import { AiAgents } from "../../src/laws/bespoke/diversifiedRoles/AiAgents.sol";
@@ -403,6 +402,7 @@ contract ConstitutionsMock is Test {
         );
         laws[5] = address(law);
 
+        lawConfig.readStateFrom = laws[0]; // NominateMe.
         law = new ElectionCall(
             "Create Election", // max 31 chars
             "Create an election for role 3.",
@@ -412,21 +412,21 @@ contract ConstitutionsMock is Test {
             // bespoke configs for this law:
             2, // voter role id 
             3, // elected role id
-            2, // max elected role holders
-            laws[0] // NominateMe.
+            2 // max elected role holders
         );
         laws[6] = address(law);
+        delete lawConfig;
 
+        lawConfig.needCompleted = laws[6]; // electionCall
         law = new ElectionTally(
             "Tally an election", // max 31 chars
             "Count votes of an election called through the call election law and assign roles.",
             dao_,
             1, // access role
-            lawConfig, // empty config file.
-            // bespoke configs for this law:
-            laws[6] // electionCall law
+            lawConfig // empty config file.
         );
         laws[7] = address(law);
+        delete lawConfig;
  
         // get calldata
         (address[] memory targetsRoles, uint256[] memory valuesRoles, bytes[] memory calldatasRoles) = _getRoles(dao_);
@@ -716,7 +716,7 @@ contract ConstitutionsMock is Test {
         address payable mock1155_
     ) external returns (address[] memory laws) {
         Law law;
-        laws = new address[](6);
+        laws = new address[](7);
         ILaw.LawConfig memory lawConfig;
 
         // grant input params.
@@ -751,7 +751,7 @@ contract ConstitutionsMock is Test {
         );
         laws[1] = address(law);
 
-
+        
         law = new StartGrant(
             "Start a grant", // max 31 chars
             "Start a grant with a bespoke role restriction, token, budget and duration.",
@@ -762,7 +762,8 @@ contract ConstitutionsMock is Test {
             laws[0] // proposals that need to be completed before grant can be considered.
         );
         laws[2] = address(law);
-
+        
+        lawConfig.needCompleted = laws[2]; // needs the exact grant to have been completed. 
         law = new StopGrant(
             "Stop a grant", // max 31 chars
             "Delete Grant that has either expired or has spent its budget.",
@@ -771,6 +772,7 @@ contract ConstitutionsMock is Test {
             lawConfig
         );
         laws[3] = address(law);
+        delete lawConfig; 
 
         law = new RoleByTaxPaid(
             "(De)select role by tax paid", // max 31 chars
@@ -784,17 +786,16 @@ contract ConstitutionsMock is Test {
         );
         laws[4] = address(law);
 
-        law = new MintAndBurnTokens(
-            "Mint (or burn) ERC20 tokens", // max 31 chars
-            "Mint (or burn) the ERC20 token controlled by the organisation.",
+        law = new NominateMe(
+            "Nominate for any role", // max 31 chars
+            "This is a placeholder nomination law.",
             dao_,
-            2, // access role
-            lawConfig,
-            mock20Taxed_
-        );
+            1, // access role
+            lawConfig // empty config file.
+        ); 
         laws[5] = address(law);
 
-
+        lawConfig.readStateFrom = laws[5]; // nominate me
         uint32[] memory allowedRoles = new uint32[](3);
         allowedRoles[0] = 4; // council A
         allowedRoles[1] = 5; // council B
@@ -808,6 +809,7 @@ contract ConstitutionsMock is Test {
             allowedRoles
         );
         laws[6] = address(law);
+        delete lawConfig;
     }
 
     //////////////////////////////////////////////////////////////

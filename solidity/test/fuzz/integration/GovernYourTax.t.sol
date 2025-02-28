@@ -18,6 +18,7 @@ import { StringsArray } from "../../../src/laws/state/StringsArray.sol";
 import { Grant } from "../../../src/laws/bespoke/diversifiedGrants/Grant.sol";
 import { ElectionVotes } from "../../../src/laws/state/ElectionVotes.sol";
 import { NominateMe } from "../../../src/laws/state/NominateMe.sol";
+import { ElectionCall } from "../../../src/laws/electoral/ElectionCall.sol";
 
 import { TestSetupGovernYourTax_fuzzIntegration } from "../../../test/TestSetup.t.sol";
 import { HelperConfig } from "../../../script/HelperConfig.s.sol";
@@ -507,169 +508,173 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                 console.log("action: user claims role.");
                 vm.expectEmit(true, false, false, false);
                 emit PowersEvents.ProposalCompleted(
-                    users[i], laws[9], lawCalldata, keccak256(bytes(description))
+                    users[i], laws[7], lawCalldata, keccak256(bytes(description))
                     );
                 vm.prank(users[i]);
-                governYourTax.execute(laws[9], lawCalldata, description);
+                governYourTax.execute(laws[7], lawCalldata, description);
             } else {
                 console.log("action: user is not claiming role.");
                 vm.expectRevert();
                 vm.prank(users[i]);
-                governYourTax.execute(laws[9], lawCalldata, description);
+                governYourTax.execute(laws[7], lawCalldata, description);
             }
         }
     } 
 
-    // function  testFuzz_GovernYourTax_CallAndTallyGovernorElections(
-    //     uint256 seed1, 
-    //     uint256 seed2, 
-    //     uint256 step0Chance, 
-    //     uint256 step1Chance
-    // ) public {
-    //     console.log("number of laws", laws.length); 
-
-    //     // mint erc20 Tokens to organisation. 
-    //     vm.prank(address(governYourTax)); 
-    //     Erc20TaxedMock(erc20TaxedMock).mint(1_000_000);
+    function  testFuzz_GovernYourTax_CallAndTallyGovernorElections(
+        uint256 seed1, 
+        uint256 seed2, 
+        uint256 step0Chance, 
+        uint256 step1Chance
+    ) public {
+        // mint erc20 Tokens to organisation. 
+        vm.prank(address(governYourTax)); 
+        Erc20TaxedMock(erc20TaxedMock).mint(1_000_000);
         
-    //     seed1 = bound(seed1, 1_000_000, 100_000_000);
-    //     seed2 = bound(seed2, 1_000_000, 100_000_000);
-    //     step0Chance = bound(step0Chance, 15, 100);
-    //     step1Chance = bound(step1Chance, 15, 100);
+        seed1 = bound(seed1, 1_000_000, 100_000_000);
+        seed2 = bound(seed2, 1_000_000, 100_000_000);
+        step0Chance = bound(step0Chance, 15, 100);
+        step1Chance = bound(step1Chance, 15, 100);
 
-    //     // assign roles
-    //     vm.startPrank(address(governYourTax));
-    //     governYourTax.assignRole(3, alice); // alice is member of the security council. 
-    //     vm.stopPrank();
+        // assign roles
+        vm.startPrank(address(governYourTax));
+        governYourTax.assignRole(3, alice); // alice is member of the security council. 
+        vm.stopPrank();
         
-    //     // assign role admin, 1s, 2s + if not assigned role 2, nominate for role 2
-    //     vm.prank(address(governYourTax));
-    //     governYourTax.assignRole(0, alice); // alice is assigned as admin 
-    //     for (i; i < users.length; i++) {
-    //         vm.prank(address(governYourTax));
-    //         governYourTax.assignRole(1, users[i]); 
-    //         if (i < 5) {
-    //             vm.prank(address(governYourTax));
-    //             governYourTax.assignRole(2, users[i]); 
-    //         } else {
-    //             vm.prank(users[i]); 
-    //             governYourTax.execute(
-    //                 laws[8], 
-    //                 abi.encode(true), 
-    //                 string.concat("Nominating for role 2, user ", Strings.toString(i))
-    //                 );
-    //         }
-    //     }
+        // assign role admin, 1s, 2s + if not assigned role 2, nominate for role 2
+        vm.prank(address(governYourTax));
+        governYourTax.assignRole(0, alice); // alice is assigned as admin 
+        for (i; i < users.length; i++) {
+            vm.prank(address(governYourTax));
+            governYourTax.assignRole(1, users[i]); 
+            if (i < 5) {
+                vm.prank(address(governYourTax));
+                governYourTax.assignRole(2, users[i]); 
+            } else {
+                vm.prank(users[i]); 
+                governYourTax.execute(
+                    laws[8], 
+                    abi.encode(true), 
+                    string.concat("Nominating for role 2, user ", Strings.toString(i))
+                    );
+            }
+        }
 
-    //     // step 1: alice, as member of the security council, calls an election. 
-    //     description = "Alice calls an election";
-    //     lawCalldata = abi.encode(
-    //         "This is a test election.", // description 
-    //         uint48(block.number + 1), // start vote 
-    //         uint48(block.number + 100) // end vote. 
-    //     );
-    //     vm.prank(alice); // = security
-    //     governYourTax.execute(laws[11], lawCalldata, description);
+        // step 1: alice, as member of the security council, calls an election. 
+        description = "Alice calls an election.";
+        lawCalldata = abi.encode(
+            "This is a test election.", // description of the actual election. 
+            uint48(block.number + 1), // start vote 
+            uint48(block.number + 100) // end vote. 
+        );
+        vm.prank(alice); // = security
+        governYourTax.execute(laws[9], lawCalldata, description);
+        address electionVotesAddress = ElectionCall(laws[9]).getElectionVotesAddress(
+            2, // voter role id
+            laws[8], // nominees
+            uint48(block.number + 1), // start vote
+            uint48(block.number + 100), // end vote
+            "This is a test election."
+        ); 
  
+        // step 2: users vote in election 
+        uint256 currentSeed1;
+        uint256 currentSeed2;
+        for (uint256 i = 0; i < 25; i++) { // 25 votes will be tried to cast
+            // set randomiser..
+            if (currentSeed1 < 10) {
+                currentSeed1 = seed1;
+            } else {
+                currentSeed1 = currentSeed1 / 10;
+            }
+            if (currentSeed2 < 10) {
+                currentSeed2 = seed2;
+            } else {
+                currentSeed2 = currentSeed2 / 10;
+            }
+            address votingUser = users[currentSeed1 % users.length]; 
+            address userReceivingVote = users[currentSeed2 % users.length]; 
+            description = string.concat("Voting on user. Round ", Strings.toString(i));
+            vm.roll(currentSeed1 & 250); 
 
-    //     // step 2: users vote in election 
-    //     uint256 currentSeed1;
-    //     uint256 currentSeed2;
-    //     for (uint256 i = 0; i < 25; i++) { // 25 votes will be tried to cast
-    //         // set randomiser..
-    //         if (currentSeed1 < 10) {
-    //             currentSeed1 = seed1;
-    //         } else {
-    //             currentSeed1 = currentSeed1 / 10;
-    //         }
-    //         if (currentSeed2 < 10) {
-    //             currentSeed2 = seed2;
-    //         } else {
-    //             currentSeed2 = currentSeed2 / 10;
-    //         }
-    //         address votingUser = users[currentSeed1 % users.length]; 
-    //         address userReceivingVote = users[currentSeed2 % users.length]; 
-    //         description = string.concat("Voting on user. Round ", Strings.toString(i));
-    //         vm.roll(currentSeed1 & 250); 
+            if (
+                Powers(governYourTax).canCallLaw(votingUser, electionVotesAddress) && 
+                !hasVoted[votingUser] &&
+                NominateMe(laws[8]).nominees(userReceivingVote) != 0 && 
+                block.number > ElectionVotes(electionVotesAddress).startVote() && 
+                block.number < ElectionVotes(electionVotesAddress).endVote()
+            ) {             
+                console.log("action: user is voting.");
+                vm.expectEmit(true, false, false, false);
+                emit PowersEvents.ProposalCompleted(
+                    votingUser, 
+                    electionVotesAddress, 
+                    abi.encode(userReceivingVote), 
+                    keccak256(bytes(description))
+                    );
+                vm.prank(votingUser);
+                governYourTax.execute(
+                    electionVotesAddress, 
+                    abi.encode(userReceivingVote), 
+                    description
+                    );
+                votesReceived[userReceivingVote]++; 
+                hasVoted[votingUser] = true; 
+            } else {
+                console.log("action: user tries to vote but should revert.");
+                vm.expectRevert();
+                vm.prank(votingUser);
+                governYourTax.execute(
+                    electionVotesAddress, 
+                    abi.encode(userReceivingVote), 
+                    description
+                    );
+            }
+        }
 
-    //         if (
-    //             Powers(governYourTax).canCallLaw(votingUser, peerVoteAddress) && 
-    //             !hasVoted[votingUser] &&
-    //             NominateMe(laws[8]).nominees(userReceivingVote) != 0 && 
-    //             block.number > ElectionVotes(peerVoteAddress).startVote() && 
-    //             block.number < ElectionVotes(peerVoteAddress).endVote()
-    //         ) {             
-    //             console.log("action: user is voting.");
-    //             vm.expectEmit(true, false, false, false);
-    //             emit PowersEvents.ProposalCompleted(
-    //                 votingUser, 
-    //                 peerVoteAddress, 
-    //                 abi.encode(userReceivingVote), 
-    //                 keccak256(bytes(description))
-    //                 );
-    //             vm.prank(votingUser);
-    //             governYourTax.execute(
-    //                 peerVoteAddress, 
-    //                 abi.encode(userReceivingVote), 
-    //                 description
-    //                 );
-    //             votesReceived[userReceivingVote]++; 
-    //             hasVoted[votingUser] = true; 
-    //         } else {
-    //             console.log("action: user tries to vote but should revert.");
-    //             vm.expectRevert();
-    //             vm.prank(votingUser);
-    //             governYourTax.execute(
-    //                 peerVoteAddress, 
-    //                 abi.encode(userReceivingVote), 
-    //                 description
-    //                 );
-    //         }
-    //     }
+        // step 2: tally election - see if correct people have been assigned. 
+        description = "Alice calls an election."; 
+        vm.roll((seed1 + seed2) % 200); // should succeed in about 50% of runs. 
+        console.log("block number: ", block.number);
+        if ( block.number >= ElectionVotes(electionVotesAddress).endVote() ) {
+            vm.expectEmit(true, false, false, false);
+            emit PowersEvents.ProposalCompleted(
+                alice, // has role 1
+                laws[10], 
+                lawCalldata,
+                keccak256(bytes(description))
+                );
+            vm.prank(alice); 
+            governYourTax.execute(
+                    laws[10], 
+                    lawCalldata,
+                    description
+                    );
+            } else {
+                vm.expectRevert();
+                vm.prank(alice); 
+                governYourTax.execute(
+                    laws[10], 
+                    lawCalldata, 
+                    description
+                    );
+            }
 
-    //     // step 2: tally election - see if correct people have been assigned. 
-    //     description = "I tally the vote of the election."; 
-    //     vm.roll((seed1 + seed2) % 200); // should succeed in about 50% of runs. 
-    //     console.log("block number: ", block.number);
-    //     if ( block.number >= ElectionVotes(peerVoteAddress).endVote() ) {
-    //         vm.expectEmit(true, false, false, false);
-    //         emit PowersEvents.ProposalCompleted(
-    //             alice, // has role 1
-    //             laws[9], 
-    //             abi.encode(peerVoteAddress), 
-    //             keccak256(bytes(description))
-    //             );
-    //         vm.prank(alice); 
-    //         governYourTax.execute(
-    //                 laws[9], 
-    //                 abi.encode(peerVoteAddress), 
-    //                 description
-    //                 );
-    //         } else {
-    //             vm.expectRevert();
-    //             vm.prank(alice); 
-    //             governYourTax.execute(
-    //                 laws[9], 
-    //                 abi.encode(peerVoteAddress), 
-    //                 description
-    //                 );
-    //         }
+        // only continue if tally law was called. 
+        vm.assume( block.number > ElectionVotes(electionVotesAddress).endVote() ); 
 
-    //     // only continue if tally law was called. 
-    //     vm.assume( block.number > ElectionVotes(peerVoteAddress).endVote() ); 
-
-    //     uint256 numNominees = NominateMe(laws[8]).nomineesCount(); 
-    //     for (uint256 i = 0; i < numNominees; i++) {
-    //         for (uint256 j = 0; j < numNominees; j++) {
-    //             address nominee = NominateMe(laws[8]).nomineesSorted(i);
-    //             address nominee2 = NominateMe(laws[8]).nomineesSorted(j);
-    //             if (governYourTax.hasRoleSince(nominee, 3) != 0 && governYourTax.hasRoleSince(nominee2, 3) == 0) {
-    //                 assertGe(votesReceived[nominee], votesReceived[nominee2]); // assert that nominee has more tokens than nominee2.
-    //             }
-    //             if (governYourTax.hasRoleSince(nominee, 3) == 0 && governYourTax.hasRoleSince(nominee2, 3) != 0) {
-    //                 assertLe(votesReceived[nominee], votesReceived[nominee2]); // assert that nominee has fewer tokens than nominee2.
-    //             }
-    //         }
-    //     }
-    // } 
+        uint256 numNominees = NominateMe(laws[8]).nomineesCount(); 
+        for (uint256 i = 0; i < numNominees; i++) {
+            for (uint256 j = 0; j < numNominees; j++) {
+                address nominee = NominateMe(laws[8]).nomineesSorted(i);
+                address nominee2 = NominateMe(laws[8]).nomineesSorted(j);
+                if (governYourTax.hasRoleSince(nominee, 3) != 0 && governYourTax.hasRoleSince(nominee2, 3) == 0) {
+                    assertGe(votesReceived[nominee], votesReceived[nominee2]); // assert that nominee has more tokens than nominee2.
+                }
+                if (governYourTax.hasRoleSince(nominee, 3) == 0 && governYourTax.hasRoleSince(nominee2, 3) != 0) {
+                    assertLe(votesReceived[nominee], votesReceived[nominee2]); // assert that nominee has fewer tokens than nominee2.
+                }
+            }
+        }
+    } 
 }

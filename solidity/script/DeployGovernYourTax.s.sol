@@ -2,6 +2,7 @@
 pragma solidity 0.8.26;
 
 import "lib/forge-std/src/Script.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 // core protocol
 import { Powers} from "../src/Powers.sol";
@@ -27,6 +28,7 @@ import { StartGrant } from "../src/laws/bespoke/diversifiedGrants/StartGrant.sol
 import { StopGrant } from "../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
 import { SelfDestructPresetAction } from "../src/laws/executive/SelfDestructPresetAction.sol";
 import { RoleByTaxPaid } from "../src/laws/bespoke/diversifiedGrants/RoleByTaxPaid.sol";
+import { AssignCouncilRole } from "../src/laws/bespoke/diversifiedGrants/AssignCouncilRole.sol";
 // borrowing one law from another bespoke folder. Not ideal, but ok for now.
 import { NftSelfSelect } from "../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 
@@ -55,9 +57,9 @@ contract DeployGovernYourTax is Script {
             "Govern Your Tax", 
             "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreid7bb6jueiqjn4mpkcy5ob7w6ulksfntobbwbn4feehvzjwe3tufe");
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
-            7, // rate
+            10, // rate
             100, // denominator  
-            7200 // 7% tax, (tax = 7, denominator = 2),  7200 block epoch, about one day. 
+            150 // 7% tax, (tax = 7, denominator = 2),  150 block epoch, about half an hour. 
         );
         vm.stopBroadcast();
 
@@ -226,56 +228,18 @@ contract DeployGovernYourTax is Script {
         laws.push(address(law));
         delete lawConfig; // here we delete lawConfig. 
 
-        // laws[7]
-        lawConfig.quorum = 15; // = two-thirds quorum needed
-        lawConfig.succeedAt = 51; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
-        // bespoke params 
-        inputParams = new string[](1);
-        inputParams[0] = "address Law"; // law 
-        // propose new law 
-        vm.startBroadcast();
-        law = new ProposalOnly(
-            "Propose new law",
-            "Subject to a vote, governors can propose to adopt a new law.",
-            dao_, // separated powers
-            2, // access role
-            lawConfig, 
-            inputParams
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-        delete lawConfig; // here we delete lawConfig. 
-
-        // laws[8]
-        lawConfig.quorum = 80; // = two-thirds quorum needed
-        lawConfig.succeedAt = 51; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
-        // bespoke params 
-        // propose new law 
-        vm.startBroadcast();
-        law = new BespokeAction(
-            "Adopt new law",
-            "Subject to a vote, the security council can accept and adopt a new law.",
-            dao_, // separated powers
-            2, // access role
-            lawConfig, 
-            dao_,
-            Powers.adoptLaw.selector,
-            inputParams // same lawConfig as laws[7]
-        );
-        vm.stopBroadcast();
-        laws.push(address(law));
-        delete lawConfig; // here we delete lawConfig. 
-
         //////////////////////////////////////////////////////////////
         //              CHAPTER 2: ELECT ROLES                      //
         //////////////////////////////////////////////////////////////
-        // laws[9]
+        // laws[7]
         vm.startBroadcast();
         law = new RoleByTaxPaid(
-            "Claim community member", // max 31 chars
-            "Anyone who has paid sufficient tax (by using the Dao's ERC20 token) can become a community member. The threshold is 100MCK tokens per 100 blocks.",
+            "Claim community membership", // max 31 chars
+            string.concat(
+                "Anyone who has paid sufficient tax (by using the Dao's ERC20 token @", 
+                Strings.toHexString(uint256(addressToInt(mock20Taxed_)), 20), 
+                " can become a community member. The threshold is 100MCK tokens per 150 blocks. Tax rate is 10 percent(!) on each transaction."
+                ),
             dao_,
             type(uint32).max, // access role = public access
             lawConfig,
@@ -286,7 +250,7 @@ contract DeployGovernYourTax is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[10]
+        // laws[8]
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate self for Governor", // max 31 chars
@@ -298,7 +262,8 @@ contract DeployGovernYourTax is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[11]
+        // laws[9]
+        lawConfig.readStateFrom = laws[8]; // =  nominees law. 
         vm.startBroadcast();
         law = new ElectionCall(
             "Call governor election", // max 31 chars
@@ -309,30 +274,27 @@ contract DeployGovernYourTax is Script {
             // bespoke configs for this law:
             2, // role id that is allowed to vote.
             3, // role id that is being elected
-            3, // max role holders
-            laws[10] // nominateMe.
+            3  // max role holders
         );
         vm.stopBroadcast();
         laws.push(address(law));
         delete lawConfig;
 
-        // laws[12]
-        lawConfig.readStateFrom = laws[8]; // law where nominations are made.
+        // laws[10]
+        lawConfig.needCompleted = laws[9]; // = electionCall law. 
         vm.startBroadcast();
         law = new ElectionTally(
             "Tally governor elections", // max 31 chars
             "Count votes of a governor election. Any community member can call this law and pay for tallying the votes. The nominated accounts with most votes from community members are assigned as governors",
             dao_, // separated powers protocol.
             1, // Note: any community member can tally the election. It can only be done after election duration has finished.
-            lawConfig, //  config file.
-            // bespoke configs for this law:
-            laws[11] // electionCall contract
+            lawConfig //  config file.
         );
         vm.stopBroadcast();
         laws.push(address(law));
+        delete lawConfig;
 
-
-        // laws[13]
+        // laws[11]
         vm.startBroadcast();
         law = new NominateMe(
             "Nominate for Security Council", // max 31 chars
@@ -344,7 +306,7 @@ contract DeployGovernYourTax is Script {
         vm.stopBroadcast();
         laws.push(address(law));
 
-        // laws[14]: security council: peer select. - role 3
+        // laws[12]: security council: peer select. - role 3
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
         lawConfig.votingPeriod = 150; // = number of blocks (about half an hour) 
@@ -352,13 +314,49 @@ contract DeployGovernYourTax is Script {
         //
         vm.startBroadcast();
         law = new PeerSelect(
-            "Assign Security Council member", // max 31 chars
-            "Security Council members are assigned by their peers through a majority vote.",
+            "Assign/Revoke Sec. Councillors", // max 31 chars
+            "Security Council members are assigned or revoked by their peers through a majority vote.",
             dao_, // separated powers protocol.
             3, // role 3 id designation.
             lawConfig, //  config file.
             3, // maximum elected to role 
             3 // role id to be assigned
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        // laws[13]:nominate self for grant council role.  
+        vm.startBroadcast();
+        law = new NominateMe(
+            "Nominate for a Grant Council", // max 31 chars
+            "Any community member can nominate themselves to become part of a grant council.",
+            dao_, // separated powers protocol.
+            1, // role 3 id designation.
+            lawConfig 
+        );
+        vm.stopBroadcast();
+        laws.push(address(law));
+        delete lawConfig;
+
+        // laws[14]: assign members to grant councils.  
+        uint32[] memory allowedRoles = new uint32[](3);
+        allowedRoles[0] = 4; // Grant Council A
+        allowedRoles[1] = 5; // Grant Council B
+        allowedRoles[2] = 6; // Grant Council C
+        //
+        lawConfig.quorum = 51; // = Two thirds quorum needed to pass the proposal
+        lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
+        lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
+        lawConfig.readStateFrom = laws[13]; // NominateMe
+        vm.startBroadcast();
+        law = new AssignCouncilRole(
+            "Assign grant council roles", // max 31 chars
+            "Governors assign accounts to grant councils by a majority vote.",
+            dao_, // separated powers protocol.
+            2, // governors assign roles.
+            lawConfig, //  config file.
+            allowedRoles
         );
         vm.stopBroadcast();
         laws.push(address(law));
@@ -392,5 +390,12 @@ contract DeployGovernYourTax is Script {
         );
         vm.stopBroadcast();
         laws.push(address(law));
+    }
+
+    ///////////////////////////////////////////////////////
+    //                  Helper functions                //
+    //////////////////////////////////////////////////////
+    function addressToInt(address a) internal pure returns (uint256) {
+        return uint256(uint160(a));
     }
 }

@@ -1,67 +1,110 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.26;
 
-// // test setup
-// import "forge-std/Test.sol";
-// import { TestSetupDiversifiedGrants } from "../../../TestSetup.t.sol";
+// test setup
+import "forge-std/Test.sol";
+import { TestSetupDiversifiedGrants } from "../../../TestSetup.t.sol";
 
-// // protocol
-// import { Powers } from "../../../../src/Powers.sol";
-// import { Law } from "../../../../src/Law.sol";
-// import { Erc1155Mock } from "../../../mocks/Erc1155Mock.sol";
-// import { Erc20VotesMock } from "../../../mocks/Erc20VotesMock.sol";
+// protocol
+import { Powers } from "../../../../src/Powers.sol";
+import { Law } from "../../../../src/Law.sol";
+import { Erc1155Mock } from "../../../mocks/Erc1155Mock.sol";
+import { Erc20VotesMock } from "../../../mocks/Erc20VotesMock.sol";
+import { Erc20TaxedMock } from "../../../mocks/Erc20TaxedMock.sol";
 
-// // law contracts being tested
-// import { Grant } from "../../../../src/laws/bespoke/diversifiedGrants/Grant.sol";
-// import { StartGrant } from "../../../../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
-// import { StopGrant } from "../../../../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
-// import { SelfDestructPresetAction } from "../../../../src/laws/executive/SelfDestructPresetAction.sol";
+// law contracts being tested
+import { Grant } from "../../../../src/laws/bespoke/diversifiedGrants/Grant.sol";
+import { StartGrant } from "../../../../src/laws/bespoke/diversifiedGrants/StartGrant.sol";
+import { StopGrant } from "../../../../src/laws/bespoke/diversifiedGrants/StopGrant.sol";
+import { SelfDestructPresetAction } from "../../../../src/laws/executive/SelfDestructPresetAction.sol";
 
-// // openzeppelin contracts
-// import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-// import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-// import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
+import { Erc20VotesMock } from "../../../mocks/Erc20VotesMock.sol";
+
+
+// openzeppelin contracts
+import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
+
+contract AssignCouncilRoleTest is TestSetupDiversifiedGrants {
+
+  function testAssignCouncillor() public {
+    // prep
+    address nominateMe = laws[5];
+    address assignCouncilRole = laws[6];
+    bytes memory lawCalldata = abi.encode(
+      4, // roleId  
+      alice // account
+    );
+
+    vm.prank(alice);
+    daoMock.execute(
+      nominateMe, 
+      abi.encode(true), 
+      "Alice nominates herself"
+    );
+
+    vm.startPrank(address(daoMock));
+    (
+      address[] memory targetsOut, 
+      uint256[] memory valuesOut, 
+      bytes[] memory calldatasOut) = Law(assignCouncilRole).executeLaw(
+        alice, // alice = initiator
+        lawCalldata,
+        keccak256("Alice is assigned council role")
+    );
+    vm.stopPrank();
+
+    // assert output
+    assertEq(targetsOut[0], address(daoMock));
+    assertEq(valuesOut[0], 0);
+    assertEq(calldatasOut[0], abi.encodeWithSelector(Powers.assignRole.selector, 4, alice));
+  }
+
+  function testAssignCouncilRoleRevertsIfRoleNotAllowed() public {
+    // prep
+    address nominateMe = laws[5];
+    address assignCouncilRole = laws[6];
+    bytes memory lawCalldata = abi.encode(
+      1, // roleId  
+      alice // account
+    );
+
+    vm.prank(alice);
+    daoMock.execute(
+      nominateMe, 
+      abi.encode(true), 
+      "Alice nominates herself"
+    );
+
+    vm.expectRevert("Role not allowed.");
+    Law(assignCouncilRole).executeLaw(
+      alice, // alice = initiator
+      lawCalldata,
+      keccak256("Alice is assigned a disallowed council role")
+    );
+  }
+
+  function testAssignCouncilRoleRevertsIfAccountNotNominated() public {
+    // prep
+    address assignCouncilRole = laws[6];
+    bytes memory lawCalldata = abi.encode(
+      4, // allowed roleId  
+      alice // account
+    );
+
+    // note: no nomination. 
+
+    vm.expectRevert("Account not nominated.");
+    Law(assignCouncilRole).executeLaw(
+      alice, // alice = initiator
+      lawCalldata,
+      keccak256("Trying to assign Alice to council role. Should revert because she did not nominate herself.")
+    );
+  }
+}
 
 // contract Grant1155Test is TestSetupDiversifiedGrants {
-//     function testErc1155GrantSuccessfulTransfer() public {
-//         // prep
-//         address grant1155 = laws[0];
-//         uint256 amountRequested = 100;
-//         bytes memory lawCalldata = abi.encode(
-//             alice, // grantee
-//             laws[0], // grant address
-//             amountRequested
-//         );
-//         uint256 spentBefore = Grant(grant1155).spent();
-
-//         // act
-//         vm.startPrank(address(daoMock));
-//         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) = Law(grant1155)
-//             .executeLaw(
-//             alice, // alice = initiator
-//             lawCalldata,
-//             keccak256("Alice requests fund payment")
-//         );
-
-//         // assert output
-//         assertEq(targetsOut[0], address(erc1155Mock));
-//         assertEq(valuesOut[0], 0);
-//         assertEq(
-//             calldatasOut[0],
-//             abi.encodeWithSelector(
-//                 ERC1155.safeTransferFrom.selector,
-//                 address(daoMock), // from
-//                 alice, // to
-//                 0, // tokenId
-//                 amountRequested, // amount
-//                 "" // empty data
-//             )
-//         );
-//         // assert state
-//         uint256 spentAfter = Grant(grant1155).spent();
-//         assertEq(spentAfter, spentBefore + amountRequested);
-//     }
-
 //     function testGrantRequestRevertsWithAddressZeroGrant() public {
 //         // prep
 //         address grant1155 = laws[0];
@@ -156,7 +199,17 @@ pragma solidity 0.8.26;
 // }
 
 // contract Grant20Test is TestSetupDiversifiedGrants {
-//     function testErc20GrantSuccessfulTransfer() public {
+//   function testGrantRequestRevertsWithAddressZeroGrant() public {
+//     // prep
+//     address grant20 = laws[1];
+//     uint256 amountRequested = 100;
+//     bytes memory lawCalldata = abi.encode(
+//       alice, // grantee
+//       address(0), // grant address = address(0) contract
+//       amountRequested
+//     );
+
+//     function testGrantSuccessfulTransfer() public {
 //         // prep
 //         address grant20 = laws[1];
 //         uint256 amountRequested = 100;
@@ -590,26 +643,3 @@ pragma solidity 0.8.26;
 //     }
 // }
 
-// contract SelfDestructPresetActionTest is TestSetupDiversifiedGrants {
-//     function testSuccessfulSelfDestruct() public {
-//         address selfDestructPresetAction = laws[6];
-//         bytes memory lawCalldata = abi.encode();
-
-//         vm.prank(address(daoMock));
-//         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) = Law(
-//             selfDestructPresetAction
-//         ).executeLaw(
-//             alice, // alice = initiator
-//             lawCalldata,
-//             keccak256("Alice executes law")
-//         );
-
-//         // assert output: last item in output array should be self destruct
-//         assertEq(targetsOut[targetsOut.length - 1], address(daoMock));
-//         assertEq(valuesOut[valuesOut.length - 1], 0);
-//         assertEq(
-//             calldatasOut[calldatasOut.length - 1],
-//             abi.encodeWithSelector(Powers.revokeLaw.selector, selfDestructPresetAction)
-//         );
-//     }
-// }

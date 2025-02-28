@@ -42,7 +42,7 @@ contract PeerSelect is Law {
         ROLE_ID = roleId_;
         string[] memory paramArray = new string[](2);
         inputParams = abi.encode(
-            "uint256 Index", 
+            "uint256 NomineeIndex", 
             "bool Revoke"); 
     }
 

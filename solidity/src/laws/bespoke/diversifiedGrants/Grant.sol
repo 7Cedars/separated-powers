@@ -23,10 +23,6 @@ import { Powers} from "../../../Powers.sol";
 // open zeppelin contracts
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-
-import "lib/forge-std/src/Script.sol";
-
-
 // NB: no checks on what kind of Erc20 token is used. This is just an example.
 contract Grant is Law {
     uint48 public expiryBlock;
@@ -96,12 +92,8 @@ contract Grant is Law {
 
     function _changeStateVariables(bytes memory stateChange) internal override {
         (uint256 quantity) = abi.decode(stateChange, (uint256));
-
-        console.log("address grant", address(this));
-        console.log("1 Grant::_changeStateVariables: spent", spent, quantity);
-
+        
         // update spent amount in law.
         spent += quantity;
-        console.log("2 Grant::_changeStateVariables: spent", spent, quantity);
     }
 }

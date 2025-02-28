@@ -24,8 +24,6 @@ import { Grant } from "./Grant.sol";
 import { StartGrant } from "./StartGrant.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
-import "lib/forge-std/src/Script.sol";
-
 contract StopGrant is Law { 
     LawConfig public configNewGrants; // config for new grants.
     
@@ -72,15 +70,10 @@ contract StopGrant is Law {
             address proposals 
         ) = abi.decode(lawCalldata, (string, string, uint48, uint256, address, uint32, address));
 
-        console.log("at stopGrant"); 
-        console.log(name, description, duration, budget);
-        console.log(tokenAddress, grantCouncil, proposals);
-
         // step 1: calculate address at which grant will be created.
         address grantAddress = StartGrant(config.needCompleted).getGrantAddress(
             name, description, duration, budget, tokenAddress, grantCouncil, proposals
             );
-        console.log("calculated grantAddress at stopGrant", grantAddress); 
 
         // step 2: run additional checks
         if (

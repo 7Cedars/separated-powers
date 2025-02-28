@@ -51,30 +51,24 @@ contract ElectionTally is Law {
         address electionVotes;
         uint256 maxRoleHolders;
         address nominees;
+        uint32 electedRoleId;
     } 
 
     address[] public electedAccounts;
-    uint32 public electedRoleId;
-
+    
     constructor(
         string memory name_,
         string memory description_,
         address payable powers_,
         uint32 allowedRole_,
-        LawConfig memory config_,
-        // bespoke params
-        address electionCallContract_
+        LawConfig memory config_
     ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "string Description", // description = a description of the election.
             "uint48 StartVote", // startVote = the start date of the election.
             "uint48 EndVote" // endVote = the end date of the election.
         );
-        stateVars = abi.encode("address[] Elected");
-        config.needCompleted = electionCallContract_;
-        // saving the following in state vars to avoid 'stack too deep' errors. 
-        electedRoleId = ElectionCall(config.needCompleted).ELECTED_ROLE_ID(); 
-
+        stateVars = abi.encode("address[] Elected");         
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
@@ -83,17 +77,20 @@ contract ElectionTally is Law {
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
-    {
-        // step 0: unpacking calldata
+    {   
+        
+        // saving the following in state vars to a struct avoid 'stack too deep' errors.
         Data memory data;
-
+        
+        // step 0a: unpacking calldata
         (data.description, data.startVote, data.endVote) =
             abi.decode(lawCalldata, (string, uint48, uint48));
-
+        // step 0b: retrieving data from ElectionCall contract. 
         data.electionVotes = ElectionCall(config.needCompleted).electionVotes();
         data.maxRoleHolders = ElectionCall(config.needCompleted).MAX_ROLE_HOLDERS();
+        data.electedRoleId = ElectionCall(config.needCompleted).ELECTED_ROLE_ID();
         ( , , , , , , , data.nominees) =  ElectionCall(config.needCompleted).config();
-
+        
         // step 1: run additional checks
         if (!Powers(powers).getActiveLaw(data.electionVotes)) {
             revert ("ElectionVotes contract not recognised.");
@@ -125,7 +122,7 @@ contract ElectionTally is Law {
         for (uint256 i; i < numberRevokees; i++) {
             calldatas[i] = abi.encodeWithSelector(
                 Powers.revokeRole.selector, 
-                electedRoleId, 
+                data.electedRoleId, 
                 electedAccounts[i]
             );
         }
@@ -137,7 +134,7 @@ contract ElectionTally is Law {
                 calldatas[i + numberRevokees] =
                     abi.encodeWithSelector(
                         Powers.assignRole.selector, 
-                        electedRoleId, 
+                        data.electedRoleId, 
                         accountElect
                         
                         );
@@ -173,7 +170,7 @@ contract ElectionTally is Law {
                     calldatas[index + numberRevokees] =
                         abi.encodeWithSelector(
                             Powers.assignRole.selector, 
-                            electedRoleId, 
+                            data.electedRoleId, 
                             _nominees[i]);
                     accountElects[index] = _nominees[i];
                     index++;
