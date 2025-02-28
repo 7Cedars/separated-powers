@@ -125,25 +125,25 @@ export function ProposalList() {
                   className={`text-sm text-left text-slate-800 h-full p-2 overflow-x-scroll`}
                 >
                   <td className="h-full w-full flex flex-col text-center justify-center items-center text-left py-3 px-4">
-                    <Button
-                      showBorder={true}
-                      role={parseRole(law.allowedRole)}
-                      onClick={() => {
-                        setLaw(law);
-                        setProposal(proposal)
-                        setAction({
-                          description: proposal.description,
-                          callData: proposal.executeCalldata,
-                          upToDate: true
-                        })
-                        router.push("/proposals/proposal");
-                      }}
-                      align={0}
-                      selected={true}
-                    > <div className = "flex flex-row gap-3 w-full min-w-48">
-                      {`${toFullDateFormat(Number(proposal.voteStartBlockData?.timestamp))}: ${toEurTimeFormat(Number(proposal.voteStartBlockData?.timestamp))}`}
-                      </div>
-                    </Button>
+                      <Button
+                        showBorder={true}
+                        role={parseRole(law.allowedRole)}
+                        onClick={() => {
+                          setLaw(law);
+                          setProposal(proposal)
+                          setAction({
+                            description: proposal.description,
+                            callData: proposal.executeCalldata,
+                            upToDate: true
+                          })
+                          router.push("/proposals/proposal");
+                        }}
+                        align={0}
+                        selected={true}
+                      > <div className = "flex flex-row gap-3 w-full min-w-48">
+                        {`${toFullDateFormat(Number(proposal.voteStartBlockData?.timestamp))}: ${toEurTimeFormat(Number(proposal.voteStartBlockData?.timestamp))}`}
+                        </div>
+                      </Button>
                   </td>
                   <td className="pe-4 text-slate-500 min-w-56">{law.name}</td>
                   <td className="pe-4 text-slate-500 min-w-48">{proposal.description}</td>

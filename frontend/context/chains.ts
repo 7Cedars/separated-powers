@@ -25,7 +25,7 @@ export const supportedChains: ChainProps[] = [
     organisations: [
       "0xE0E4241d127C301B1c60eB77c4e81E0Dd0D2E22b", // basicDao 
       "0xD54D38587694cb9E6Cfd59ba4c3e7f607A088b63", // alignedDao
-      "0xFBb2DA1a19F8C73dAaCEf9e2bE0f84FD90f6869A", // govern Your Tax
+      "0xb14ADAc058013e4b4b9fDe3A129Cd2F034069325", // govern Your Tax
       // "0x0181A03C24183eA8F6469C88362B0958ACc474Ce" // diversified roles
     ],
     nativeCurrency: {
@@ -39,7 +39,7 @@ export const supportedChains: ChainProps[] = [
       `0xA977E34e4B8583C6928453CC9572Ae032Cc3200a`, // USDS
       `0xCd5261356706Fd4D8f417F9BffB9dBE575CaE996`, // stEth 
       // what follows or mock token contracts used by the example organisations
-      `0xd3BcA8467aC2f1e52dd04D7A3d9E16D79a0277fe`, // ERC20TaxedMock - govern your tax 
+      `0x620bB56C119BDaab6BB9E25866c06Fed6dF489EE`, // ERC20TaxedMock - govern your tax 
       `0xd3b6aed9eB51F2457E51783F66c4fBFA1687557C`, // ERC20VotesMock - basic DAO
     ], 
     erc721s: [

@@ -7,7 +7,7 @@ import { useChainId, useWaitForTransactionReceipt } from "wagmi";
 import { useLawStore, useOrgStore } from "@/context/store";;
 import { publicClient } from "@/context/clients";
 import { readContract } from "wagmi/actions";
-import { GetBlockReturnType, Log, parseEventLogs, ParseEventLogsReturnType } from "viem";
+import { GetBlockReturnType, keccak256, Log, parseEventLogs, ParseEventLogsReturnType, toHex } from "viem";
 import { supportedChains } from "@/context/chains";
 import { sepolia } from "@wagmi/core/chains";
 
@@ -98,12 +98,13 @@ export const useLaw = () => {
     async (initiator: `0x${string}`, lawCalldata: `0x${string}`, description: string) => {
       setError(null)
       setStatus("pending")
+      console.log("fetchSimulation:", {law})
       try {
         const result = await readContract(wagmiConfig, {
           abi: lawAbi,
           address: law.law,
           functionName: 'simulateLaw', 
-          args: [initiator, lawCalldata, description]
+          args: [initiator, lawCalldata, keccak256(toHex((description)))] // keccak256(toHex(
         })
           setSimulation(result as LawSimulation)
           setStatus("success")
@@ -140,3 +141,7 @@ export const useLaw = () => {
 
   return {status, error, executions, simulation, resetStatus, fetchSimulation, fetchExecutions, execute}
 }
+function hex(description: string) {
+  throw new Error("Function not implemented.");
+}
+

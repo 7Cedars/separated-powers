@@ -263,7 +263,7 @@ contract Powers is EIP712, IPowers {
         // If checks passed, set proposal as completed and emit event.
         _proposals[proposalId].initiator = msg.sender; // note if initiator had been set during proposal, it will be overwritten.
         _proposals[proposalId].completed = true;
-        emit ProposalCompleted(msg.sender, targetLaw, lawCalldata, descriptionHash);
+        emit ProposalCompleted(msg.sender, targetLaw, lawCalldata, description);
 
         // if targets[0] == address(1) nothing should be executed.
         if (targets[0] == address(1)) {

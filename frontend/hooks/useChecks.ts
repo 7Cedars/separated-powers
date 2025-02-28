@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { lawAbi, powersAbi } from "../context/abi";
-import { CompletedProposal, Law, ProtocolEvent, Checks, Status, LawSimulation } from "../context/types"
+import { CompletedProposal, Law, ProtocolEvent, Checks, Status, LawSimulation, Execution, LogExtended } from "../context/types"
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { useChainId, useWaitForTransactionReceipt } from "wagmi";
 import { useActionStore, useLawStore, useOrgStore, setAction } from "@/context/store";
@@ -65,7 +65,7 @@ export const useChecks = () => {
     async (description: string, calldata: `0x${string}`, stateToCheck: number[], law: Law) => {
       const selectedProposal = checkProposalExists(description, calldata, law)
 
-      // console.log("@checkProposalStatus: ", {selectedProposal})
+      console.log("@checkProposalStatus: ", {selectedProposal})
     
       if (selectedProposal) {
         try {
@@ -87,67 +87,6 @@ export const useChecks = () => {
       }
   }, []) 
 
-  const checkLawCompleted = useCallback(
-    async (description: string, calldata: `0x${string}`, law: Law) => {
-      const selectedProposal = organisation?.proposals?.find(proposal => 
-        proposal.targetLaw === law.config.needCompleted && 
-        proposal.executeCalldata === calldata && 
-        proposal.description === description
-      ) 
-
-      // console.log("@checkLawCompleted: ", {selectedProposal})
-      
-      try { 
-        if (selectedProposal) {
-          const state = await readContract(wagmiConfig, {
-                  abi: powersAbi,
-                  address: organisation.contractAddress as `0x${string}`,
-                  functionName: 'state', 
-                  args: [selectedProposal.proposalId],
-                })
-          // console.log("@checkLawCompleted: ", {state}) 
-          const result = Number(state) == 4
-          return result as boolean
-        } else {
-          return false
-        }
-      } catch (error) {
-        setStatus("error")
-        setError(error)
-        return false 
-      }
-
-  }, []) 
-
-  const checkLawNotCompleted = useCallback(
-    async (description: string, calldata: `0x${string}`, law: Law) => {
-      const selectedProposal = organisation?.proposals?.find(proposal => 
-        proposal.targetLaw === law.config.needNotCompleted && 
-        proposal.executeCalldata === calldata && 
-        proposal.description === description
-      ) 
-  
-      try { 
-        if (selectedProposal) {
-          const state =  await readContract(wagmiConfig, {
-                  abi: powersAbi,
-                  address: organisation.contractAddress as `0x${string}`,
-                  functionName: 'state', 
-                  args: [selectedProposal.proposalId],
-                })
-          // console.log("@checkLawNotCompleted: ", {state}) 
-          const result = Number(state) != 4
-          return result as boolean
-        } else {
-          return true 
-        }
-      } catch (error) {
-        setStatus("error")
-        setError( error )
-        return true 
-      }
-
-  }, []) 
 
   const checkDelayedExecution = (description: string, calldata: `0x${string}`, law: Law) => {
     // console.log("CheckDelayedExecution triggered")
@@ -161,7 +100,7 @@ export const useChecks = () => {
     return result as boolean
   }
 
-  const fetchExecutions = async (law: Law) => {
+  const fetchExecutions = async (lawAddress: `0x${string}`) => {
     if (publicClient) {
       try {
           if (organisation?.contractAddress) {
@@ -170,18 +109,19 @@ export const useChecks = () => {
               abi: powersAbi, 
               eventName: 'ProposalCompleted',
               fromBlock: supportedChain?.genesisBlock,
-              args: {targetLaw: law.law}
+              args: {targetLaw: lawAddress}
             })
             const fetchedLogs = parseEventLogs({
                         abi: powersAbi,
                         eventName: 'ProposalCompleted',
                         logs
                       })
-            const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType  
+            const fetchedLogsTyped = fetchedLogs as unknown[] as LogExtended[]  
+            console.log({fetchedLogsTyped})
             return (
-              fetchedLogsTyped.sort((a: Log, b: Log) => (
+              fetchedLogsTyped.sort((a: LogExtended, b: LogExtended) => (
                 a.blockNumber ? Number(a.blockNumber) : 0
-              ) < (b.blockNumber == null ? 0 : Number(b.blockNumber)) ? 1 : -1)) 
+              ) < (b.blockNumber == null ? 0 : Number(b.blockNumber)) ? 1 : -1)) as LogExtended[]
           } 
       } catch (error) {
         setStatus("error") 
@@ -191,9 +131,7 @@ export const useChecks = () => {
   }
 
   const checkThrottledExecution = useCallback( async (law: Law) => {
-    const fetchedExecutions = await fetchExecutions(law)
-
-    // console.log({fetchedExecutions, blockNumber})
+    const fetchedExecutions = await fetchExecutions(law.law)
 
     if (fetchedExecutions && fetchedExecutions.length > 0) {
       const result = Number(fetchedExecutions[0].blockNumber) + Number(law.config.throttleExecution) < Number(blockNumber)
@@ -202,6 +140,15 @@ export const useChecks = () => {
       return true
     } 
   }, [])
+
+  const checkNotCompleted = useCallback( 
+    async (description: string, calldata: `0x${string}`, lawAddress: `0x${string}`) => {
+      
+      const fetchedExecutions = await fetchExecutions(lawAddress)
+      const selectedExecution = fetchedExecutions && fetchedExecutions.find(execution => execution.args?.description == description && execution.args?.lawCalldata == calldata)
+
+      return selectedExecution == undefined; 
+  }, [] ) 
 
   const fetchChecks = useCallback( 
     async (law: Law, callData: `0x${string}`, description: string) => {
@@ -214,9 +161,9 @@ export const useChecks = () => {
         results[1] = await checkThrottledExecution(law)
         results[2] = await checkAccountAuthorised(law)
         results[3] = await checkProposalStatus(description, callData, [3, 4], law)
-        results[4] = await checkProposalStatus(description, callData, [4], law)
-        results[5] = await checkLawCompleted(description, callData, law)
-        results[6] = await checkLawNotCompleted(description, callData, law)
+        results[4] = await checkNotCompleted(description, callData, law.law)
+        results[5] = await checkNotCompleted(description, callData, law.config.needCompleted)
+        results[6] = await checkNotCompleted(description, callData, law.config.needNotCompleted)
         results[7] = checkProposalExists(description, callData, law) != undefined
 
         // console.log("@fetchChecks: ", {results})
@@ -228,8 +175,8 @@ export const useChecks = () => {
             authorised: results[2],
             proposalExists: law.config.quorum == 0n ? true : results[7],
             proposalPassed: law.config.quorum == 0n ? true : results[3],
-            proposalNotCompleted: results[4] == false,
-            lawCompleted: law.config.needCompleted == `0x${'0'.repeat(40)}` ? true : results[5], 
+            proposalNotCompleted: results[4],
+            lawCompleted: law.config.needCompleted == `0x${'0'.repeat(40)}` ? true : results[5] == false, 
             lawNotCompleted: law.config.needNotCompleted == `0x${'0'.repeat(40)}` ? true : results[6]
           } 
           newChecks.allPassed =  

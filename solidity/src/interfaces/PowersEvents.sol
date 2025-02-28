@@ -52,9 +52,9 @@ interface PowersEvents {
     /// @param initiator the address of the initiator
     /// @param targetLaw the address of the target law
     /// @param lawCalldata the calldata of the law
-    /// @param descriptionHash the description hash of the law
+    /// @param description the description of the law action
     event ProposalCompleted(
-        address indexed initiator, address indexed targetLaw, bytes lawCalldata, bytes32 descriptionHash
+        address indexed initiator, address indexed targetLaw, bytes lawCalldata, string description
     );
 
     /// @notice Emitted when a proposal for an executive action is cancelled.

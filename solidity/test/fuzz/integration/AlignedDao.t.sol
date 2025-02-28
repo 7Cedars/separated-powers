@@ -73,7 +73,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         if (stepsPassed[0]) {
             console.log("step 0 action: Bob EXECUTES and thus formally proposes new value!");
             vm.expectEmit(true, false, false, false);
-            emit PowersEvents.ProposalCompleted(bob, laws[0], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(bob, laws[0], lawCalldata, description);
             vm.prank(bob);
             alignedDao.execute(laws[0], lawCalldata, description);
         }
@@ -106,7 +106,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         if (stepsPassed[1]) {
             console.log("step 1 action: ACTION WILL BE EXECUTED");
             vm.expectEmit(true, false, false, false);
-            emit PowersEvents.ProposalCompleted(gary, laws[1], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(gary, laws[1], lawCalldata, description);
             vm.prank(gary); // has role 1
             alignedDao.execute(laws[1], lawCalldata, description);
             uint256 numberOfValuesAfter = StringsArray(laws[1]).numberOfStrings();
@@ -183,7 +183,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         if (stepsPassed[0]) {
             console.log("step 0 action: Frank EXECUTES and thus revokes membership!");
             vm.expectEmit(true, false, false, false);
-            emit PowersEvents.ProposalCompleted(frank, laws[2], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(frank, laws[2], lawCalldata, description);
             vm.prank(frank);
             alignedDao.execute(laws[2], lawCalldata, description);
         } else {
@@ -231,7 +231,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         if (stepsPassed[1]) {
             console.log("step 1 action: caller EXECUTES and thus formalises challenge to revoke!");
             vm.expectEmit(true, false, false, false);
-            emit PowersEvents.ProposalCompleted(caller, laws[3], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(caller, laws[3], lawCalldata, description);
             vm.prank(caller);
             alignedDao.execute(laws[3], lawCalldata, description);
         } else {
@@ -270,7 +270,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         if (stepsPassed[2]) {
             console.log("step 2 action: david EXECUTES and reinstates membership!");
             vm.expectEmit(true, false, false, false);
-            emit PowersEvents.ProposalCompleted(david, laws[4], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(david, laws[4], lawCalldata, description);
             vm.prank(david);
             alignedDao.execute(laws[4], lawCalldata, description);
         } else {
@@ -324,7 +324,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
                     users[selectUser], 
                     laws[5], 
                     abi.encode(), 
-                    keccak256(bytes(description))
+                    description
                 );
                 vm.prank(users[selectUser]);
                 alignedDao.execute(laws[5], abi.encode(), description);
@@ -358,7 +358,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
 
             if (hasNFT) {
                 vm.expectEmit(true, false, false, false);
-                emit PowersEvents.ProposalCompleted(users[i], laws[6], abi.encode(), keccak256(bytes(description)));
+                emit PowersEvents.ProposalCompleted(users[i], laws[6], abi.encode(), description);
                 vm.prank(users[i]);
                 alignedDao.execute(laws[6], abi.encode(false), description);
             } else {
@@ -489,7 +489,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         console.log(uint8(alignedDao.state(proposalId)));
         if (quorumReached && succeeded) {
             vm.expectEmit(true, false, false, false);
-            emit PowersEvents.ProposalCompleted(alice, laws[10], lawCalldataSelect, keccak256(bytes(descriptionSelect)));
+            emit PowersEvents.ProposalCompleted(alice, laws[10], lawCalldataSelect, descriptionSelect);
             vm.prank(alice);
             alignedDao.execute(laws[10], lawCalldataSelect, descriptionSelect);
         } else {

@@ -645,10 +645,10 @@ export const powersAbi: Abi = [
           "internalType": "bytes"
         },
         {
-          "name": "descriptionHash",
-          "type": "bytes32",
+          "name": "description",
+          "type": "string",
           "indexed": false,
-          "internalType": "bytes32"
+          "internalType": "string"
         }
       ],
       "anonymous": false

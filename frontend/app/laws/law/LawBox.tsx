@@ -8,7 +8,7 @@ import { SectionText } from "@/components/StandardFonts";
 import { useChainId } from 'wagmi'
 import { decodeAbiParameters, parseAbiParameters, toHex } from "viem";
 import { parseLawError, parseParamValues, parseRole } from "@/utils/parsers";
-import { Checks, DataType, InputType, LawSimulation } from "@/context/types";
+import { Checks, DataType, Execution, InputType, LawSimulation } from "@/context/types";
 import { DynamicInput } from "@/app/laws/law/DynamicInput";
 import { SimulationBox } from "@/components/SimulationBox";
 import { supportedChains } from "@/context/chains";
@@ -21,6 +21,7 @@ type LawBoxProps = {
     dataType: DataType;
     }[]; 
   simulation?: LawSimulation;
+  executions?: Execution[];
   status: Status; 
   error?: any;  
   // onChange: (input: InputType | InputType[]) => void;
@@ -37,7 +38,7 @@ const roleColour = [
   "border-orange-600", 
   "border-slate-600",
 ] 
-export function LawBox({checks, params, status, error, simulation, onSimulate, onExecute}: LawBoxProps) {
+export function LawBox({checks, params, status, error, simulation, executions, onSimulate, onExecute}: LawBoxProps) {
   const action = useActionStore();
   const law = useLawStore(); 
   const dataTypes = params.map(param => param.dataType) 
@@ -46,8 +47,9 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>("");
+  const selectedExecution = executions && executions.find(execution => execution.log.args?.description == description && execution.log.args?.lawCalldata == action.callData)
 
-  // console.log("@LawBox:", {action, description, status, lawBoxStatus, checks})
+  console.log("@LawBox:", {action, description, status, lawBoxStatus, checks, selectedExecution})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     const currentInput = paramValues 
@@ -69,7 +71,7 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
       notUpToDate({})
       setDescription("")
     }
-  }, [ ])
+  }, [ , action.callData, action.description])
 
   return (
     <main className="w-full h-full">
@@ -87,16 +89,32 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
           >
           <div className="flex flex-row gap-1 items-center justify-start">
             <div className="text-left text-sm text-slate-500 break-all w-fit">
-              {law.law }
+              Law: {law.law }
             </div> 
               <ArrowUpRightIcon
                 className="w-4 h-4 text-slate-500"
                 />
             </div>
           </a>
+          {selectedExecution && 
+            <a
+            href={`${supportedChain?.blockExplorerUrl}/tx/${selectedExecution.log.transactionHash}`} target="_blank" rel="noopener noreferrer"
+              className="w-full"
+            >
+            <div className="flex flex-row gap-1 items-center justify-start">
+              <div className="text-left text-sm text-slate-500 break-all w-fit">
+                Tx: {selectedExecution.log.transactionHash }
+              </div> 
+                <ArrowUpRightIcon
+                  className="w-4 h-4 text-slate-500"
+                  />
+              </div>
+            </a>
+          }
       </div>
 
       {/* dynamic form */}
+      { action && 
       <form action="" method="get" className="w-full">
         {
           params.map((param, index) => {
@@ -130,6 +148,7 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
                   }}} />
             </div>
         </div>
+      
 
       {/* Errors */}
       { error && 
@@ -157,6 +176,7 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
           </Button>
         </div>
       </form>
+      }
 
       {/* fetchSimulation output */}
       <SimulationBox simulation = {simulation} />

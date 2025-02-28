@@ -104,7 +104,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             console.log("step 0 action: eve EXECUTES and creates new grant. Budget: ", seed);
             vm.expectEmit(true, false, false, false);
             emit PowersEvents.ProposalCompleted(
-                eve, laws[1], lawCalldata, keccak256(bytes(description))
+                eve, laws[1], lawCalldata, description
                 );
             vm.prank(eve);
             governYourTax.execute(laws[1], lawCalldata, description);
@@ -157,7 +157,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                     bob, 
                     laws[0], 
                     lawCalldataRequest, 
-                    keccak256(bytes(description))
+                    description
                     );
                 vm.prank(bob); // has role 1
                 governYourTax.execute(laws[0], lawCalldataRequest, description);
@@ -203,7 +203,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                     helen, 
                     grantAddress, 
                     lawCalldataRequest, 
-                    keccak256(bytes(description))
+                    description
                     );
                 vm.prank(helen); // has role 1
                 governYourTax.execute(grantAddress, lawCalldataRequest, description);
@@ -223,7 +223,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                     eve, 
                     laws[2], 
                     lawCalldata, 
-                    keccak256(bytes("Test grant"))
+                    "Test grant"
                     );
                 vm.prank(eve); // has role 2
                 governYourTax.execute(
@@ -290,7 +290,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             console.log("step 0 action: alice EXECUTES and stops law.");
             vm.expectEmit(true, false, false, false);
             emit PowersEvents.ProposalCompleted(
-                alice, laws[3], lawCalldata, keccak256(bytes(description))
+                alice, laws[3], lawCalldata, description
                 );
             vm.prank(alice);
             governYourTax.execute(laws[3], lawCalldata, description);
@@ -331,7 +331,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             console.log("step 1 action: bob EXECUTES and restarts law.");
             vm.expectEmit(true, false, false, false);
             emit PowersEvents.ProposalCompleted(
-                bob, laws[4], lawCalldata, keccak256(bytes(description))
+                bob, laws[4], lawCalldata, description
                 );
             vm.prank(bob);
             governYourTax.execute(laws[4], lawCalldata, description);
@@ -395,7 +395,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             console.log("step 0 action: alice EXECUTES and mints tokens.");
             vm.expectEmit(true, false, false, false);
             emit PowersEvents.ProposalCompleted(
-                alice, laws[5], abi.encode(mintQuantity), keccak256(bytes(description))
+                alice, laws[5], abi.encode(mintQuantity), description
                 );
             vm.prank(alice);
             governYourTax.execute(laws[5], abi.encode(mintQuantity), description);
@@ -441,7 +441,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             console.log("step 1 action: bob EXECUTES and burns tokens.");
             vm.expectEmit(true, false, false, false);
             emit PowersEvents.ProposalCompleted(
-                bob, laws[6], abi.encode(burnQuantity), keccak256(bytes(description))
+                bob, laws[6], abi.encode(burnQuantity), description
                 );
             vm.prank(bob);
             governYourTax.execute(laws[6], abi.encode(burnQuantity), description);
@@ -508,7 +508,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                 console.log("action: user claims role.");
                 vm.expectEmit(true, false, false, false);
                 emit PowersEvents.ProposalCompleted(
-                    users[i], laws[7], lawCalldata, keccak256(bytes(description))
+                    users[i], laws[7], lawCalldata, description
                     );
                 vm.prank(users[i]);
                 governYourTax.execute(laws[7], lawCalldata, description);
@@ -611,7 +611,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                     votingUser, 
                     electionVotesAddress, 
                     abi.encode(userReceivingVote), 
-                    keccak256(bytes(description))
+                    description
                     );
                 vm.prank(votingUser);
                 governYourTax.execute(
@@ -643,7 +643,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                 alice, // has role 1
                 laws[10], 
                 lawCalldata,
-                keccak256(bytes(description))
+                description
                 );
             vm.prank(alice); 
             governYourTax.execute(

@@ -27,20 +27,20 @@ const Page = () => {
   }, [])
 
   return (
-    <main className="w-full h-full flex flex-col justify-start items-center gap-3 px-4 pt-16 overflow-x-scroll">
-      <div className = "h-fit w-full">
+    <main className="w-full h-full flex flex-col justify-start items-center gap-2 px-4 pt-16 overflow-x-scroll">
+      <div className = "h-fit w-full pt-2">
         <GovernanceOverview law = {law} />
       </div> 
       {/* main body  */}
-      <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-end items-start">
+      <section className="w-full lg:max-w-full h-full flex lg:flex-row flex-col-reverse justify-end items-start">
 
         {/* left panel  */}
-        <div className="lg:w-5/6 w-full flex my-4 pb-16 min-h-fit"> 
+        <div className="lg:w-5/6 max-w-3xl w-full flex my-2 pb-16 min-h-fit"> 
          <ProposalBox proposal = {selectedProposal}  />
         </div>
 
         {/* right panel  */}
-        <div className="flex flex-col flex-wrap lg:flex-nowrap lg:max-h-full max-h-48 min-h-48  lg:w-96 lg:my-6 my-0 lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-scroll scroll-snap-x overflow-y-hidden"> 
+        <div className="flex flex-col flex-wrap lg:flex-nowrap lg:max-h-full max-h-48 min-h-48 lg:w-96 lg:my-4 my-0 lg:overflow-hidden w-full ps-4 flex-row gap-4 justify-center items-center overflow-x-scroll scroll-snap-x overflow-y-hidden"> 
       
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border border-slate-300 rounded-md max-w-72">
             <Law /> 

@@ -75,7 +75,7 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         if (stepsPassed[0]) {
             console.log("step 1 action: GARY EXECUTES!");
             vm.expectEmit(true, false, false, false);
-            emit PowersEvents.ProposalCompleted(gary, laws[0], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(gary, laws[0], lawCalldata, description);
             vm.prank(gary);
             basicDao.execute(laws[0], lawCalldata, description);
         }
@@ -87,7 +87,7 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         if (step1Chance > 50) {
             console.log("step 2 action: ALICE CASTS VETO!");
             vm.expectEmit(true, false, false, false);
-            emit PowersEvents.ProposalCompleted(alice, laws[1], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(alice, laws[1], lawCalldata, description);
             vm.prank(alice); // has admin role.
             basicDao.execute(laws[1], lawCalldata, description);
 
@@ -130,7 +130,7 @@ contract BasicDao_fuzzIntegrationTest is TestSetupBasicDao_fuzzIntegration {
         if (stepsPassed[2]) {
             console.log("step 4 action: ACTION WILL BE EXECUTED");
             vm.expectEmit(true, false, false, false);
-            emit PowersEvents.ProposalCompleted(bob, laws[2], lawCalldata, keccak256(bytes(description)));
+            emit PowersEvents.ProposalCompleted(bob, laws[2], lawCalldata, description);
             vm.prank(bob); // has role 1
             basicDao.execute(laws[2], lawCalldata, description);
             uint256 balanceAfter = erc20VotesMock.balanceOf(address(basicDao));

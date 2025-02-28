@@ -70,7 +70,7 @@ const Page = () => {
         fetchSimulation(
           wallets[0] ? wallets[0].address as `0x${string}` : '0x0', // needs to be wallet! 
           lawCalldata as `0x${string}`,
-          keccak256(toHex(description))
+          description
         )
 
         fetchChecks(law, lawCalldata, description) 
@@ -109,28 +109,29 @@ const Page = () => {
 
 
   return (
-    <main className="w-full h-full flex flex-col justify-start items-center gap-3 px-4 pt-16 overflow-x-scroll">
-      <div className = "h-fit w-full">
+    <main className="w-full h-full flex flex-col justify-start items-center gap-2 px-4 pt-16 overflow-x-scroll">
+      <div className = "h-fit w-full mt-2">
         <GovernanceOverview law = {law} /> 
       </div>
       {/* main body  */}
       <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-end items-start">
 
         {/* left panel: writing, fetching data is done here  */}
-        <div className="lg:w-5/6 max-w-3xl w-full flex my-4 pb-16 min-h-fit"> 
+        <div className="lg:w-5/6 max-w-3xl w-full flex my-2 pb-16 min-h-fit"> 
           {checks && <LawBox 
               checks = {checks} 
               params = {params} 
               status = {status} 
               error = {error} 
               simulation = {simulation} 
+              executions = {executions}
               onSimulate = {handleSimulate} 
               onExecute = {handleExecute}/> 
               }
         </div>
 
         {/* right panel: info boxes should only reads from zustand.  */}
-        <div className="flex flex-col flex-wrap lg:flex-nowrap max-h-48 min-h-48 lg:max-h-full lg:w-96 lg:my-4 my-0 lg:flex-col lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-scroll overflow-y-hidden scroll-snap-x">
+        <div className="flex flex-col flex-wrap lg:flex-nowrap max-h-48 min-h-48 lg:max-h-full lg:w-96 lg:my-2 my-0 lg:flex-col lg:overflow-hidden lg:ps-4 w-full flex-row gap-4 justify-center items-center overflow-x-scroll overflow-y-hidden scroll-snap-x">
           <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border border-slate-300 rounded-md max-w-80">
             {checks && <ChecksBox checks = {checks} />} 
           </div>

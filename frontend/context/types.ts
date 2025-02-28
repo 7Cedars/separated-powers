@@ -63,8 +63,18 @@ export type Config = {
   votingPeriod: bigint;
 }
 
+type Args = {
+  description: string;
+  initiator: `0x${string}`;
+  lawCalldata: `0x${string}`;
+  targetLaw: `0x${string}`;
+}
+
+export type LogExtended = Log & 
+  {args?: Args}
+
 export type Execution = {
-  log: Log; 
+  log: LogExtended; 
   blocksData?: GetBlockReturnType
 }
 
