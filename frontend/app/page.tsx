@@ -8,9 +8,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useOrgStore } from "@/context/store";
-import { useRouter } from "next/navigation";
-import { useOrganisations } from "@/hooks/useOrganisations";
 import { ExampleUseCases } from "./ExampleUsecases";
 import { ExampleDemos } from "./ExampleDemos";
 import { RunNewDemo } from "./RunNewDemo";
@@ -21,16 +18,7 @@ import {
   } from '@heroicons/react/24/outline';
 
 export default function Page() {
-    const router = useRouter();
-    const organisation = useOrgStore()
-
-    
-    useEffect(() => {
-        organisation.name == '' ? router.push('/') : router.push('/home') 
-    }, [organisation])
-
-
-
+          
     return (
         <main className="w-full flex flex-col gap-0 overflow-y-scroll snap-y snap-mandatory overflow-x-hidden">
             <section className="w-full min-h-[100vh] h-fit flex flex-col justify-center items-center bg-gradient-to-b from-indigo-900 to-blue-600 snap-start snap-always border-b-0 -m-1"> 

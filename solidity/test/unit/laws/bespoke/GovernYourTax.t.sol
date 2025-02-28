@@ -37,7 +37,11 @@ contract AssignCouncilRoleTest is TestSetupDiversifiedGrants {
       alice // account
     );
 
-    vm.prank(alice);
+    // assign roles 
+    vm.prank(address(daoMock));
+    daoMock.assignRole(1, alice); // assign alice to role 1
+
+    vm.prank(alice); 
     daoMock.execute(
       nominateMe, 
       abi.encode(true), 
@@ -69,6 +73,10 @@ contract AssignCouncilRoleTest is TestSetupDiversifiedGrants {
       1, // roleId  
       alice // account
     );
+    
+    // assign roles 
+    vm.prank(address(daoMock));
+    daoMock.assignRole(1, alice); // assign alice to role 1
 
     vm.prank(alice);
     daoMock.execute(
@@ -78,6 +86,7 @@ contract AssignCouncilRoleTest is TestSetupDiversifiedGrants {
     );
 
     vm.expectRevert("Role not allowed.");
+    vm.prank(address(daoMock));
     Law(assignCouncilRole).executeLaw(
       alice, // alice = initiator
       lawCalldata,
@@ -96,6 +105,7 @@ contract AssignCouncilRoleTest is TestSetupDiversifiedGrants {
     // note: no nomination. 
 
     vm.expectRevert("Account not nominated.");
+    vm.prank(address(daoMock));
     Law(assignCouncilRole).executeLaw(
       alice, // alice = initiator
       lawCalldata,

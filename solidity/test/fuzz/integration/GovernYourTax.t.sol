@@ -494,13 +494,13 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
                 users[(currentSeed / 5) % users.length], 
                 currentSeed % 250
             );
-            taxPaid[currentUser] += ((currentSeed % 250) * 7) / 100; // == taxPaid
+            taxPaid[currentUser] += ((currentSeed % 250) * 10) / 100; // == taxPaid
             console.log("taxPaid so far: ", taxPaid[currentUser]);
         }
 
         // let users claim - outcome conditional.
         i = 0; 
-        vm.roll(block.number + 7200 + 1); // 7200 is 1 epoch
+        vm.roll(block.number + 150 + 1); // 150 is 1 epoch
         for (i; i < users.length; i++) {
             description = "claiming role!";
             lawCalldata = abi.encode(false, users[i]); 
@@ -569,13 +569,14 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         );
         vm.prank(alice); // = security
         governYourTax.execute(laws[9], lawCalldata, description);
+
         address electionVotesAddress = ElectionCall(laws[9]).getElectionVotesAddress(
-            2, // voter role id
+            1, // voter role id
             laws[8], // nominees
             uint48(block.number + 1), // start vote
             uint48(block.number + 100), // end vote
             "This is a test election."
-        ); 
+        );
  
         // step 2: users vote in election 
         uint256 currentSeed1;
@@ -598,7 +599,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
             vm.roll(currentSeed1 & 250); 
 
             if (
-                Powers(governYourTax).canCallLaw(votingUser, electionVotesAddress) && 
+                governYourTax.canCallLaw(votingUser, electionVotesAddress) && 
                 !hasVoted[votingUser] &&
                 NominateMe(laws[8]).nominees(userReceivingVote) != 0 && 
                 block.number > ElectionVotes(electionVotesAddress).startVote() && 

@@ -49,7 +49,7 @@ contract DeployBasicDao is Script {
 
         vm.startBroadcast();
         Powers powers = new Powers(
-            "Basic Dao",
+            "101",
             "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreidhq4eoq3gsfbrbf6735a2lbmcokumgbsq7zqxkzaopu3daxjnkgu"
         );
         Erc20VotesMock erc20VotesMock = new Erc20VotesMock(); 

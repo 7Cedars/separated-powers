@@ -58,7 +58,7 @@ export const useProposal = () => {
                         })
               const fetchedLogsTyped = fetchedLogs as ParseEventLogsReturnType
               const fetchedProposals: Proposal[] = fetchedLogsTyped.map(log => log.args as Proposal)
-              fetchedProposals.sort((a: Proposal, b: Proposal) => a.voteStart  > b.voteStart ? 1 : -1)
+              fetchedProposals.sort((a: Proposal, b: Proposal) => a.voteStart  > b.voteStart ? -1 : 1)
               return fetchedProposals
             }
         } catch (error) {
@@ -127,7 +127,7 @@ export const useProposal = () => {
 
   const fetchProposals = useCallback(
     async (organisation: Organisation) => {
-      console.log("fetchProposals called, waypoint 1: ", {organisation})
+      // console.log("fetchProposals called, waypoint 1: ", {organisation})
 
       let proposals: Proposal[] | undefined = [];
       let states: number[] | undefined = []; 
@@ -138,12 +138,12 @@ export const useProposal = () => {
       setStatus("pending")
 
       proposals = await getProposals(organisation)
-      console.log("fetchProposals called, waypoint 2: ", {proposals})
+      // console.log("fetchProposals called, waypoint 2: ", {proposals})
       if (proposals && proposals.length > 0) {
         states = await getProposalsState(proposals)
         blocks = await getBlockData(proposals)
       } 
-      console.log("fetchProposals called, waypoint 3: ", {states, blocks})
+      // console.log("fetchProposals called, waypoint 3: ", {states, blocks})
       if (states && blocks) { // + votes later.. 
         proposalsFull = proposals?.map((proposal, index) => {
           return ( 
@@ -151,7 +151,7 @@ export const useProposal = () => {
           )
         })
       }  
-      console.log("fetchProposals called, waypoint 4: ", {proposalsFull})
+      // console.log("fetchProposals called, waypoint 4: ", {proposalsFull})
       setProposals(proposalsFull)
       assignOrg({...organisation, proposals: proposalsFull})
       setStatus("success") 

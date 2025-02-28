@@ -103,7 +103,7 @@ export default function Page() {
     }, [])
 
   return (
-    <main className={`w-full overflow-hidden pt-20`}>
+    <main className={`w-full overflow-hidden pt-20 px-2`}>
       {/* table banner  */}
       <div className={`w-full flex flex-row gap-3 justify-between items-center bg-slate-50 slate-300 mt-2 py-4 px-6 border rounded-t-md ${roleColour[parseRole(BigInt(role.roleId))]} border-b-slate-300`}>
         <div className="text-slate-900 text-center font-bold text-lg">

@@ -55,7 +55,7 @@ contract DeployGovernYourTax is Script {
         vm.startBroadcast();
         Powers powers = new Powers(
             "Govern Your Tax", 
-            "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreid7bb6jueiqjn4mpkcy5ob7w6ulksfntobbwbn4feehvzjwe3tufe");
+            "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreihtd6rmehl3thl5bftqmu2xhzxsacv4x7r4q4wbpze2y5mfz3olrm");
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
             10, // rate
             100, // denominator  
@@ -238,7 +238,7 @@ contract DeployGovernYourTax is Script {
             string.concat(
                 "Anyone who has paid sufficient tax (by using the Dao's ERC20 token @", 
                 Strings.toHexString(uint256(addressToInt(mock20Taxed_)), 20), 
-                " can become a community member. The threshold is 100MCK tokens per 150 blocks. Tax rate is 10 percent(!) on each transaction."
+                " can become a community member. The threshold is 100MCK tokens per 150 blocks. Tax rate is 10 percent(!) on each transaction and tokens can be minted at the contract's faucet function."
                 ),
             dao_,
             type(uint32).max, // access role = public access
@@ -272,8 +272,8 @@ contract DeployGovernYourTax is Script {
             3, // = role security council 
             lawConfig, //  config file.
             // bespoke configs for this law:
-            2, // role id that is allowed to vote.
-            3, // role id that is being elected
+            1, // role id that is allowed to vote.
+            2, // role id that is being elected
             3  // max role holders
         );
         vm.stopBroadcast();
@@ -332,7 +332,7 @@ contract DeployGovernYourTax is Script {
             "Nominate for a Grant Council", // max 31 chars
             "Any community member can nominate themselves to become part of a grant council.",
             dao_, // separated powers protocol.
-            1, // role 3 id designation.
+            1, // community member
             lawConfig 
         );
         vm.stopBroadcast();

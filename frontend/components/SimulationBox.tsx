@@ -75,7 +75,7 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
           <div className="w-full text-xs text-center text-slate-500 p-2 ">
             State variables to be saved in law 
           </div>
-          <div className="w-full max-w-2xl h-fit overflow-scroll">
+          <div className="w-full h-fit overflow-scroll">
             <table className="table-auto w-full ">
               <thead className="w-full border-b border-slate-300">
                 <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500">
@@ -97,7 +97,7 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
         <div className="w-full text-xs text-center text-slate-500 p-2 ">
           Calldata to be send to protocol 
         </div>
-        <div className="w-full max-w-2xl h-fit overflow-scroll">
+        <div className="w-full h-fit overflow-scroll">
           <table className="table-auto w-full ">
             <thead className="w-full border-b border-slate-300">
               <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500">

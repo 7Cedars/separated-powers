@@ -2,7 +2,7 @@
   "icon": "",
   "banner": "",
   "description": 
-    "A basic implementation of Separated Powers. It consists of two different mechanisms for assigning roles to accounts (roles 1 and 2) and a single governance track for proposing and executing actions.",
+    "A basic implementation of the Powers protocol. It consists of two different mechanisms for assigning roles to accounts (Members and Seniors) and a single governance track for proposing and executing actions.",
   "attributes": [
     {
       "trait_type": "optional trait 1",

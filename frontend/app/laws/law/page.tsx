@@ -18,14 +18,13 @@ import { GovernanceOverview } from "@/components/GovernanceOverview";
 
 const Page = () => {
   const {wallets} = useWallets();
-  const {executions, fetchExecutions} = useLaw();
+  const {status, error: errorUseLaw, executions, simulation, fetchExecutions, resetStatus, execute, fetchSimulation} = useLaw();
   const action = useActionStore();
   const law = useLawStore(); 
   const {checks, fetchChecks} = useChecks(); 
   const [error, setError] = useState<any>(); 
-  const {status, error: useLawError, simulation, resetStatus, execute, fetchSimulation} = useLaw(); 
 
-  // console.log( "Law page: ", {checks, law})
+  console.log( "Law page: ", {executions, errorUseLaw, checks, law})
 
   const { data, isLoading, isError, error: errorInputParams } = useReadContract({
         abi: lawAbi,
@@ -103,10 +102,10 @@ const Page = () => {
     if (errorInputParams) {
       setError(errorInputParams)
     }
-    if (useLawError) {
-      setError(useLawError)
+    if (errorUseLaw) {
+      setError(errorUseLaw)
     }
-  }, [errorInputParams, useLawError])
+  }, [errorInputParams, errorUseLaw])
 
 
   return (

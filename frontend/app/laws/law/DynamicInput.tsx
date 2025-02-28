@@ -21,7 +21,7 @@ export function DynamicInput({dataType, varName, values, onChange}: InputProps) 
   const [itemsArray, setItemsArray] = useState<number[]>([0])
   const [error, setError] = useState<String>()
 
-  console.log({error, inputArray})
+  console.log({error, inputArray, dataType, varName, values})
 
   const inputType = 
     dataType.indexOf('int') > -1 ? "number"
@@ -90,13 +90,13 @@ export function DynamicInput({dataType, varName, values, onChange}: InputProps) 
             </div>
 
             {
-            inputType  == "string" && typeof inputArray[item] != "boolean" ? 
+            inputType  == "string" ? 
                 <div className="w-full flex items-center rounded-md bg-white pl-3 outline outline-1 outline-gray-300">  
                   <input 
                     type= "text" 
                     name={`input${item}`} 
                     id={`input${item}`}
-                    value = {inputArray[item] ? inputArray[item] : ""}
+                    value = {typeof inputArray[item] != "boolean" && inputArray[item] ? inputArray[item] : ""}
                     className="w-full h-8 pe-2 text-base text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" 
                     placeholder={`Enter ${dataType.replace(/[\[\]']+/g, '')} here.`}
                     onChange={(event) => handleChange({event, item})}

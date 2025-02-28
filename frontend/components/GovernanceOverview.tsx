@@ -160,11 +160,12 @@ function GovernanceTrack({track, roleIds, lawSelected, bgItem}: TrackProps) {
 
 function GovernanceOrphans({orphans, roleIds, lawSelected, bgItem}: TrackProps) {
   const router = useRouter();
+  const home = usePathname() == '/home'
  
   return (
     <>
       {/* draws the laws */}
-      <div className = "relative w-full h-20 flex flex-wrap gap-6 justify-stretch items-center">
+      <div className = {`relative grow w-full h-20 flex flex-wrap gap-6 justify-stretch items-center ${home && "min-w-[520px]"}`}>
         {
           orphans && orphans.map((law, index) => 
             <button 

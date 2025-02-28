@@ -132,13 +132,11 @@ export function LawBox({checks, params, status, error, simulation, onSimulate, o
         </div>
 
       {/* Errors */}
-      <div className="w-full flex flex-col gap-0 justify-start items-center text-red text-sm text-red-800 pb-4 px-6">
-         {
-          error ?   
-            `Error: ${parseLawError(error)}`  
-          : null
-          }
-      </div>
+      { error && 
+        <div className="w-full flex flex-col gap-0 justify-start items-center text-red text-sm text-red-800 pb-4 px-6">
+          There is an error with this call. Please check the console for more details.   
+        </div>
+      }
 
         <div className="w-full flex flex-row justify-center items-center px-6 pb-4">
           <Button 

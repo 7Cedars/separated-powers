@@ -18,7 +18,7 @@ export const Executions = ({executions}: {executions: Execution[] | undefined}) 
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
 
-  // console.log("@executions: ", {executions})
+  console.log("@executions: ", {executions})
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 

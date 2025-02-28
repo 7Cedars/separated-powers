@@ -7,9 +7,11 @@ import { Button } from "../components/Button";
 import { useOrganisations } from "@/hooks/useOrganisations";
 import { colourScheme } from "@/context/Theme"
 import { Organisation } from "@/context/types";
+import { useRouter } from "next/navigation";
 
 export function ExampleDemos() {
   const { organisations, status, fetchOrgs, initialise } = useOrganisations()
+  const router = useRouter() 
 
   useEffect(() => {
       initialise() 
@@ -75,7 +77,10 @@ export function ExampleDemos() {
                               </td>
                               <td className="pe-4 text-slate-500 min-w-40 max-w-fit">
                                   <Button 
-                                      size={1} align={0} showBorder={true} selected = {true} filled = {false} onClick={() => assignOrg({...org, colourScheme: index % colourScheme.length})}>
+                                      size={1} align={0} showBorder={true} selected = {true} filled = {false} onClick={() => {
+                                        assignOrg({...org, colourScheme: index % colourScheme.length})
+                                        router.push('/home')
+                                        }}>
                                       {org.name}
                                   </Button>
                               </td>

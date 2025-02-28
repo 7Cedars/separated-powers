@@ -84,7 +84,6 @@ export default function Page() {
         fetchProposals(organisation);
       }
     }, [ ])
-
  
     return (
       <main className="w-full h-full flex flex-col justify-start items-center gap-3 px-2 overflow-y-scroll pt-20">

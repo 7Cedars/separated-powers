@@ -72,8 +72,8 @@ export const useLaw = () => {
               for await (log of fetchedLogsTyped) {
                 if (log.blockNumber) {
                   const fetchedBlockData = await getBlock(wagmiConfig, {
-                    blockNumber: log.blockNumber,
-                    chainId: sepolia.id
+                    blockNumber: log.blockNumber
+                    // chainId: sepolia.id
                   })
                   if (fetchedBlockData) {
                     executions2.push({
@@ -84,18 +84,12 @@ export const useLaw = () => {
                 } 
               } 
             }
-
-            // const executionsFull = fetchedLogsTyped.map((log, index) => {
-            //   return {
-            //     log: log, 
-            //     // blocksData: blocksData[index] as GetBlockReturnType
-            //   } as Execution
-            // })
             setExecutions(executions2)
           } 
       } catch (error) {
         setStatus("error") 
         setError(error)
+        console.log(error)
       }
     }
   }
@@ -116,6 +110,7 @@ export const useLaw = () => {
         } catch (error) {
           setStatus("error") 
           setError(error)
+          console.log(error)
         }
         setStatus("idle") // immediately reset status
   }, [ ])
@@ -139,6 +134,7 @@ export const useLaw = () => {
       } catch (error) {
           setStatus("error") 
           setError(error)
+          console.log(error)
       }
   }, [ ])
 
