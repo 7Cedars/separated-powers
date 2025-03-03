@@ -46,9 +46,9 @@ export type ChainProps = {
   blockExplorerUrl?: string;
   iconUrl?: string;
   organisations?: `0x${string}`[]; 
-  erc20s?: `0x${string}`[];
-  erc721s?: `0x${string}`[];
-  erc1155s?: `0x${string}`[];
+  erc20s: `0x${string}`[];
+  erc721s: `0x${string}`[];
+  erc1155s: `0x${string}`[];
 }
                       
 
@@ -71,7 +71,7 @@ type Args = {
 }
 
 export type LogExtended = Log & 
-  {args?: Args}
+  {args: Args}
 
 export type Execution = {
   log: LogExtended; 

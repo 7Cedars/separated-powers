@@ -12,7 +12,7 @@ description: >-
 
 The Powers Protocol is a role restricted governance protocol.
 
-This means, simply, that all governance actions are restricted along pre-assigned roles: Only accounts with role 2 can vote for role 2 proposals, execute actions designated for role 2, and so on.
+This means, simply, that all governance actions are restricted by roles that are assigned to accounts. Only accounts with a 'Senior' role can vote for senior proposals, execute actions designated for seniors, and so on.
 
 It allows for the creation of checks and balances between roles, guard-railing specific (AI agentic) accounts and creating hybrid on- and off-chain organizations, among many other use cases.
 
@@ -29,7 +29,7 @@ It consists of two elements: Powers and Laws.
 * Executing actions.
 * Proposing actions.
 * Voting on proposals.
-* Assigning and revoking roles.
+* Assigning, revoking and labelling roles.
 * Adopting and revoking laws.
 
 In addition there is a `constitute` functionality that allows adopting multiple laws at once. It can only be called be the admin, and only once.
@@ -37,7 +37,7 @@ In addition there is a `constitute` functionality that allows adopting multiple 
 The governance flow is defined by the following restrictions:
 
 * Executing, proposing and voting can only be done in reference to a role restricted law. 
-* Roles and laws can only be assigned and revoked through the execute function of the protocol itself.
+* Roles and laws can only be labelled, assigned and revoked through the execute function of the protocol itself.
 * All actions, may they be subject to a vote or not, are executed via Powers' execute function in reference to a law.
 
 {% content-ref url="for-developers/powers.sol.md" %}
@@ -50,19 +50,20 @@ Laws define under which conditions a role can execute what actions.
 
 Example:
 
-> Any account that has a role 2 can propose to mint tokens at contract X, but the proposal will only be accepted if 20 percent of role 2 holders vote in favor.
+> Any account that has been assigned a 'senior' role can propose to mint tokens at contract X, but the proposal will only be accepted if 20 percent of all seniors vote in favor.
 
 Laws are contracts that follow the `ilaw.sol` interface. They can be created by inheriting `law.sol`. Laws have the following functionalities:
 
-* They are role restricted.
+* They are role restricted by a single roleId.
+* They are linked to a single `Powers.sol` deployment.
 * They have multiple (optional) checks.
 * They return a function call.
 * They can save a state.
-* They have a function `executeLaw` that can only be called by a preset `Powers.sol` deployment.
+* They have a function `executeLaw` that can only be called by their `Powers.sol` deployment.
 
-Many elements of laws can be changed: the input parameters, the function call that is returned, which checks need to pass, what state (if any) is saved. Pretty much anything is possible. Laws are the meat on the bones provided by Powers.
+Many elements of laws can be changed: the input parameters, the function call that is returned, which checks need to pass, what state (if any) is saved. Pretty much anything is possible. Laws are the meat on the bones provided by Powers engine.
 
-What is not flexible, is how Powers interacts with laws. This is done through the `executeLaw` function. When this function is called:
+What is not flexible, is how Powers interacts with a law. This is done through the `executeLaw` function. When this function is called:
 
 * The checks are run.
 * The function call is executed.
@@ -77,8 +78,8 @@ What is not flexible, is how Powers interacts with laws. This is done through th
 
 Together, Powers and Laws define which accounts can do what in what situations. Let us explore several examples.
 
-Example A: Allow the execution of any action, but have a second role check actions, so this power cannot be abused.   
-> **Law 1** allows accounts with role 1 to propose any action. The law is subject to a vote, and the proposal will only be accepted if more than half of role 1 account holders votes in favour.
+Example A: Allow the adoption of a new law, but have a second role check actions, so this power cannot be abused.   
+> **Law 1** allows accounts with role 1 to propose an address of a new law. The law is subject to a vote, and the proposal will only be accepted if more than half of role 1 account holders votes in favour.
 > 
 > Alice, who has been assigned a role 1, proposes to transfer ether from the protocol to X. Bob and Charlotte, other role 1 holders, vote in favour and the proposal passes. 
 > 

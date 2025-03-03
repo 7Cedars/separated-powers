@@ -402,7 +402,7 @@ contract ElectionCallTest is TestSetupElectoral {
         bytes memory lawCalldata = abi.encode(
             "This is a test election",
             50, // startVote
-            150 // endVote
+            75 // endVote
         );
 
         // act + assert emit
@@ -435,7 +435,7 @@ contract ElectionCallTest is TestSetupElectoral {
         bytes memory lawCalldata = abi.encode(
             "This is a test election",
             50, // startVote
-            150 // endVote
+            75 // endVote
         );
         // deploy once..
         vm.prank(address(daoMock));
@@ -510,9 +510,9 @@ contract ElectionTallyTest is TestSetupElectoral {
                 );
 
         // assert output
-        assertEq(targetsOut.length, 2);
-        assertEq(valuesOut.length, 2);
-        assertEq(calldatasOut.length, 2);
+        assertEq(targetsOut.length, 3);
+        assertEq(valuesOut.length, 3);
+        assertEq(calldatasOut.length, 3);
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
         assertEq(calldatasOut[0], abi.encodeWithSelector(Powers.assignRole.selector, 3, alice));
@@ -574,9 +574,9 @@ contract ElectionTallyTest is TestSetupElectoral {
                 );
 
         // assert output
-        assertEq(targetsOut.length, 1);
-        assertEq(valuesOut.length, 1);
-        assertEq(calldatasOut.length, 1);
+        assertEq(targetsOut.length, 2);
+        assertEq(valuesOut.length, 2);
+        assertEq(calldatasOut.length, 2);
         assertEq(targetsOut[0], address(daoMock));
         assertEq(valuesOut[0], 0);
         assertEq(calldatasOut[0], abi.encodeWithSelector(Powers.assignRole.selector, 3, alice));

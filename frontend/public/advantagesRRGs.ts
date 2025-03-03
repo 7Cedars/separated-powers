@@ -3,7 +3,7 @@ export const advantagesRRGs = [
     advantage: "Composability",
     examples: [
       "Seamlessly integrates with existing protocols", 
-      "RRGs are fully interoperable", 
+      "Role restricted governance protocols are fully interoperable", 
     ]
   }, 
   {
@@ -17,7 +17,7 @@ export const advantagesRRGs = [
   {
     advantage: "Safety",
     examples: [
-      "Voting similar to signing a multisig", 
+      "Voting follows a multisig logic", 
       "Roles can check each others actions", 
       "Core protocol avoids complexity"
     ]
@@ -25,7 +25,7 @@ export const advantagesRRGs = [
   {
     advantage: "Flexibility",
     examples: [
-      "Assign role to any account", 
+      "Assign roles to any type of account", 
       "DAOs, AI agents, oracles, humans, unicorns.", 
       "Assign roles to users along legal regime.",
     ]

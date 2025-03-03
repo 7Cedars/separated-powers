@@ -15,7 +15,7 @@ contract Erc20TaxedMock is ERC20, Ownable {
 
     uint256 public taxRate;
     bool public faucetPaused;
-    uint256 public immutable AMOUNT_FAUCET = 1_000_000;
+    uint256 public immutable AMOUNT_FAUCET = 1 * 10 ** 18;
     uint8 public immutable DENOMINATOR;
     uint48 public immutable epochDuration;
     mapping(uint48 epoch => mapping(address account => uint256 taxPaid)) public taxLogs;
@@ -27,7 +27,7 @@ contract Erc20TaxedMock is ERC20, Ownable {
         taxRate = taxRate_;
         DENOMINATOR = DENOMINATOR_;
         epochDuration = epochDuration_;
-        _mint(msg.sender, 1_000_000); // start with one million tokens. 
+        _mint(msg.sender, 1 * 10 ** 18); // start with one million tokens. 
     }
 
     // a public non-restricted function that allows anyone to mint coins. Only restricted by max allowed coins to mint.

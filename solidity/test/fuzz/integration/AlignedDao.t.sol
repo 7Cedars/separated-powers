@@ -296,7 +296,7 @@ contract AlignedDao_fuzzIntegrationTest is TestSetupAlignedDao_fuzzIntegration {
         
         // mint funds
         vm.prank(address(alignedDao));
-        Erc20TaxedMock(erc20TaxedMock).mint(1_000_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(1 * 10 ** 18);
 
         // assign roles. 
         vm.startPrank(address(alignedDao));

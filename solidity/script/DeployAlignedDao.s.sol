@@ -64,7 +64,7 @@ contract DeployAlignedDao is Script {
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
             5, // taxRate_, 
             3, // DENOMINATOR_,
-            150 //uint48 epochDuration_
+            25 //uint48 epochDuration_
             );
         Erc721Mock erc721Mock = new Erc721Mock();
         vm.stopBroadcast();
@@ -103,7 +103,7 @@ contract DeployAlignedDao is Script {
         // laws[0]
         lawConfig.quorum = 60; // = 60% quorum needed
         lawConfig.succeedAt = 50; // = Simple majority vote needed.
-        lawConfig.votingPeriod = 150; // = number of blocks, about half an hour.  
+        lawConfig.votingPeriod = 25; // = number of blocks, about half an hour.  
         // setting up params
         string[] memory inputParams = new string[](2);
         inputParams[0] = "string Value";
@@ -125,7 +125,7 @@ contract DeployAlignedDao is Script {
         // laws[1]
         lawConfig.quorum = 30; // = 30% quorum needed
         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 150; // = number of blocks, about half an hour.
+        lawConfig.votingPeriod = 25; // = number of blocks, about half an hour.
         lawConfig.needCompleted = laws[0];
         // initiating law.
         vm.startBroadcast();
@@ -143,7 +143,7 @@ contract DeployAlignedDao is Script {
         // laws[2]
         lawConfig.quorum = 80; // = 80% quorum needed
         lawConfig.succeedAt = 66; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 150; // = number of blocks, about half an hour.
+        lawConfig.votingPeriod = 25; // = number of blocks, about half an hour.
         // initiating law
         vm.startBroadcast();
         law = new RevokeMembership(
@@ -161,7 +161,7 @@ contract DeployAlignedDao is Script {
         // laws[3]
         lawConfig.quorum = 1; // = 1% quorum needed
         lawConfig.succeedAt = 80; // = 80 percent of the quorum needs to vote fore reinstatement.
-        lawConfig.votingPeriod = 150; // = number of blocks, about half an hour.
+        lawConfig.votingPeriod = 25; // = number of blocks, about half an hour.
         lawConfig.needCompleted = laws[2];
         // input params
         inputParams = new string[](2);
@@ -184,7 +184,7 @@ contract DeployAlignedDao is Script {
         // laws[4]
         lawConfig.quorum = 20; // = 20% quorum needed
         lawConfig.succeedAt = 67; // =  two/thirds majority needed for
-        lawConfig.votingPeriod = 150; // = number of blocks, about half an hour.
+        lawConfig.votingPeriod = 25; // = number of blocks, about half an hour.
         lawConfig.needCompleted = laws[3]; // NB! £todo all the law references need to be changed!
         //initiating law
         vm.startBroadcast();
@@ -278,7 +278,7 @@ contract DeployAlignedDao is Script {
         // laws[10]
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
-        lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
+        lawConfig.votingPeriod = 25; // = duration in number of blocks to vote, about half an hour.
         lawConfig.readStateFrom = laws[9]; // NominateMe
         vm.startBroadcast();
         law = new PeerSelect(
@@ -314,7 +314,7 @@ contract DeployAlignedDao is Script {
         // laws[12]
         lawConfig.quorum = 30; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
-        lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
+        lawConfig.votingPeriod = 25; // = duration in number of blocks to vote, about half an hour.
         lawConfig.needCompleted = laws[11]; // ProposalOnly 
         vm.startBroadcast();
         law = new DirectSelect(
@@ -329,10 +329,46 @@ contract DeployAlignedDao is Script {
         laws.push(address(law));
         delete lawConfig;
 
+        // // laws[13]
+        // // input params
+        // inputParams = new string[](2);
+        // inputParams[0] = "uint32 RoleId"; 
+        // inputParams[1] = "address Account";
+        // vm.startBroadcast();
+        // law = new BespokeAction(
+        //     "Assign role for testing", // max 31 chars
+        //     "The admin can assign any role to any account. For testing purposes only.",
+        //     dao_, // separated powers protocol.
+        //     0, // admin.
+        //     lawConfig, //  config file.
+        //     dao_, // target contract
+        //     Powers.assignRole.selector, // target function
+        //     inputParams
+        // );
+        // vm.stopBroadcast();
+        // laws.push(address(law));
+
+        // // laws[14]
+        // lawConfig.needCompleted = laws[13];  
+        // vm.startBroadcast();
+        // law = new BespokeAction(
+        //     "Revoke role for testing", // max 31 chars
+        //     "The admin can revoke roles that they assigned. For testing purposes only.",
+        //     dao_, // separated powers protocol.
+        //     0, // admin.
+        //     lawConfig, //  config file.
+        //     dao_, // target contract
+        //     Powers.revokeRole.selector, // target function
+        //     inputParams // same input params as at laws[13]
+        // );
+        // vm.stopBroadcast();
+        // laws.push(address(law));
+        // delete lawConfig;
+
         // laws[13]: selfDestructPresetAction: assign initial accounts to role 3.
-        address[] memory targets = new address[](4);
-        uint256[] memory values = new uint256[](4);
-        bytes[] memory calldatas = new bytes[](4);
+        address[] memory targets = new address[](5);
+        uint256[] memory values = new uint256[](5);
+        bytes[] memory calldatas = new bytes[](5);
         for (uint256 i = 0; i < targets.length; i++) {
             targets[i] = dao_;
         }
@@ -340,7 +376,7 @@ contract DeployAlignedDao is Script {
         calldatas[1] = abi.encodeWithSelector(Powers.labelRole.selector, 1, "Member");
         calldatas[2] = abi.encodeWithSelector(Powers.labelRole.selector, 2, "Governor");
         calldatas[3] = abi.encodeWithSelector(Powers.labelRole.selector, 3, "Senior");
-        calldatas[3] = abi.encodeWithSelector(Powers.labelRole.selector, 4, "Oracle");
+        calldatas[4] = abi.encodeWithSelector(Powers.labelRole.selector, 4, "Oracle");
         
         vm.startBroadcast();
         law = new SelfDestructPresetAction(

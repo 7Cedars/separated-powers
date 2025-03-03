@@ -30,15 +30,17 @@ export function AssetList() {
         <div className="text-slate-900 text-center font-bold text-lg">
           Treasury
         </div>
+        {supportedChain && supportedChain?.erc20s != undefined && 
         <button 
           className="w-fit h-fit p-1 border border-opacity-0 hover:border-opacity-100 rounded-md border-slate-500 aria-selected:animate-spin"
-          onClick = {() => initialise()}
+          onClick = {() => fetchTokens(supportedChain?.erc20s, supportedChain?.erc721s, supportedChain?.erc1155s)}
           >
             <ArrowPathIcon
-              className="w-5 h-5 text-slate-800"
+              className="w-5 h-5 text-slate-800 aria-selected:animate-spin"
               aria-selected={status && status == 'pending'}
               />
         </button>
+        }
       </div>
       {/* table laws  */}
       <div className="w-full h-full overflow-x-scroll overflow-y-hidden">

@@ -86,7 +86,7 @@ contract DeployBasicDao is Script {
         // setting config.
         lawConfig.quorum = 66; // = Two thirds quorum needed to pass the proposal
         lawConfig.succeedAt = 51; // = 51% simple majority needed for assigning and revoking members.
-        lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
+        lawConfig.votingPeriod = 25; // = duration in number of blocks to vote, about half an hour.
         // initiating law
         vm.startBroadcast();
         law = new ProposalOnly(
@@ -120,7 +120,7 @@ contract DeployBasicDao is Script {
         // setting config.
         lawConfig.quorum = 51; // = 51 majority of seniors need to vote.
         lawConfig.succeedAt = 66; // =  two/thirds majority FOR vote needed to pass.
-        lawConfig.votingPeriod = 150; // = duration in number of blocks to vote, about half an hour.
+        lawConfig.votingPeriod = 25; // = duration in number of blocks to vote, about half an hour.
         lawConfig.needCompleted = laws[0]; // needs the proposal by Delegates to be completed.
         lawConfig.needNotCompleted = laws[1]; // needs the admin NOT to have cast a veto.
         lawConfig.delayExecution = 450; // = duration in number of blocks to vote, about half an hour.

@@ -57,7 +57,7 @@ export function Overview( ) {
     </div>
 
     {/* Overview here  */}
-    <div className = "w-full h-fit px-4 pt-2 pb-4"> 
+    <div className = "w-full h-fit pt-2 pb-4"> 
       <GovernanceOverview /> 
     </div> 
   </div>

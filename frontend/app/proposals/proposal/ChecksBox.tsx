@@ -4,6 +4,7 @@ import { XCircleIcon, CheckIcon, XMarkIcon,ArrowPathIcon } from "@heroicons/reac
 import { Checks } from "@/context/types";
 import { setLaw, useLawStore, useOrgStore } from "@/context/store";
 import { parseRole } from "@/utils/parsers";
+import { useRouter } from "next/navigation";
 
 const roleColour = [  
   "blue-600", 
@@ -16,6 +17,7 @@ const roleColour = [
 ]
 
 export function ChecksBox ({checks}: {checks: Checks}) {
+  const router = useRouter();
   const law = useLawStore();
   const organisation = useOrgStore();
   const needCompletedLaw = organisation?.laws?.find(l => l.law == law.config.needCompleted); 
@@ -49,7 +51,10 @@ export function ChecksBox ({checks}: {checks: Checks}) {
               <div className = "w-full flex flex-row px-2 py-1">
                 <button 
                   className={`w-full h-full flex flex-row items-center justify-center rounded-md border border-${roleColour[parseRole(needCompletedLaw?.allowedRole)]} disabled:opacity-50`}
-                  onClick = {() => {setLaw(needCompletedLaw ? needCompletedLaw : law)}}
+                  onClick = {() => {
+                    setLaw(needCompletedLaw ? needCompletedLaw : law)
+                    router.push('/laws/law')
+                  }}
                   >
                   <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
                   {needCompletedLaw?.name}
@@ -71,7 +76,10 @@ export function ChecksBox ({checks}: {checks: Checks}) {
               <div className = "w-full flex flex-row px-2 py-1">
                 <button 
                   className={`w-full h-full flex flex-row items-center justify-center rounded-md border border-${roleColour[parseRole(needNotCompletedLaw?.allowedRole)]} disabled:opacity-50`}
-                  onClick = {() => {setLaw(needNotCompletedLaw ? needNotCompletedLaw : law)}}
+                  onClick = {() => {
+                    setLaw(needNotCompletedLaw ? needNotCompletedLaw : law)
+                    router.push('/laws/law')
+                  }}
                   >
                   <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
                     {needNotCompletedLaw?.name}

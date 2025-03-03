@@ -37,12 +37,11 @@ export function MyRoles({hasRoles, authenticated}: MyRolesProps ) {
        {
       authenticated ? 
       <div className = "w-full flex flex-col justify-center items-center lg:max-h-48 max-h-36 overflow-y-scroll divider-slate-300 divide-y">
-           <div className ={`w-full p-1`}>
+           <div className ={`w-full p-1 pt-6`}>
             <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-2`}>
               <div className = "w-full flex flex-row justify-start items-center text-left">
               Public
               </div>
-            
               <div className = "w-full flex flex-row justify-end items-center text-right">
                 {/* Since: n/a */}
               </div>

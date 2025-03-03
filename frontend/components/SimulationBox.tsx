@@ -47,7 +47,7 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
       }
     }  
   
-    if (simulation) {
+    if (simulation && simulation[3] && simulation[3] != "0x") {
         const stateVars = dataTypes.length > 0 ? decodeAbiParameters(parseAbiParameters(dataTypes.toString()), simulation[3]) : [];
         const stateVarsParsed = parseParamValues(stateVars)
         for (let i = 0; i < stateVarsParsed.length; i++) {

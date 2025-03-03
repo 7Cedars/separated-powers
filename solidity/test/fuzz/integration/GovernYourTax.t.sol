@@ -36,7 +36,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         
         // mint erc20 Tokens to organisation. 
         vm.prank(address(governYourTax)); 
-        Erc20TaxedMock(erc20TaxedMock).mint(1_000_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(1 * 10 ** 18);
         
         seed = bound(seed, 250, 1000);
         step0Chance = bound(step0Chance, 15, 100);
@@ -242,7 +242,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
     ) public {
         // mint erc20 Tokens to organisation. 
         vm.prank(address(governYourTax)); 
-        Erc20TaxedMock(erc20TaxedMock).mint(1_000_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(1 * 10 ** 18);
         
         seed = bound(seed, 0, 100_000);
         step0Chance = bound(step0Chance, 0, 100);
@@ -472,7 +472,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
         ) public {
         // mint erc20 Tokens to organisation. 
         vm.prank(address(governYourTax)); 
-        Erc20TaxedMock(erc20TaxedMock).mint(10_000_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(10 * 10 ** 18);
 
         // distribute tokens to users, each users get 100_000 
         for (i; i < users.length; i++) {
@@ -500,7 +500,7 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
 
         // let users claim - outcome conditional.
         i = 0; 
-        vm.roll(block.number + 150 + 1); // 150 is 1 epoch
+        vm.roll(block.number + 25 + 1); // 25 is 1 epoch
         for (i; i < users.length; i++) {
             description = "claiming role!";
             lawCalldata = abi.encode(false, users[i]); 
@@ -529,10 +529,10 @@ contract GovernYourTax_fuzzIntegrationTest is TestSetupGovernYourTax_fuzzIntegra
     ) public {
         // mint erc20 Tokens to organisation. 
         vm.prank(address(governYourTax)); 
-        Erc20TaxedMock(erc20TaxedMock).mint(1_000_000);
+        Erc20TaxedMock(erc20TaxedMock).mint(1 * 10 ** 18);
         
-        seed1 = bound(seed1, 1_000_000, 100_000_000);
-        seed2 = bound(seed2, 1_000_000, 100_000_000);
+        seed1 = bound(seed1, 1 * 10 ** 18, 100 * 10 ** 18);
+        seed2 = bound(seed2, 1 * 10 ** 18, 100 * 10 ** 18);
         step0Chance = bound(step0Chance, 15, 100);
         step1Chance = bound(step1Chance, 15, 100);
 

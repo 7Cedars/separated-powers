@@ -17,7 +17,7 @@ contract Erc20VotesMockTest is Test {
     }
 
     function testDeploy_Erc20VotesMockTest() public {
-        assertEq(erc20VotesMock.totalSupply(), 1_000_000);
+        assertEq(erc20VotesMock.totalSupply(), 1 * 10 ** 18);
         assertEq(erc20VotesMock.name(), "mock");
         assertEq(erc20VotesMock.symbol(), "MOCK");
     }
@@ -28,7 +28,7 @@ contract Erc20VotesMockTest is Test {
     }
 
     function testMintVotesRevertsIfMaxAmountExceeded() public {
-        uint256 maxAmount = 100_000_000;
+        uint256 maxAmount = 100 * 10 ** 18;
 
         vm.expectRevert(
             abi.encodeWithSelector(Erc20VotesMock.Erc20VotesMock__AmountExceedsMax.selector, maxAmount + 1, maxAmount)
@@ -234,7 +234,7 @@ contract Erc1155MockTest is Test {
     }
 
     function testMintVotesRevertsIfMaxAmountExceeded() public {
-        uint256 maxAmount = 100_000_000;
+        uint256 maxAmount = 100 * 10 ** 18;
 
         vm.expectRevert(
             abi.encodeWithSelector(Erc1155Mock.Erc1155Mock__AmountExceedsMax.selector, maxAmount + 1, maxAmount)

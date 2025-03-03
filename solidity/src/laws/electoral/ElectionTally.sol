@@ -107,7 +107,7 @@ contract ElectionTally is Law {
         uint256 numberNominees = NominateMe(data.nominees).nomineesCount();
         uint256 numberRevokees = electedAccounts.length;
         uint256 arrayLength =
-            numberNominees < data.maxRoleHolders ? numberRevokees + numberNominees : numberRevokees + data.maxRoleHolders;
+            numberNominees < data.maxRoleHolders ? numberRevokees + numberNominees + 1 : numberRevokees + data.maxRoleHolders + 1;
 
         targets = new address[](arrayLength);
         values = new uint256[](arrayLength);
@@ -126,6 +126,11 @@ contract ElectionTally is Law {
                 electedAccounts[i]
             );
         }
+        // deleting the election contract law. 
+        calldatas[arrayLength - 1] = abi.encodeWithSelector(
+                Powers.revokeLaw.selector, 
+                data.electionVotes
+            );
 
         // step 3a: calls to add nominees if fewer than data.maxRoleHolders
         if (numberNominees < data.maxRoleHolders) {

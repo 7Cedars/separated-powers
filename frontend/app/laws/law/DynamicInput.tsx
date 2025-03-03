@@ -21,7 +21,7 @@ export function DynamicInput({dataType, varName, values, onChange}: InputProps) 
   const [itemsArray, setItemsArray] = useState<number[]>([0])
   const [error, setError] = useState<String>()
 
-  // console.log({error, inputArray, dataType, varName, values})
+  console.log("@dynamicInput: ", {error, inputArray, dataType, varName, values})
 
   const inputType = 
     dataType.indexOf('int') > -1 ? "number"

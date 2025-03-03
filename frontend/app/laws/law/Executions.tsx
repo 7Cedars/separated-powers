@@ -1,19 +1,16 @@
 import { setAction, useActionStore, useLawStore, useOrgStore } from "@/context/store";
-import Link from "next/link";
-import { supportedChains } from "@/context/chains";
-import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
-import { useChainId } from "wagmi";
 import { Execution, Status } from "@/context/types";
 import { toEurTimeFormat, toFullDateFormat } from "@/utils/toDates";
 import { Button } from "@/components/Button";
 import { parseRole } from "@/utils/parsers";
-import { useRouter } from "next/navigation";
- 
- 
-export const Executions = ({executions}: {executions: Execution[] | undefined}) => {
-  const law = useLawStore()
 
-  console.log("@executions: ", {executions})
+type ExecutionsProps = {
+  executions: Execution[] | undefined
+  onClick: (execution: Execution) => void;
+};
+
+export const Executions = ({executions, onClick}: ExecutionsProps) => {
+  const law = useLawStore()
 
   return (
     <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
@@ -32,23 +29,15 @@ export const Executions = ({executions}: {executions: Execution[] | undefined}) 
                   <Button
                       showBorder={true}
                       role={parseRole(law.allowedRole)}
-                      onClick={() => {
-                        setAction({
-                          description: execution.log.args?.description,
-                          callData: execution.log.args?.lawCalldata,
-                          upToDate: false
-                        })
-                      }}
+                      onClick={() => onClick(execution)}
                       align={0}
                       selected={false}
                       >  
                       <div className = "flex flex-col w-full"> 
-                        <div className = "w-full flex flex-row gap-1 justify-between items-center">
-                            {`${toFullDateFormat(Number(execution.blocksData?.timestamp))}: ${toEurTimeFormat(Number(execution.blocksData?.timestamp))}`}
+                        <div className = "w-full flex flex-row gap-1 justify-between items-center px-1">
+                            <div> {toFullDateFormat(Number(execution.blocksData?.timestamp))}</div>
+                            <div> {toEurTimeFormat(Number(execution.blocksData?.timestamp))}</div>
                         </div>
-                        {/* <div className = "w-full flex flex-row justify-between items-center">
-                          {`Tx:  ${execution.log.transactionHash?.slice(0, 12)}...${execution.log.transactionHash?.slice(-12)} `} 
-                        </div> */}
                       </div>
                     </Button>
                 </div>

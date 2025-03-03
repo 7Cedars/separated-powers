@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useActionStore,  useLawStore, notUpToDate } from "../../../context/store";
+import { useActionStore,  useLawStore, notUpToDate, setAction } from "../../../context/store";
 import { Button } from "@/components/Button";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { SectionText } from "@/components/StandardFonts";
@@ -21,10 +21,11 @@ type LawBoxProps = {
     dataType: DataType;
     }[]; 
   simulation?: LawSimulation;
-  executions?: Execution[];
+  selectedExecution?: Execution | undefined;
   status: Status; 
   error?: any;  
   // onChange: (input: InputType | InputType[]) => void;
+  onChange: () => void;
   onSimulate: (paramValues: (InputType | InputType[])[], description: string) => void;
   onExecute: (description: string) => void;
 };
@@ -38,7 +39,7 @@ const roleColour = [
   "border-orange-600", 
   "border-slate-600",
 ] 
-export function LawBox({checks, params, status, error, simulation, executions, onSimulate, onExecute}: LawBoxProps) {
+export function LawBox({checks, params, status, error, simulation, selectedExecution, onChange, onSimulate, onExecute}: LawBoxProps) {
   const action = useActionStore();
   const law = useLawStore(); 
   const dataTypes = params.map(param => param.dataType) 
@@ -46,32 +47,44 @@ export function LawBox({checks, params, status, error, simulation, executions, o
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
-  const [description, setDescription] = useState<string>("");
-  const selectedExecution = executions && executions.find(execution => execution.log.args?.description == description && execution.log.args?.lawCalldata == action.callData)
+  const [description, setDescription] = useState<string>(""); 
 
-  console.log("@LawBox:", {action, description, status, lawBoxStatus, checks, selectedExecution})
+  console.log("@LawBox:", {action, description, status, lawBoxStatus, checks, selectedExecution, paramValues})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     const currentInput = paramValues 
     currentInput[index] = input
     setParamValues(currentInput)
 
-    notUpToDate({})
+    onChange()
     setLawBoxStatus("idle")
   }
 
   useEffect(() => {
     try {
       const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), action.callData);
-      const valuesParsed = parseParamValues(values)  
+      const valuesParsed = parseParamValues(values) 
       setParamValues(valuesParsed)
       setDescription(action.description)
+    } catch(error) { 
+      setParamValues([])
+      console.error("Error decoding abi parameters at action calldata: ", error)
+    }  
+  }, [ ])
 
-    } catch {
-      notUpToDate({})
-      setDescription("")
+  useEffect(() => {
+    if(selectedExecution) {
+      try {
+        const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), selectedExecution.log.args.lawCalldata);
+        const valuesParsed = parseParamValues(values) 
+        setParamValues(valuesParsed)
+        setDescription(selectedExecution.log.args.description)
+      } catch(error) { 
+        setParamValues([])
+        console.error("Error decoding abi parameters at Selected Executions: ", error)
+      }  
     }
-  }, [ , action.callData, action.description])
+  }, [ selectedExecution ])
 
   return (
     <main className="w-full h-full">
@@ -139,12 +152,12 @@ export function LawBox({checks, params, status, error, simulation, executions, o
                 id="reason" 
                 rows={5} 
                 cols ={60} 
-                value={description}
+                value={ description}
                 className="min-w-0 p-1 ps-0 w-full text-sm text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0" 
                 placeholder="Describe reason for action here."
                 onChange={(event) => {{
                   setDescription(event.target.value); 
-                  notUpToDate({})
+                  onChange()
                   }}} />
             </div>
         </div>
@@ -166,7 +179,6 @@ export function LawBox({checks, params, status, error, simulation, executions, o
             selected={true}
             onClick={(event) => {
               event.preventDefault() 
-              setLawBoxStatus("pending")
               onSimulate(paramValues, description)
             }} 
             statusButton={
@@ -193,7 +205,7 @@ export function LawBox({checks, params, status, error, simulation, executions, o
             filled={false}
             selected={true}
             statusButton={
-              action.upToDate && checks.allPassed ? status : 'disabled' 
+              action.upToDate && checks.allPassed && !error ? status : 'disabled' 
               }> 
             Execute
           </Button>

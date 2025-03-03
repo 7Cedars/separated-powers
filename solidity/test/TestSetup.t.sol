@@ -147,7 +147,7 @@ abstract contract TestHelpers is Test, TestVariables {
 
     function distributeNFTs(address erc721Mock, address[] memory accounts, uint256 randomiser, uint256 density) public {
         uint256 currentRandomiser;
-        randomiser = bound(randomiser, 10, 100_000_000);
+        randomiser = bound(randomiser, 10, 100 * 10 ** 18);
         for (uint256 i = 0; i < accounts.length; i++) {
             if (currentRandomiser < 10) {
                 currentRandomiser = randomiser;

@@ -625,7 +625,7 @@ contract ConstitutionsMock is Test {
             lawConfig, // empty config file.
             // bespoke configs for this law:
             50, // start vote in block number
-            150 // end vote in block number.
+            75 // end vote in block number.
         );
         laws[4] = address(law);
         delete lawConfig; 
