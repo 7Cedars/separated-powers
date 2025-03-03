@@ -13,9 +13,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 ///
-/// @notice Types used in the Powersprotocol. Code derived from OpenZeppelin's Governor.sol contract.
+/// @notice Types used in the Powers protocol. Code derived from OpenZeppelin's Governor.sol contract.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
 interface PowersTypes {

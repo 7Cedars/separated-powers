@@ -12,30 +12,30 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-/// @title Separated Powers Protocol v.0.2
-/// @notice Separated Powers is a Role Restricted Governance Protocol. It provides a flexible, decentralised, efficient and secure governance engine for DAOs.
+/// @title Powers Protocol v.0.2
+/// @notice Powers is a Role Restricted Governance Protocol. It provides a modular, flexible, decentralised and efficient governance engine for DAOs.
 ///
-/// @dev This contract is the core protocol. It is meant to be used in combination with implementations of {Law.sol}. It should be used as is, inheriting this contract should be avoided.
+/// @dev This contract is the core engine of the protocol. It is meant to be used in combination with implementations of {Law.sol}. The contract should be used as is, making changes to this contract should be avoided.
 /// @dev Code is derived from OpenZeppelin's Governor.sol and AccessManager contracts, in addition to Haberdasher Labs Hats protocol.
-/// @dev The protocol mirrors Governor.sol and AccessManager as closely as possible. It will, eventually, also be compatible with the Hats protocol.
+/// @dev Compatibility with Governor.sol, AccessManager and the Hats protocol is high on the priority list.
 ///
 /// Note several key differences from openzeppelin's {Governor.sol}.
 /// 1 - Any DAO action needs to be encoded in role restricted external contracts, or laws, that follow the {ILaw} interface.
 /// 2 - Proposing, voting, cancelling and executing actions are role restricted along the target law that is called.
-/// 3 - All DAO actions need to run through the governance protocol. Calls to laws that do not need a proposal vote to be executed, still need to be executed through the {execute} function of the core protocol.
+/// 3 - All DAO actions need to run through the governance flow provided by Powers.sol. Calls to laws that do not need a proposal vote, for instance, still need to be executed through the {execute} function.
 /// 4 - The core protocol uses a non-weighted voting mechanism: one account has one vote.
-/// 5 - The core protocol is minimalistic. Any complexity (timelock, delayed execution, guardian roles, weighted votes, staking, etc.) has to be integrated through laws.
+/// 5 - The core protocol is intentionally minimalistic. Any complexity (timelocks, delayed execution, guardian roles, weighted votes, staking, etc.) has to be integrated through laws.
 ///
-/// For example implementations of DAOs, see the implementations/daos folder.
+/// For example implementations of DAOs, see the `Deploy...` files in the /script folder.
 ///
 /// Note This protocol is a work in progress. A number of features are planned to be added in the future.
-/// - Integration with, or support for OpenZeppelin's {Governor.sol}. This would mean the protocol can be used in combination websites such as Tally.xyz.
-/// - Integration with, or support for, the Hats Protocol.
+/// - Integration with, or support for OpenZeppelin's {Governor.sol} and Compound's {GovernorBravo.sol}. The same holds for the Hats Protocol.
+/// - Implementation of a nonce mechanism for proposals.  
 /// - Native support for multi-chain governance.
 /// - Gas efficiency improvements.
 /// - Support for EIP-6372 {clock()} for timestamping governance processes.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+/// @author 7Cedars, 
 
 pragma solidity 0.8.26;
 

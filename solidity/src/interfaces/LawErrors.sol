@@ -14,8 +14,9 @@
 
 /// @notice Errors used in {Law.sol}.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
-
+/// @dev Errors in implementations of law.sol have to use strings (as in revert("this is an error") instead of using custom function, to allow errors to bubble up.)  
+/// @author 7Cedars
+/// 
 pragma solidity 0.8.26;
 
 interface LawErrors {

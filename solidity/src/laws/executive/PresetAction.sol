@@ -15,9 +15,9 @@
 /// @notice A base contract that executes a preset action.
 ///
 /// The logic:
-/// - anythe lawCalldata includes a single bool. If the bool is set to true, it will aend the present calldatas to the execute function of the Powersprotocol.
+/// - anythe lawCalldata includes a single bool. If the bool is set to true, it will aend the present calldatas to the execute function of the Powers protocol.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+/// @author 7Cedars, 
 
 pragma solidity 0.8.26;
 

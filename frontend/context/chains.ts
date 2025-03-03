@@ -26,8 +26,8 @@ export const supportedChains: ChainProps[] = [
     blockTimeInSeconds: 12, // NB: this is the block time of mainnet because on arbitrum One & Arbitrum sepolia 'block.number' returns the block number of L1 *mainnet* not of the L2! . 
     // ps. when using wagmi's 'getBlock' or 'useBlock' you DO get timestamps based on the L2 blocks. That's just to make thinks simpler :/  
     organisations: [
-      "0x19c74F72de42701c6726Fc5780771f274fE804BB", // basicDao 
-      "0xB0D3356A729a88A64B1055B0798a10A35127621a", // alignedDao
+      "0x78b2efc502847B01e78dcaE37D567494E32D41db", // basicDao 
+      "0xF24616397112216b1534624828466D534DF1541D", // alignedDao
       "0xd0139788ed1dbd1B974C817Cd6B5bDac546D6d24", // govern Your Tax
       // "0x0181A03C24183eA8F6469C88362B0958ACc474Ce" // diversified roles
     ],
@@ -43,9 +43,9 @@ export const supportedChains: ChainProps[] = [
       `0xCd5261356706Fd4D8f417F9BffB9dBE575CaE996`, // stEth 
       // what follows or mock token contracts used by the example organisations
       `0x944404274973c5536e7C1dc2084fe905aDB8c0ed`, // ERC20TaxedMock - govern your tax 
-      `0xa42eBa397054882F651457E7816035A466A28756`, // ERC20VotesMock - basic DAO
-      `0xA334A98A6c20B07fc50e5D4D90f5dec310a11D89`, // ERC20VotesMock - aligned DAO
-      `0xD23F8ce01e2004765EA92C071e0BB1CB99ed3D1e`, // ERC20TaxedMock - aligned DAO
+      `0x263Bd26E88e6E0fccE33F9cD464664770050973e`, // ERC20VotesMock - basic DAO
+      `0xF59e2f5932Aa8a4402285F11184C890a3cbEF0dc`, // ERC20VotesMock - aligned DAO
+      `0xBDD1a04A49D1755B76344e19646C34BC92F04d39`, // ERC20TaxedMock - aligned DAO
     ], 
     erc721s: [
       `0x535a7772dC1e3B3a5Fe25b7727546110468AbCf3`, // Mock

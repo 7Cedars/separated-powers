@@ -17,7 +17,7 @@
 /// Note 1: as of now, it only allows for a single function to be called.
 /// Note 2: as of now, it does not allow sending of ether values to the target function.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+/// @author 7Cedars, 
 
 pragma solidity 0.8.26;
 

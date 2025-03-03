@@ -4,7 +4,7 @@ pragma solidity 0.8.26;
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 /**
- * @dev Mock ERC1155 contract for use in DAO example implementations of the Powersprotocol.
+ * @dev Mock ERC1155 contract for use in DAO example implementations of the Powers protocol.
  *
  */
 contract Erc1155Mock is ERC1155 {

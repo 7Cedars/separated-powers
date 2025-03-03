@@ -20,6 +20,8 @@ export function AssetList() {
   const {status, error, tokens, native, initialise, update, fetchTokens} = useAssets()
 
   useEffect(() => {
+    if (supportedChain)
+      // fetchTokens(supportedChain?.erc20s, supportedChain?.erc721s, supportedChain?.erc1155s)
     initialise() 
   }, [])
 

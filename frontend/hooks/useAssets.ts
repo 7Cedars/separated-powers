@@ -204,8 +204,8 @@ export const useAssets = () => {
         // NOTE: at the moment I only save the Erc20s. I might change this later. 
         
         const erc20s: Token[] | undefined = await fetchErc20Or721(erc20, "erc20")
-        const erc721s: Token[] | undefined =  await fetchErc20Or721(erc721, "erc721")
-        const erc1155s: Token[] | undefined = await fetchErc1155(erc1155)
+        // const erc721s: Token[] | undefined =  await fetchErc20Or721(erc721, "erc721")
+        // const erc1155s: Token[] | undefined = await fetchErc1155(erc1155)
 
         if (erc20s) {
           const fetchedTokens = [...erc20s]

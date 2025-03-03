@@ -5,7 +5,7 @@
 /// it under the terms of the MIT Public License.                           ///
 ///                                                                         ///
 /// This is a Proof Of Concept and is not intended for production use.      ///
-/// Tests are incomplete and it contracts have not been audited.            ///
+/// Tests are incomplete and its contracts have not been audited.           ///
 ///                                                                         ///
 /// It is distributed in the hope that it will be useful and insightful,    ///
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
@@ -13,26 +13,26 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 /// @title Law.sol v.0.2
-/// @notice Base implementation of a Law in the Powersprotocol. Meant to be inherited by law implementations.
+/// @notice Base implementation of a Law in the Powers protocol. Meant to be inherited by law implementations.
 ///
-/// @dev Laws are role restricted contracts that are executed by the core Powersprotocol. The provide the following functionality:
-/// 1 - Role restricting DAO actions
+/// @dev Laws are role restricted contracts that are executed by the Powers.sol. The provide the following functionality:
+/// 1 - Role restricting a community's actions
 /// 2 - Transforming a {lawCalldata) input into an output of targets[], values[], calldatas[] to be executed by the core protocol.
-/// 3 - Adding conditions to execution of the law, such as a proposal vote, a completed parent law or a delay. Any logic can be added.
+/// 3 - Saving a the state of a community.
+/// 4 - Adding conditions to the creation of proposals for and/or execution of the law.
+/// 5 - Prior to changing state and returning output data, all checks are run. 
 ///
-/// A number of law settings are set through the {setLawConfig} function:
-/// - a required role restriction.
-/// - optional configurations of the law, such as
-///     - a vote quorum needed to execute the law.
-///     - a vote threshold.
-///     - a vote period.
-///     - a parent law that needs to be completed before the law can be executed.
-///     - a parent law that needs to NOT be completed before the law can be executed.
-///     - a vote delay: an amount of time in blocks that needs to have passed since the proposal vote ended before the law can be executed.
-///     - a minimum amount of blocks that need to have passed since the previous execution before the law can be executed again.
-/// It is possible to add additional checks if needed.
+/// Laws can be adapted through the following ways: 
+/// - By inheriting and changing the implementing of the {simulateLaw} function.
+/// - By changing setting of the {config} variable in the constructor.
+/// - By changing any other (bespoke) parameters in the constructor.
+/// Combined, they allow for a wide range of executive, legislative and electoral logics to be implemented.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+/// To enable front end UIs to dynamically generate UIs to interact with laws a `paramsInput` and `stateVars` variable are included.
+/// - paramsInput: an abi.encoded array of strings that denote the input parameters. 
+/// - stateVars: an abi.encoded array of strings that denote the variables that are saved in state. 
+///
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
 import { Powers} from "./Powers.sol";
@@ -82,7 +82,7 @@ contract Law is ERC165, ILaw {
         emit Law__Initialized(address(this), powers, name_, description, allowedRole, config);
     }
 
-    /// note this is the function that is called by the Powersprotocol. It always runs checks before execution of law logic.
+    /// note this is the function that is called by the Powers protocol. It always runs checks before execution of law logic.
     /// @inheritdoc ILaw
     function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public

@@ -13,10 +13,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 ///
-/// @notice Interface for the Powersprotocol.
+/// @notice Interface for the Powers protocol.
 /// Code derived from OpenZeppelin's Governor.sol contract.
 ///
-/// @author 7Cedars, Oct 2024, RnDAO CollabTech Hackathon
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
 import { PowersErrors } from "./PowersErrors.sol";
@@ -47,7 +47,7 @@ interface IPowers is PowersErrors, PowersEvents, PowersTypes {
     /// @dev note: the arrays of targets, values and calldatas must have the same length.
     ///
     /// Note any references to proposals (as in OpenZeppelin's {Governor} contract are removed.
-    /// The mechanism of Powersdetaches proposals from execution logic.
+    /// The mechanism of Powers detaches proposals from execution logic.
     /// Instead, proposal checks are placed in the {Law::executeLaw} function.
     function execute(address targetLaw, bytes memory lawCalldata, string memory description) external payable;
 

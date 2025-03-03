@@ -14,15 +14,15 @@
 
 /// @notice A base contract that executes a open action.
 ///
-/// Note As the contract allows for any action to be executed, it severely limits the functionality of the Powersprotocol.
+/// Note As the contract allows for any action to be executed, it severely limits the functionality of the Powers protocol.
 /// - any role that has access to this law, can execute any function. It has full power of the DAO.
 /// - if this law is restricted by PUBLIC_ROLE, it means that anyone has access to it. Which means that anyone is given the right to do anything through the DAO.
 /// - The contract should always be used in combination with modifiers from {PowerModiifiers}.
 ///
 /// The logic:
-/// - any the lawCalldata includes targets[], values[], calldatas[] - that are send straight to the Powersprotocol. without any checks.
+/// - any the lawCalldata includes targets[], values[], calldatas[] - that are send straight to the Powers protocol. without any checks.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+/// @author 7Cedars, 
 
 pragma solidity 0.8.26;
 

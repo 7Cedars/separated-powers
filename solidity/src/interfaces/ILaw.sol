@@ -12,11 +12,10 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-///
-/// @notice Events used in the Powersprotocol.
+/// @notice Events used in the Powers protocol.
 /// Code derived from OpenActionZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+/// @author 7Cedars
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
 import { LawErrors } from "./LawErrors.sol";
 
@@ -54,7 +53,7 @@ interface ILaw is IERC165, LawErrors {
     /// note it calls the simulateLaw function and adds checks to ensure that the law is valid before execution.
     /// note that this function cannot be overwritten: powers will _always_ run checks before executing legal logic included in simulate law.
     ///
-    /// @dev the arrays of targets, values and calldatas must have the same length.
+    /// @dev the output arrays of targets, values and calldatas must have the same length.
     function executeLaw(address initiator, bytes memory lawCallData, bytes32 descriptionHash)
         external
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas);

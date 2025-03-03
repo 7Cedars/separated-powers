@@ -13,10 +13,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 ///
-/// @notice Events used in the Powersprotocol.
+/// @notice Events used in the Powers protocol.
 /// Code derived from OpenZeppelin's Governor.sol contract and Haberdasher Labs Hats protocol.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
 interface PowersEvents {

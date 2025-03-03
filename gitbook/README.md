@@ -8,7 +8,7 @@ description: >-
 
 🚧 **Documentation is under construction** 🚧
 
-## What is it
+## What is it 
 
 The Powers Protocol is a role restricted governance protocol.
 

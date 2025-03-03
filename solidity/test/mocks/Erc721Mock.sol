@@ -5,7 +5,7 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @dev Mock ERC721 contract for use in DAO example implementations of the Powersprotocol.
+ * @dev Mock ERC721 contract for use in DAO example implementations of the Powers protocol.
  * IMPORTANT: This is a non-transferable NFT!
  * Note Natspecs WIP.
  */
