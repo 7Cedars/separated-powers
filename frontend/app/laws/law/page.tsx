@@ -32,30 +32,30 @@ const Page = () => {
   const params =  bytesToParams(data as `0x${string}`)  
   const dataTypes = params.map(param => param.dataType) 
 
-  console.log( "Law page: ", {executions, errorUseLaw, checks, law, status, errorInputParams})
+  // console.log( "Law page: ", {executions, errorUseLaw, checks, law, status, errorInputParams})
 
   const handleSimulate = async (paramValues: (InputType | InputType[])[], description: string) => {
-      console.log("Handle Simulate called:", {paramValues, description})
+      // console.log("Handle Simulate called:", {paramValues, description})
 
       setError("")
       let lawCalldata: `0x${string}` | undefined
-      console.log("Handle Simulate waypoint 1") 
+      // console.log("Handle Simulate waypoint 1") 
       if (paramValues.length > 0 && paramValues) {
         try {
-          console.log("Handle Simulate waypoint 2a") 
+          // console.log("Handle Simulate waypoint 2a") 
           lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), paramValues); 
 
         } catch (error) {
-          console.log("Handle Simulate waypoint 2b") 
+          // console.log("Handle Simulate waypoint 2b") 
           setError(error as Error)
         }
       } else {
-        console.log("Handle Simulate waypoint 2c") 
+        // console.log("Handle Simulate waypoint 2c") 
         lawCalldata = '0x0'
       }
         // resetting store
       if (lawCalldata) { 
-        console.log("Handle Simulate waypoint 3:", {lawCalldata, dataTypes, paramValues, description}) 
+        // console.log("Handle Simulate waypoint 3:", {lawCalldata, dataTypes, paramValues, description}) 
         setAction({
           dataTypes: dataTypes,
           paramValues: paramValues,
@@ -65,7 +65,7 @@ const Page = () => {
         })
         
 
-        console.log("Handle Simulate called, action updated?", {action})
+        // console.log("Handle Simulate called, action updated?", {action})
 
         // simulating law. 
         fetchSimulation(
@@ -112,12 +112,12 @@ const Page = () => {
 
 
   return (
-    <main className="w-full h-full flex flex-col justify-start items-center gap-2 px-4 pt-16 overflow-x-scroll">
+    <main className="w-full h-full flex flex-col justify-start items-center gap-2 pt-16 overflow-x-scroll">
       <div className = "h-fit w-full mt-2">
         <GovernanceOverview law = {law} /> 
       </div>
       {/* main body  */}
-      <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-end items-start">
+      <section className="w-full px-4 lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-end items-start">
 
         {/* left panel: writing, fetching data is done here  */}
         <div className="lg:w-5/6 max-w-3xl w-full flex my-2 pb-16 min-h-fit"> 

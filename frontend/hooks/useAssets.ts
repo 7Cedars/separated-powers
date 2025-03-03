@@ -66,7 +66,7 @@ export const useAssets = () => {
               decimalParsed = decimal as bigint
             }
 
-            console.log("@useAssets:", {nameParsed, symbolParsed, balanceParsed, decimalParsed})
+            // console.log("@useAssets:", {nameParsed, symbolParsed, balanceParsed, decimalParsed})
 
             // NB! still need to include a conditional decimal check for ERC20s. 
 
@@ -91,7 +91,7 @@ export const useAssets = () => {
               })
             }
 
-            console.log("@useAssets:", {tokens, nameParsed, symbolParsed, balanceParsed, decimalParsed, type})
+            // console.log("@useAssets:", {tokens, nameParsed, symbolParsed, balanceParsed, decimalParsed, type})
               
            } 
          } catch (error) {
@@ -199,7 +199,7 @@ export const useAssets = () => {
         setError(null)
         setStatus("pending")
 
-        console.log("@useAssets, fetchTokens called:", {erc20, erc721, erc1155})
+        // console.log("@useAssets, fetchTokens called:", {erc20, erc721, erc1155})
 
         // NOTE: at the moment I only save the Erc20s. I might change this later. 
         
@@ -212,7 +212,7 @@ export const useAssets = () => {
           // order by balance (I can order by value as a second step later) 
           fetchedTokens.sort((a: Token, b: Token) => a.balance > b.balance ? 1 : -1)
 
-          console.log("@useAssets, fetchedTokens:", {fetchedTokens})
+          // console.log("@useAssets, fetchedTokens:", {fetchedTokens})
 
           setTokens(fetchedTokens) 
           localStorage.setItem("powersProtocol_savedTokens", JSON.stringify(fetchedTokens, (key, value) =>

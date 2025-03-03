@@ -47,10 +47,10 @@ contract StartGrant is Law {
         );
         stateVars = inputParams; // Note: stateVars == inputParams.
 
-        // note: the configuration of grants is set here inside the law itself. .
+        // note: the configuration of grants is set here inside the law itself...
         configNewGrants.quorum = 80;
         configNewGrants.succeedAt = 66;
-        configNewGrants.votingPeriod = 1200;
+        configNewGrants.votingPeriod = 25;
         configNewGrants.needCompleted = proposals;
     }
 

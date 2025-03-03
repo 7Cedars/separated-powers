@@ -65,7 +65,7 @@ export const useChecks = () => {
     async (description: string, calldata: `0x${string}`, stateToCheck: number[], law: Law) => {
       const selectedProposal = checkProposalExists(description, calldata, law)
 
-      console.log("@checkProposalStatus: ", {selectedProposal})
+      // console.log("@checkProposalStatus: ", {selectedProposal})
     
       if (selectedProposal) {
         try {
@@ -117,7 +117,7 @@ export const useChecks = () => {
                         logs
                       })
             const fetchedLogsTyped = fetchedLogs as unknown[] as LogExtended[]  
-            console.log({fetchedLogsTyped})
+            // console.log({fetchedLogsTyped})
             return (
               fetchedLogsTyped.sort((a: LogExtended, b: LogExtended) => (
                 a.blockNumber ? Number(a.blockNumber) : 0

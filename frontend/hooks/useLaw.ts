@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { lawAbi, powersAbi } from "../context/abi";
-import { Status, LawSimulation, Execution } from "../context/types"
+import { Status, LawSimulation, Execution, LogExtended } from "../context/types"
 import { getBlock, writeContract } from "@wagmi/core";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { useChainId, useWaitForTransactionReceipt } from "wagmi";
@@ -77,7 +77,7 @@ export const useLaw = () => {
                   })
                   if (fetchedBlockData) {
                     executions2.push({
-                      log: log, 
+                      log: log as LogExtended, 
                       blocksData: {...fetchedBlockData, chainId: sepolia.id} 
                     })
                   }
@@ -98,7 +98,7 @@ export const useLaw = () => {
     async (initiator: `0x${string}`, lawCalldata: `0x${string}`, description: string) => {
       setError(null)
       setStatus("pending")
-      console.log("fetchSimulation:", {law})
+      // console.log("fetchSimulation:", {law})
       try {
         const result = await readContract(wagmiConfig, {
           abi: lawAbi,

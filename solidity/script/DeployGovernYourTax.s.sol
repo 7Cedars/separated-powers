@@ -55,7 +55,7 @@ contract DeployGovernYourTax is Script {
         vm.startBroadcast();
         Powers powers = new Powers(
             "Govern Your Tax", 
-            "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreihtd6rmehl3thl5bftqmu2xhzxsacv4x7r4q4wbpze2y5mfz3olrm");
+            "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreibcd4k5jmq3zpydwclgdmf3f2pkej24wlm5ufmq6x6t6yptdnubqm");
         Erc20TaxedMock erc20TaxedMock = new Erc20TaxedMock(
             10, // rate
             100, // denominator  
@@ -119,7 +119,7 @@ contract DeployGovernYourTax is Script {
         vm.startBroadcast();
         law = new StartGrant(
             "Start a grant program", // max 31 chars
-            "Subject to a vote, a grant program can be created. The token, budget and duration need to be specified, as well as the roleId (of the grant council) that will govern the grant.",
+            "Subject to a vote, a grant program can be created. In this case, roleIds for the grant councils are 4, 5 or 6. The token, budget and duration need to be specified, as well as the roleId (of the grant council) that will govern the grant.",
             dao_, // separated powers
             2, // access role
             lawConfig, // bespoke configs for this law.
@@ -238,7 +238,7 @@ contract DeployGovernYourTax is Script {
             string.concat(
                 "Anyone who has paid sufficient tax (by using the Dao's ERC20 token @", 
                 Strings.toHexString(uint256(addressToInt(mock20Taxed_)), 20), 
-                " can become a community member. The threshold is 100MCK tokens per 150 blocks. Tax rate is 10 percent(!) on each transaction and tokens can be minted at the contract's faucet function."
+                ") can become a community member. The threshold is 100MCK tokens per 150 blocks. Tax rate is 10 percent(!) on each transaction and tokens can be minted at the contract's faucet function."
                 ),
             dao_,
             type(uint32).max, // access role = public access
@@ -370,12 +370,13 @@ contract DeployGovernYourTax is Script {
             targets[i] = dao_;
         }
         calldatas[0] = abi.encodeWithSelector(Powers.assignRole.selector, 3, 0x328735d26e5Ada93610F0006c32abE2278c46211);
-        calldatas[1] = abi.encodeWithSelector(Powers.labelRole.selector, 1, "Member");
-        calldatas[2] = abi.encodeWithSelector(Powers.labelRole.selector, 2, "Governor");
+        calldatas[1] = abi.encodeWithSelector(Powers.assignRole.selector, 1, 0x328735d26e5Ada93610F0006c32abE2278c46211);
+        calldatas[2] = abi.encodeWithSelector(Powers.labelRole.selector, 1, "Member");
+        calldatas[3] = abi.encodeWithSelector(Powers.labelRole.selector, 2, "Governor");
         calldatas[4] = abi.encodeWithSelector(Powers.labelRole.selector, 3, "Security Council");
-        calldatas[5] = abi.encodeWithSelector(Powers.labelRole.selector, 4, "Grant Council A");
-        calldatas[6] = abi.encodeWithSelector(Powers.labelRole.selector, 5, "Grant Council B");
-        calldatas[7] = abi.encodeWithSelector(Powers.labelRole.selector, 6, "Grant Council C");
+        calldatas[5] = abi.encodeWithSelector(Powers.labelRole.selector, 4, "Grant Council #4");
+        calldatas[6] = abi.encodeWithSelector(Powers.labelRole.selector, 5, "Grant Council #5");
+        calldatas[7] = abi.encodeWithSelector(Powers.labelRole.selector, 6, "Grant Council #6");
  
         vm.startBroadcast();
         law = new SelfDestructPresetAction(

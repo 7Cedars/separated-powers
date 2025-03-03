@@ -49,7 +49,7 @@ export function LawBox({checks, params, status, error, simulation, selectedExecu
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>(""); 
 
-  console.log("@LawBox:", {action, description, status, lawBoxStatus, checks, selectedExecution, paramValues})
+  // console.log("@LawBox:", {action, description, status, lawBoxStatus, checks, selectedExecution, paramValues})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     const currentInput = paramValues 
