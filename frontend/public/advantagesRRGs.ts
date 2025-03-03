@@ -1,12 +1,5 @@
 export const advantagesRRGs = [
   {
-    advantage: "Composability",
-    examples: [
-      "Seamlessly integrates with existing protocols", 
-      "Role restricted governance protocols are fully interoperable", 
-    ]
-  }, 
-  {
     advantage: "Upgradability",
     examples: [
       "Fully upgradable",
@@ -46,6 +39,13 @@ export const advantagesRRGs = [
       "Diversify representation and boost community engagement" 
     ]
   },
+  {
+    advantage: "Composability",
+    examples: [
+      "Seamlessly integrates with existing protocols", 
+      "Role restricted governance protocols are fully interoperable", 
+    ]
+  }, 
   // {
   //   advantage: "Decentralisation",
   //   examples: [
