@@ -1,4 +1,4 @@
-# Deploy a demo organisation
+# Deploy Community Governance
 
 ## Deployment sequence
 
@@ -15,7 +15,7 @@ That's the short version.
 
 In reality, the sequence is a bit more complex because we always need to decide if we need to deploy additional protocols (for instance ERC20 tokens that will be controlled by laws), choose what laws to deploy and how to configure them.
 
-The good news for Foundry users is that it is relatively straightforward to deploy a fully fledged organization through a single script. See the following examples:
+The good news for Foundry users is that it is relatively straightforward to deploy a fully fledged community through a single script. See the following examples:
 
 * [https://github.com/7Cedars/separated-powers/blob/7Cedars/solidity/script/DeployBasicDao.s.sol](../../solidity/script/DeployBasicDao.s.sol)
 * [https://github.com/7Cedars/separated-powers/blob/7Cedars/solidity/script/DeployAlignedDao.s.sol](../../solidity/script/DeployAlignedDao.s.sol)
