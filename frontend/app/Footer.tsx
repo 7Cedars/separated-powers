@@ -14,26 +14,41 @@ export function Footer() {
                     <div className="font-bold"> 
                         DApp
                     </div>
-                    <div className="text-slate-500"> 
+                    <a
+                        href={`https://7cedars.gitbook.io/separated-powers/using-the-app`} target="_blank" rel="noopener noreferrer"
+                        className="text-slate-500"
+                    >
                         Docs
-                    </div>
-                    <div className="text-slate-500"> 
-                        Github repo 
-                    </div>
+                    </a>
+                    <a
+                        href={`https://github.com/7Cedars/separated-powers/tree/main/frontend`} target="_blank" rel="noopener noreferrer"
+                        className="text-slate-500"
+                    >
+                        Github repo
+                    </a>
                 </div>
                 <div className="flex flex-col gap-3 justify-start items-start">
                     <div className="font-bold"> 
                         Protocol
                     </div>
-                    <div className="text-slate-500"> 
+                    <a
+                        href={`https://7cedars.gitbook.io/powers-protocol`} target="_blank" rel="noopener noreferrer"
+                        className="text-slate-500"
+                    >
                         About
-                    </div>
-                    <div className="text-slate-500"> 
+                    </a>
+                    <a
+                        href={`https://7cedars.gitbook.io/powers-protocol`} target="_blank" rel="noopener noreferrer"
+                        className="text-slate-500"
+                    >
                         Docs
-                    </div>
-                    <div className="text-slate-500"> 
-                        Github repo 
-                    </div>
+                    </a>
+                    <a
+                        href={`https://github.com/7Cedars/separated-powers/tree/main/solidity`} target="_blank" rel="noopener noreferrer"
+                        className="text-slate-500"
+                    >
+                        Github repo
+                    </a>
                 </div>
             </div>
 
@@ -52,18 +67,30 @@ export function Footer() {
                 <p>by 7Cedars</p>
             </div>
             <div className="flex flex-row gap-2">
-                <div>
-                discord
-                </div>
-                <div>
-                mirror.xyz
-                </div>
-                <div>
-                telegram
-                </div>
-                <div>
-                twitter
-                </div>
+                <a
+                    href={`https://discordapp.com/users/1006928106487021638`} target="_blank" rel="noopener noreferrer"
+                    className="text-slate-500"
+                >
+                    discord
+                </a>
+                <a
+                    href={`https://mirror.xyz/7cedars.eth`} target="_blank" rel="noopener noreferrer"
+                    className="text-slate-500"
+                >
+                    mirror.xyz
+                </a>
+                <a
+                    href={`t.me/thd83`} target="_blank" rel="noopener noreferrer"
+                    className="text-slate-500"
+                >
+                    telegram
+                </a>
+                <a
+                    href={`https://github.com/7Cedars`} target="_blank" rel="noopener noreferrer"
+                    className="text-slate-500"
+                >
+                    github
+                </a>
             </div>
             </div>
         </div>

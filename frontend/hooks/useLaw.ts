@@ -141,7 +141,4 @@ export const useLaw = () => {
 
   return {status, error, executions, simulation, resetStatus, fetchSimulation, fetchExecutions, execute}
 }
-function hex(description: string) {
-  throw new Error("Function not implemented.");
-}
 

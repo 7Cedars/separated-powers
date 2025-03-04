@@ -12,7 +12,7 @@ export function AdvantagesRRG() {
               Advantages of Role Restricted Governance
           </div>
           <div className = "w-full flex justify-center items-center md:text-2xl text-xl py-4 text-slate-500 max-w-2xl text-center p-4 pb-20">
-              The Powers Protocol combines a governance engine with minimalistic modular contracts, or laws, to create a role restrict governance protocol.
+              The Powers protocol combines a governance engine with minimalistic modular contracts, or laws, to create a role restrict governance protocol.
           </div>
       </div>
 
@@ -39,7 +39,7 @@ export function AdvantagesRRG() {
       <div className = "w-full  max-w-4xl h-fit flex flex-row justify-center items-center items-center border border-slate-300 hover:border-slate-600 rounded-md bg-slate-100 text-center p-4"> 
           <div className="h-full w-fit flex flex-row"> 
             <a
-              href={`https://7cedars.gitbook.io/separated-powers`} target="_blank" rel="noopener noreferrer"
+              href={`https://7cedars.gitbook.io/powers-protocol`} target="_blank" rel="noopener noreferrer"
               className="w-full text-2xl text-slate-700 font-bold"
             >
               Read the documentation

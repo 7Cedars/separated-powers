@@ -25,11 +25,12 @@ export default function Page() {
             
                 {/* Title and subtitle */}
                 <section className="w-full h-fit flex flex-col justify-center items-center p-4 pt-20 pb-20">
-                    <div className = "w-full flex flex-col gap-1 justify-center items-center text-3xl sm:text-6xl font-bold text-slate-100 max-w-3xl text-center">
-                        Communities thrive with Powers Protocol  
+                    <div className = "w-full flex flex-col gap-2 justify-center items-center text-3xl sm:text-6xl text-slate-100 max-w-2xl text-center text-pretty">
+                        Communities thrive with 
+                        <b>Powers</b>  
                     </div>
-                    <div className = "w-full flex justify-center items-center text-xl sm:text-2xl py-4 text-slate-300 max-w-xl text-center p-4">
-                        Distribute power, increase security, transparency and efficiency with role restricted governance
+                    <div className = "w-full flex justify-center items-center text-xl sm:text-2xl py-4 text-slate-300 max-w-3xl text-center p-4">
+                        Distribute power, increase security, transparency and efficiency with role restricted governance of the Powers protocol.
                     </div>
                 </section> 
 

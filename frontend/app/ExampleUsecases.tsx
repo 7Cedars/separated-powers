@@ -24,7 +24,7 @@ export function ExampleUseCases() {
 
           <section className = "grow h-full w-full flex flex-col justify-center items-center" style = {{position: 'relative', width: '100%', height: '100%'}}> 
             <Image 
-                src={"/home2.png"} 
+                src={"/home.png"} 
                 className = "p-2 rounded-md" 
                 style={{objectFit: "contain", objectPosition: "center"}}
                 fill={true}
@@ -36,7 +36,7 @@ export function ExampleUseCases() {
 
         {/* use cases  */}
         <section 
-          className="grow w-screen min-h-fit h-full max-h-80 flex flex-row gap-10 justify-start items-center overflow-x-scroll overflow-y-hidden py-10 " 
+          className="grow w-screen min-h-fit h-full max-h-80 max-w-7xl flex flex-row gap-10 justify-start items-center overflow-x-scroll overflow-y-hidden py-10 " 
           >
             <div className = "h-20 " />
             {   

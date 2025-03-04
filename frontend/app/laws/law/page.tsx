@@ -5,14 +5,14 @@ import { LawBox } from "./LawBox";
 import { ChecksBox } from "./ChecksBox";
 import { Children } from "./Children";
 import { Executions } from "./Executions";
-import { notUpToDate, setAction, useActionStore, useLawStore, useOrgStore } from "@/context/store";
+import { deleteAction, notUpToDate, setAction, useActionStore, useLawStore, useOrgStore } from "@/context/store";
 import { useLaw } from "@/hooks/useLaw";
 import { useChecks } from "@/hooks/useChecks";
 import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
 import { lawAbi } from "@/context/abi";
 import { useReadContract } from "wagmi";
 import { bytesToParams, parseParamValues } from "@/utils/parsers";
-import { Execution, InputType } from "@/context/types";
+import { Execution, InputType, Law } from "@/context/types";
 import { useWallets } from "@privy-io/react-auth";
 import { GovernanceOverview } from "@/components/GovernanceOverview";
  
@@ -32,7 +32,7 @@ const Page = () => {
   const params =  bytesToParams(data as `0x${string}`)  
   const dataTypes = params.map(param => param.dataType) 
 
-  // console.log( "Law page: ", {executions, errorUseLaw, checks, law, status, errorInputParams})
+  console.log( "@Law page: ", {executions, errorUseLaw, checks, law, status, errorInputParams, action})
 
   const handleSimulate = async (paramValues: (InputType | InputType[])[], description: string) => {
       // console.log("Handle Simulate called:", {paramValues, description})
@@ -63,10 +63,8 @@ const Page = () => {
           callData: lawCalldata,
           upToDate: true
         })
-        
-
         // console.log("Handle Simulate called, action updated?", {action})
-
+        
         // simulating law. 
         fetchSimulation(
           wallets[0] ? wallets[0].address as `0x${string}` : '0x0', // needs to be wallet! 
@@ -86,19 +84,25 @@ const Page = () => {
       )
   };
 
-
   // resetting lawBox and fetching executions when switching laws:
   // note, as of now executions are not saved in memory & fetched every time. To do for later..  
   useEffect(() => {
-    // setExecutionSelected(false)
-    setAction({
-      ...action, 
-      upToDate: false
-    })
+    // console.log("useEffect triggered at Law page:", action.dataTypes, dataTypes)
+    const dissimilarTypes = action.dataTypes ? action.dataTypes.map((type, index) => type != dataTypes[index]) : [true] 
+    if (dissimilarTypes.find(type => type == true)) {
+      // console.log("useEffect triggered at Law page, action.dataTypes != dataTypes")
+      deleteAction({})
+    } else {
+      // console.log("useEffect triggered at Law page, action.dataTypes == dataTypes")
+      setAction({
+        ...action, 
+        upToDate: false
+      })
+    }
     fetchExecutions() 
     fetchChecks(law, action.callData, action.description)
     resetStatus()
-  }, [law])
+  }, [, law])
 
   // combining error messages. 
   useEffect(() => {

@@ -8,7 +8,7 @@ import { SectionText } from "@/components/StandardFonts";
 import { useChainId } from 'wagmi'
 import { decodeAbiParameters, parseAbiParameters, toHex } from "viem";
 import { parseLawError, parseParamValues, parseRole } from "@/utils/parsers";
-import { Checks, DataType, Execution, InputType, LawSimulation } from "@/context/types";
+import { Checks, DataType, Execution, InputType, Law, LawSimulation } from "@/context/types";
 import { DynamicInput } from "@/app/laws/law/DynamicInput";
 import { SimulationBox } from "@/components/SimulationBox";
 import { supportedChains } from "@/context/chains";
@@ -43,34 +43,36 @@ export function LawBox({checks, params, status, error, simulation, selectedExecu
   const action = useActionStore();
   const law = useLawStore(); 
   const dataTypes = params.map(param => param.dataType) 
-  const [lawBoxStatus, setLawBoxStatus] = useState<Status>() 
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
   const [description, setDescription] = useState<string>(""); 
 
-  // console.log("@LawBox:", {action, description, status, lawBoxStatus, checks, selectedExecution, paramValues})
+  console.log("@LawBox:", {law, action, description, status, checks, selectedExecution, paramValues, dataTypes})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     const currentInput = paramValues 
     currentInput[index] = input
     setParamValues(currentInput)
-
     onChange()
-    setLawBoxStatus("idle")
   }
 
   useEffect(() => {
-    try {
-      const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), action.callData);
-      const valuesParsed = parseParamValues(values) 
-      setParamValues(valuesParsed)
-      setDescription(action.description)
-    } catch(error) { 
-      setParamValues([])
-      console.error("Error decoding abi parameters at action calldata: ", error)
-    }  
-  }, [ ])
+    console.log("useEffect triggered at LawBox")
+      try {
+        const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), action.callData);
+        const valuesParsed = parseParamValues(values) 
+        if (dataTypes.length != valuesParsed.length) {
+          setParamValues(dataTypes.map(dataType => dataType == "string" ? [""] : [0]))
+        } else {
+          setParamValues(valuesParsed)
+          setDescription(action.description)
+        }
+      } catch(error) { 
+        setParamValues([])
+        // console.error("Error decoding abi parameters at action calldata: ", error)
+      }  
+  }, [ , law ])
 
   useEffect(() => {
     if(selectedExecution) {
@@ -81,7 +83,7 @@ export function LawBox({checks, params, status, error, simulation, selectedExecu
         setDescription(selectedExecution.log.args.description)
       } catch(error) { 
         setParamValues([])
-        console.error("Error decoding abi parameters at Selected Executions: ", error)
+        // console.error("Error decoding abi parameters at Selected Executions: ", error)
       }  
     }
   }, [ selectedExecution ])
