@@ -12,7 +12,9 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 
 /// @notice This contract assigns accounts to roles by the tokens that they hold.
 /// - At construction time, the following is set:
@@ -38,7 +40,7 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Powers} from "../../Powers.sol";
 import { NominateMe } from "../state/NominateMe.sol";
 import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
@@ -46,24 +48,22 @@ contract TokensSelect is Law {
     address private immutable ERC_1155_TOKEN;
     uint256 private immutable MAX_ROLE_HOLDERS;
     uint32 private immutable ROLE_ID;
-    address private immutable NOMINEES;
+    address private immutable nominees;
     address[] public electedAccounts;
 
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address payable erc1155Token_,
-        address nominees_,
         uint256 maxRoleHolders_,
         uint32 roleId_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         ERC_1155_TOKEN = erc1155Token_;
         MAX_ROLE_HOLDERS = maxRoleHolders_;
         ROLE_ID = roleId_;
-        NOMINEES = nominees_;
         stateVars = abi.encode("address[]");
     }
 
@@ -73,9 +73,10 @@ contract TokensSelect is Law {
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
-    {
+    {   
         // step 1: setting up array for revoking & assigning roles.
-        uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
+        address nominees = config.readStateFrom;  
+        uint256 numberNominees = NominateMe(nominees).nomineesCount();
         uint256 numberElected = electedAccounts.length;
         uint256 arrayLength =
             numberNominees < MAX_ROLE_HOLDERS ? numberElected + numberNominees : numberElected + MAX_ROLE_HOLDERS;
@@ -88,27 +89,27 @@ contract TokensSelect is Law {
         accountElects = new address[](numberNominees < MAX_ROLE_HOLDERS ? numberNominees : MAX_ROLE_HOLDERS);
 
         for (uint256 i; i < arrayLength; i++) {
-            targets[i] = separatedPowers;
+            targets[i] = powers;
         }
 
         // step 2: calls to revoke roles of previously elected accounts & delete array that stores elected accounts.
         for (uint256 i; i < numberElected; i++) {
-            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, electedAccounts[i]);
+            calldatas[i] = abi.encodeWithSelector(Powers.revokeRole.selector, ROLE_ID, electedAccounts[i]);
         }
 
         // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
         if (numberNominees < MAX_ROLE_HOLDERS) {
             for (uint256 i; i < numberNominees; i++) {
-                address accountElect = NominateMe(NOMINEES).nomineesSorted(i);
+                address accountElect = NominateMe(nominees).nomineesSorted(i);
                 calldatas[i + numberElected] =
-                    abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
+                    abi.encodeWithSelector(Powers.assignRole.selector, ROLE_ID, accountElect);
                 accountElects[i] = accountElect;
             }
             // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
         } else {
             address[] memory _nomineesSorted = new address[](numberNominees);
             for (uint256 i; i < numberNominees; i++) {
-                _nomineesSorted[i] = NominateMe(NOMINEES).nomineesSorted(i);
+                _nomineesSorted[i] = NominateMe(nominees).nomineesSorted(i);
             }
             uint256[] memory _balances =
                 ERC1155(ERC_1155_TOKEN).balanceOfBatch(_nomineesSorted, new uint256[](numberNominees));
@@ -129,7 +130,7 @@ contract TokensSelect is Law {
                 // 3: assigning role if rank is less than MAX_ROLE_HOLDERS.
                 if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberElected) {
                     calldatas[index + numberElected] =
-                        abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nomineesSorted[i]);
+                        abi.encodeWithSelector(Powers.assignRole.selector, ROLE_ID, _nomineesSorted[i]);
                     accountElects[i] = _nomineesSorted[i];
                     index++;
                 }

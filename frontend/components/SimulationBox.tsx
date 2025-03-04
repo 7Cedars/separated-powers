@@ -7,13 +7,15 @@ import { useLaw } from "@/hooks/useLaw";
 import { bytesToParams, parseParamValues } from "@/utils/parsers";
 import { decodeAbiParameters, parseAbiParameters } from "viem";
 import { LawSimulation } from "@/context/types";
+import { useLawStore } from "@/context/store";
 
 type SimulationBoxProps = {
   simulation: LawSimulation | undefined;
 };
 
 export const SimulationBox = ({simulation}: SimulationBoxProps) => {
-  const {status, error, law, checks, resetStatus, execute, fetchSimulation, fetchChecks} = useLaw();
+  const law = useLawStore(); 
+  const {status, error, resetStatus, execute, fetchSimulation} = useLaw();
   const [jsxSimulation, setJsxSimulation] = useState<React.JSX.Element[][]> ([]); 
   const { data, isLoading, isError, error: stateVarsError } = useReadContract({
         abi: lawAbi,
@@ -45,7 +47,7 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
       }
     }  
   
-    if (simulation) {
+    if (simulation && simulation[3] && simulation[3] != "0x") {
         const stateVars = dataTypes.length > 0 ? decodeAbiParameters(parseAbiParameters(dataTypes.toString()), simulation[3]) : [];
         const stateVarsParsed = parseParamValues(stateVars)
         for (let i = 0; i < stateVarsParsed.length; i++) {
@@ -73,7 +75,7 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
           <div className="w-full text-xs text-center text-slate-500 p-2 ">
             State variables to be saved in law 
           </div>
-          <div className="w-full max-w-2xl h-fit overflow-scroll">
+          <div className="w-full h-fit overflow-scroll">
             <table className="table-auto w-full ">
               <thead className="w-full border-b border-slate-300">
                 <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500">
@@ -95,7 +97,7 @@ export const SimulationBox = ({simulation}: SimulationBoxProps) => {
         <div className="w-full text-xs text-center text-slate-500 p-2 ">
           Calldata to be send to protocol 
         </div>
-        <div className="w-full max-w-2xl h-fit overflow-scroll">
+        <div className="w-full h-fit overflow-scroll">
           <table className="table-auto w-full ">
             <thead className="w-full border-b border-slate-300">
               <tr className="w-96 bg-slate-50 text-xs font-light text-left text-slate-500">

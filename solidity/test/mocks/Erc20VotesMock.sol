@@ -9,9 +9,11 @@ contract Erc20VotesMock is ERC20Votes {
     error Erc20VotesMock__NoZeroAmount();
     error Erc20VotesMock__AmountExceedsMax(uint256 amount, uint256 maxAmount);
 
-    uint256 constant MAX_AMOUNT_VOTES_TO_MINT = 100_000_000;
+    uint256 constant MAX_AMOUNT_VOTES_TO_MINT = 100 * 10 ** 18;
 
-    constructor() ERC20("mock", "MOCK") EIP712("mock", "0.1") { }
+    constructor() ERC20("mock", "MOCK") EIP712("mock", "0.1") { 
+        _mint(msg.sender, 1 * 10 ** 18); // start with one million tokens for DAO. 
+    }
 
     // a public non-restricted function that allows anyone to mint coins. Only restricted by max allowed coins to mint.
     function mintVotes(uint256 amount) public {

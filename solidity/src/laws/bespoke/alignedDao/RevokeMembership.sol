@@ -12,17 +12,16 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
-
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
-import { SeparatedPowers } from "../../../SeparatedPowers.sol";
+import { Powers} from "../../../Powers.sol";
 import { Erc721Mock } from "../../../../test/mocks/Erc721Mock.sol";
 
 contract RevokeMembership is Law {
-    error RevokeMembership__IsNotMember();
-
     uint32 constant ROLE_ID = 1;
 
     address public erc721Token;
@@ -30,11 +29,11 @@ contract RevokeMembership is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address erc721Token_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode("uint256 TokenId", "address Account"); // tokenId, account
         erc721Token = erc721Token_;
     }
@@ -55,8 +54,8 @@ contract RevokeMembership is Law {
         stateChange = abi.encode("");
 
         // action 0: revoke role member in Separated powers
-        targets[0] = separatedPowers;
-        calldatas[0] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, account);
+        targets[0] = powers;
+        calldatas[0] = abi.encodeWithSelector(Powers.revokeRole.selector, ROLE_ID, account);
 
         // action 1: burn the access token of the member, so they cannot become member again.
         targets[1] = erc721Token;

@@ -8,15 +8,16 @@ import { useRouter } from "next/navigation";
 import { Roles, Status } from "@/context/types";
 import { parseRole } from "@/utils/parsers";
 import { publicClient } from "@/context/clients";
-import { separatedPowersAbi } from "@/context/abi";
+import { powersAbi } from "@/context/abi";
 import { readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { setRole } from "@/context/store"
 import { useOrganisations } from "@/hooks/useOrganisations";
+import { bigintToRole } from "@/utils/bigintToRole";
 
 export function RoleList() {
   const organisation = useOrgStore();
-  const { organisations, status: statusUpdate, initialise, fetch, update } = useOrganisations()
+  const { status: statusUpdate, updateOrg } = useOrganisations()
   const router = useRouter();
 
   const [status, setStatus] = useState<Status>('idle')
@@ -25,11 +26,11 @@ export function RoleList() {
 
   const fetchRoleHolders = useCallback(
     async (roleIds: bigint[]) => {
-      let roleId: number; 
+      let roleId: bigint; 
       let rolesFetched: Roles[] = []; 
       let lawsFetched: number[]; 
 
-      const roleIdsParsed = roleIds.map(roleId => Number(roleId))
+      const roleIdsParsed = roleIds.map(roleId => roleId)
 
       setError(null)
       setStatus("pending")
@@ -38,7 +39,7 @@ export function RoleList() {
         try {
           for await (roleId of roleIdsParsed) {
             const fetchedRoleHolders = await readContract(wagmiConfig, {
-              abi: separatedPowersAbi,
+              abi: powersAbi,
               address: organisation.contractAddress,
               functionName: 'getAmountRoleHolders', 
               args: [roleId]
@@ -63,13 +64,13 @@ export function RoleList() {
   return (
     <div className="w-full flex flex-col justify-start items-center">
       {/* table banner  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 mt-2 py-4 px-6 rounded-t-md">
+      <div className="w-full min-h-16 flex flex-row gap-3 justify-between items-center bg-slate-50 border slate-300 px-6 rounded-t-md">
         <div className="text-slate-900 text-center font-bold text-lg">
           Roles
         </div>
         <button 
           className="w-fit h-fit p-1 rounded-md border-slate-500"
-          onClick = {() => update(organisation)}
+          onClick = {() => updateOrg(organisation)}
           >
             <ArrowPathIcon
               className="w-5 h-5 text-slate-800 aria-selected:animate-spin"
@@ -88,11 +89,13 @@ export function RoleList() {
         </thead>
         <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200 border-t-0 border-slate-200 rounded-b-md">
           {
-            roles?.map((role: Roles) =>
-              <tr>
-                <td className="flex flex-col justify-center items-start text-left rounded-bl-md px-2 py-2 w-fit">
+            roles?.map((role: Roles, i: number) =>
+              <tr key = {i}>
+                <td className="flex flex-col w-full max-w-60 min-w-40 justify-center items-start text-left rounded-bl-md px-4 py-3 w-fit">
                  <Button
-                    showBorder={false}
+                    showBorder={true}
+                    selected={true}
+                    filled={true}
                     role={parseRole(BigInt(role.roleId))}
                     onClick={() => {
                       setRole(role);
@@ -100,14 +103,10 @@ export function RoleList() {
                     }}
                     align={0}
                   >
-                  { 
-                    role.roleId == 0 ? "Admin"
-                    : role.roleId == 4294967295 ? "Public"
-                    : `Role ${role.roleId}` 
-                  }
+                  {bigintToRole(role.roleId, organisation)} 
                   </Button>
                 </td>
-                <td className="pe-4 text-left text-slate-500 text-center">{role.roleId == 4294967295 ? 'n/a' : role.holders}</td>
+                <td className="pe-4 text-left text-slate-500 text-center">{role.roleId == 4294967295n ? '-' : role.holders}</td>
                 <td className="pe-4 text-right pe-8 text-slate-500">{role.laws?.length} </td>
               </tr> 
             )

@@ -1,25 +1,34 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useActionStore, setAction } from "../../../context/store";
+import { useActionStore,  useLawStore, notUpToDate, setAction } from "../../../context/store";
 import { Button } from "@/components/Button";
-import { ArrowUpRightIcon, GiftIcon } from "@heroicons/react/24/outline";
+import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { SectionText } from "@/components/StandardFonts";
-import { useChainId, useReadContract, useReadContracts } from 'wagmi'
-import { lawAbi } from "@/context/abi";
-import { useLaw } from "@/hooks/useLaw";
-import { decodeAbiParameters, encodeAbiParameters, keccak256, parseAbiParameters, toHex } from "viem";
-import { bytesToParams, parseParamValues, parseRole } from "@/utils/parsers";
-import { InputType } from "@/context/types";
+import { useChainId } from 'wagmi'
+import { decodeAbiParameters, parseAbiParameters, toHex } from "viem";
+import { parseLawError, parseParamValues, parseRole } from "@/utils/parsers";
+import { Checks, DataType, Execution, InputType, Law, LawSimulation } from "@/context/types";
 import { DynamicInput } from "@/app/laws/law/DynamicInput";
-import { notUpToDate } from "@/context/store"
 import { SimulationBox } from "@/components/SimulationBox";
-import { useWallets } from "@privy-io/react-auth";
 import { supportedChains } from "@/context/chains";
+import { Status } from "@/context/types";
 
-// CONTINUE HERE 
-/// NB! inputParams bytecode: (bytecode.length - 3) / 192 = number of params. And all params are strings.... 
-// use abi.decode to get to params!
+type LawBoxProps = {
+  checks: Checks;
+  params: {
+    varName: string;
+    dataType: DataType;
+    }[]; 
+  simulation?: LawSimulation;
+  selectedExecution?: Execution | undefined;
+  status: Status; 
+  error?: any;  
+  // onChange: (input: InputType | InputType[]) => void;
+  onChange: () => void;
+  onSimulate: (paramValues: (InputType | InputType[])[], description: string) => void;
+  onExecute: (description: string) => void;
+};
 
 const roleColour = [  
   "border-blue-600", 
@@ -30,93 +39,54 @@ const roleColour = [
   "border-orange-600", 
   "border-slate-600",
 ] 
-export function LawBox() {
+export function LawBox({checks, params, status, error, simulation, selectedExecution, onChange, onSimulate, onExecute}: LawBoxProps) {
   const action = useActionStore();
-  const [abiEncodeError, setAbiEncodeError] = useState<any>();
-  const {status, error, law, simulation, checks, resetStatus, execute, fetchSimulation, fetchChecks} = useLaw();
-  const { data, isLoading, isError, error: errorInputParams } = useReadContract({
-        abi: lawAbi,
-        address: law.law,
-        functionName: 'inputParams'
-      })
-  const params =  bytesToParams(data as `0x${string}`)  
+  const law = useLawStore(); 
   const dataTypes = params.map(param => param.dataType) 
-  const {wallets} = useWallets();
-
-  const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
-  const [description, setDescription] = useState<string>("");
   const chainId = useChainId();
   const supportedChain = supportedChains.find(chain => chain.id == chainId)
+  const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([]) // NB! String has to be converted to hex using toHex before being able to use as input.  
+  const [description, setDescription] = useState<string>(""); 
+
+  console.log("@LawBox:", {law, action, description, status, checks, selectedExecution, paramValues, dataTypes})
 
   const handleChange = (input: InputType | InputType[], index: number) => {
     const currentInput = paramValues 
     currentInput[index] = input
     setParamValues(currentInput)
-    // reset useLaw hook  
-    resetStatus()
-  }  
-  
-  const handleSimulate = async (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.preventDefault() 
-      setAbiEncodeError("")
-      let lawCalldata: `0x${string}` | undefined
-      if (paramValues.length > 0 && paramValues) {
-        try {
-          lawCalldata = encodeAbiParameters(parseAbiParameters(dataTypes.toString()), paramValues); 
-        } catch (error) {
-          setAbiEncodeError(error as Error)
+    onChange()
+  }
+
+  useEffect(() => {
+    console.log("useEffect triggered at LawBox")
+      try {
+        const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), action.callData);
+        const valuesParsed = parseParamValues(values) 
+        if (dataTypes.length != valuesParsed.length) {
+          setParamValues(dataTypes.map(dataType => dataType == "string" ? [""] : [0]))
+        } else {
+          setParamValues(valuesParsed)
+          setDescription(action.description)
         }
-      } else {
-        lawCalldata = '0x0'
-      }
-        // resetting store
-      if (lawCalldata) { 
-        setAction({
-          dataTypes: dataTypes,
-          paramValues: paramValues,
-          description: description,
-          callData: lawCalldata,
-          upToDate: true
-        })
-
-        // simulating law. 
-        fetchSimulation(
-          wallets[0] ? wallets[0].address as `0x${string}` : '0x0', // needs to be wallet! 
-          lawCalldata as `0x${string}`,
-          keccak256(toHex(description))
-        )
-        fetchChecks(description, lawCalldata) 
-      }
-  };
-
-  const handleExecute = async () => {
-      execute(
-          law.law as `0x${string}`,
-          action.callData as `0x${string}`,
-          action.description
-      )
-  };
-
-  // resetting lawBox when switching laws: 
-  useEffect(() => {
-    setAction({
-      ...action, 
-      upToDate: false
-    })
-    // resetStatus()
-  }, [law])
+      } catch(error) { 
+        setParamValues([])
+        // console.error("Error decoding abi parameters at action calldata: ", error)
+      }  
+  }, [ , law ])
 
   useEffect(() => {
-    try {
-      const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), action.callData);
-      const valuesParsed = parseParamValues(values)  
-      setParamValues(valuesParsed)
-      setDescription(action.description)
-    } catch {
-      setAction({})
-      setDescription("")
+    if(selectedExecution) {
+      try {
+        const values = decodeAbiParameters(parseAbiParameters(dataTypes.toString()), selectedExecution.log.args.lawCalldata);
+        const valuesParsed = parseParamValues(values) 
+        setParamValues(valuesParsed)
+        setDescription(selectedExecution.log.args.description)
+      } catch(error) { 
+        setParamValues([])
+        // console.error("Error decoding abi parameters at Selected Executions: ", error)
+      }  
     }
-  }, [ ])
+  }, [ selectedExecution ])
 
   return (
     <main className="w-full h-full">
@@ -134,27 +104,48 @@ export function LawBox() {
           >
           <div className="flex flex-row gap-1 items-center justify-start">
             <div className="text-left text-sm text-slate-500 break-all w-fit">
-              {law.law }
+              Law: {law.law }
             </div> 
               <ArrowUpRightIcon
                 className="w-4 h-4 text-slate-500"
                 />
             </div>
           </a>
+          {selectedExecution && 
+            <a
+            href={`${supportedChain?.blockExplorerUrl}/tx/${selectedExecution.log.transactionHash}`} target="_blank" rel="noopener noreferrer"
+              className="w-full"
+            >
+            <div className="flex flex-row gap-1 items-center justify-start">
+              <div className="text-left text-sm text-slate-500 break-all w-fit">
+                Tx: {selectedExecution.log.transactionHash }
+              </div> 
+                <ArrowUpRightIcon
+                  className="w-4 h-4 text-slate-500"
+                  />
+              </div>
+            </a>
+          }
       </div>
 
       {/* dynamic form */}
+      { action && 
       <form action="" method="get" className="w-full">
         {
-          params.map((param, index) => 
-            <DynamicInput 
-                dataType = {param.dataType} 
-                varName = {param.varName} 
-                values = {paramValues[index]} 
-                onChange = {(input)=> {handleChange(input, index)}}
-                key = {index}
-                />)
-        }
+          params.map((param, index) => {
+            // console.log("@dynamic form", {param, index, paramValues})
+            
+            return (
+              <DynamicInput 
+                  dataType = {param.dataType} 
+                  varName = {param.varName} 
+                  values = {paramValues[index]} 
+                  onChange = {(input)=> {handleChange(input, index)}}
+                  key = {index}
+                  />
+            )
+        })
+      }
         <div className="w-full mt-4 flex flex-row justify-center items-start ps-3 pe-6 pb-4 min-h-24">
           <label htmlFor="reason" className="text-sm text-slate-600 pb-1 pe-12 ps-3">Reason</label>
           <div className="w-full h-fit flex items-center text-md justify-start rounded-md bg-white pl-3 outline outline-1 outline-slate-300">
@@ -163,42 +154,43 @@ export function LawBox() {
                 id="reason" 
                 rows={5} 
                 cols ={60} 
-                value={description}
+                value={ description}
                 className="min-w-0 p-1 ps-0 w-full text-sm text-slate-600 placeholder:text-gray-400 focus:outline focus:outline-0" 
                 placeholder="Describe reason for action here."
                 onChange={(event) => {{
                   setDescription(event.target.value); 
-                  resetStatus(); 
+                  onChange()
                   }}} />
             </div>
         </div>
+      
 
       {/* Errors */}
-      <div className="w-full flex flex-col gap-0 justify-start items-center text-red text-sm text-red-800 pb-4 px-6">
-         {
-         abiEncodeError ?
-          String(abiEncodeError)  
-        :
-        error ?   
-          "Law check failed." 
-        : null
-        }
-      </div>
-
+      { error && 
+        <div className="w-full flex flex-col gap-0 justify-start items-center text-red text-sm text-red-800 pb-4 px-6">
+          There is an error with this call. Please check the console for more details.   
+        </div>
+      }
 
         <div className="w-full flex flex-row justify-center items-center px-6 pb-4">
           <Button 
             size={1} 
             showBorder={true} 
-            role={Number(law.allowedRole)}
-            onClick={(event) => handleSimulate(event)} 
+            role={law.allowedRole == 4294967295n ? 6 : Number(law.allowedRole)}
+            filled={false}
+            selected={true}
+            onClick={(event) => {
+              event.preventDefault() 
+              onSimulate(paramValues, description)
+            }} 
             statusButton={
-              !action.upToDate && description.length > 0 && status ? status : 'disabled'
+               !action.upToDate && description.length > 0 ? 'idle' : 'disabled'
               }> 
             Check 
           </Button>
         </div>
       </form>
+      }
 
       {/* fetchSimulation output */}
       <SimulationBox simulation = {simulation} />
@@ -207,17 +199,15 @@ export function LawBox() {
         <div className="w-full h-fit p-6">
           <Button 
             size={1} 
-            role={Number(law.allowedRole)}
-            onClick={handleExecute} 
+            role={law.allowedRole == 4294967295n ? 6 : Number(law.allowedRole)}
+            onClick={(event) => {
+              event.preventDefault() 
+              onExecute(description)
+            }} 
+            filled={false}
+            selected={true}
             statusButton={
-              checks && 
-              checks.authorised && 
-              checks.delayPassed && 
-              checks.lawCompleted && 
-              checks.lawNotCompleted && 
-              checks.proposalPassed && 
-              checks.throttlePassed && 
-              status ? status : 'disabled' 
+              action.upToDate && checks.allPassed && !error ? status : 'disabled' 
               }> 
             Execute
           </Button>

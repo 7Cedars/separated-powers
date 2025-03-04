@@ -12,7 +12,9 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 
 /// @notice This contract ...
 ///
@@ -20,10 +22,7 @@ pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
 
-contract AddressesMapping is Law {
-    error AddressesMapping__AlreadyTrue();
-    error AddressesMapping__AlreadyFalse();
-
+contract AddressesMapping is Law { 
     mapping(address => bool) public addresses; //
 
     event AddressesMapping__Added(address account);
@@ -32,10 +31,10 @@ contract AddressesMapping is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "address Account", 
             "bool Add"
@@ -53,9 +52,9 @@ contract AddressesMapping is Law {
         (address account, bool add) = abi.decode(lawCalldata, (address, bool));
 
         if (add && addresses[account]) {
-            revert AddressesMapping__AlreadyTrue();
+            revert ("Already true.");
         } else if (!add && !addresses[account]) {
-            revert AddressesMapping__AlreadyFalse();
+            revert ("Already false.");
         }
 
         // step 2: return data
@@ -63,7 +62,7 @@ contract AddressesMapping is Law {
         val = new uint256[](1);
         cal = new bytes[](1);
 
-        tar[0] = address(1); // signals that separatedPowers should not execute anything else.
+        tar[0] = address(1); // signals that powers should not execute anything else.
         return (tar, val, cal, lawCalldata);
     }
 

@@ -13,6 +13,8 @@ export function StaticInput({dataType, varName, values}: InputProps) {
     dataType.indexOf('[]') > -1 ? true : false
   const itemsArray = array ? values as Array<InputType> : [values] as Array<InputType>
 
+  // console.log("@itemsArray: ", {itemsArray} )
+
   return (
     <div className="w-full flex flex-col justify-center items-center">
       {itemsArray.map((item, i) =>  
@@ -29,15 +31,14 @@ export function StaticInput({dataType, varName, values}: InputProps) {
                     name={`input${item}`} 
                     id={`input${item}`}
                     className="w-full h-8 pe-2 pl-3 text-slate-600 placeholder:text-gray-400 bg-slate-100 focus:outline focus:outline-0 sm:text-sm" 
-                    value={String(item)}
+                    value={item == false ? dataType == "bool" ? "false" : "0" : String(item)}
                     disabled={true}
                     />
                 </div>
               </>
             }
           </section>
-
-      )
+        )
       }
     </div>
   )

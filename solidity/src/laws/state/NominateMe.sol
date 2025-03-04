@@ -12,7 +12,9 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 
 /// @notice This contract allows account holders to log themselves as nominated. The nomination can subsequently be used for an election process: see {DelegateSelect}, {RandomSelect} and {TokenSelect} for examples.
 ///
@@ -26,10 +28,7 @@ pragma solidity 0.8.26;
 import { Law } from "../../Law.sol";
 import { ERC20Votes } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
-contract NominateMe is Law {
-    error NominateMe__NomineeAlreadyNominated();
-    error NominateMe__NomineeNotNominated();
-
+contract NominateMe is Law { 
     mapping(address => uint48) public nominees;
     address[] public nomineesSorted;
     uint256 public nomineesCount;
@@ -40,10 +39,10 @@ contract NominateMe is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode("bool NominateMe");
         stateVars = abi.encode(
             "address Initiator", 
@@ -64,14 +63,14 @@ contract NominateMe is Law {
         // nominating //
         if (nominateMe) {
             if (nominees[initiator] != 0) {
-                revert NominateMe__NomineeAlreadyNominated();
+                revert ("Nominee already nominated.");
             }
         }
 
         // revoke nomination //
         if (!nominateMe) {
             if (nominees[initiator] == 0) {
-                revert NominateMe__NomineeNotNominated();
+                revert ("Nominee not nominated.");
             }
         }
 
@@ -86,7 +85,7 @@ contract NominateMe is Law {
         (address initiator, bool nominateMe) = abi.decode(stateChange, (address, bool));
 
         if (nominateMe) {
-            nominees[initiator] = uint48(block.timestamp);
+            nominees[initiator] = uint48(block.number);
             nomineesSorted.push(initiator);
             nomineesCount++;
             emit NominateMe__NominationReceived(initiator);

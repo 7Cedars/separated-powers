@@ -6,8 +6,8 @@ import "forge-std/Test.sol";
 import { TestSetupState } from "../../TestSetup.t.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
-// protocol
-import { SeparatedPowers } from "../../../src/SeparatedPowers.sol";
+// protocol 
+import { Powers } from "../../../src/Powers.sol";
 import { Law } from "../../../src/Law.sol";
 
 // law contracts being tested
@@ -15,19 +15,20 @@ import { AddressesMapping } from "../../../src/laws/state/AddressesMapping.sol";
 import { StringsArray } from "../../../src/laws/state/StringsArray.sol";
 import { TokensArray } from "../../../src/laws/state/TokensArray.sol";
 import { NominateMe } from "../../../src/laws/state/NominateMe.sol";
-import { PeerVote } from "../../../src/laws/state/PeerVote.sol";
+import { ElectionVotes } from "../../../src/laws/state/ElectionVotes.sol";
 
 contract AddressMappingTest is TestSetupState {
-    error AddressesMapping__AlreadyTrue();
-    error AddressesMapping__AlreadyFalse();
-
     event AddressesMapping__Added(address account);
     event AddressesMapping__Removed(address account);
 
     // take this out later 
     function testParsingAddress() public {
         address mock721_ = makeAddr("mock721");
-        string memory description = string.concat("Anyone who knows how to mint an NFT at ", Strings.toHexString(uint256(addressToInt(mock721_)), 20), " can (de)select themselves for role 1."); 
+        string memory description = string.concat(
+            "Anyone who knows how to mint an NFT at ", 
+            Strings.toHexString(uint256(addressToInt(mock721_)), 20), 
+            " can (de)select themselves for role 1."
+            ); 
         console.log(mock721_); 
         console.log(description); 
 
@@ -50,8 +51,11 @@ contract AddressMappingTest is TestSetupState {
         vm.expectEmit(true, false, false, false);
         emit AddressesMapping__Added(address(123));
         vm.startPrank(address(daoMock));
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(addressesMapping).executeLaw(address(0), lawCalldata, keccak256("Adding an address"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut
+            ) = Law(addressesMapping).executeLaw(address(0), lawCalldata, keccak256("Adding an address"));
 
         // assert state
         assertEq(AddressesMapping(addressesMapping).addresses(address(123)), true);
@@ -74,7 +78,7 @@ contract AddressMappingTest is TestSetupState {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(AddressesMapping__AlreadyTrue.selector);
+        vm.expectRevert("Already true.");
         Law(addressesMapping).executeLaw(address(0), lawCalldata, keccak256("Adding an address a second time"));
 
         // assert state
@@ -100,8 +104,10 @@ contract AddressMappingTest is TestSetupState {
         vm.startPrank(address(daoMock));
         vm.expectEmit(true, false, false, false);
         emit AddressesMapping__Removed(address(123));
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(addressesMapping).executeLaw(address(0), lawCalldataRemove, keccak256("Removing an address"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut) = Law(addressesMapping).executeLaw(address(0), lawCalldataRemove, keccak256("Removing an address"));
 
         // assert state
         assertEq(AddressesMapping(addressesMapping).addresses(address(123)), false);
@@ -121,7 +127,7 @@ contract AddressMappingTest is TestSetupState {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(AddressesMapping__AlreadyFalse.selector);
+        vm.expectRevert("Already false.");
         Law(addressesMapping).executeLaw(address(0), lawCalldata, keccak256("Removing an address not added"));
 
         // assert state
@@ -130,8 +136,6 @@ contract AddressMappingTest is TestSetupState {
 }
 
 contract StringsArrayTest is TestSetupState {
-    error StringsArray__StringNotFound();
-
     event StringsArray__StringAdded(string str);
     event StringsArray__StringRemoved(string str);
 
@@ -144,8 +148,10 @@ contract StringsArrayTest is TestSetupState {
         vm.startPrank(address(daoMock));
         vm.expectEmit(true, false, false, false);
         emit StringsArray__StringAdded("hello world");
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(stringsArray).executeLaw(address(0), lawCalldata, keccak256("Adding a string"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut) = Law(stringsArray).executeLaw(address(0), lawCalldata, keccak256("Adding a string"));
 
         // assert state
         assertEq(StringsArray(stringsArray).strings(0), "hello world");
@@ -168,8 +174,11 @@ contract StringsArrayTest is TestSetupState {
         vm.startPrank(address(daoMock));
         vm.expectEmit(true, false, false, false);
         emit StringsArray__StringRemoved("hello world");
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(stringsArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a string"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut
+            ) = Law(stringsArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a string"));
 
         // assert state
         assertEq(StringsArray(stringsArray).numberOfStrings(), 0);
@@ -186,7 +195,7 @@ contract StringsArrayTest is TestSetupState {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(StringsArray__StringNotFound.selector);
+        vm.expectRevert("String not found.");
         Law(stringsArray).executeLaw(address(0), lawCalldata, keccak256("Removing a string not added"));
     }
 
@@ -201,14 +210,12 @@ contract StringsArrayTest is TestSetupState {
 
         // act
         vm.startPrank(address(daoMock));
-        vm.expectRevert(StringsArray__StringNotFound.selector);
+        vm.expectRevert("String not found.");
         Law(stringsArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a string that does not exist"));
     }
 }
 
 contract TokensArrayTest is TestSetupState {
-    error TokensArray__TokenNotFound();
-
     event TokensArray__TokenAdded(address indexed tokenAddress, TokensArray.TokenType tokenType);
     event TokensArray__TokenRemoved(address indexed tokenAddress, TokensArray.TokenType tokenType);
 
@@ -225,8 +232,11 @@ contract TokensArrayTest is TestSetupState {
         vm.startPrank(address(daoMock));
         vm.expectEmit(true, false, false, false);
         emit TokensArray__TokenAdded(address(123), TokensArray.TokenType(0));
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(tokensArray).executeLaw(address(0), lawCalldata, keccak256("Adding a token"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut
+            ) = Law(tokensArray).executeLaw(address(0), lawCalldata, keccak256("Adding a token"));
 
         // assert state
         (address tokenAddress, TokensArray.TokenType tokenType) = TokensArray(tokensArray).tokens(0);
@@ -259,8 +269,10 @@ contract TokensArrayTest is TestSetupState {
         vm.startPrank(address(daoMock));
         vm.expectEmit(true, false, false, false);
         emit TokensArray__TokenRemoved(address(123), TokensArray.TokenType(0));
-        (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) =
-            Law(tokensArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a token"));
+        (
+            address[] memory targetsOut, 
+            uint256[] memory valuesOut, 
+            bytes[] memory calldatasOut) = Law(tokensArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a token"));
 
         // assert state
         assertEq(TokensArray(tokensArray).numberOfTokens(), 0);
@@ -281,7 +293,7 @@ contract TokensArrayTest is TestSetupState {
 
         // act + assert revert
         vm.startPrank(address(daoMock));
-        vm.expectRevert(TokensArray__TokenNotFound.selector);
+        vm.expectRevert("Token not found.");
         Law(tokensArray).executeLaw(address(0), lawCalldataRemove, keccak256("Removing a non-existent token"));
 
         // assert state
@@ -306,7 +318,7 @@ contract TokensArrayTest is TestSetupState {
 
         // act + assert revert
         vm.startPrank(address(daoMock));
-        vm.expectRevert(TokensArray__TokenNotFound.selector);
+        vm.expectRevert("Token not found.");
         Law(tokensArray).executeLaw(
             address(0), lawCalldataRemove, keccak256("Removing a token that had not been added")
         );
@@ -317,9 +329,6 @@ contract TokensArrayTest is TestSetupState {
 }
 
 contract NominateMeTest is TestSetupState {
-    error NominateMe__NomineeAlreadyNominated();
-    error NominateMe__NomineeNotNominated();
-
     event NominateMe__NominationReceived(address indexed nominee);
     event NominateMe__NominationRevoked(address indexed nominee);
 
@@ -348,7 +357,7 @@ contract NominateMeTest is TestSetupState {
 
         // and try to nominate twice.
         vm.startPrank(address(daoMock));
-        vm.expectRevert(NominateMe__NomineeAlreadyNominated.selector);
+        vm.expectRevert("Nominee already nominated.");
         Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
     }
 
@@ -378,17 +387,13 @@ contract NominateMeTest is TestSetupState {
 
         // charlotte tries to revoke nomination, without being nominated.
         vm.startPrank(address(daoMock));
-        vm.expectRevert(NominateMe__NomineeNotNominated.selector);
+        vm.expectRevert("Nominee not nominated.");
         Law(nominateMe).executeLaw(charlotte, lawCalldata, bytes32(0));
     }
 }
 
-contract PeerVoteTest is TestSetupState {
-    error PeerVote__NotNominee();
-    error PeerVote__AlreadyVoted();
-    error PeerVote__ElectionNotOpen();
-
-    event PeerVote__VoteCast(address voter);
+contract ElectionVotesTest is TestSetupState {
+    event ElectionVotes__VoteCast(address voter);
 
     function testVoteCorrectlyRegistered() public {
         // prep
@@ -403,12 +408,12 @@ contract PeerVoteTest is TestSetupState {
         // act + assert emit
         vm.roll(51); // vote starts at block 50.
         vm.expectEmit(true, false, false, false);
-        emit PeerVote__VoteCast(charlotte);
+        emit ElectionVotes__VoteCast(charlotte);
         vm.startPrank(address(daoMock));
         Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
 
-        assertEq(PeerVote(peerVote).hasVoted(alice), true);
-        assertEq(PeerVote(peerVote).votes(charlotte), 1);
+        assertEq(ElectionVotes(peerVote).hasVoted(alice), true);
+        assertEq(ElectionVotes(peerVote).votes(charlotte), 1);
     }
 
     function testVoteRevertsIfElectionNotOpen() public {
@@ -424,7 +429,7 @@ contract PeerVoteTest is TestSetupState {
 
         // act + assert revert
         vm.roll(40); // vote starts at block 50.
-        vm.expectRevert(PeerVote__ElectionNotOpen.selector);
+        vm.expectRevert("Election not open.");
         vm.startPrank(address(daoMock));
         Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
     }
@@ -445,7 +450,7 @@ contract PeerVoteTest is TestSetupState {
 
         // act + assert revert
         // alice votes tries to vote a second time...
-        vm.expectRevert(PeerVote__AlreadyVoted.selector);
+        vm.expectRevert("Already voted.");
         vm.startPrank(address(daoMock));
         Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
     }
@@ -457,7 +462,7 @@ contract PeerVoteTest is TestSetupState {
 
         // act + assert revert
         vm.roll(51); // vote starts at block 50.
-        vm.expectRevert(PeerVote__NotNominee.selector);
+        vm.expectRevert("Not a nominee.");
         vm.startPrank(address(daoMock));
         Law(peerVote).executeLaw(alice, lawCalldataVote, bytes32(0));
     }

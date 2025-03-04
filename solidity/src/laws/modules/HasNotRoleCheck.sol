@@ -17,13 +17,9 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Powers} from "../../Powers.sol";
 
 abstract contract HasNotRoleCheck is Law {
-    /// @notice overrides the default simulateLaw function.
-
-    error HasNotRoleCheck__DoesHaveRole();
-
     function checksAtPropose(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         view
@@ -32,9 +28,9 @@ abstract contract HasNotRoleCheck is Law {
         (uint32[] memory roles) = hasNotRoles();
 
         for (uint32 i = 0; i < roles.length; i++) {
-            uint48 since = SeparatedPowers(separatedPowers).hasRoleSince(initiator, roles[i]);
+            uint48 since = Powers(powers).hasRoleSince(initiator, roles[i]);
             if (since == 0) {
-                revert HasNotRoleCheck__DoesHaveRole();
+                revert ("Does have role."); 
             }
         }
 

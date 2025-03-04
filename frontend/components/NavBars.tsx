@@ -1,11 +1,5 @@
 "use client";
 
-// This should become the header. Has the following (from left to right): 
-// - logo -> click will bring to github page (or something about page like / documentation)
-// - A button with the name of the currently selected Dao. -> click will bring to landing page.
-// - NavigationBar buttons: home, laws, proposals, roles, treasury --> all correspond with their pages. 
-// - address / login button -> links to privy.
-
 import { usePathname } from 'next/navigation';
 import type { PropsWithChildren } from "react";
 import { useRouter } from 'next/navigation'
@@ -33,7 +27,7 @@ const NavigationBar = () => {
   const path = usePathname()
 
   return (
-    <div className="w-full h-full flex flex-row gap-1 justify-center items-center px-2 py-1 md:py-0"> 
+    <div className="w-full h-full flex flex-row gap-1 justify-center items-center px-2 py-1 md:py-0 overflow-hidden"> 
             <button 
               onClick={() => router.push('/home')}
               aria-selected={path == `/home`} 
@@ -49,7 +43,7 @@ const NavigationBar = () => {
 
             <button 
               onClick={() => router.push('/laws')}
-              aria-selected={path == `/laws`} 
+              aria-selected={path == `/laws` || path == `/laws/law`} 
               className={layoutButton}
               >
                 <div className={layoutIconBox}> 
@@ -62,7 +56,7 @@ const NavigationBar = () => {
 
             <button 
               onClick={() => router.push('/proposals')}
-              aria-selected={path == `/proposals`} 
+              aria-selected={path == `/proposals` || path == `/proposals/proposal`} 
               className={layoutButton}
               >
                 <div className={layoutIconBox}> 
@@ -108,7 +102,7 @@ const Header = () => {
   const path = usePathname()
  
   return (
-    <header className="absolute grow w-screen top-0 h-fit py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300">
+    <div className="absolute top-0 z-20 h-14 w-screen py-2 flex justify-around text-sm bg-slate-50 border-b border-slate-300 overflow-hidden">
     <section className="grow flex flex-row gap-1 justify-between px-2 max-w-screen-xl">
       <div className="flex flex-row gap-1 min-w-48"> 
         <Button size = {0} onClick={
@@ -117,7 +111,11 @@ const Header = () => {
               deleteOrg({})
             }
             
-            } showBorder={true}>  
+            } 
+            showBorder={true}
+            selected = {true}
+            filled = {false}
+            >  
           <Image 
             src='/logo.png' 
             width={28}
@@ -133,6 +131,8 @@ const Header = () => {
               <Button 
                 size = {0} 
                 onClick={() =>router.push('/home') }
+                selected = {true}
+                filled = {false}
                 >
                   {organisation.name}
               </Button>
@@ -141,6 +141,8 @@ const Header = () => {
             <Button 
               size = {0} 
               onClick={() => router.push('/') }
+              selected = {true}
+              filled = {false}
               >
                 <div className={"flex flex-row gap-1 justify-center items-center"}> 
                   <MagnifyingGlassIcon
@@ -161,15 +163,15 @@ const Header = () => {
       }
         {path == `/` ? null : <ConnectButton /> }
     </section>
-  </header>
+  </div>
   )
 }
 
 const NavigationSmallScreen = () => {  
   return (
-     <header className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:opacity-0 opacity-100 w-full text-sm px-4">
+     <div className="absolute bottom-0 z-20 bg-slate-50 flex justify-between border-t border-slate-300 h-14 items-center md:collapse w-full text-sm px-4 overflow-hidden">
         {NavigationBar()}  
-    </header>
+    </div>
   )
 }
 
@@ -195,9 +197,9 @@ export const NavBars = (props: PropsWithChildren<{}>) => {
         {/* <Footer /> */}
       </div>
       : 
-        <div className="absolute h-dvh w-screen flex flex-col justify-center items-center">
+        <div className="w-full h-full flex flex-col justify-start items-center">
           <Header /> 
-          <main className="max-w-screen-lg w-full h-full grid grid-cols-1 justify-items-start content-start overflow-y-scroll px-2 pt-20 pb-20">
+          <main className="w-full h-full flex flex-col justify-start items-center max-w-6xl overflow-x-scroll">
             {props.children}   
           </main>
           <NavigationSmallScreen /> 

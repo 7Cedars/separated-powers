@@ -1,34 +1,35 @@
 export const exampleUseCases = [
   {
-    title: "Managing a plurality of legal regimes for Crypto communities",
-    challenge: "Crypto communities are global communities. As a result, they face  a plurality of legal regimes (the US, EU, China, and so on) when governing their community.",
-    solution: "Using robust KYC mechanisms, roles can be assigned to users in specific local jurisdictions. This allows for selective in- and exclusion of users from executive actions. It creates a unified governance system that adapts to local jurisdictions.",
-  },
+    title: "Manage complex and dynamic governance",
+    challenge: "Organisations change over time. Legacy governance protocols are difficult to adapt to these changing circumstances.",
+    solution: "In the Powers protocol, laws define roles and their powers. They can be adopted and revoked through internal governance mechanisms. It allows for modular governance that is flexible within clearly defined guardrails.",
+  }, 
   {
     title: "Building guard rails for AI agents",
-    challenge: "Increasingly, AI agents are taking over tasks in organisation and communities. As they start managing (real-world) assets, the need for human oversight becomes more apparent.",
-    solution: "Assigning roles to human and AI agents, role restricted governance protocols allow for flexible and bespoke guard rails for AI agents, allowing for seamless interaction with other (human and AI) agents in a community.",
+    challenge: "Increasingly, AI agents are taking over tasks in organisation and communities. As they do so, the need for guard rails is clear.",
+    solution: "Assigning roles to human and AI agents, role restricted governance protocols allow for flexible and bespoke guard rails for AI agents, allowing for seamless interactions between (human and AI) agents in a community.",
   },
   {
-    title: "Increase security against hostile governance take-overs",
-    challenge: "Hostile governance takeovers remain a threat to on-chain governance. Solutions to address this risk have led to increased complexity in governance protocols.",
+    title: "Protecting against hostile takeovers",
+    challenge: "Hostile governance takeovers remains a threat to on-chain communities. Existing solutions tend to add complexity to already complex protocols.",
     solution: "Role restricted governance protocols have two inherent properties that decrease the chance of hostile takeovers: they allow for roles to check each others actions and disallow a direct translation of token holdings to voting power.",
   }, 
   {
     title: "Building hybrid on- and off-chain systems",
-    challenge: "Investment companies offer crypto tokens to customer through ETFs, creating the need for hybrid governance systems where token linked voting power is transferred to customers, but always within clearly defined boundaries.",
-    solution: "Role restricted governance protocols provide full control over the powers that roles have. This allows for the creation of hybrid governance systems where a corporate off-chain entity defines the range fo powers that customers have on-chain.",
+    challenge: "With crypto ETFs, a need for hybrid governance systems emerged: giving customers voting power but within clearly defined boundaries.",
+    solution: "Role restricted governance protocols provide full control over who has what power. It allows for hybrid governance systems where a corporate off-chain entity defines the range fo powers that customers have on-chain.",
   },
   {
-    title: "Decrease centralisation in on-chain governance", 
-    challenge: "The tendency for token holdings and delegate votes to centralise around a small set of accounts is an on-going problem in on-chain community governance, leading to a drop in voter participation.", 
-    solution: "Creating roles for builders, community leaders, token holders and any other stake holder, decentralises power by giving different groups actual influence in community governance. It will boost participation in return.",
+    title: "Facilitate decentralisation", 
+    challenge: "A challenge in on-chain communities is the tendency for decision-making power to centralise around a small set of accounts.", 
+    solution: "The Powers protocol allows for giving distinct powers to builders, community leaders, token holders and any other stakeholder. Decentralising power by giving stakeholders different powers in community governance.",
   }, 
   {
-    title: "Manage dynamic complexity in changing circumstances",
-    challenge: "Current governance protocols give little flexibility to adapt voting procedures to changing circumstances.",
-    solution: "In a role restricted governance protocol, laws define roles and their powers. They can be adopted and revoked through internal governance mechanisms to adapt to changing circumstances, and hence provide flexibility without giving in on governance security.",
-  }, 
+    title: "Managing a plurality of legal regimes",
+    challenge: "Crypto communities are global. They interact with a plurality of legal regimes (the US, EU, China) when governing their community.",
+    solution: "Using robust KYC mechanisms, roles can be assigned to users in specific local jurisdictions. It allows for selective in- and exclusion of users from executive actions.",
+  },
+
 ]
 
 

@@ -5,7 +5,7 @@
 /// it under the terms of the MIT Public License.                           ///
 ///                                                                         ///
 /// This is a Proof Of Concept and is not intended for production use.      ///
-/// Tests are incomplete and it contracts have not been audited.            ///
+/// Tests are incomplete and its contracts have not been audited.           ///
 ///                                                                         ///
 /// It is distributed in the hope that it will be useful and insightful,    ///
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of          ///
@@ -13,30 +13,30 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 /// @title Law.sol v.0.2
-/// @notice Base implementation of a Law in the SeparatedPowers protocol. Meant to be inherited by law implementations.
+/// @notice Base implementation of a Law in the Powers protocol. Meant to be inherited by law implementations.
 ///
-/// @dev Laws are role restricted contracts that are executed by the core SeparatedPowers protocol. The provide the following functionality:
-/// 1 - Role restricting DAO actions
+/// @dev Laws are role restricted contracts that are executed by the Powers.sol. The provide the following functionality:
+/// 1 - Role restricting a community's actions
 /// 2 - Transforming a {lawCalldata) input into an output of targets[], values[], calldatas[] to be executed by the core protocol.
-/// 3 - Adding conditions to execution of the law, such as a proposal vote, a completed parent law or a delay. Any logic can be added.
+/// 3 - Saving a the state of a community.
+/// 4 - Adding conditions to the creation of proposals for and/or execution of the law.
+/// 5 - Prior to changing state and returning output data, all checks are run. 
 ///
-/// A number of law settings are set through the {setLawConfig} function:
-/// - a required role restriction.
-/// - optional configurations of the law, such as
-///     - a vote quorum needed to execute the law.
-///     - a vote threshold.
-///     - a vote period.
-///     - a parent law that needs to be completed before the law can be executed.
-///     - a parent law that needs to NOT be completed before the law can be executed.
-///     - a vote delay: an amount of time in blocks that needs to have passed since the proposal vote ended before the law can be executed.
-///     - a minimum amount of blocks that need to have passed since the previous execution before the law can be executed again.
-/// It is possible to add additional checks if needed.
+/// Laws can be adapted through the following ways: 
+/// - By inheriting and changing the implementing of the {simulateLaw} function.
+/// - By changing setting of the {config} variable in the constructor.
+/// - By changing any other (bespoke) parameters in the constructor.
+/// Combined, they allow for a wide range of executive, legislative and electoral logics to be implemented.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+/// To enable front end UIs to dynamically generate UIs to interact with laws a `paramsInput` and `stateVars` variable are included.
+/// - paramsInput: an abi.encoded array of strings that denote the input parameters. 
+/// - stateVars: an abi.encoded array of strings that denote the variables that are saved in state. 
+///
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
-import { SeparatedPowers } from "./SeparatedPowers.sol";
-import { SeparatedPowersTypes } from "./interfaces/SeparatedPowersTypes.sol";
+import { Powers} from "./Powers.sol";
+import { PowersTypes } from "./interfaces/PowersTypes.sol";
 import { ILaw } from "./interfaces/ILaw.sol";
 import { ERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import { IERC165 } from "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
@@ -51,7 +51,7 @@ contract Law is ERC165, ILaw {
     // required parameters
     uint32 public allowedRole;
     ShortString public immutable name; // name of the law
-    address payable public separatedPowers; // the address of the core governance protocol
+    address payable public powers; // the address of the core governance protocol
     string public description; // description of the law
     bytes public inputParams; // an abi.encoded array of strings that denote the input parameters. For example: abi.encode("address", "address", "uint256", "address[]");
     bytes public stateVars; // an abi.encoded array of strings that denote the variables that are saved in state. For example: abi.encode("address", "address", "uint256", "address[]");
@@ -69,27 +69,27 @@ contract Law is ERC165, ILaw {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_
     ) {
-        separatedPowers = separatedPowers_;
+        powers = powers_;
         name = name_.toShortString();
         description = description_;
         allowedRole = allowedRole_;
         config = config_;
 
-        emit Law__Initialized(address(this), separatedPowers, name_, description, allowedRole, config);
+        emit Law__Initialized(address(this), powers, name_, description, allowedRole, config);
     }
 
-    /// note this is the function that is called by the SeparatedPowers protocol. It always runs checks before execution of law logic.
+    /// note this is the function that is called by the Powers protocol. It always runs checks before execution of law logic.
     /// @inheritdoc ILaw
     function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
     {
-        if (msg.sender != separatedPowers) {
-            revert Law__OnlySeparatedPowers();
+        if (msg.sender != powers) {
+            revert Law__OnlyPowers();
         }
         checksAtPropose(initiator, lawCalldata, descriptionHash);
         checksAtExecute(initiator, lawCalldata, descriptionHash);
@@ -127,8 +127,8 @@ contract Law is ERC165, ILaw {
         if (config.needCompleted != address(0)) {
             uint256 parentProposalId = _hashProposal(config.needCompleted, lawCalldata, descriptionHash);
             if (
-                SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
-                    != SeparatedPowersTypes.ProposalState.Completed
+                Powers(payable(powers)).state(parentProposalId)
+                    != PowersTypes.ProposalState.Completed
             ) {
                 revert Law__ParentNotCompleted();
             }
@@ -139,21 +139,10 @@ contract Law is ERC165, ILaw {
         if (config.needNotCompleted != address(0)) {
             uint256 parentProposalId = _hashProposal(config.needNotCompleted, lawCalldata, descriptionHash);
             if (
-                SeparatedPowers(payable(separatedPowers)).state(parentProposalId)
-                    == SeparatedPowersTypes.ProposalState.Completed
+                Powers(payable(powers)).state(parentProposalId)
+                    == PowersTypes.ProposalState.Completed
             ) {
                 revert Law__ParentBlocksCompletion();
-            }
-        }
-
-        /// Optional check 3: throttle how often the law can be executed.
-        if (config.throttleExecution != 0) {
-            uint256 numberOfExecutions = executions.length - 1;
-            if (
-                executions[numberOfExecutions] != 0
-                    && block.number - executions[numberOfExecutions] < config.throttleExecution
-            ) {
-                revert Law__ExecutionGapTooSmall();
             }
         }
     }
@@ -164,12 +153,23 @@ contract Law is ERC165, ILaw {
         view
         virtual
     {
+        /// Optional check 3: throttle how often the law can be executed.
+        if (config.throttleExecution != 0) {
+            uint256 numberOfExecutions = executions.length - 1;
+            if (
+                executions[numberOfExecutions] != 0
+                    && block.number - executions[numberOfExecutions] < config.throttleExecution
+            ) {
+                revert Law__ExecutionGapTooSmall();
+            }
+        }
+
         // Optional check 4: make law conditional on a proposal succeeding.
         if (config.quorum != 0) {
             uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
             if (
-                SeparatedPowers(payable(separatedPowers)).state(proposalId)
-                    != SeparatedPowersTypes.ProposalState.Succeeded
+                Powers(payable(powers)).state(proposalId)
+                    != PowersTypes.ProposalState.Succeeded
             ) {
                 revert Law__ProposalNotSucceeded();
             }
@@ -179,7 +179,7 @@ contract Law is ERC165, ILaw {
         if (config.delayExecution != 0) {
             uint256 proposalId = _hashProposal(address(this), lawCalldata, descriptionHash);
             uint256 currentBlock = block.number;
-            uint256 deadline = SeparatedPowers(payable(separatedPowers)).proposalDeadline(proposalId);
+            uint256 deadline = Powers(payable(powers)).proposalDeadline(proposalId);
 
             if (deadline + config.delayExecution > currentBlock) {
                 revert Law__DeadlineNotPassed();

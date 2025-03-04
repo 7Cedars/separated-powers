@@ -33,7 +33,9 @@ export function AddAsset() {
         <div className="h-8 flex flex-row w-40 min-w-24 text-center">
           <Button 
             size = {0} 
-            role = {8} 
+            role = {6}
+            selected = {true}
+            filled = {false} 
             onClick={() => {update(newToken ? newToken : `0x0`)}}
             > 
             <div className = "text-slate-600">{

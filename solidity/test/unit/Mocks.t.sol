@@ -2,7 +2,7 @@
 pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
-import { SeparatedPowers } from "../../src/SeparatedPowers.sol";
+import { Powers} from "../../src/Powers.sol";
 import { Erc20VotesMock } from "../mocks/Erc20VotesMock.sol";
 import { Erc20TaxedMock } from "../mocks/Erc20TaxedMock.sol";
 import { Erc721Mock } from "../mocks/Erc721Mock.sol";
@@ -16,8 +16,8 @@ contract Erc20VotesMockTest is Test {
         erc20VotesMock = new Erc20VotesMock();
     }
 
-    function testDeploy() public {
-        assertEq(erc20VotesMock.totalSupply(), 0);
+    function testDeploy_Erc20VotesMockTest() public {
+        assertEq(erc20VotesMock.totalSupply(), 1 * 10 ** 18);
         assertEq(erc20VotesMock.name(), "mock");
         assertEq(erc20VotesMock.symbol(), "MOCK");
     }
@@ -28,7 +28,7 @@ contract Erc20VotesMockTest is Test {
     }
 
     function testMintVotesRevertsIfMaxAmountExceeded() public {
-        uint256 maxAmount = 100_000_000;
+        uint256 maxAmount = 100 * 10 ** 18;
 
         vm.expectRevert(
             abi.encodeWithSelector(Erc20VotesMock.Erc20VotesMock__AmountExceedsMax.selector, maxAmount + 1, maxAmount)
@@ -55,27 +55,29 @@ contract Erc20VotesMockTest is Test {
 
 contract Erc20TaxedMockTest is Test {
     Erc20TaxedMock erc20TaxedMock;
-    SeparatedPowers daoMock;
+    Powers daoMock;
 
     function setUp() public {
         uint256 taxRate_ = 7;
         uint8 DENOMINATOR_ = 100; // this should work out at 7 percent tax per transaction.
         uint48 epochDuration_ = 19;
 
-        daoMock = new SeparatedPowers("DAO", "");
-        vm.startPrank(address(daoMock));
+        daoMock = new Powers("DAO", "");
+        vm.prank(address(daoMock));
         erc20TaxedMock = new Erc20TaxedMock(taxRate_, DENOMINATOR_, epochDuration_);
+        uint256 balanceBefore = erc20TaxedMock.balanceOf(address(daoMock));
+        
+        vm.prank(address(daoMock));
         erc20TaxedMock.mint(10_000);
-        vm.stopPrank();
-
-        assertEq(erc20TaxedMock.totalSupply(), 10_000);
-        assertEq(erc20TaxedMock.balanceOf(address(daoMock)), 10_000);
+        
+        assertEq(erc20TaxedMock.totalSupply(), 10_000 + balanceBefore);
+        assertEq(erc20TaxedMock.balanceOf(address(daoMock)), 10_000 + balanceBefore);
         assertEq(erc20TaxedMock.taxRate(), taxRate_);
         assertEq(erc20TaxedMock.DENOMINATOR(), DENOMINATOR_);
         assertEq(erc20TaxedMock.epochDuration(), epochDuration_);
     }
 
-    function testDeploy() public {
+    function testDeploy_Erc20TaxedMock() public {
         assertEq(erc20TaxedMock.name(), "mockTaxed");
         assertEq(erc20TaxedMock.symbol(), "MTXD");
     }
@@ -232,7 +234,7 @@ contract Erc1155MockTest is Test {
     }
 
     function testMintVotesRevertsIfMaxAmountExceeded() public {
-        uint256 maxAmount = 100_000_000;
+        uint256 maxAmount = 100 * 10 ** 18;
 
         vm.expectRevert(
             abi.encodeWithSelector(Erc1155Mock.Erc1155Mock__AmountExceedsMax.selector, maxAmount + 1, maxAmount)

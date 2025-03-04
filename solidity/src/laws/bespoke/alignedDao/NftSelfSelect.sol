@@ -12,8 +12,9 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
-
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
@@ -26,12 +27,12 @@ contract NftSelfSelect is SelfSelect, NftCheck {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         uint32 roleId_,
         address erc721Token_
-    ) SelfSelect(name_, description_, separatedPowers_, allowedRole_, config_, roleId_) {
+    ) SelfSelect(name_, description_, powers_, allowedRole_, config_, roleId_) {
         erc721Token = erc721Token_;
     }
 

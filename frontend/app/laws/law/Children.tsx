@@ -24,11 +24,11 @@ export function Children() {
 
   return (
     childLaws?.length != 0 ? 
-    <div className="w-full flex grow flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-80"> 
+    <div className="w-full flex grow flex-col gap-3 justify-start items-center bg-slate-50 border border-slate-300 rounded-md max-w-80"> 
     <section className="w-full flex flex-col text-sm text-slate-600" > 
       <div className="w-full flex flex-row items-center justify-between px-4 py-2 text-slate-900 border-b border-slate-300">
         <div className="text-left w-52">
-          Child laws
+          Dependent laws
         </div>
       </div>
       <div className = "flex flex-col items-center justify-center"> 
@@ -36,9 +36,8 @@ export function Children() {
           childLaws?.map(law =>
               <div key={law.law} className = "w-full flex flex-row p-2 px-3">
                 <button 
-                  className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[1]} disabled:opacity-50`}
+                  className={`w-full h-full flex flex-row items-center justify-center rounded-md border ${roleColour[Number(law.allowedRole) % roleColour.length]} disabled:opacity-50`}
                   onClick = {() => {setLaw(law)}}
-                  disabled = { !action.upToDate }
                 >
                   <div className={`w-full h-full flex flex-row items-center justify-center text-slate-600 gap-1 px-2 py-1`}>
                       {law.name}

@@ -7,7 +7,7 @@ import { Status } from "@/context/types";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { publicClient } from "@/context/clients";
-import { separatedPowersAbi } from "@/context/abi";
+import { powersAbi } from "@/context/abi";
 import { supportedChains } from "@/context/chains";
 import { Log, parseEventLogs, ParseEventLogsReturnType } from "viem";
 import { useChainId } from "wagmi";

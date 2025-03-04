@@ -11,8 +11,11 @@ contract Erc20TaxedMock is ERC20, Ownable {
     error Erc20TaxedMock__NoZeroAmount();
     error Erc20TaxedMock__TaxRateOverflow();
     error Erc20TaxedMock__InsufficientBalanceForTax();
+    error Erc20TaxedMock__FaucetPaused();
 
     uint256 public taxRate;
+    bool public faucetPaused;
+    uint256 public immutable AMOUNT_FAUCET = 1 * 10 ** 18;
     uint8 public immutable DENOMINATOR;
     uint48 public immutable epochDuration;
     mapping(uint48 epoch => mapping(address account => uint256 taxPaid)) public taxLogs;
@@ -24,6 +27,7 @@ contract Erc20TaxedMock is ERC20, Ownable {
         taxRate = taxRate_;
         DENOMINATOR = DENOMINATOR_;
         epochDuration = epochDuration_;
+        _mint(msg.sender, 1 * 10 ** 18); // start with one million tokens. 
     }
 
     // a public non-restricted function that allows anyone to mint coins. Only restricted by max allowed coins to mint.
@@ -39,6 +43,17 @@ contract Erc20TaxedMock is ERC20, Ownable {
             revert Erc20TaxedMock__NoZeroAmount();
         }
         _burn(msg.sender, amount);
+    }
+
+    function faucet() public {
+        if (faucetPaused) {
+            revert Erc20TaxedMock__FaucetPaused();
+        }
+        _mint(msg.sender, AMOUNT_FAUCET);
+    }
+
+    function pauseFaucet() public onlyOwner {
+        faucetPaused = !faucetPaused;
     }
 
     function changeTaxRate(uint256 newTaxRate) public onlyOwner {

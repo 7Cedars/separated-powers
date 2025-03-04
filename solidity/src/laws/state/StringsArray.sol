@@ -12,7 +12,9 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 
 /// @notice This contract ...
 ///
@@ -25,19 +27,16 @@ contract StringsArray is Law {
     string[] public strings;
     uint256 public numberOfStrings;
 
-    error StringsArray__StringNotFound();
-    error StringsArray__AlreadyAdded();
-
     event StringsArray__StringAdded(string str);
     event StringsArray__StringRemoved(string str);
 
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "string String", 
             "bool Add"
@@ -55,7 +54,7 @@ contract StringsArray is Law {
         tar = new address[](1);
         val = new uint256[](1);
         cal = new bytes[](1);
-        tar[0] = address(1); // signals that separatedPowers should not execute anything else.
+        tar[0] = address(1); // signals that powers should not execute anything else.
 
         return (tar, val, cal, lawCalldata);
     }
@@ -68,7 +67,7 @@ contract StringsArray is Law {
             numberOfStrings++;
             emit StringsArray__StringAdded(str);
         } else if (numberOfStrings == 0) {
-            revert StringsArray__StringNotFound();
+            revert ("String not found.");
         } else {
             for (uint256 index; index < numberOfStrings; index++) {
                 if (keccak256(bytes(strings[index])) == keccak256(bytes(str))) {
@@ -79,7 +78,7 @@ contract StringsArray is Law {
                 }
 
                 if (index == numberOfStrings - 1) {
-                    revert StringsArray__StringNotFound();
+                    revert ("String not found.");
                 }
             }
             emit StringsArray__StringRemoved(str);

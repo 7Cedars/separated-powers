@@ -9,6 +9,7 @@ const initialStateOrg: OrgStore = {
   laws: [],
   proposals: [],
   roles: [],
+  roleLabels: [], 
   deselectedRoles: []
 }
 
@@ -20,6 +21,7 @@ const initialStateLaw: LawStore = {
     delayExecution: 0n, 
     needCompleted: `0x0`,
     needNotCompleted: `0x0`,
+    readStateFrom: `0x0`,
     quorum: 0n, 
     succeedAt: 0n, 
     throttleExecution: 0n,
@@ -46,7 +48,7 @@ const initialStateProposal: ProposalStore = {
   description: "",
   executeCalldata: `0x`,
   state: 5,
-  blockNumber: 0,
+  blockNumber: 0n,
   blockHash: `0x`
 }
 
@@ -61,7 +63,7 @@ const initialStateAction: ActionStore = {
 
 type RoleStore = Roles;
 const initialStateRole: RoleStore = {
-  roleId: 999, 
+  roleId: 999n, 
   holders: 0,
   laws: [],
   proposals: [], 
@@ -111,7 +113,8 @@ export const deleteAction: typeof useActionStore.setState = () => {
 export const notUpToDate: typeof useActionStore.setState = () => {
   useActionStore.setState({...initialStateAction, upToDate: false})
 }
-
+  
+  
 // Role store 
 export const useRoleStore = create<RoleStore>()(() => initialStateRole);
 

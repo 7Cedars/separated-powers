@@ -1,11 +1,13 @@
 import { ConnectedWallet } from '@privy-io/react-auth';
+import { GetBlockReturnType } from '@wagmi/core';
+import { Log } from "viem";
 
 export type Status = "idle" | "pending" | "error" | "success"
 export type Vote = 0n | 1n | 2n  // = against, for, abstain  
 // 'string | number | bigint | boolean | ByteArray 
 export type InputType = number | boolean | string | `0x${string}` | undefined 
-export type DataType = "uint8" | "uint16" | "uint32" | "uint64" | "uint128" | "uint256" | "address" | "bytes" | "string" | "bytes32" | "bool" |
-                       "uint8[]" | "uint16[]" | "uint32[]" | "uint64[]" | "uint128[]" | "uint256[]" | "address[]" | "bytes[]" | "string[]" | "bytes32[]" | "bool[]" | "unsupported" | "empty" 
+export type DataType = "uint8" | "uint16" | "uint32" | "uint48" | "uint64" | "uint128" | "uint256" | "address" | "bytes" | "string" | "bytes32" | "bool" |
+                       "uint8[]" | "uint16[]" | "uint32[]" | "uint48[]" | "uint64[]" | "uint128[]" | "uint256[]" | "address[]" | "bytes[]" | "string[]" | "bytes32[]" | "bool[]" | "unsupported" | "empty" 
 export type LawSimulation = [
       `0x${string}`[], 
       bigint[], 
@@ -16,13 +18,6 @@ export type LawSimulation = [
 export type Attribute = {  
   trait_type: string | number ;  
   value: string;
-}
-
-export type Metadata = { 
-  icon: string; 
-  banner: string;
-  description: string; 
-  attributes: Attribute[]
 }
 
 export type Token = {
@@ -40,7 +35,8 @@ export type ChainProps = {
   name: string;
   network: string; 
   id: number;
-  genesisBlock: bigint; // block at which the first SeparatedPowers Protocol was deployed. 
+  genesisBlock: bigint; // block at which the first PowersProtocol was deployed. 
+  blockTimeInSeconds?: number;
   rpc?: string;
   nativeCurrency?: {
     name: string;
@@ -50,9 +46,9 @@ export type ChainProps = {
   blockExplorerUrl?: string;
   iconUrl?: string;
   organisations?: `0x${string}`[]; 
-  erc20s?: `0x${string}`[];
-  erc721s?: `0x${string}`[];
-  erc1155s?: `0x${string}`[];
+  erc20s: `0x${string}`[];
+  erc721s: `0x${string}`[];
+  erc1155s: `0x${string}`[];
 }
                       
 
@@ -60,10 +56,26 @@ export type Config = {
   delayExecution: bigint; 
   needNotCompleted: `0x${string}`;
   needCompleted: `0x${string}`;
+  readStateFrom: `0x${string}`;
   quorum: bigint; 
   succeedAt: bigint; 
   throttleExecution: bigint;
   votingPeriod: bigint;
+}
+
+type Args = {
+  description: string;
+  initiator: `0x${string}`;
+  lawCalldata: `0x${string}`;
+  targetLaw: `0x${string}`;
+}
+
+export type LogExtended = Log & 
+  {args: Args}
+
+export type Execution = {
+  log: LogExtended; 
+  blocksData?: GetBlockReturnType
 }
 
 export type Law = {
@@ -71,19 +83,34 @@ export type Law = {
   name?: string;
   description?: string;
   allowedRole?: bigint;
-  separatedPowers?: `0x${string}`;
+  powers?: `0x${string}`;
   config: Config;
   params?: string[];
+  executions?: Execution[]; 
+}
+
+export type Metadata = { 
+  icon: string; 
+  banner: string;
+  description: string; 
+  attributes: Attribute[]
+}
+
+export type RoleLabel = { 
+  roleId: bigint; 
+  label: string; 
 }
 
 export type Organisation = {
   contractAddress: `0x${string}`;
   name?: string;
+  metadatas?: Metadata; 
   colourScheme: number;
   laws?: Law[];
   activeLaws?: Law[];
   proposals?: Proposal[];
   roles: bigint[];
+  roleLabels: RoleLabel[];
   deselectedRoles?: bigint[];
 }
 
@@ -95,12 +122,24 @@ export type Role = {
 }
 
 export type Roles = {
-  roleId: number;
+  roleId: bigint;
   holders?: number;
   laws?: Law[];
   proposals?: Proposal[];
   roles?: Role[];
 };
+
+export type Checks = {
+  allPassed?: boolean; 
+  authorised?: boolean;
+  proposalExists?: boolean;
+  proposalPassed?: boolean;
+  proposalNotCompleted?: boolean;
+  lawCompleted?: boolean;
+  lawNotCompleted?: boolean;
+  delayPassed?: boolean;
+  throttlePassed?: boolean;
+}
 
 export type Action = {
   dataTypes: DataType[] | undefined;
@@ -114,6 +153,7 @@ export type Proposal = {
   proposalId: number;
   targetLaw: `0x${string}`;
   voteStart: bigint;
+  voteStartBlockData?: GetBlockReturnType; 
   voteDuration: bigint;
   voteEnd: bigint;
   cancelled: boolean;
@@ -125,7 +165,7 @@ export type Proposal = {
   description?: string;
   executeCalldata?: `0x${string}`;
   state?: number;
-  blockNumber: number;
+  blockNumber: bigint;
   blockHash?: `0x${string}`;
 }
 

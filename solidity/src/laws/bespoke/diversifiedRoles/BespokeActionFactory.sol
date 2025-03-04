@@ -12,29 +12,27 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
-
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
-import { SeparatedPowers } from "../../../SeparatedPowers.sol";
+import { Powers} from "../../../Powers.sol";
 
 import { BespokeAction } from "../../executive/BespokeAction.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 contract BespokeActionFactory is Law {
-    error BespokeActionFactory__AddressOccupied();
-    error BespokeActionFactory__RequestAmountExceedsAvailableFunds();
-
     LawConfig public configNewBespokeAction; // config for new grants.
 
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_ // this is the configuration for creating new grants, not of the grants themselves.
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "string Name", // name
             "string Description", // description
@@ -71,7 +69,7 @@ contract BespokeActionFactory is Law {
         // step 1: if address is already in use, revert.
         uint256 codeSize = contractAddress.code.length;
         if (codeSize > 0) {
-            revert BespokeActionFactory__AddressOccupied();
+            revert ("Address occupied");
         }
 
         // step 3: create arrays
@@ -81,8 +79,8 @@ contract BespokeActionFactory is Law {
         stateChange = abi.encode("");
 
         // step 4: fill out arrays with data
-        targets[0] = separatedPowers;
-        calldatas[0] = abi.encodeWithSelector(SeparatedPowers.adoptLaw.selector, contractAddress);
+        targets[0] = powers;
+        calldatas[0] = abi.encodeWithSelector(Powers.adoptLaw.selector, contractAddress);
         stateChange = lawCalldata;
 
         // step 5: return data
@@ -125,7 +123,7 @@ contract BespokeActionFactory is Law {
                         // standard params
                         name,
                         description,
-                        separatedPowers,
+                        powers,
                         allowedRole,
                         configNewBespokeAction,
                         // remaining params
@@ -152,7 +150,7 @@ contract BespokeActionFactory is Law {
             // standard params
             name,
             description,
-            separatedPowers,
+            powers,
             allowedRole,
             configNewBespokeAction,
             // remaining params

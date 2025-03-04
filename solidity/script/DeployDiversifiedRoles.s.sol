@@ -4,10 +4,10 @@ pragma solidity 0.8.26;
 import "lib/forge-std/src/Script.sol";
 
 // core protocol
-import { SeparatedPowers } from "../src/SeparatedPowers.sol";
+import { Powers} from "../src/Powers.sol";
 import { Law } from "../src/Law.sol";
 import { ILaw } from "../src/interfaces/ILaw.sol";
-import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
+import { PowersTypes } from "../src/interfaces/PowersTypes.sol";
 
 // laws
 import { NominateMe } from "../src/laws/state/NominateMe.sol"; 
@@ -52,7 +52,7 @@ contract DeployDiversifiedRoles is Script {
 
         vm.startBroadcast();
         // Initiating Dao.
-        SeparatedPowers separatedPowers = new SeparatedPowers(
+        Powers powers = new Powers(
             "Diversified Roles", 
             "https://aqua-famous-sailfish-288.mypinata.cloud/ipfs/bafkreibszieidbocucrpnwwsljfxktoq46zj45hb7iak6upphl4jow5blm"
             );
@@ -62,7 +62,7 @@ contract DeployDiversifiedRoles is Script {
         Erc1155Mock erc1155Mock = new Erc1155Mock(); 
         vm.stopBroadcast();
 
-        dao = payable(address(separatedPowers));
+        dao = payable(address(powers));
         mock20_ = payable(address(erc20VotesMock)); 
         mock721_ = payable(address(erc721Mock));
         mock1155_ = payable(address(erc1155Mock));
@@ -70,9 +70,9 @@ contract DeployDiversifiedRoles is Script {
 
         // constitute dao.
         vm.startBroadcast();
-        separatedPowers.constitute(laws);
+        powers.constitute(laws);
         // transferring ownership erc721 token contract.
-        erc721Mock.transferOwnership(address(separatedPowers));
+        erc721Mock.transferOwnership(address(powers));
         vm.stopBroadcast();
 
         return (dao, laws, config, mock20_, mock721_, mock1155_);
@@ -271,6 +271,7 @@ contract DeployDiversifiedRoles is Script {
 
         // laws[9]
         // peer select Role 2 (allowedRole = Role 1)
+        lawConfig.readStateFrom = laws[8]; // = nominateMe
         vm.startBroadcast();
         law = new PeerSelect(
             "Claim community role.",
@@ -280,8 +281,6 @@ contract DeployDiversifiedRoles is Script {
             lawConfig,
             //
             15,
-            // uint256 maxRoleHolders_,
-            laws[8], // address nominees_,
             2 // uint32 roleId_
         );
         vm.stopBroadcast();

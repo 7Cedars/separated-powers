@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { useActionStore, setAction, useProposalStore } from "@/context/store";
+import { useActionStore, setAction, useProposalStore, useLawStore } from "@/context/store";
 import { Button } from "@/components/Button";
 import { useRouter } from "next/navigation";
 import { useReadContract } from 'wagmi'
@@ -9,12 +9,13 @@ import { lawAbi } from "@/context/abi";
 import { useLaw } from "@/hooks/useLaw";
 import { decodeAbiParameters,  keccak256, parseAbiParameters, toHex } from "viem";
 import { bytesToParams, parseParamValues, parseRole } from "@/utils/parsers";
-import { InputType } from "@/context/types";
+import { InputType, Proposal } from "@/context/types";
 import { StaticInput } from "./StaticInput";
 import { useProposal } from "@/hooks/useProposal";
 import { SimulationBox } from "@/components/SimulationBox";
 import { SectionText } from "@/components/StandardFonts";
 import { useWallets } from "@privy-io/react-auth";
+import { useChecks } from "@/hooks/useChecks";
 
 const roleColour = [  
   "border-blue-600", 
@@ -26,13 +27,14 @@ const roleColour = [
   "border-slate-600",
 ]
 
-export function ProposalBox() {
-  const router = useRouter();
-  const proposal = useProposalStore();
+export function ProposalBox({proposal}: {proposal?: Proposal}) {
   const action = useActionStore();
+  const law = useLawStore();
 
-  const {simulation, law, checks, resetStatus, execute, checkProposalExists, fetchSimulation, fetchChecks} = useLaw();
+  const {simulation, fetchSimulation} = useLaw();
   const {status: statusProposal, error, hasVoted, propose, castVote, checkHasVoted} = useProposal();
+  const {status: statusChecks, error: errorChecks, checks, fetchChecks, checkProposalExists} = useChecks();
+
   const [paramValues, setParamValues] = useState<(InputType | InputType[])[]>([])
   const [description, setDescription] = useState<string>()
   const [calldata, setCalldata] = useState<`0x${string}`>()
@@ -46,6 +48,8 @@ export function ProposalBox() {
   })
   const params = bytesToParams(data as `0x${string}`)  
   const dataTypes = params.map(param => param.dataType) 
+
+  console.log("@proposalBox: ", {statusProposal, proposal, action, checks, law, dataTypes})
 
   const handleSimulate = async () => {
       if (dataTypes && dataTypes.length > 0 && calldata && description) {
@@ -64,17 +68,16 @@ export function ProposalBox() {
           keccak256(toHex(description))
         )
 
-        fetchChecks(description, calldata)
+        fetchChecks(law, calldata, description)
 
-        if (!action.upToDate) {
-          setAction({
-            dataTypes: dataTypes,
-            paramValues: paramValues,
-            description: description,
-            callData: calldata, 
-            upToDate: true
-          })
-        }
+        setAction({
+          dataTypes: dataTypes,
+          paramValues: paramValues,
+          description: description,
+          callData: calldata, 
+          upToDate: true
+        })
+      
       }
   };
 
@@ -87,7 +90,7 @@ export function ProposalBox() {
   };
 
   const handleCastVote = async (support: bigint) => { 
-    const selectedProposal = description && calldata ? checkProposalExists(description, calldata) : undefined
+    const selectedProposal = description && calldata ? checkProposalExists(description, calldata, law) : undefined
     if (selectedProposal) {
       setLogSupport(support)
       castVote(
@@ -104,11 +107,24 @@ export function ProposalBox() {
   useEffect(() => {
       setDescription(action.description)
       setCalldata(action.callData)
-      checkHasVoted(
+      if (proposal) checkHasVoted(
         BigInt(proposal.proposalId), 
         wallets[0].address as `0x${string}`
       )
   }, [, proposal, action])
+
+  useEffect(() => {
+    if (statusProposal == 'success' && description && calldata) {
+      // resetting action in zustand will trigger all components to reload.
+      setAction({...action, upToDate: false })
+      fetchChecks(law, action.callData, action.description)
+      if (proposal) checkHasVoted(
+        BigInt(proposal.proposalId), 
+        wallets[0].address as `0x${string}`
+      )
+      setAction({...action, upToDate: false })
+    }
+  }, [statusProposal])
 
   return (
     <main className="w-full flex flex-col justify-start items-center">
@@ -154,8 +170,7 @@ export function ProposalBox() {
 
       {/* execute button */}
         <div className="w-full h-fit p-6">
-          {
-            checks?.proposalExists ? 
+          { proposal && proposal.proposalId != 0 ? 
               hasVoted ? 
               <div className = "w-full flex flex-row justify-center items-center gap-2 text-slate-400"> 
                 Account has voted  
@@ -164,6 +179,8 @@ export function ProposalBox() {
               <div className = "w-full flex flex-row gap-2"> 
                 <Button 
                   size={1} 
+                  selected={true}
+                  filled={false}
                   onClick={() => handleCastVote(1n)} 
                   statusButton={
                     checks && !checks.authorised ? 
@@ -179,6 +196,8 @@ export function ProposalBox() {
                 </Button>
                 <Button 
                   size={1} 
+                  selected={true}
+                  filled={false}
                   onClick={() => handleCastVote(0n)} 
                   statusButton={
                     checks && !checks.authorised ? 
@@ -194,6 +213,8 @@ export function ProposalBox() {
                 </Button>
                 <Button 
                   size={1} 
+                  selected={true}
+                  filled={false}
                   onClick={() => handleCastVote(2n)} 
                   statusButton={
                     checks && !checks.authorised ? 
@@ -212,10 +233,14 @@ export function ProposalBox() {
               <Button 
               size={1} 
               onClick={handlePropose} 
-
+              filled={false}
+              selected={true}
               statusButton={
                 checks && 
-                checks.authorised ? 
+                checks.authorised && 
+                checks.lawCompleted && 
+                checks.lawNotCompleted
+                ? 
                 statusProposal : 'disabled'
                 }> 
               Propose

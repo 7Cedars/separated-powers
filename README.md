@@ -59,7 +59,7 @@ In comparison to existing governance protocols, Separated Powers improves the sc
 For now, the protocol does not have extensive documentation. Instead, you can do the following 
 - Watch the <a href="www.tella.tv/video/separated-powers-solving-dao-governance-challenges-bis6"><b> 15 minute explanation</b></a>.
 - Read <a href="/solidity"> `/solidity/README.md`</a>. 
-- Then read through the code of `solidity/src/SeparatedPowers.sol`, `solidity/src/ISeparatedPowers.sol` and `solidity/src/Law.sol` and read through their code and natspecs.  
+- Then read through the code of `solidity/src/Powers.sol`, `solidity/src/IPowers.sol` and `solidity/src/Law.sol` and read through their code and natspecs.  
 
 More extensive documentation will be created asap. 
 

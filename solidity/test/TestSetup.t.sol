@@ -5,13 +5,13 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 
 // protocol
-import { SeparatedPowers } from "../src/SeparatedPowers.sol";
-import { ISeparatedPowers } from "../src/interfaces/ISeparatedPowers.sol";
+import { Powers} from "../src/Powers.sol";
+import { IPowers } from "../src/interfaces/IPowers.sol";
 import { Law } from "../src/Law.sol";
 import { ILaw } from "../src/interfaces/ILaw.sol";
-import { SeparatedPowersErrors } from "../src/interfaces/SeparatedPowersErrors.sol";
-import { SeparatedPowersTypes } from "../src/interfaces/SeparatedPowersTypes.sol";
-import { SeparatedPowersEvents } from "../src/interfaces/SeparatedPowersEvents.sol";
+import { PowersErrors } from "../src/interfaces/PowersErrors.sol";
+import { PowersTypes } from "../src/interfaces/PowersTypes.sol";
+import { PowersEvents } from "../src/interfaces/PowersEvents.sol";
 import { LawErrors } from "../src/interfaces/LawErrors.sol";
 import { HelperConfig } from "../script/HelperConfig.s.sol";
 
@@ -32,9 +32,9 @@ import { DeployBasicDao } from "../script/DeployBasicDao.s.sol";
 import { DeployAlignedDao } from "../script/DeployAlignedDao.s.sol";
 import { DeployGovernYourTax } from "../script/DeployGovernYourTax.s.sol"; 
 
-abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, SeparatedPowersEvents, LawErrors {
+abstract contract TestVariables is PowersErrors, PowersTypes, PowersEvents, LawErrors {
     // protocol and mocks
-    SeparatedPowers separatedPowers;
+    Powers powers;
     HelperConfig helperConfig;
     DaoMock daoMock;
     ConstitutionsMock constitutionsMock;
@@ -111,7 +111,7 @@ abstract contract TestVariables is SeparatedPowersErrors, SeparatedPowersTypes, 
     // the only event in the Law contract
     event Law__Initialized(
         address indexed law,
-        address indexed separatedPowers,
+        address indexed powers,
         string name,
         string description,
         uint48 allowedRole,
@@ -147,7 +147,7 @@ abstract contract TestHelpers is Test, TestVariables {
 
     function distributeNFTs(address erc721Mock, address[] memory accounts, uint256 randomiser, uint256 density) public {
         uint256 currentRandomiser;
-        randomiser = bound(randomiser, 10, 100_000_000);
+        randomiser = bound(randomiser, 10, 100 * 10 ** 18);
         for (uint256 i = 0; i < accounts.length; i++) {
             if (currentRandomiser < 10) {
                 currentRandomiser = randomiser;
@@ -179,19 +179,19 @@ abstract contract TestHelpers is Test, TestVariables {
                 currentRandomiser = currentRandomiser / 10;
             }
             // vote
-            if (SeparatedPowers(dao).canCallLaw(accounts[i], law)) {
+            if (Powers(dao).canCallLaw(accounts[i], law)) {
                 roleCount++;
                 if (currentRandomiser % 100 >= passChance) {
                     vm.prank(accounts[i]);
-                    SeparatedPowers(dao).castVote(proposalId, 0); // = against
+                    Powers(dao).castVote(proposalId, 0); // = against
                     againstVote++;
                 } else if (currentRandomiser % 100 < passChance) {
                     vm.prank(accounts[i]);
-                    SeparatedPowers(dao).castVote(proposalId, 1); // = for
+                    Powers(dao).castVote(proposalId, 1); // = for
                     forVote++;
                 } else {
                     vm.prank(accounts[i]);
-                    SeparatedPowers(dao).castVote(proposalId, 2); // = abstain
+                    Powers(dao).castVote(proposalId, 2); // = abstain
                     abstainVote++;
                 }
             }
@@ -271,12 +271,12 @@ abstract contract BaseSetup is TestVariables, TestHelpers {
 //                           TEST SETUPS                           //
 /////////////////////////////////////////////////////////////////////
 
-abstract contract TestSetupSeparatedPowers is BaseSetup, ConstitutionsMock {
+abstract contract TestSetupPowers is BaseSetup, ConstitutionsMock {
     function setUpVariables() public override {
         super.setUpVariables();
 
         // initiate constitution & get founders' roles list
-        (address[] memory laws_) = constitutionsMock.initiateSeparatedPowersConstitution(
+        (address[] memory laws_) = constitutionsMock.initiatePowersConstitution(
             payable(address(daoMock)), payable(address(erc1155Mock))
         );
 
@@ -403,8 +403,8 @@ abstract contract TestSetupAlignedDao is BaseSetup, ConstitutionsMock {
         // initiate constitution & get founders' roles list
         (address[] memory laws_) = constitutionsMock.initiateAlignedDaoTestConstitution(
             payable(address(daoMock)),
-            payable(address(erc1155Mock)),
             payable(address(erc20VotesMock)),
+            payable(address(erc20TaxedMock)),
             payable(address(erc721Mock))
         );
         laws = laws_;
@@ -435,7 +435,7 @@ abstract contract TestSetupDiversifiedGrants is BaseSetup, ConstitutionsMock {
 }
 
 abstract contract TestSetupBasicDao_fuzzIntegration is BaseSetup {
-    SeparatedPowers basicDao;
+    Powers basicDao;
 
     function setUpVariables() public override {
         super.setUpVariables();
@@ -445,21 +445,18 @@ abstract contract TestSetupBasicDao_fuzzIntegration is BaseSetup {
             address payable basicDaoAddress, 
             address[] memory laws_, 
             HelperConfig.NetworkConfig memory config_,
-            address mock20_,  
-            address mock1155_
+            address mock20_ 
             ) = deployBasicDao.run();
         laws = laws_;
         config = config_;
 
         erc20VotesMock = Erc20VotesMock(mock20_);  
-        erc1155Mock = Erc1155Mock(mock1155_); 
-
-        basicDao = SeparatedPowers(basicDaoAddress);
+        basicDao = Powers(basicDaoAddress);
     }
 }
 
 abstract contract TestSetupAlignedDao_fuzzIntegration is BaseSetup {
-    SeparatedPowers alignedDao;
+    Powers alignedDao;
 
     function setUpVariables() public override {
         super.setUpVariables();
@@ -469,23 +466,22 @@ abstract contract TestSetupAlignedDao_fuzzIntegration is BaseSetup {
             address payable alignedDaoAddress, 
             address[] memory laws_, 
             HelperConfig.NetworkConfig memory config_, 
-            address mock20_, 
-            address mock721_, 
-            address mock1155_
+            address mock20votes_, 
+            address mock20taxed_,
+            address mock721_ 
             ) = deployAlignedDao.run();
         laws = laws_;
         config = config_;
 
-        erc20VotesMock = Erc20VotesMock(mock20_); 
+        erc20VotesMock = Erc20VotesMock(mock20votes_); 
+        erc20TaxedMock = Erc20TaxedMock(mock20taxed_); 
         erc721Mock = Erc721Mock(mock721_); 
-        erc1155Mock = Erc1155Mock(mock1155_); 
-     
-        alignedDao = SeparatedPowers(alignedDaoAddress);
+        alignedDao = Powers(alignedDaoAddress);
     } 
 }
 
 abstract contract TestSetupGovernYourTax_fuzzIntegration is BaseSetup {
-    SeparatedPowers governYourTax;
+    Powers governYourTax;
 
     function setUpVariables() public override {
         super.setUpVariables();
@@ -502,6 +498,6 @@ abstract contract TestSetupGovernYourTax_fuzzIntegration is BaseSetup {
 
         erc20TaxedMock = Erc20TaxedMock(mock20Taxed_); 
         
-        governYourTax = SeparatedPowers(governYourTaxAddress);
+        governYourTax = Powers(governYourTaxAddress);
     }
 }

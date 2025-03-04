@@ -1,53 +1,63 @@
 "use client";
 
-import { separatedPowersAbi } from "@/context/abi";
+import { powersAbi } from "@/context/abi";
 import { parseVoteData } from "@/utils/parsers";
-import { useActionStore, useOrgStore} from "@/context/store";
+import { useActionStore, useLawStore, useOrgStore} from "@/context/store";
 import { Proposal } from "@/context/types";
 import { useLaw } from "@/hooks/useLaw";
 import { CheckIcon, XMarkIcon} from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
-import { useReadContracts } from "wagmi";
+import { useBlockNumber, useChainId, useReadContracts } from "wagmi";
+import { mainnet, sepolia } from "@wagmi/core/chains";
+import { blocksToHoursAndMinutes } from "@/utils/toDates";
+import { supportedChains } from "@/context/chains";
+import { useChecks } from "@/hooks/useChecks";
 
-export const Votes: React.FC = () => {
-  const {law, checkProposalExists} = useLaw(); 
-  const action = useActionStore();
-  const organisation = useOrgStore()
-  const [selectedProposal, setSelectedProposal] = useState<Proposal>()
+export const Votes = ({proposal}: {proposal: Proposal}) => {
+  const organisation = useOrgStore(); 
+  const law = useLawStore();  
+
+  const {data: blockNumber, error: errorBlockNumber} = useBlockNumber({
+    chainId: sepolia.id, // NB: reading blocks from sepolia, because arbitrum One & sepolia reference these block numbers, not their own. 
+  })
+  // console.log({blockNumber, errorBlockNumber})
+  const chainId = useChainId();
+  const supportedChain = supportedChains.find(chain => chain.id === chainId)
   
-  const separatedPowersContract = {
+  // I try to avoid fetching in info blocks, but we do not do anything else with this data: only for viewing purposes.. 
+  const powersContract = {
     address: organisation.contractAddress,
-    abi: separatedPowersAbi,
+    abi: powersAbi,
   } as const
   const { isSuccess, status, data } = useReadContracts({
     contracts: [
       {
-        ...separatedPowersContract,
+        ...powersContract,
         functionName: 'getProposalVotes',
-        args: [selectedProposal?.proposalId]
+        args: [proposal?.proposalId]
       }, 
       {
-        ...separatedPowersContract,
+        ...powersContract,
         functionName: 'getAmountRoleHolders', 
         args: [law.allowedRole]
       }, 
+      {
+        ...powersContract,
+        functionName: 'proposalDeadline', 
+        args: [proposal?.proposalId]
+      }, 
     ]
   })
-
-  useEffect(() => {
-    const proposal = checkProposalExists(action.description as string, action.callData as `0x${string}`)
-    setSelectedProposal(proposal)
-  }, [action])
-
   const votes = isSuccess ? parseVoteData(data).votes : [0, 0, 0]
   const init = 0
   const allVotes = votes.reduce((acc, current) => acc + current, init)
   const quorum = isSuccess ? Math.floor((parseVoteData(data).holders * 100) / Number(law.config.quorum)) : 0
   const threshold = isSuccess ? Math.floor((parseVoteData(data).holders * 100) / Number(law.config.succeedAt)) : 0
+  const deadline = isSuccess ? parseVoteData(data).deadline : 0
 
   return (
     <>
-    { selectedProposal ?
+    { proposal && 
       <div className="w-full grow flex flex-col gap-3 justify-start items-center bg-slate-50 border slate-300 rounded-md max-w-72">
       <section className="w-full flex flex-col divide-y divide-slate-300 text-sm text-slate-600" > 
         <div className="w-full flex flex-row items-center justify-between px-4 py-2 text-slate-900">
@@ -56,6 +66,7 @@ export const Votes: React.FC = () => {
           </div> 
         </div>
 
+        <div className = "w-full h-full flex flex-col lg:min-h-fit overflow-x-scroll divide-y divide-slate-300 max-h-36 lg:max-h-full overflow-y-scroll">
         {/* Quorum block */}
         <div className = "w-full flex flex-col justify-center items-center gap-2 py-2 px-4"> 
           <div className = "w-full flex flex-row justify-between items-center">
@@ -101,10 +112,25 @@ export const Votes: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Vote still active block */}
+        <div className = "w-full flex flex-col justify-center items-center gap-2 py-2 px-4"> 
+          <div className = "w-full flex flex-row justify-between items-center">
+            { Number(blockNumber) >= deadline ? <CheckIcon className="w-4 h-4 text-green-600"/> : <XMarkIcon className="w-4 h-4 text-red-600"/>}
+            <div>
+            { Number(blockNumber) >= deadline ? "Vote has closed" : "Vote still active"}
+            </div>
+          </div>
+          {Number(blockNumber) < deadline &&  
+            <div className = "w-full flex flex-row justify-between items-center">
+              Vote will end in 
+              {  blocksToHoursAndMinutes(deadline - Number(blockNumber), supportedChain) }
+            </div>
+          }
+        </div>
+      </div>
     </section>
     </div>
-    :
-    null
     }
     </>
   )

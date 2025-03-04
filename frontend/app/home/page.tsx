@@ -1,21 +1,23 @@
 "use client";
  
 import React, { useCallback, useEffect, useState } from "react";
-import { useOrgStore } from "../../context/store";
+import { setLaw, useOrgStore } from "../../context/store";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { LawList } from "@/app/laws/LawList";
 import { MyProposals } from "./MyProposals";
 import { Status } from "@/context/types";
 import { publicClient } from "@/context/clients";
 import { wagmiConfig } from "@/context/wagmiConfig";
-import { readContract } from "@wagmi/core";
-import { separatedPowersAbi } from "@/context/abi";
-import { useWallets } from "@privy-io/react-auth";
+import { getBlock, GetBlockReturnType, readContract } from "@wagmi/core";
+import { powersAbi } from "@/context/abi";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { MyRoles } from "./MyRoles";
 import { Assets } from "./Assets";
-import { parseMetadata } from "@/utils/parsers";
 import { useChainId } from "wagmi";
 import { supportedChains } from "@/context/chains";
+import { useProposal } from "@/hooks/useProposal";
+import { Overview } from "./Overview";
+import {  sepolia } from "@wagmi/core/chains";
 
 const colourScheme = [
   "from-indigo-500 to-emerald-500", 
@@ -29,28 +31,39 @@ const colourScheme = [
 export default function Page() {
     const organisation = useOrgStore()
     const {wallets} = useWallets()
+    const { proposals, fetchProposals } = useProposal();
+    const { authenticated } = usePrivy();
     const [status, setStatus] = useState<Status>()
     const [error, setError] = useState<any | null>(null)
-    const [hasRoles, setHasRoles] = useState<{role: bigint; since: bigint}[]>([])
-    const [description, setDescription] = useState<string>() 
+    const [hasRoles, setHasRoles] = useState<{role: bigint; since: bigint; blockData: GetBlockReturnType}[]>([])
     const chainId = useChainId();
     const supportedChain = supportedChains.find(chain => chain.id == chainId)
+
+    // console.log("@home:", {organisation})
 
     const fetchMyRoles = useCallback(
       async (account: `0x${string}`, roles: bigint[]) => {
         let role: bigint; 
-        let fetchedHasRole: {role: bigint; since: bigint}[] = []; 
+        let fetchedHasRole: {role: bigint; since: bigint; blockData: GetBlockReturnType}[] = []; 
+        let blockData: GetBlockReturnType = {} as GetBlockReturnType;
 
         if (publicClient) {
           try {
             for await (role of roles) {
               const fetchedSince = await readContract(wagmiConfig, {
-                abi: separatedPowersAbi,
+                abi: powersAbi,
                 address: organisation.contractAddress,
                 functionName: 'hasRoleSince', 
                 args: [account, role]
                 })
-              fetchedHasRole.push({role, since: fetchedSince as bigint})
+                if (fetchedSince) {
+                const fetchedBlockData = await getBlock(wagmiConfig, {
+                  blockNumber: fetchedSince as bigint,
+                  chainId: sepolia.id, // NB This needs to be made dynamic. In this case need to read of sepolia because arbitrum uses mainnet block numbers.  
+                })
+                blockData = fetchedBlockData as GetBlockReturnType
+              }
+              fetchedHasRole.push({role, since: fetchedSince as bigint, blockData: blockData as GetBlockReturnType})
               }
               setHasRoles(fetchedHasRole)
           } catch (error) {
@@ -66,51 +79,24 @@ export default function Page() {
       }
     }, [wallets?.[0]?.address, fetchMyRoles, organisation.roles])
 
-
-    const fetchMetaData = useCallback(
-        async () => {
-        setStatus("pending")
-
-        if (organisation.contractAddress) {
-          const uri = await readContract(wagmiConfig, {
-            abi: separatedPowersAbi,
-            address: organisation.contractAddress,
-            functionName: 'uri'
-          })
-
-        if (uri) {
-          try {
-            const fetchedMetadata: unknown = await(
-              await fetch(uri as string)
-              ).json()
-              const metadata = parseMetadata(fetchedMetadata)
-              setDescription(metadata.description)
-            } catch (error) {
-            setStatus("error") 
-            setError(error)
-          }
-        }
-      }
-    }, [])
-
     useEffect(() => {
       if (organisation) {
-        fetchMetaData()
+        fetchProposals(organisation);
       }
-    }, [, organisation ])
+    }, [ ])
  
     return (
-      <main className="w-full h-full flex flex-col justify-center items-center gap-6">
+      <main className="w-full h-full flex flex-col justify-start items-center gap-3 px-2 overflow-y-scroll pt-20">
         {/* hero banner  */}
-        <section className={`w-full min-h-[20vh] flex flex-col justify-center items-center text-center text-slate-50 text-5xl bg-gradient-to-bl ${colourScheme[organisation.colourScheme] } rounded-md`}> 
+        <section className={`w-full min-h-64 flex flex-col justify-center items-center text-center text-slate-50 text-5xl bg-gradient-to-bl ${colourScheme[organisation.colourScheme] } rounded-md`}> 
           {organisation?.name}
         </section>
         
         {/* Description + link to powers protocol deployment */}
-        { !description ? null : 
-        <section className="w-full h-fit flex flex-col gap-2 justify-left items-center border border-slate-200 rounded-md bg-slate-50 lg:max-w-full max-w-2xl p-4">
+        { organisation?.metadatas?.description &&  
+        <section className="w-full h-fit flex flex-col gap-2 justify-left items-center border border-slate-200 rounded-md bg-slate-50 lg:max-w-full max-w-3xl p-4">
           <div className="w-full text-slate-800 text-left text-pretty">
-            {description}
+            {organisation.metadatas.description}
           </div>
           <a
             href={`${supportedChain?.blockExplorerUrl}/address/${organisation.contractAddress}#code`} target="_blank" rel="noopener noreferrer"
@@ -130,18 +116,18 @@ export default function Page() {
 
         
         {/* main body  */}
-        <section className="w-full lg:max-w-full h-full flex max-w-2xl lg:flex-row flex-col-reverse justify-end items-start">
+        <section className="w-full lg:max-w-full h-full flex max-w-3xl lg:flex-row flex-col-reverse justify-end items-start">
           {/* left / bottom panel  */}
-          <div className = {"w-full"}>
-            <LawList /> 
+          <div className = {"w-full h-full min-h-fit pb-16"}>
+            <Overview /> 
           </div>
           {/* right / top panel  */} 
-          <div className = {"w-full pb-2 flex flex-wrap flex-col lg:flex-nowrap max-h-48 lg:max-h-full lg:w-96 lg:flex-col lg:overflow-hidden lg:ps-2 gap-3 overflow-y-hidden overflow-x-scroll scroll-snap-x"}> 
+          <div className = {"w-full pb-2 flex flex-wrap flex-col lg:flex-nowrap max-h-48 min-h-48 lg:max-h-full lg:w-96 lg:flex-col lg:overflow-hidden lg:ps-2 gap-3 overflow-y-hidden overflow-x-scroll scroll-snap-x"}> 
             <Assets /> 
             
-            <MyProposals hasRoles = {hasRoles}/> 
+            <MyProposals hasRoles = {hasRoles} authenticated = {authenticated} proposals = {proposals} /> 
 
-            <MyRoles hasRoles = {hasRoles}/>
+            <MyRoles hasRoles = {hasRoles} authenticated = {authenticated}/>
           </div>
         </section>
       </main>

@@ -185,16 +185,17 @@ export const parseRole = (role: bigint | undefined): number => {
 }
 
 
-export const parseVoteData = (data: unknown[]): {votes: number[], holders: number} => {
+export const parseVoteData = (data: unknown[]): {votes: number[], holders: number, deadline: number} => {
   if ( !data || !isArray(data)) {
     throw new Error('@parseVoteData: data not an array.');
   }
-  if (data.length != 2) {
+  if (data.length != 3) {
     throw new Error('@parseVoteData: data not correct length.');
   }
   const dataTypes = data.map(item => item as UseReadContractsReturnType) 
   let votes: number[]
   let holders: number 
+  let deadline: number 
   
   if (dataTypes[0] && 'result' in dataTypes[0]) {
     if (
@@ -215,11 +216,17 @@ export const parseVoteData = (data: unknown[]): {votes: number[], holders: numbe
     holders = 0
   }
 
-  return {votes, holders}
+  if ('result' in dataTypes[2]) {
+    deadline = Number(dataTypes[2].result)
+  } else {
+    deadline = 0
+  }
+
+  return {votes, holders, deadline}
 }
   
 // direct copy for now from loyal-customer-engagement project. Adapt as needed. 
-export const parseContractError = (rawReply: unknown): boolean | string  => {
+export const parseLawError = (rawReply: unknown): boolean | string  => {
   if (typeof rawReply == null) {
     return false
   }
@@ -234,7 +241,9 @@ export const parseContractError = (rawReply: unknown): boolean | string  => {
   }
 
   if (typeof rawReply !== 'boolean') {
-    return String(rawReply).split("\n")[1]
+    const splitString = String(rawReply).split(`\n`) 
+    // console.log(rawReply)
+    return splitString[2]
   }
 
   else {
@@ -295,17 +304,17 @@ export const parse1155Metadata = (metadata: unknown): Token => {
   return result
 };
 
-export const parseProposalStatus = (state: number | undefined): string => {
-  if (!isNumber(state)) {
-    throw new Error(`Incorrect state, not a number: ${state}`);
+export const parseProposalStatus = (state: string | undefined): string => {
+  if (!isString(state)) {
+    throw new Error(`Incorrect state, not a string: ${state}`);
   }
 
   switch (state) {
-    case 0: return "Active";
-    case 1: return "Cancelled";
-    case 2: return "Defeated";
-    case 3: return "Succeeded";
-    case 4: return "Completed"; 
+    case '0': return "Active";
+    case '1': return "Cancelled";
+    case '2': return "Defeated";
+    case '3': return "Succeeded";
+    case '4': return "Completed"; 
 
     default:
       return "unsupported state";
@@ -313,29 +322,26 @@ export const parseProposalStatus = (state: number | undefined): string => {
  
 };
 
+export const parseErrorMessage = (message: unknown): boolean | string  => {
+  if (typeof message == null) {
+    return false
+  }
+  try {
+    String(message)
+  } catch {
+    throw new Error('Incorrect or missing data at rawReply');
+  }
 
+  if (typeof message === 'boolean') {
+    return message
+  }
 
-// Info: supported dataType Signatures: 
-// uint8, = 0x7bcdc9c6
-// uint16, = 0x267213ef
-// uint32, = 0xaab7cacf
-// uint64, = 0xf1b7aa7b
-// uint128, = 0x26255fcf
-// uint256, = 0xec13d6d1
-// address, = 0x421683f8
-// bytes, = 0xb963e9b4
-// string, = 0x97fc4627
-// bytes32, = 0x9878dbb4
-// bool, = 0xc1053bda
-// uint8[], = 0x79b36d0f
-// uint16[], = 0x176bfc5e
-// uint32[], = 0x78cd6b36
-// uint64[], = 0x9dc4a28a
-// uint128[], = 0x3d05ac75
-// uint256[], = 0xc1b76e99
-// address[], = 0x23d8ff3d
-// bytes[], = 0x084b42f8
-// string[], = 0xa227fd7a 
-// bytes32[], = 0xc0427979
-// bool[], = 0x8761250c
+  if (typeof message !== 'boolean') {
+    return String(message) // .split("\n")[1]
+  }
+
+  else {
+    return false 
+  }
+};
 

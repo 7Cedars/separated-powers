@@ -1,7 +1,6 @@
 "use client";
 
-import { setLaw } from "@/context/store";
-import { useLaw } from "@/hooks/useLaw";
+import { setLaw, useLawStore } from "@/context/store";
 import { useRouter } from 'next/navigation'
 
 const roleColour = [  
@@ -15,7 +14,7 @@ const roleColour = [
 ]
 
 export const Law: React.FC = () => {
-  const {law} = useLaw(); 
+  const law = useLawStore(); 
   const router = useRouter();
 
   return (

@@ -17,7 +17,7 @@
 /// Note 1: as of now, it only allows for a single function to be called.
 /// Note 2: as of now, it does not allow sending of ether values to the target function.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
+/// @author 7Cedars, 
 
 pragma solidity 0.8.26;
 
@@ -31,7 +31,7 @@ contract BespokeAction is Law {
     /// @notice constructor of the law
     /// @param name_ the name of the law.
     /// @param description_ the description of the law.
-    /// @param separatedPowers_ the address of the core governance protocol
+    /// @param powers_ the address of the core governance protocol
     /// @param allowedRole_ the role that is allowed to execute this law
     /// @param config_ the configuration of the law
     /// @param targetContract_ the address of the target contract
@@ -40,13 +40,13 @@ contract BespokeAction is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         address targetContract_,
         bytes4 targetFunction_,
         string[] memory params_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         _targetContract = targetContract_;
         _targetFunction = targetFunction_;
         inputParams = abi.encode(params_);

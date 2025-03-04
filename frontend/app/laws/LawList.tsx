@@ -7,11 +7,13 @@ import { useRouter } from "next/navigation";
 import { Law } from "@/context/types";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useOrganisations } from "@/hooks/useOrganisations";
+import { bigintToRole } from "@/utils/bigintToRole";
 
 export function LawList() {
   const organisation = useOrgStore();
   const router = useRouter();
-  const { status, update } = useOrganisations() 
+  const { status, updateOrg } = useOrganisations() 
+  
   const handleRoleSelection = (role: bigint) => {
     let newDeselection: bigint[] = []
 
@@ -26,52 +28,28 @@ export function LawList() {
   };
 
   return (
-    <div className="w-full flex flex-col gap-0 justify-start items-center bg-slate-50 border slate-300 rounded-md overflow-hidden">
+    <div className="w-full h-full flex flex-col gap-0 justify-start items-center bg-slate-50 border slate-300 rounded-md">
       {/* table banner  */}
-      <div className="w-full flex flex-row gap-3 justify-between items-center py-2 px-4 overflow-y-scroll border-b slate-300">
+      <div className="w-full min-h-16 flex flex-row gap-3 justify-between items-center py-3 px-4 overflow-y-scroll border-b slate-300">
         <div className="text-slate-900 text-center font-bold text-lg">
           Laws
         </div>
-        <div className="flex flex-row w-full min-w-16 h-8">
-          <Button
-            size={0}
-            showBorder={false}
-            role={0}
-            onClick={() => handleRoleSelection(0n)}
-            selected={!organisation?.deselectedRoles?.includes(0n)} 
-          >
-            Admin
-          </Button>
-        </div>
-        {organisation?.roles.map((role, i) => {
-          return role != 0n && role != 4294967295n ? (
-            <div className="flex flex-row w-full min-w-16 h-8" key={i}>
-            <Button
-              size={0}
-              showBorder={false}
-              role={Number(role)}
-              selected={!organisation?.deselectedRoles?.includes(BigInt(role))}
-              onClick={() => handleRoleSelection(BigInt(role))}
-            >
-              Role {role}
-            </Button>
+        {organisation?.roles.map((role, i) => 
+            <div className="flex flex-row w-full min-w-fit h-8" key={i}>
+              <Button
+                size={0}
+                showBorder={true}
+                role={role == 4294967295n ? 6 : Number(role)}
+                selected={!organisation?.deselectedRoles?.includes(BigInt(role))}
+                onClick={() => handleRoleSelection(BigInt(role))}
+              >
+                {bigintToRole(role, organisation)} 
+              </Button>
             </div>
-          ) : null;
-        })}
-        <div className="flex flex-row w-full min-w-16 h-8">
-          <Button
-            size={0}
-            showBorder={false}
-            role={6}
-            onClick={() => handleRoleSelection(4294967295n)}
-            selected={!organisation?.deselectedRoles?.includes(4294967295n)}
-          >
-            Public
-          </Button>
-        </div>
+        )}
         <button 
           className="w-fit h-fit p-1 rounded-md border-slate-500"
-          onClick = {() => update(organisation)}
+          onClick = {() => updateOrg(organisation)}
           >
             <ArrowPathIcon
               className="w-5 h-5 text-slate-800 aria-selected:animate-spin"
@@ -99,7 +77,7 @@ export function LawList() {
               >
                 <td className="max-h-12 text-left px-2 min-w-60">
                   <Button
-                    showBorder={false}
+                    showBorder={true}
                     role={
                       law.allowedRole == 4294967295n
                         ? 6
@@ -112,19 +90,13 @@ export function LawList() {
                       router.push("/laws/law");
                     }}
                     align={0}
+                    selected={true}
                   >
                     {law.name}
                   </Button>
                 </td>
                 <td className="pe-4 text-slate-500 min-w-96">{law.description}</td>
-                <td className="pe-4 min-w-20 text-slate-500"> { 
-                  law.allowedRole == 0n ? 
-                    "Admin"
-                  : law.allowedRole == 4294967295n ? 
-                      "Public"
-                    : 
-                      `Role ${law.allowedRole}`
-                    }
+                <td className="pe-4 min-w-20 text-slate-500"> {law.allowedRole != undefined ? bigintToRole(law.allowedRole, organisation) : "-"}
                 </td>
               </tr>
             )

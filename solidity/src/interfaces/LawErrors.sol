@@ -14,13 +14,14 @@
 
 /// @notice Errors used in {Law.sol}.
 ///
-/// @author 7Cedars, Oct-Nov 2024, RnDAO CollabTech Hackathon
-
+/// @dev Errors in implementations of law.sol have to use strings (as in revert("this is an error") instead of using custom function, to allow errors to bubble up.)  
+/// @author 7Cedars
+/// 
 pragma solidity 0.8.26;
 
 interface LawErrors {
-    /// @notice Emitted when a law is called by a non-separatedPowers account.
-    error Law__OnlySeparatedPowers();
+    /// @notice Emitted when a law is called by a non-powers account.
+    error Law__OnlyPowers();
 
     /// @notice Emitted when a zero address is used.
     error Law__NoZeroAddress();

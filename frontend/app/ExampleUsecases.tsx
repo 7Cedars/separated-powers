@@ -9,24 +9,26 @@ import { ArrowUpRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 export function ExampleUseCases() { 
 
   return (    
-    <section className="w-full min-h-[100vh] flex flex-col justify-between items-center bg-gradient-to-b from-blue-600 to-blue-400 snap-start snap-always pt-6 px-6">
+    <section className="w-full min-h-[100vh] h-full max-h-fit flex flex-col justify-between items-center bg-gradient-to-b from-blue-600 to-blue-400 snap-start snap-always pt-4 px-6">
         {/* title  */}
-          <section className="w-full min-h-64 flex flex-col justify-center items-center">
-              <div className = "w-full flex flex-col gap-1 justify-center items-center md:text-4xl text-3xl font-bold text-slate-100 max-w-4xl text-center text-pretty">
+          <section className="w-full min-h-48 flex flex-col justify-center items-center">
+              <div className = "w-full flex flex-col justify-center items-center md:text-4xl text-3xl font-bold text-slate-100 max-w-4xl text-center text-pretty">
                   The next generation of on-chain governance
               </div>
-              <div className = "w-full flex justify-center items-center md:text-2xl text-lg text-slate-300 max-w-2xl text-center">
-                  Separated Powers is a proof of concept of a role restricted governance protocol. These type of protocols have several potential high-impact use cases. 
+              <div className = "w-full flex justify-center items-center md:text-2xl text-lg text-slate-300 max-w-2xl text-center pt-1">
+                  Role restricted governance protocols have immense powers. 
               </div>
           </section>
 
-          <section className = "h-full w-full flex flex-col justify-center items-center" style = {{position: 'relative', width: '100%', height: '100%'}}> 
+          {/* sm:h-full sm:w-full sm:max-h-full sm:max-w-full max-h-0 max-w-0 */}
+
+          <section className = "grow h-full w-full flex flex-col justify-center items-center" style = {{position: 'relative', width: '100%', height: '100%'}}> 
             <Image 
                 src={"/home.png"} 
-                className = "p-4 rounded-md" 
+                className = "p-2 rounded-md" 
                 style={{objectFit: "contain", objectPosition: "center"}}
                 fill={true}
-                alt="Screenshot Separated Powers"
+                alt="Screenshot Powers App"
                 >
             </Image>
           </section>
@@ -34,12 +36,12 @@ export function ExampleUseCases() {
 
         {/* use cases  */}
         <section 
-          className="w-screen min-h-fit h-full flex flex-row gap-10 justify-start items-center overflow-x-scroll" 
+          className="grow w-screen min-h-fit h-full max-h-80 max-w-7xl flex flex-row gap-10 justify-start items-center overflow-x-scroll overflow-y-hidden py-10 " 
           >
-            <div className = "h-20" />
+            <div className = "h-20 " />
             {   
               exampleUseCases.map((useCase, index) => (
-                <div className="min-w-96 max-h-[25vh] h-full flex flex-col justify-center items-center border border-slate-300 rounded-md bg-slate-50 overflow-hidden" key={index}>  
+                <div className="min-w-96 h-full min-h-72 flex flex-col justify-center items-center border border-slate-300 rounded-md bg-slate-50 overflow-hidden" key={index}>  
                   <div className="w-full h-fit font-bold text-slate-700 p-3 ps-5 border-b border-slate-300 bg-slate-100">
                       {useCase.title}
                   </div> 

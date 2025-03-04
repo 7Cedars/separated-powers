@@ -17,11 +17,9 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
+import { Powers} from "../../Powers.sol";
 
-abstract contract ThrottlePerAccount is Law {
-    error ThrottlePerAccount__DelayNotPassed();
-
+abstract contract ThrottlePerAccount is Law { 
     mapping(address initiator => uint48 blockNumber) public lastTransaction;
 
     function checksAtExecute(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
@@ -31,7 +29,7 @@ abstract contract ThrottlePerAccount is Law {
         override
     {
         if (uint48(block.number) - lastTransaction[initiator] < _delay()) {
-            revert ThrottlePerAccount__DelayNotPassed();
+            revert ("Delay not passed");
         }
         super.checksAtExecute(initiator, lawCalldata, descriptionHash);
     }

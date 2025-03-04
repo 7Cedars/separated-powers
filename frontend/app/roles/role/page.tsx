@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation";
 import { Role, Status } from "@/context/types";
 import { parseRole } from "@/utils/parsers";
 import { publicClient } from "@/context/clients";
-import { separatedPowersAbi } from "@/context/abi";
+import { powersAbi } from "@/context/abi";
 import { readContract } from "wagmi/actions";
 import { wagmiConfig } from "@/context/wagmiConfig";
 import { parseEventLogs, ParseEventLogsReturnType } from "viem"
 import { useChainId } from 'wagmi'
 import { supportedChains } from "@/context/chains";
+import { bigintToRole } from "@/utils/bigintToRole";
 
 const roleColour = [  
   "border-blue-600", 
@@ -39,7 +40,7 @@ export default function Page() {
         try {
           const logs = await publicClient.getContractEvents({ 
             address: organisation.contractAddress,
-            abi: separatedPowersAbi, 
+            abi: powersAbi, 
             eventName: 'RoleSet',
             fromBlock: supportedChain?.genesisBlock,
             args: {
@@ -48,7 +49,7 @@ export default function Page() {
             },
           })
           const fetchedLogs = parseEventLogs({
-            abi: separatedPowersAbi,
+            abi: powersAbi,
             eventName: 'RoleSet',
             logs
           })
@@ -70,7 +71,7 @@ export default function Page() {
           try {
             for await (role of roles) {
               const fetchedSince = await readContract(wagmiConfig, {
-                abi: separatedPowersAbi,
+                abi: powersAbi,
                 address: organisation.contractAddress,
                 functionName: 'hasRoleSince', 
                 args: [role.account, role.roleId]
@@ -102,15 +103,11 @@ export default function Page() {
     }, [])
 
   return (
-    <main className={`w-full overflow-hidden`}>
+    <main className={`w-full overflow-hidden pt-20 px-2`}>
       {/* table banner  */}
       <div className={`w-full flex flex-row gap-3 justify-between items-center bg-slate-50 slate-300 mt-2 py-4 px-6 border rounded-t-md ${roleColour[parseRole(BigInt(role.roleId))]} border-b-slate-300`}>
         <div className="text-slate-900 text-center font-bold text-lg">
-        { 
-          role.roleId == 0 ? "Admin"
-          : role.roleId == 4294967295 ? "Public"
-          : `Role ${role.roleId}` 
-        }
+         {bigintToRole(role.roleId, organisation)}
         </div>
       </div>
       {/* table laws  */}
@@ -126,8 +123,8 @@ export default function Page() {
         </thead>
         <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
           {
-            roleInfo?.map((role: Role) =>
-              <tr className="text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll">
+            roleInfo?.map((role: Role, index: number) =>
+              <tr className="text-sm text-left text-slate-800 h-16 p-2 overflow-x-scroll" key = {index}>
                 <td className="ps-6 pe-4 text-slate-500 min-w-60">{role.account}</td>
                 <td className="pe-8 text-right text-slate-500">{role.since}</td>
               </tr> 

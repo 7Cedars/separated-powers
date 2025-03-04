@@ -3,12 +3,12 @@ pragma solidity 0.8.26;
 
 // import {Test, console, console2} from "lib/forge-std/src/Test.sol";
 // import {DeployAgDao} from "../../script/DeployAgDao.s.sol";
-// import {SeparatedPowers} from "../src/SeparatedPowers.sol";
+// import {Powers} from "../src/Powers.sol";
 // import {AgDao} from   "../src/implementation/DAOs/AgDao.sol";
 // import {AgCoins} from "../src/implementation/DAOs/AgCoins.sol";
 // import {Law} from "../src/Law.sol";
 // import {IAuthoritiesManager} from "../src/interfaces/IAuthoritiesManager.sol";
-// import {ISeparatedPowers} from "../src/interfaces/ISeparatedPowers.sol";
+// import {IPowers} from "../src/interfaces/IPowers.sol";
 
 // // constitutional laws
 // import {Admin_setLaw} from "../src/implementation/DAOs/laws/Admin_setLaw.sol";
@@ -31,9 +31,9 @@ pragma solidity 0.8.26;
 // * @dev for chained proposal tests, see the 'chain propsals' section.
 // */
 
-// contract SeparatedPowersTest is Test {
+// contract PowersTest is Test {
 //   /* Type declarations */
-//   SeparatedPowers separatedPowers;
+//   Powers powers;
 //   AgDao agDao;
 //   AgCoins agCoins;
 //   address[] constituentLaws;
@@ -130,7 +130,7 @@ pragma solidity 0.8.26;
 //     agDao.execute(constituentLaws[4], lawCalldata, keccak256(bytes(description)));
 
 //     // check
-//     SeparatedPowersTypes.ProposalState proposalStateOne = agDao.state(proposalIdOne);
+//     PowersTypes.ProposalState proposalStateOne = agDao.state(proposalIdOne);
 //     assert(uint8(proposalStateOne) == 4); // == ProposalState.Completed
 
 //     /* PROPOSAL LINK 2: a seniors accept the proposed law. */
@@ -160,7 +160,7 @@ pragma solidity 0.8.26;
 //     agDao.execute(constituentLaws[5], lawCalldata, keccak256(bytes(description)));
 
 //     // check
-//     SeparatedPowersTypes.ProposalState proposalStateTwo = agDao.state(proposalIdTwo);
+//     PowersTypes.ProposalState proposalStateTwo = agDao.state(proposalIdTwo);
 //     assert(uint8(proposalStateTwo) == 4); // == ProposalState.Completed
 
 //     /* PROPOSAL LINK 3: the admin can execute a activation of the law. */

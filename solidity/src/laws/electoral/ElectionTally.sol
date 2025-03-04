@@ -12,7 +12,9 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 
 /// @notice This contract assigns accounts to roles by the tokens that have been delegated to them.
 /// - At construction time, the following is set:
@@ -36,37 +38,39 @@
 pragma solidity 0.8.26;
 
 import { Law } from "../../Law.sol";
-import { SeparatedPowers } from "../../SeparatedPowers.sol";
-import { PeerVote } from "../state/PeerVote.sol";
+import { Powers} from "../../Powers.sol";
+import { ElectionVotes } from "../state/ElectionVotes.sol";
 import { NominateMe } from "../state/NominateMe.sol";
+import { ElectionVotes } from "../state/ElectionVotes.sol";
+import { ElectionCall } from "./ElectionCall.sol";
+import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
-contract ElectionTally is Law {
-    error ElectionTally__PeerVoteContractNotActive();
-    error ElectionTally__DissimilarNomineesContracts();
-    error ElectionTally__IncorrectTallyContractAtPeerVote();
-    error ElectionTally__NoNominees();
-    error ElectionTally__ElectionHasNotEnded();
+contract ElectionTally is Law { 
+    struct Data {
+        string description;
+        uint48 startVote;
+        uint48 endVote;
+        address electionVotes;
+        uint256 maxRoleHolders;
+        address nominees;
+        uint32 electedRoleId;
+    } 
 
-    address public immutable NOMINEES;
-    uint256 public immutable MAX_ROLE_HOLDERS;
-    uint32 public immutable ROLE_ID;
     address[] public electedAccounts;
-
+    
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
-        LawConfig memory config_,
-        address nominees_,
-        uint256 maxRoleHolders_,
-        uint32 roleId_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
-        MAX_ROLE_HOLDERS = maxRoleHolders_;
-        ROLE_ID = roleId_;
-        NOMINEES = nominees_;
-        inputParams = abi.encode("address VoteContract"); // peervote address
-        stateVars = abi.encode("address[] Elected");
+        LawConfig memory config_
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
+        inputParams = abi.encode(
+            "string Description", // description = a description of the election.
+            "uint48 StartVote", // startVote = the start date of the election.
+            "uint48 EndVote" // endVote = the end date of the election.
+        );
+        stateVars = abi.encode("address[] Elected");         
     }
 
     function simulateLaw(address, /*initiator*/ bytes memory lawCalldata, bytes32 descriptionHash)
@@ -75,71 +79,89 @@ contract ElectionTally is Law {
         virtual
         override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes memory stateChange)
-    {
-        // step 0: unpacking calldata
-        address peerVote = abi.decode(lawCalldata, (address));
-
+    {   
+        
+        // saving the following in state vars to a struct avoid 'stack too deep' errors.
+        Data memory data;
+        
+        // step 0a: unpacking calldata
+        (data.description, data.startVote, data.endVote) =
+            abi.decode(lawCalldata, (string, uint48, uint48));
+        // step 0b: retrieving data from ElectionCall contract. 
+        data.electionVotes = ElectionCall(config.needCompleted).electionVotes();
+        data.maxRoleHolders = ElectionCall(config.needCompleted).MAX_ROLE_HOLDERS();
+        data.electedRoleId = ElectionCall(config.needCompleted).ELECTED_ROLE_ID();
+        ( , , , , , , , data.nominees) =  ElectionCall(config.needCompleted).config();
+        
         // step 1: run additional checks
-        if (!SeparatedPowers(separatedPowers).getActiveLaw(peerVote)) {
-            revert ElectionTally__PeerVoteContractNotActive();
+        if (!Powers(powers).getActiveLaw(data.electionVotes)) {
+            revert ("ElectionVotes contract not recognised.");
         }
-        if (NominateMe(NOMINEES).nomineesCount() == 0) {
-            revert ElectionTally__NoNominees();
+        if (NominateMe(data.nominees).nomineesCount() == 0) {
+            revert ("No nominees.");
         }
-        if (PeerVote(peerVote).endVote() > block.number) {
-            revert ElectionTally__ElectionHasNotEnded();
-        }
-        if (PeerVote(peerVote).NOMINEES() != NOMINEES) {
-            revert ElectionTally__DissimilarNomineesContracts();
-        }
-        if (PeerVote(peerVote).TALLY() != address(this)) {
-            revert ElectionTally__IncorrectTallyContractAtPeerVote();
+        if (ElectionVotes(data.electionVotes).endVote() > block.number) {
+            revert ("Election still active.");
         }
 
         // step 2: setting up array for revoking & assigning roles.
         address[] memory accountElects;
-        uint256 numberNominees = NominateMe(NOMINEES).nomineesCount();
+        uint256 numberNominees = NominateMe(data.nominees).nomineesCount();
         uint256 numberRevokees = electedAccounts.length;
         uint256 arrayLength =
-            numberNominees < MAX_ROLE_HOLDERS ? numberRevokees + numberNominees : numberRevokees + MAX_ROLE_HOLDERS;
+            numberNominees < data.maxRoleHolders ? numberRevokees + numberNominees + 1 : numberRevokees + data.maxRoleHolders + 1;
 
         targets = new address[](arrayLength);
         values = new uint256[](arrayLength);
         calldatas = new bytes[](arrayLength);
-        accountElects = new address[](numberNominees < MAX_ROLE_HOLDERS ? numberNominees : MAX_ROLE_HOLDERS);
+        accountElects = new address[](numberNominees < data.maxRoleHolders ? numberNominees : data.maxRoleHolders);
 
         for (uint256 i; i < arrayLength; i++) {
-            targets[i] = separatedPowers;
+            targets[i] = powers;
         }
 
         // step 2: calls to revoke roles of previously elected accounts.
         for (uint256 i; i < numberRevokees; i++) {
-            calldatas[i] = abi.encodeWithSelector(SeparatedPowers.revokeRole.selector, ROLE_ID, electedAccounts[i]);
+            calldatas[i] = abi.encodeWithSelector(
+                Powers.revokeRole.selector, 
+                data.electedRoleId, 
+                electedAccounts[i]
+            );
         }
+        // deleting the election contract law. 
+        calldatas[arrayLength - 1] = abi.encodeWithSelector(
+                Powers.revokeLaw.selector, 
+                data.electionVotes
+            );
 
-        // step 3a: calls to add nominees if fewer than MAX_ROLE_HOLDERS
-        if (numberNominees < MAX_ROLE_HOLDERS) {
+        // step 3a: calls to add nominees if fewer than data.maxRoleHolders
+        if (numberNominees < data.maxRoleHolders) {
             for (uint256 i; i < numberNominees; i++) {
-                address accountElect = NominateMe(NOMINEES).nomineesSorted(i);
+                address accountElect = NominateMe(data.nominees).nomineesSorted(i);
                 calldatas[i + numberRevokees] =
-                    abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, accountElect);
+                    abi.encodeWithSelector(
+                        Powers.assignRole.selector, 
+                        data.electedRoleId, 
+                        accountElect
+                        
+                        );
                 accountElects[i] = accountElect;
             }
 
-            // step 3b: calls to add nominees if more than MAX_ROLE_HOLDERS
+            // step 3b: calls to add nominees if more than data.maxRoleHolders
         } else {
-            // retrieve votes for delegates from PeerVote contract.
+            // retrieve votes for delegates from ElectionVotes contract.
             uint256[] memory _votes = new uint256[](numberNominees);
             address[] memory _nominees = new address[](numberNominees);
             for (uint256 i; i < numberNominees; i++) {
-                _nominees[i] = NominateMe(NOMINEES).nomineesSorted(i);
-                _votes[i] = PeerVote(peerVote).votes(_nominees[i]);
+                _nominees[i] = NominateMe(data.nominees).nomineesSorted(i);
+                _votes[i] = ElectionVotes(data.electionVotes).votes(_nominees[i]);
             }
             // £todo: check what will happen if people have the same amount of delegated votes.
             // note how the following mechanism works:
             // a. we add 1 to each nominee's position, if we found a account that holds more tokens.
-            // b. if the position is greater than MAX_ROLE_HOLDERS, we break. (it means there are more accounts that have more tokens than MAX_ROLE_HOLDERS)
-            // c. if the position is less than MAX_ROLE_HOLDERS, we assign the roles.
+            // b. if the position is greater than data.maxRoleHolders, we break. (it means there are more accounts that have more tokens than data.maxRoleHolders)
+            // c. if the position is less than data.maxRoleHolders, we assign the roles.
             uint256 index;
             for (uint256 i; i < numberNominees; i++) {
                 uint256 rank;
@@ -147,13 +169,16 @@ contract ElectionTally is Law {
                 for (uint256 j; j < numberNominees; j++) {
                     if (j != i && _votes[j] >= _votes[i]) {
                         rank++;
-                        if (rank > MAX_ROLE_HOLDERS) break; // b: do not need to know rank beyond MAX_ROLE_HOLDERS threshold.
+                        if (rank > data.maxRoleHolders) break; // b: do not need to know rank beyond data.maxRoleHolders threshold.
                     }
                 }
-                // c: assigning role if rank is less than MAX_ROLE_HOLDERS.
-                if (rank < MAX_ROLE_HOLDERS && index < arrayLength - numberRevokees) {
+                // c: assigning role if rank is less than data.maxRoleHolders.
+                if (rank < data.maxRoleHolders && index < arrayLength - numberRevokees) {
                     calldatas[index + numberRevokees] =
-                        abi.encodeWithSelector(SeparatedPowers.assignRole.selector, ROLE_ID, _nominees[i]);
+                        abi.encodeWithSelector(
+                            Powers.assignRole.selector, 
+                            data.electedRoleId, 
+                            _nominees[i]);
                     accountElects[index] = _nominees[i];
                     index++;
                 }

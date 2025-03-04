@@ -12,7 +12,9 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 
 /// @notice This contract ...
 ///
@@ -33,9 +35,7 @@ contract TokensArray is Law {
     }
 
     Token[] public tokens;
-    uint256 public numberOfTokens;
-
-    error TokensArray__TokenNotFound();
+    uint256 public numberOfTokens; 
 
     event TokensArray__TokenAdded(address indexed tokenAddress, TokenType tokenType);
     event TokensArray__TokenRemoved(address indexed tokenAddress, TokenType tokenType);
@@ -43,10 +43,10 @@ contract TokensArray is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "address TokenAddress", 
             "uint256 TokenType", 
@@ -65,7 +65,7 @@ contract TokensArray is Law {
         tar = new address[](1);
         val = new uint256[](1);
         cal = new bytes[](1);
-        tar[0] = address(1); // signals that separatedPowers should not execute anything else.
+        tar[0] = address(1); // signals that powers should not execute anything else.
 
         return (tar, val, cal, lawCalldata);
     }
@@ -81,7 +81,7 @@ contract TokensArray is Law {
             numberOfTokens++;
             emit TokensArray__TokenAdded(tokenAddress, tokenType);
         } else if (numberOfTokens == 0) {
-            revert TokensArray__TokenNotFound();
+            revert ("Token not found.");
         } else {
             for (uint256 index; index < numberOfTokens; index++) {
                 if (tokens[index].tokenAddress == tokenAddress) {
@@ -92,7 +92,7 @@ contract TokensArray is Law {
                 }
 
                 if (index == numberOfTokens - 1) {
-                    revert TokensArray__TokenNotFound();
+                    revert ("Token not found.");
                 }
             }
             emit TokensArray__TokenRemoved(tokenAddress, tokenType);

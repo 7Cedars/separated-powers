@@ -3,14 +3,19 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { bigintToRole } from "@/utils/bigintToRole";
+import { useOrgStore } from "@/context/store";
+import { GetBlockReturnType } from "@wagmi/core";
+import { toFullDateFormat } from "@/utils/toDates";
 
 type MyRolesProps = {
-  hasRoles: {role: bigint, since: bigint}[]
+  hasRoles: {role: bigint, since: bigint, blockData: GetBlockReturnType}[]; 
+  authenticated: boolean; 
 }
 
-export function MyRoles({hasRoles}: MyRolesProps ) {
-  const { authenticated } = usePrivy();
+export function MyRoles({hasRoles, authenticated}: MyRolesProps ) {
   const router = useRouter();
+  const organisation = useOrgStore(); 
   const myRoles = hasRoles.filter(hasRole => hasRole.since != 0n)
 
   return (
@@ -31,35 +36,31 @@ export function MyRoles({hasRoles}: MyRolesProps ) {
         </button>
        {
       authenticated ? 
-      <div className = "w-full flex flex-col justify-center items-center max-h-48 overflow-y-scroll divider-slate-300 divide-y">
+      <div className = "w-full flex flex-col gap-1 justify-center items-center lg:max-h-48 max-h-36 overflow-y-scroll divider-slate-300 divide-y">
            <div className ={`w-full p-1`}>
             <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-2`}>
               <div className = "w-full flex flex-row justify-start items-center text-left">
               Public
               </div>
-            
               <div className = "w-full flex flex-row justify-end items-center text-right">
                 {/* Since: n/a */}
               </div>
             </div>
           </div>
         {
-        myRoles?.map((role: {role: bigint, since: bigint}, i) =>
-          role.role == 4294967295n ? null :
-          <div className ={`w-full p-1`} key = {i}>
-            <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-2`}>
+        myRoles?.map((role: {role: bigint, since: bigint, blockData: GetBlockReturnType}, i) => 
+            <div className ={`w-full flex flex-row text-sm text-slate-600 justify-center items-center rounded-md ps-4 py-3 p-1`} key = {i}>
               <div className = "w-full flex flex-row justify-start items-center text-left">
                 {/* need to get the timestamp.. */}
                 {
-                  role.role == 0n ? "Admin" : `Role ${role.role}`
+                  bigintToRole(role.role, organisation)
                 }
               </div>
-              <div className = "w-full flex flex-row justify-end items-center text-right pe-4">
-                Since: {role.since} 
+              <div className = "grow w-full min-w-40 flex flex-row justify-end items-center text-right pe-4">
+                Since: {toFullDateFormat(Number(role.blockData.timestamp))} 
               </div>
-            </div>
-          </div>
-          )
+              </div>
+            )
         }
       </div>
   : 

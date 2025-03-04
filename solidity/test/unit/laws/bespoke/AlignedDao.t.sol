@@ -6,7 +6,7 @@ import "forge-std/Test.sol";
 import { TestSetupAlignedDao } from "../../../TestSetup.t.sol";
 
 // protocol
-import { SeparatedPowers } from "../../../../src/SeparatedPowers.sol";
+import { Powers } from "../../../../src/Powers.sol";
 import { Law } from "../../../../src/Law.sol";
 import { Erc721Mock } from "../../../mocks/Erc721Mock.sol";
 
@@ -17,13 +17,9 @@ import { RequestPayment } from "../../../../src/laws/bespoke/alignedDao/RequestP
 import { NftSelfSelect } from "../../../../src/laws/bespoke/alignedDao/NftSelfSelect.sol";
 
 // openzeppelin contracts
-import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract NftSelfSelectTest is TestSetupAlignedDao {
-    error SelfSelect__AccountDoesNotHaveRole();
-    error SelfSelect__AccountAlreadyHasRole();
-    error Erc721Check__DoesNotOwnToken();
-
     function testSelfSelectPassesWithValidNft() public {
         // prep
         address nftSelfSelect = laws[0];
@@ -49,7 +45,7 @@ contract NftSelfSelectTest is TestSetupAlignedDao {
         assertEq(
             calldatasOut[0],
             abi.encodeWithSelector(
-                SeparatedPowers.assignRole.selector,
+                Powers.assignRole.selector,
                 1, // roleId
                 alice
             )
@@ -65,7 +61,7 @@ contract NftSelfSelectTest is TestSetupAlignedDao {
 
         // act _ assert revert
         vm.startPrank(address(daoMock));
-        vm.expectRevert(Erc721Check__DoesNotOwnToken.selector);
+        vm.expectRevert("Does not own token.");
         (address[] memory targetsOut, uint256[] memory valuesOut, bytes[] memory calldatasOut) = Law(nftSelfSelect)
             .executeLaw(
             alice, // alice = initiator
@@ -84,7 +80,7 @@ contract RevokeMembershipTest is TestSetupAlignedDao {
         // assertNotEq(daoMock.hasRoleSince(alice, ROLE_ONE), 0);
         // assign alice role 1
         vm.startPrank(address(daoMock));
-        SeparatedPowers(daoMock).assignRole(1, alice);
+        Powers(daoMock).assignRole(1, alice);
         // address revokeMembership
         address revokeMembership = laws[1];
         bytes memory lawCalldata = abi.encode(
@@ -108,7 +104,7 @@ contract RevokeMembershipTest is TestSetupAlignedDao {
         assertEq(
             calldatasOut[0],
             abi.encodeWithSelector(
-                SeparatedPowers.revokeRole.selector,
+                Powers.revokeRole.selector,
                 1, // roleId
                 alice
             )
@@ -133,7 +129,7 @@ contract RevokeMembershipTest is TestSetupAlignedDao {
         // assertNotEq(daoMock.hasRoleSince(alice, ROLE_ONE), 0);
         // assign alice role 1
         vm.startPrank(address(daoMock));
-        SeparatedPowers(daoMock).assignRole(1, alice);
+        Powers(daoMock).assignRole(1, alice);
         // address revokeMembership
         address revokeMembership = laws[1];
         bytes memory lawCalldata = abi.encode(
@@ -155,7 +151,7 @@ contract RevokeMembershipTest is TestSetupAlignedDao {
         assertEq(
             calldatasOut[0],
             abi.encodeWithSelector(
-                SeparatedPowers.revokeRole.selector,
+                Powers.revokeRole.selector,
                 1, // roleId
                 alice
             )
@@ -199,7 +195,7 @@ contract ReinstateRoleTest is TestSetupAlignedDao {
         assertEq(
             calldatasOut[0],
             abi.encodeWithSelector(
-                SeparatedPowers.assignRole.selector,
+                Powers.assignRole.selector,
                 1, // roleId
                 alice
             )
@@ -235,17 +231,14 @@ contract RequestPaymentTest is TestSetupAlignedDao {
         );
 
         // assert output
-        assertEq(targetsOut[0], address(erc1155Mock));
+        assertEq(targetsOut[0], address(erc20TaxedMock));
         assertEq(valuesOut[0], 0);
         assertEq(
             calldatasOut[0],
             abi.encodeWithSelector(
-                ERC1155.safeTransferFrom.selector,
-                address(daoMock), // from
+                ERC20.transfer.selector,
                 alice, // to
-                0, // tokenId
-                5000, // amount
-                "" // empty data
+                5000 // amount
             )
         );
         // assert state

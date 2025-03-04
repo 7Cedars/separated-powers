@@ -12,8 +12,9 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
-
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
 // protocol
@@ -21,9 +22,6 @@ import { Law } from "../../../Law.sol";
 
 // @title AiAgents
 contract AiAgents is Law {
-    error AiAgents__AgentAlreadyExists();
-    error AiAgents__AgentDoesNotExist();
-
     struct AiAgent {
         string name;
         address account;
@@ -39,10 +37,10 @@ contract AiAgents is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "string Name", // name
             "address Account", // account
@@ -67,7 +65,7 @@ contract AiAgents is Law {
         if (add) {
             for (uint256 i = 0; i < aiAgentsCount; i++) {
                 if (aiAgentsList[i].account == account) {
-                    revert AiAgents__AgentAlreadyExists();
+                    revert ("Agent already exist");
                 }
             }
         }
@@ -81,7 +79,7 @@ contract AiAgents is Law {
                 }
             }
             if (!agentFound) {
-                revert AiAgents__AgentDoesNotExist();
+                revert ("Agent does not exist");
             }
         }
 

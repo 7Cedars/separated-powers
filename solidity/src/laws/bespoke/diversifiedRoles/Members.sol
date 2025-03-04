@@ -12,16 +12,14 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
-
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
 import { Law } from "../../../Law.sol";
 
 contract Members is Law {
-    error Members__MemberAlreadyExists(address account);
-    error Members__MemberNonExistent(address account);
-
     // see for country codes IBAN: https://www.iban.com/country-codes
     struct Member {
         uint16 nationality;
@@ -37,10 +35,10 @@ contract Members is Law {
     constructor(
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_
-    ) Law(name_, description_, separatedPowers_, allowedRole_, config_) {
+    ) Law(name_, description_, powers_, allowedRole_, config_) {
         inputParams = abi.encode(
             "address Account", // account
             "uint16 Nationality", // nationality
@@ -64,10 +62,10 @@ contract Members is Law {
 
         // step 1: run additional checks
         if (add && members[account].nationality != 0) {
-            revert Members__MemberAlreadyExists(account);
+            revert ("Member already exists.");
         }
         if (!add && members[account].nationality == 0) {
-            revert Members__MemberNonExistent(account);
+            revert ("Non existent member.");
         }
 
         // step 2: create arrays

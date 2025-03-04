@@ -1,6 +1,4 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-};
+const nextConfig = { };
 
 export default nextConfig;

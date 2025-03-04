@@ -12,16 +12,15 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-// note that natspecs are wip.
-
+/// @notice Natspecs are tbi. 
+///
+/// @author 7Cedars
 pragma solidity 0.8.26;
 
 import { SelfSelect } from "../../electoral/SelfSelect.sol";
 import { Members } from "./Members.sol";
 
-contract RoleByKyc is SelfSelect {
-    error RoleByKyc__NotEligible();
-
+contract RoleByKyc is SelfSelect { 
     uint16[] public nationalities;
     uint16[] public countryOfResidences;
     int64 public olderThan; // in seconds
@@ -32,7 +31,7 @@ contract RoleByKyc is SelfSelect {
         // standard
         string memory name_,
         string memory description_,
-        address payable separatedPowers_,
+        address payable powers_,
         uint32 allowedRole_,
         LawConfig memory config_,
         // self select
@@ -44,7 +43,7 @@ contract RoleByKyc is SelfSelect {
         int64 youngerThan_, // in seconds
         // members state law
         address members_
-    ) SelfSelect(name_, description_, separatedPowers_, allowedRole_, config_, roleId_) {
+    ) SelfSelect(name_, description_, powers_, allowedRole_, config_, roleId_) {
         nationalities = nationalities_;
         countryOfResidences = countryOfResidences_;
         olderThan = olderThan_;
@@ -105,7 +104,7 @@ contract RoleByKyc is SelfSelect {
 
         // step 4: revert if any of the checks fail
         if (!nationalityOk || !residencyOk || !oldEnough || !youngEnough) {
-            revert RoleByKyc__NotEligible();
+            revert ("Not eligible."); 
         }
 
         // step 5: call super
