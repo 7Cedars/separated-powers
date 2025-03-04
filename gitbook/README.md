@@ -79,21 +79,7 @@ What is not flexible, is how Powers interacts with a law. This is done through t
 
 Together, Powers and Laws allow communities to build any governance structure that fit their needs. It is possible to define the mechanisms through which a role is assigned, the power it has, how roles check and balance each other, and under what conditions this can change. Let us explore two examples.
 
-Example A: Assign governor roles through Liquid Democracy&#x20;
-
-> **Law 1** allows 'members' of a community to nominate themselves for a 'governor' role in their community.&#x20;
->
-> Alice, Bob and Charlotte each call the law through powers `execute` function and save their nomination in the law.
->
-> **Law 2** assigns governor roles to accounts saved in Law 1. It does this on the basis of delegated tokens held by accounts. Any account can call the law, triggering (and paying gas costs for) an election.&#x20;
->
-> In January, David obtains a large amount of tokens and delegates them to Bob. He calls law 2 and triggers an election. Alice and Bob are elected and assigned as governors. In the following weeks, he notices that bob is not responding to messages and not voting in elections.&#x20;
->
-> In February, he re-delegates his tokens Charlotte and in the next block calls an election. Alice and Charlotte win the election and are assigned as governors. Bob per immediate effect loses his governor role and all of its privileges.
-
-This is an example of what can be called Liquid Democracy. But roles can also be assigned directly, through votes among peers, a council vote or through a minimal threshold of token holdings. Pretty much anything is possible.  &#x20;
-
-Example B: Allow the adoption of a new law, but have a second role check actions, so this power cannot be abused.
+Example A: Allow the adoption of a new law, but have a second role check actions, so this power cannot be abused.
 
 > **Law 1** allows 'members' of a community to propose adopting a new law that allows community members to mint tokens. Law 1 is subject to a vote, and the proposal will only be accepted if more than half of the community votes in favor.
 >
@@ -107,7 +93,23 @@ Example B: Allow the adoption of a new law, but have a second role check actions
 >
 > Following the vote, David calls the execute function and the Power protocol implements the action: the new law is adopted and community members will be able to mint tokens. &#x20;
 
-This is a basic example of a governance chain: Multiple laws that are linked together through a child-parent relation where a proposal needs to pass a child law before it can executed by a parent law. Note that the nominate -> elect logic of example A is also a governance chain.   &#x20;
+This is a basic example of a governance chain: Multiple laws that are linked together through a child-parent relation where a proposal needs to pass a child law before it can executed by a parent law.&#x20;
+
+Example B: Assign governor roles through Liquid Democracy&#x20;
+
+> **Law 1** allows 'members' of a community to nominate themselves for a 'governor' role in their community.&#x20;
+>
+> Alice, Bob and Charlotte each call the law through powers `execute` function and save their nomination in the law.
+>
+> **Law 2** assigns governor roles to accounts saved in Law 1. It does this on the basis of delegated tokens held by accounts. Any account can call the law, triggering (and paying gas costs for) an election.&#x20;
+>
+> In January, David obtains a large amount of tokens and delegates them to Bob. He calls law 2 and triggers an election. Alice and Bob are elected and assigned as governors. In the following weeks, he notices that bob is not responding to messages and not voting in elections.&#x20;
+>
+> In February, he re-delegates his tokens Charlotte and in the next block calls an election. Alice and Charlotte win the election and are assigned as governors. Bob per immediate effect loses his governor role and all of its privileges.
+
+This is an example of assigning roles through what can be called Liquid Democracy. Roles can also be assigned directly, through votes among peers, a council vote or through a minimal threshold of token holdings. Pretty much anything is possible.  &#x20;
+
+
 
 More examples can be found in the example organizations. &#x20;
 

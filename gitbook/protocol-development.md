@@ -19,6 +19,7 @@ There are several aims and ethos that guide the development of the Powers protoc
 * Implement integration modules for Hats protocol and Governor.sol
 * Revise naming of function and variables in Powers.sol
 * Further develop and simplify Laws.&#x20;
+* Improve error handling. &#x20;
 * ...&#x20;
 
 ### v0.2 (current)&#x20;
