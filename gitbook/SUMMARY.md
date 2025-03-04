@@ -6,6 +6,7 @@
   * [Powers.sol](for-developers/powers.sol.md)
   * [Law.sol](for-developers/law.sol.md)
   * [Deploy Community Governance](for-developers/deploy-community-governance.md)
+  * [Integrations](for-developers/integrations.md)
 * [Example laws](example-laws/README.md)
   * [Executive Laws](example-laws/executive-laws.md)
   * [Electoral laws](example-laws/electoral-laws.md)
