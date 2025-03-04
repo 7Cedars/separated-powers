@@ -36,10 +36,11 @@ export function ExampleDemos() {
         </div>
       </div> 
       {/* table with example orgs  */}
-      { status && organisations &&   
+      { status &&    
       <section className="w-full max-w-5xl h-fit flex flex-col justify-center items-center border border-slate-200 rounded-md overflow-hidden bg-slate-50" >
           <div className="w-full flex flex-col justify-start items-center overflow-scroll">
               <div className="w-full flex flex-col overflow-scroll">
+              { organisations ? 
                 <table className="w-full table-auto ">
                 <thead className="w-full border-b border-slate-200">
                       <tr className="w-96 text-xs font-light text-left text-slate-500">
@@ -65,14 +66,14 @@ export function ExampleDemos() {
                       </tr>
                   </thead>
                   <tbody className="w-full text-sm text-right text-slate-500 bg-slate-50 divide-y divide-slate-200">
-                    {
-                      organisations?.map((org, index) => {
+                      {
+                      organisations.map((org, index) => {
                         return (
                           <tr
                             key={index}
-                            className={`h-16 text-sm text-left min-w-fit text-slate-800 h-16 overflow-x-scroll`}
+                            className={`h-16 text-sm text-left min-w-fit text-slate-800 overflow-x-scroll`}
                           >
-                              <td className="flex flex-col h-16 items-center justify-center">
+                              <td className="flex flex-col px-2 h-16 items-center justify-center">
                                   <div className={`h-8 w-8 bg-gradient-to-bl ${colourScheme[index % colourScheme.length]} rounded-full`}/>
                               </td>
                               <td className="pe-4 text-slate-500 min-w-40 max-w-fit">
@@ -90,23 +91,27 @@ export function ExampleDemos() {
                               <td className="ps-1 text-slate-500 text-left max-w-12"> Arbitrum Sepolia </td>
                           </tr>
                         )
-                      }
-                    )}
+                      })
+                    }
                   </tbody>
                 </table>
-                </div>
+                :
+                <div className = "w-full flex flex-row gap-4 align-center items-center text-center font-md min-w-fit text-slate-800 h-16 animate-pulse px-4">
+                  <div className = "ps-6 p-2 size-8 rounded-full bg-slate-300" />
+                  <div className = "flex-1 space-y-3 py-1">
+                    <div className="h-2 rounded bg-slate-300"/>
+                    <div className = "grid grid-cols-3 gap-4"  >   
+                      <div className="col-span-2 h-2 rounded bg-slate-300"/>
+                      <div className="col-span-1 h-2 rounded bg-slate-300"/>
+                    </div> 
+                  </div> 
+                </div> 
+              }
+              </div>
           </div> 
       </section>
       }
-      
-      {/* arrow down */}
-      {/* <div className = "grow flex flex-col align-center justify-center"> 
-        <ChevronDownIcon
-          className = "w-16 h-16 text-slate-700" 
-        /> 
-      </div> */}
     </section>
-      
-      </>
+    </>
   )
 }
