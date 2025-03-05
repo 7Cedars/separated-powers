@@ -31,8 +31,8 @@ These scripts automate the following four steps.
 
 text here
 
-{% content-ref url="../example-laws/" %}
-[example-laws](../example-laws/)
+{% content-ref url="broken-reference" %}
+[Broken link](broken-reference)
 {% endcontent-ref %}
 
 ## Step 4: Run the SeparatedPower::constitute

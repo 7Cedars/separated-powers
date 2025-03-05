@@ -119,10 +119,6 @@ In February, he re-delegates his tokens Charlotte and in the next block calls an
 
 More examples can be found among the example communities. &#x20;
 
-{% content-ref url="example-communities/" %}
-[example-communities](example-communities/)
-{% endcontent-ref %}
-
 ## Differences &#x20;
 
 In comparison to existing governance solutions, role restricted governance protocols are simpler, while being more efficient, modular and flexible. They are also different. It is important to be aware of some of the main implications of these differences.&#x20;
@@ -153,25 +149,10 @@ Any implementation of the Powers protocol that has a law to adopt new (and revok
 
 Because adopting and revoking laws needs to happen via an existing law, they are subject to existing governance checks. This means that upgrading can be very safe - or not at all. It completely depends on how the governance chain to adopt and revoke laws has been implemented.&#x20;
 
-## The end of the beginning
+## Governance sandbox
 
 You made it all the way through the main page!&#x20;
 
-Hopefully you have a high-level sense of the particularities of role restricted governance and the Powers protocol.&#x20;
+Hopefully you have a high-level sense of the particularities of role restricted governance and the Powers protocol. You can check out other pages in this documentation for more detailed information.&#x20;
 
-This is just the start. Check out the following pages for more in-depth information.&#x20;
-
-{% content-ref url="for-developers.md" %}
-[for-developers.md](for-developers.md)
-{% endcontent-ref %}
-
-{% content-ref url="example-laws/" %}
-[example-laws](example-laws/)
-{% endcontent-ref %}
-
-{% content-ref url="protocol-development.md" %}
-[protocol-development.md](protocol-development.md)
-{% endcontent-ref %}
-
-
-
+Also, you can use the [Powers app](https://separated-powers.vercel.app/) to play around with practical examples to get a better feel for how a role restricted protocol works.
