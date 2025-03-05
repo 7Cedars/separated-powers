@@ -139,7 +139,7 @@ What can be done, though, is to assign roles on the basis of (delegated) tokens.
 
 ### Governance chains
 
-Proposal IDs in the Powers Protocol are calculating by hashing the target law, calldata and description of a proposed action. This means that it is possible to use the same calldata and description across multiple target laws.&#x20;
+Proposal IDs are calculated by hashing the target law, calldata and description of a proposed action. This means that it is possible to use the same calldata and description across multiple target laws.&#x20;
 
 This allows for the creation of governance chains. If law A and law B require the same calldata, we can check if a proposal at law A has been executed before allowing it to go up for a vote at Law B. This allows different roles in community governance to check each others powers.&#x20;
 
