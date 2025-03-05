@@ -40,8 +40,8 @@ The governance flow is defined by the following restrictions:
 * Roles and laws can only be labelled, assigned and revoked through the execute function of the protocol itself.
 * All actions, may they be subject to a vote or not, are executed via Powers' execute function in reference to a law.
 
-{% content-ref url="for-developers/powers.sol.md" %}
-[powers.sol.md](for-developers/powers.sol.md)
+{% content-ref url="for-developers/powers.sol/" %}
+[powers.sol](for-developers/powers.sol/)
 {% endcontent-ref %}
 
 ### Laws
@@ -71,8 +71,8 @@ What is not flexible, is how Powers interacts with a law. This is done through t
 4. Saves any state change to the law.&#x20;
 5. Returns the computed function call to Powers for execution.
 
-{% content-ref url="for-developers/law.sol.md" %}
-[law.sol.md](for-developers/law.sol.md)
+{% content-ref url="for-developers/law.sol/" %}
+[law.sol](for-developers/law.sol/)
 {% endcontent-ref %}
 
 ### Powers + Laws = Governance
