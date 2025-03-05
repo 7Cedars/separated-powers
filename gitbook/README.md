@@ -40,8 +40,8 @@ The governance flow is defined by the following restrictions:
 * Roles and laws can only be labelled, assigned and revoked through the execute function of the protocol itself.
 * All actions, may they be subject to a vote or not, are executed via Powers' execute function in reference to a law.
 
-{% content-ref url="for-developers/powers.sol.md" %}
-[powers.sol.md](for-developers/powers.sol.md)
+{% content-ref url="for-developers/powers.sol/" %}
+[powers.sol](for-developers/powers.sol/)
 {% endcontent-ref %}
 
 ### Laws
@@ -71,8 +71,8 @@ What is not flexible, is how Powers interacts with a law. This is done through t
 4. Saves any state change to the law.&#x20;
 5. Returns the computed function call to Powers for execution.
 
-{% content-ref url="for-developers/law.sol.md" %}
-[law.sol.md](for-developers/law.sol.md)
+{% content-ref url="for-developers/law.sol/" %}
+[law.sol](for-developers/law.sol/)
 {% endcontent-ref %}
 
 ### Powers + Laws = Governance
@@ -117,30 +117,42 @@ In February, he re-delegates his tokens Charlotte and in the next block calls an
 
 </details>
 
-
-
-More examples can be found in the example organisations. &#x20;
-
-{% content-ref url="example-communities/" %}
-[example-communities](example-communities/)
-{% endcontent-ref %}
+More examples can be found among the example communities. &#x20;
 
 ## Differences &#x20;
 
-In comparison to existing governance solutions, role restricted governance protocols are simpler, while being more efficient, modular and flexible. They are also different. It is important to be aware of some of the main implications of these differences before exploring them in more detail.&#x20;
+In comparison to existing governance solutions, role restricted governance protocols are simpler, while being more efficient, modular and flexible. They are also different. It is important to be aware of some of the main implications of these differences.&#x20;
+
+Consider the following before exploring them in more detail.&#x20;
 
 ### Assigning roles
 
-Todo: Always need mechanism to assign roles. &#x20;
+You always need mechanisms for assigning roles to accounts. It is not possible to assign roles to accounts outside the Powers protocol: these role allocations will not be recognised.&#x20;
+
+As any other governance mechanism, role allocation need to be encoded in laws that are adopted in the Powers.sol contract. Without laws to assign roles to accounts, community governance will not work.
 
 ### Voting power
 
-Todo: Explain severance relation token holdings and voting power.&#x20;
+Accounts vote with their roles, not with their tokens. This means that voting on proposals happens on a 1 account = 1 vote basis, similar to the logic of a multisig wallet. This is one of the implications of using  role restricted governance, and cannot be changed.&#x20;
+
+What can be done, though, is to assign roles on the basis of (delegated) tokens. See _Example B: Assign governor roles through Liquid Democracy_ above. Through these types of electoral mechanisms, token holdings can translate to having a specific role assigned to an account.
 
 ### Governance chains
 
-Todo: Here explanation of gov chains.  &#x20;
+Proposal IDs are calculated by hashing the target law, calldata and description of a proposed action. This means that it is possible to use the same calldata and description across multiple target laws.&#x20;
+
+This allows for the creation of governance chains. If law A and law B require the same calldata, we can check if a proposal at law A has been executed before allowing it to go up for a vote at Law B. This allows different roles in community governance to check each others powers.&#x20;
 
 ### Upgradability
 
-Todo: Modular and governed.&#x20;
+Any implementation of the Powers protocol that has a law to adopt new (and revoke existing) laws is upgradable. A community's governance is immutable when it does not have such a law. Note that this also implies that upgrading is modular: A governance structure can change one law at a time.
+
+Because adopting and revoking laws needs to happen via an existing law, they are subject to existing governance checks. This means that upgrading can be very safe - or not at all. It completely depends on how the governance chain to adopt and revoke laws has been implemented.&#x20;
+
+## Governance sandbox
+
+You made it all the way through the main page!&#x20;
+
+Hopefully you have a high-level sense of the particularities of role restricted governance and the Powers protocol. You can check out other pages in this documentation for more detailed information.&#x20;
+
+Also, you can use the [Powers app](https://separated-powers.vercel.app/) to play around with practical examples to get a better feel for how a role restricted protocol works.

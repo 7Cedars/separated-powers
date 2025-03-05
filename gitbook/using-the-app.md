@@ -6,7 +6,7 @@ description: >-
 
 # Using the App
 
-## Home page and governance overview
+## Home page
 
 text&#x20;
 
