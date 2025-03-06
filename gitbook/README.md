@@ -113,7 +113,7 @@ In January, David obtains a large amount of tokens and delegates them to Bob. He
 
 In February, he re-delegates his tokens Charlotte and in the next block calls an election. Alice and Charlotte win the election and are assigned as governors. Bob per immediate effect loses his governor role and all of its privileges.&#x20;
 
-**Note** that this is an example of assigning roles through what can be called Liquid Democracy. Roles can also be assigned directly, through votes among peers, a council vote or through a minimal threshold of token holdings. Pretty much anything is possible.  &#x20;
+**Note** that this is an example of saving a state in a law (nominees) and reading this state by another (in this case electoral) law. It results in a mechanism assigning roles through what can be called Liquid Democracy. Roles can also be assigned directly, through votes among peers, a council vote or through a minimal threshold of token holdings. Pretty much anything is possible.  &#x20;
 
 </details>
 
@@ -133,7 +133,7 @@ As any other governance mechanism, role allocation need to be encoded in laws th
 
 ### Voting power
 
-Accounts vote with their roles, not with their tokens. This means that voting on proposals happens on a 1 account = 1 vote basis, similar to the logic of a multisig wallet. This is one of the implications of using  role restricted governance, and cannot be changed.&#x20;
+Accounts vote with their roles, not with their tokens. This means that voting on proposals happens on a one account = one vote basis, similar to the logic of a multisig wallet. This is one of the implications of using  role restricted governance, and cannot be changed.&#x20;
 
 What can be done, though, is to assign roles on the basis of (delegated) tokens. See _Example B: Assign governor roles through Liquid Democracy_ above. Through these types of electoral mechanisms, token holdings can translate to having a specific role assigned to an account.
 
@@ -151,8 +151,6 @@ Because adopting and revoking laws needs to happen via an existing law, they are
 
 ## Governance sandbox
 
-You made it all the way through the main page!&#x20;
-
-Hopefully you have a high-level sense of the particularities of role restricted governance and the Powers protocol. You can check out other pages in this documentation for more detailed information.&#x20;
+Hopefully this gives you a high-level sense of the particularities of role restricted governance and the Powers protocol. You can check out other pages in this documentation for more detailed information.&#x20;
 
 Also, you can use the [Powers app](https://separated-powers.vercel.app/) to play around with practical examples to get a better feel for how a role restricted protocol works.
