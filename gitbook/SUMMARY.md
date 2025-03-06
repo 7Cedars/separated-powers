@@ -54,10 +54,10 @@
 
 ## Integrations
 
-* [Existing protocols](integrations/existing-protocols/README.md)
-  * [OpenZeppelin's Governor.sol](integrations/existing-protocols/openzeppelins-governor.sol.md)
-  * [Compound's GovernorBravo](integrations/existing-protocols/compounds-governorbravo.md)
-  * [Hats Protocol](integrations/existing-protocols/hats-protocol.md)
+* [Governance protocols](integrations/governance-protocols/README.md)
+  * [OpenZeppelin's Governor.sol](integrations/governance-protocols/openzeppelins-governor.sol.md)
+  * [Compound's GovernorBravo](integrations/governance-protocols/compounds-governorbravo.md)
+  * [Hats Protocol](integrations/governance-protocols/hats-protocol.md)
 * [Off-chain services](integrations/off-chain-services/README.md)
   * [Oracles](integrations/off-chain-services/oracles.md)
   * [AI agents](integrations/off-chain-services/ai-agents.md)
