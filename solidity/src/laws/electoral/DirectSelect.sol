@@ -12,7 +12,7 @@
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                    ///
 ///////////////////////////////////////////////////////////////////////////////
 
-/// @notice Natspecs are tbi. 
+/// @notice A law that allows a user to directly select a candidate.
 ///
 /// @author 7Cedars
 
@@ -22,7 +22,7 @@
 ///
 /// - The contract is meant to be restricted by a specific role, allowing an outsider to freely claim an (entry) role into a DAO.
 ///
-/// - The logic:
+/// - The logic: 
 ///
 /// @dev The contract is an example of a law that
 /// - an open role elect law.
@@ -62,7 +62,7 @@ contract DirectSelect is Law {
 
         // step 2: create & send return calldata conditional if it is an assign or revoke action.
         targets = new address[](1);
-        values = new uint256[](1);
+        values = new uint256[](1); 
         calldatas = new bytes[](1);
 
         targets[0] = powers;

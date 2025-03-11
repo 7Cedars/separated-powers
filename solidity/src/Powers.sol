@@ -35,7 +35,7 @@
 /// - Gas efficiency improvements.
 /// - Support for EIP-6372 {clock()} for timestamping governance processes.
 ///
-/// @author 7Cedars, 
+/// @author 7Cedars
 
 pragma solidity 0.8.26;
 
@@ -54,7 +54,7 @@ contract Powers is EIP712, IPowers {
     mapping(address lawAddress => bool active) public laws;
     mapping(uint32 roleId => Role) public roles;
 
-    // two roles are preset: ADMIN_ROLE == 0 and PUBLIC_ROLE == type(uint48).max.
+    // two roles are preset: ADMIN_ROLE == 0 and PUBLIC_ROLE == type(uint32).max.
     uint32 public constant ADMIN_ROLE = type(uint32).min; // == 0
     uint32 public constant PUBLIC_ROLE = type(uint32).max; // == a lot
     uint256 constant DENOMINATOR = 100; // = 100%
@@ -83,7 +83,7 @@ contract Powers is EIP712, IPowers {
     constructor(string memory name_, string memory uri_) EIP712(name_, version()) {
         name = name_;
         uri = uri_;
-        _setRole(ADMIN_ROLE, msg.sender, true); // the account that initiates a Powerscontract is set to its admin.
+        _setRole(ADMIN_ROLE, msg.sender, true); // the account that initiates a Powers contract is set to its admin.
 
         roles[ADMIN_ROLE].amountMembers = 1; // the number of admins at set up is 1.
         roles[PUBLIC_ROLE].amountMembers = type(uint256).max; // the number for holders of the PUBLIC_ROLE is type(uint256).max. As in, everyone has this role.
@@ -93,7 +93,6 @@ contract Powers is EIP712, IPowers {
 
     /// @notice receive function enabling ETH deposits.
     ///
-    /// @dev This is a virtual function, and can be overridden in the DAO implementation.
     /// @dev No access control on this function: anyone can send funds into the main contract.
     receive() external payable virtual {
         emit FundsReceived(msg.value);
@@ -228,7 +227,9 @@ contract Powers is EIP712, IPowers {
 
         emit VoteCast(account, proposalId, support, reason);
     }
-
+    /// NB: & TODO This law should follow a callback logic. 
+    /// First law (requestLawExecution) send calldata to targetLaw. Then do nothing. (although maybe can listen for error message?)
+    /// Second function (fulfillLawExecution) should fulfill law logic.  
     /// @inheritdoc IPowers
     function execute(address targetLaw, bytes memory lawCalldata, string memory description) external payable virtual {
         bytes32 descriptionHash = keccak256(bytes(description));
@@ -442,6 +443,7 @@ contract Powers is EIP712, IPowers {
     }
 
     /// @inheritdoc IPowers
+    /// double check this function. -- seems to be incorrect. Can I leave it out? Or make it internal? 
     function hashProposal(address targetLaw, bytes memory lawCalldata, bytes32 descriptionHash)
         public
         pure

@@ -33,6 +33,12 @@
 /// - stateVars: an abi.encoded array of strings that denote the variables that are saved in state. 
 ///
 /// @author 7Cedars
+/// 
+/// Upcoming changes for v0.3:
+/// - Only emit a 'paramsHash' event at construction - do not save a state variable.
+/// - remove 'stateVars' variable.
+/// - only emit a description in the event, do not save as a state var. 
+
 pragma solidity 0.8.26;
 
 import { Powers} from "./Powers.sol";
@@ -53,7 +59,7 @@ contract Law is ERC165, ILaw {
     ShortString public immutable name; // name of the law
     address payable public powers; // the address of the core governance protocol
     string public description; // description of the law
-    bytes public inputParams; // an abi.encoded array of strings that denote the input parameters. For example: abi.encode("address", "address", "uint256", "address[]");
+    bytes public inputParams; // an abi.encoded array of strings that denote the input parameters and names. For example: abi.encode("address[] Targets", "uint256[] Values", "bytes[] CallDatas");
     bytes public stateVars; // an abi.encoded array of strings that denote the variables that are saved in state. For example: abi.encode("address", "address", "uint256", "address[]");
 
     // optional parameters
@@ -86,7 +92,7 @@ contract Law is ERC165, ILaw {
     /// @inheritdoc ILaw
     function executeLaw(address initiator, bytes memory lawCalldata, bytes32 descriptionHash)
         public
-        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas)
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) // and this function should only return a boolean to denote if the law was executed successfully.
     {
         if (msg.sender != powers) {
             revert Law__OnlyPowers();
@@ -95,7 +101,8 @@ contract Law is ERC165, ILaw {
         checksAtExecute(initiator, lawCalldata, descriptionHash);
         bytes memory stateChange;
         (targets, values, calldatas, stateChange) = simulateLaw(initiator, lawCalldata, descriptionHash);
-        _changeStateVariables(stateChange);
+        //  _replyToPowers(targets, values, calldatas);
+        _changeStateVariables(stateChange);        
         executions.push(uint48(block.number));
     }
 
@@ -190,6 +197,10 @@ contract Law is ERC165, ILaw {
     //////////////////////////////////////////////////
     //                 INTERNALS                    //
     //////////////////////////////////////////////////
+    // function _replyToPowers(address[] memory targets, uint256[] memory values, bytes[] memory calldatas) internal virtual {
+    //     // Empty function. Needs to be overridden by law implementations
+    // }
+    
     function _changeStateVariables(bytes memory stateChange) internal virtual {
         // Empty function. Needs to be overridden by law implementations
     }
